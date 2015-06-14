@@ -1,0 +1,5 @@
+{
+  "name": "ipv4",
+  "main": "./lib/main",
+  "license": "MIT"
+}

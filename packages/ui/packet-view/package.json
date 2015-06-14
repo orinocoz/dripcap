@@ -1,0 +1,5 @@
+{
+  "name": "packet-view",
+  "main": "./lib/packet-view",
+  "license": "MIT"
+}

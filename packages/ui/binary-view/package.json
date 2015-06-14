@@ -1,0 +1,5 @@
+{
+  "name": "binary-view",
+  "main": "./lib/binary-view",
+  "license": "MIT"
+}

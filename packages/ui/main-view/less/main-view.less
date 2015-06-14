@@ -1,0 +1,247 @@
+#main-view {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background-color: @background;
+  color: @text;
+
+  @splitter: fade(@scroll-bar, 100%);
+
+  .panel {
+    position: absolute;
+
+    &.root {
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .wrapper {
+      position: absolute;
+      overflow-x: hidden;
+      overflow-y: scroll;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+
+      &.noscroll {
+        overflow-y: hidden;
+      }
+    }
+
+    .splitter {
+      position: absolute;
+    }
+
+    .vcontainer, .hcontainer {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .hover {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .vhover {
+      cursor: row-resize;
+    }
+
+    .hhover {
+      cursor: col-resize;
+    }
+
+    .vsplitter {
+      left: 0;
+      right: 0;
+      height: 3px;
+      cursor: row-resize;
+      background: -webkit-gradient(
+        linear, left top, left bottom,
+        from(transparent),
+        color-stop(0.49, transparent),
+        color-stop(0.49, @splitter),
+        color-stop(0.51, @splitter),
+        color-stop(0.51, transparent),
+        to(transparent));
+      margin-top: -1px;
+    }
+
+    .hsplitter {
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      cursor: col-resize;
+      background: -webkit-gradient(
+        linear, left top, right top,
+        from(transparent),
+        color-stop(0.49, transparent),
+        color-stop(0.49, @splitter),
+        color-stop(0.51, @splitter),
+        color-stop(0.51, transparent),
+        to(transparent));
+      margin-left: -1px;
+    }
+
+    .top, .ftop {
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .vcenter {
+      left: 0;
+      right: 0;
+    }
+
+    .bottom, .fbottom {
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .left, .fleft {
+      left: 0;
+      top: 0;
+      bottom: 0;
+    }
+
+    .hcenter {
+      top: 0;
+      bottom: 0;
+    }
+
+    .right, .fright {
+      right: 0;
+      top: 0;
+      bottom: 0;
+    }
+  }
+}
+
+* {
+  font-family: 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, 'Droid Sans Fallback', sans-serif;
+  font-size: 14px;
+}
+
+* {
+  -webkit-appearance: none;
+}
+
+html {
+    overflow: hidden;
+    height: 100%;
+}
+
+body {
+  background-color: @background;
+  -webkit-user-select: none;
+  height: 100%;
+  overflow: auto;
+}
+
+select {
+  padding: 0.5em 1em 0.5em 0.75em;
+  background: @background;
+}
+
+input, textarea, select {
+  border: 1px solid @border;
+  border-radius: 2px;
+  padding: 0.5em;
+  line-height: 1.2em;
+  width: 100%;
+  background: lighten(@background, 5%);
+  color: @text;
+  &.compact {
+    border-radius: 0px;
+    line-height: 1.0em;
+  }
+  &.error {
+    color: @error;
+  }
+}
+
+input[type="text"] {
+  box-sizing: border-box;
+}
+
+input[type=checkbox], input[type=radio] {
+  display: inline-block;
+  line-height: 1em;
+  margin: 0 0.25em 0 0;
+  padding: 0;
+  width: 1.25em;
+  height: 1.25em;
+  border-radius: 0.25em;
+  vertical-align: text-top;
+}
+
+input[type=checkbox]:checked {
+  background-color: @focus;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: @headline;
+}
+
+th {
+  color: @label;
+}
+
+label {
+  color: @label;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+*:focus {
+  outline-color: @focus;
+}
+
+::selection {
+  background: @text;
+  color: @background;
+}
+
+@scroll-bar-back: fade(@scroll-bar, 40%);
+
+*::-webkit-scrollbar {
+  width:7px;
+  background:@scroll-bar-back;
+}
+
+*::-webkit-scrollbar:horizontal {
+  height:5px;
+}
+
+*::-webkit-scrollbar-piece {
+  background:@scroll-bar-back;
+}
+
+*::-webkit-scrollbar-piece:start {
+  background:@scroll-bar-back;
+}
+
+*::-webkit-scrollbar-thumb {
+  background:@scroll-bar;
+  min-height: 50px;
+}
+
+*::-webkit-scrollbar-corner {
+  background:@scroll-bar;
+}

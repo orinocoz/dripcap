@@ -1,0 +1,5 @@
+{
+  "name": "ethernet",
+  "main": "./lib/main",
+  "license": "MIT"
+}

@@ -1,0 +1,5 @@
+{
+  "name": "modal-dialog",
+  "main": "./lib/modal-dialog",
+  "license": "MIT"
+}

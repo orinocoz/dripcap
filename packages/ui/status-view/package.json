@@ -1,0 +1,5 @@
+{
+  "name": "status-view",
+  "main": "./lib/status-view",
+  "license": "MIT"
+}

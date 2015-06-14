@@ -1,0 +1,5 @@
+{
+  "name": "packet-filter-view",
+  "main": "./lib/packet-filter-view",
+  "license": "MIT"
+}

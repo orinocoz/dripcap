@@ -1,0 +1,5 @@
+{
+  "name": "udp",
+  "main": "./lib/main",
+  "license": "MIT"
+}

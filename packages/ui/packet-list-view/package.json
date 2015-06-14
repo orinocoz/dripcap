@@ -1,0 +1,5 @@
+{
+  "name": "packet-list-view",
+  "main": "./lib/packet-list-view",
+  "license": "MIT"
+}

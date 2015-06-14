@@ -1,0 +1,5 @@
+{
+  "name": "arp",
+  "main": "./lib/main",
+  "license": "MIT"
+}

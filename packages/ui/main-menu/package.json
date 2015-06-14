@@ -1,0 +1,5 @@
+{
+  "name": "main-menu",
+  "main": "./lib/main-menu",
+  "license": "MIT"
+}

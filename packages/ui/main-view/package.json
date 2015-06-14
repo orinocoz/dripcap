@@ -1,0 +1,5 @@
+{
+  "name": "main-view",
+  "main": "./lib/main-view",
+  "license": "MIT"
+}

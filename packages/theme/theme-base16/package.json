@@ -1,0 +1,6 @@
+{
+  "name": "theme-base16",
+  "main": "./lib/base16",
+  "license": "MIT",
+  "description": "Base16 scheme by Chris Kempson (https://github.com/chriskempson)"
+}
