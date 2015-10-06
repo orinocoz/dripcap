@@ -1,5 +1,42 @@
-<packet-view-value>
+<packet-view-boolean-value>
+  <i class="fa fa-check-square-o" if={ opts.value }></i>
+  <i class="fa fa-square-o" if={ !opts.value }></i>
+</packet-view-boolean-value>
+
+<packet-view-integer-value>
+  <i if={ base == 2 } onclick={ rotate }><i class="base">0b</i>{ opts.value.toString(2) }</i>
+  <i if={ base == 8 } onclick={ rotate }><i class="base">0</i>{ opts.value.toString(8) }</i>
+  <i if={ base == 10 } onclick={ rotate }>{ opts.value.toString(10) }</i>
+  <i if={ base == 16 } onclick={ rotate }><i class="base">0x</i>{ opts.value.toString(16) }</i>
+  <script type="text/coffeescript">
+    @base = 10
+    @rotate = =>
+      @base =
+        switch @base
+          when 2
+            8
+          when 8
+            10
+          when 10
+            16
+          when 16
+            2
+  </script>
+</packet-view-integer-value>
+
+<packet-view-string-value>
   <i></i>
+  <script type="text/coffeescript">
+    @on 'mount update', =>
+      if @opts.value?
+        @root.innerHTML = $('<div/>').text(@opts.value.toString()).html()
+  </script>
+</packet-view-string-value>
+
+<packet-view-value>
+  <packet-view-boolean-value if={ type == 'boolean' } value={ value }></packet-view-boolean-value>
+  <packet-view-integer-value if={ type == 'integer' } value={ value }></packet-view-integer-value>
+  <packet-view-string-value if={ type == 'string' } value={ value }></packet-view-string-value>
 
   <script type="text/coffeescript">
     @on 'mount update', =>
@@ -11,22 +48,17 @@
         else if @opts.packet?
           @opts.packet.layers[@opts['layer-index']].attrs[@opts.field.attr]
 
-      @root.innerHTML =
+      @value = value
+      @type =
         if typeof value == 'boolean'
-          if value
-            '<i class="fa fa-check-square-o"></i>'
-          else
-            '<i class="fa fa-square-o"></i>'
+          'boolean'
+        else if Number.isInteger(value)
+          'integer'
         else if Buffer.isBuffer value
-          str = ""
-          for b in value.slice(0, 8)
-            str += ("0" + b.toString(16)).slice(-2) + " "
-          str += '... ' if value.length > 8
-          str + "(#{value.length} bytes)"
-        else if !value?
-          ''
+          'buffer'
         else
-          $('<div/>').text(value.toString()).html()
+          'string'
+
   </script>
 </packet-view-value>
 
@@ -192,6 +224,10 @@
 
       i {
         font-style: normal;
+      }
+
+      i.base {
+        font-weight: bold;
       }
 
       .label {
