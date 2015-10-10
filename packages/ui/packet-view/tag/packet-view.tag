@@ -4,23 +4,28 @@
 </packet-view-boolean-value>
 
 <packet-view-integer-value>
-  <i if={ base == 2 } onclick={ rotate }><i class="base">0b</i>{ opts.value.toString(2) }</i>
-  <i if={ base == 8 } onclick={ rotate }><i class="base">0</i>{ opts.value.toString(8) }</i>
-  <i if={ base == 10 } onclick={ rotate }>{ opts.value.toString(10) }</i>
-  <i if={ base == 16 } onclick={ rotate }><i class="base">0x</i>{ opts.value.toString(16) }</i>
+  <i if={ base == 2 } oncontextmenu={ context }><i class="base">0b</i>{ opts.value.toString(2) }</i>
+  <i if={ base == 8 } oncontextmenu={ context }><i class="base">0</i>{ opts.value.toString(8) }</i>
+  <i if={ base == 10 } oncontextmenu={ context }>{ opts.value.toString(10) }</i>
+  <i if={ base == 16 } oncontextmenu={ context }><i class="base">0x</i>{ opts.value.toString(16) }</i>
   <script type="text/coffeescript">
+    remote = require('remote')
+    Menu = remote.require('menu')
+    MenuItem = remote.require('menu-item')
+
     @base = 10
-    @rotate = =>
-      @base =
-        switch @base
-          when 2
-            8
-          when 8
-            10
-          when 10
-            16
-          when 16
-            2
+
+    setBase = (base) =>
+      => @base = base
+
+    @context = =>
+      menu = new Menu()
+      menu.append(new MenuItem(label: 'Binary', type: 'radio', checked: (@base == 2), click: setBase(2)))
+      menu.append(new MenuItem(label: 'Octal', type: 'radio', checked: (@base == 8), click: setBase(8)))
+      menu.append(new MenuItem(label: 'Decimal', type: 'radio', checked: (@base == 10), click: setBase(10)))
+      menu.append(new MenuItem(label: 'Hexadecimal', type: 'radio', checked: (@base == 16), click: setBase(16)))
+      menu.popup(remote.getCurrentWindow())
+
   </script>
 </packet-view-integer-value>
 
