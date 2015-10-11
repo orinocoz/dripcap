@@ -1,13 +1,14 @@
 fs = require('fs')
+path = require('path')
 CSON = require('cson')
 mkpath = require('mkpath')
 
 class Profile
   constructor: (@path) ->
-    @configPath = @path + '/config.cson'
-    @packagePath = @path + '/package.cson'
-    @layoutPath = @path + '/layout.cson'
-    @initPath = @path + '/init.coffee'
+    @configPath = path.join @path, '/config.cson'
+    @packagePath = path.join @path, '/package.cson'
+    @layoutPath = path.join @path, '/layout.cson'
+    @initPath = path.join @path, '/init.coffee'
 
     try
       @config = CSON.parse fs.readFileSync @configPath
