@@ -14,5 +14,5 @@ RUN npm install
 RUN apt-get install -y
 
 ENV DISPLAY :99.0
-RUN gulp test
+RUN npm run test
 RUN gulp
