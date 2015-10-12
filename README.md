@@ -2,7 +2,7 @@
 
 Caffeinated packet analyzer
 
-[![Circle CI](https://circleci.com/gh/dripcap/dripcap.svg?style=svg)](https://circleci.com/gh/dripcap/dripcap)
+[![Build Status](https://travis-ci.org/dripcap/dripcap.svg)](https://travis-ci.org/dripcap/dripcap)
 
 ![screenshot](https://github.com/h2so5/dripcap/blob/master/images/screenshot.png)
 

@@ -25,3 +25,6 @@ $ ->
   $(window).unload ->
     for s in dripcap.session.list
       s.close()
+
+  uitest = process.env['DRIPCAP_UI_TEST']
+  require(uitest) if uitest?

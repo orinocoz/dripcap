@@ -11,7 +11,6 @@ npm = require('npm')
 
 gulp.task 'test', ->
   gulp.src([
-      './spec/*.coffee'
       './packages/**/spec/*.coffee'
     ])
     .pipe(jasmine())

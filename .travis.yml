@@ -1,0 +1,30 @@
+sudo: false
+
+language: node_js
+node_js:
+  - "4.0"
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.8
+      - g++-4.8
+      - xvfb
+
+install:
+  - export CXX="g++-4.8"
+  - "npm install -g gulp electron-prebuilt"
+  - npm install
+
+before_script:
+  - export DISPLAY=':99.0'
+  - Xvfb :99 -extension RANDR -screen 0 1024x768x24 > /dev/null 2>&1 &
+  - export PAPERFILTER_TESTDATA="spec/test"
+  - export DRIPCAP_UI_TEST=$(pwd)/spec/main
+  - gulp
+
+script:
+  - npm run test
+  - electron --disable-gpu .build
