@@ -26,5 +26,4 @@ before_script:
   - gulp
 
 script:
-  - npm run test
-  - electron --disable-gpu .build
+  - npm test
