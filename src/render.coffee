@@ -1,3 +1,6 @@
+if process.env['DRIPCAP_UI_TEST']?
+  global.console = require('remote').getGlobal('console')
+
 require('coffee-script/register')
 config = require('./config')
 global.$ = require('jquery')
