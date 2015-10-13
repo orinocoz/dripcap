@@ -36,13 +36,13 @@ if process.env['DRIPCAP_UI_TEST']?
     failed = 0
     passed = 0
     ipc.on 'test-done', (event, details) ->
-      console.log( 'Total: ', details.total, ' Failed: ', details.failed, ' Passed: ', details.passed, ' Runtime: ', details.runtime )
+      console.log 'Total: ', details.total, ' Failed: ', details.failed, ' Passed: ', details.passed, ' Runtime: ', details.runtime
       total += details.total
       failed += details.failed
       passed += details.passed
 
     uitest = process.env['DRIPCAP_UI_TEST']
-    for t in glob.sync(path.join(uitest, '/*.coffee'))
+    for t in glob.sync(path.join(uitest, '/**/uispec/*.coffee'))
       do (t = t) ->
         p = p.then ->
           new Promise (res) ->
@@ -75,6 +75,7 @@ if process.env['DRIPCAP_UI_TEST']?
             mainWindow.on 'close', -> res()
 
     p.then ->
+      console.log '[Summary]', 'Total: ', total, ' Failed: ', failed, ' Passed: ', passed
       fs.writeFileSync '/tmp/dripcap.test.result', "#{failed}"
       app.quit()
 
