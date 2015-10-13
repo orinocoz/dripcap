@@ -11,4 +11,4 @@ QUnit.test "show session-dialog", (assert) ->
 
 QUnit.test "interface list", (assert) ->
   list = $('[riot-tag=session-dialog] [name=interface] > option').map -> $(@).text()
-  assert.deepEqual list.get(), ["eth0","lxcbr0","docker0","nflog","nfqueue","any","lo"]
+  assert.deepEqual list.get(), [ 'eth0', 'nflog', 'nfqueue', 'any', 'lo' ]
