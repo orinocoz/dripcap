@@ -10,6 +10,7 @@ addons:
     - gcc-4.8
     - g++-4.8
     - xvfb
+    - libpcap-dev
 install:
 - export CXX="g++-4.8"
 - npm install -g gulp electron-prebuilt
