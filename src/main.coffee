@@ -4,6 +4,7 @@ BrowserWindow = require('browser-window')
 mkpath = require('mkpath')
 glob = require('glob')
 path = require('path')
+fs = require('fs')
 ipc = require('ipc')
 config = require('./config')
 require('crash-reporter').start(config.crashReporter)
@@ -55,7 +56,11 @@ if process.env['DRIPCAP_UI_TEST']?
                 $(function(){
                   $.getScript('http://code.jquery.com/qunit/qunit-1.19.0.js', function() {
                     QUnit.log(function( details ) {
-                      console.log(details.source, details.result, details.message );
+                      if (details.result) {
+                        console.log(details.name + ': ', details.message);
+                      } else {
+                        console.log(details.name + ':', 'expected:', details.expected, 'actual:', details.actual, details.source);
+                      }
                     });
                     QUnit.done(function( details ) {
                       ipc.send('test-done', details);
@@ -69,6 +74,7 @@ if process.env['DRIPCAP_UI_TEST']?
             mainWindow.on 'close', -> res()
 
     p.then ->
+      fs.writeFileSync '/tmp/dripcap.test.result', "#{failed}"
       app.quit()
 
 else
