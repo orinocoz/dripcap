@@ -55,6 +55,7 @@ if process.env['DRIPCAP_UI_TEST']?
 
                 $(function(){
                   $.getScript('http://code.jquery.com/qunit/qunit-1.19.0.js', function() {
+                    QUnit.config.testTimeout = 10000;
                     QUnit.log(function( details ) {
                       if (details.result) {
                         console.log(details.name + ': ', details.message);
