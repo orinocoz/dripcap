@@ -63,7 +63,7 @@ gulp.task 'linux', [
     'npm'
   ], (cb) ->
   gulp.src('./.build/**')
-    .pipe(electron(version: '0.33.0', platform: 'linux', arch: 'x64'))
+    .pipe(electron(version: '0.33.8', platform: 'linux', arch: 'x64'))
     .pipe(electron.zfsdest('dripcap-linux-x64.zip'))
 
 gulp.task 'darwin', [
@@ -73,7 +73,7 @@ gulp.task 'darwin', [
     'npm'
   ], (cb) ->
   gulp.src('./.build/**')
-    .pipe(electron(version: '0.33.0', platform: 'darwin', arch: 'x64', darwinIcon: './images/dripcap.icns'))
+    .pipe(electron(version: '0.33.8', platform: 'darwin', arch: 'x64', darwinIcon: './images/dripcap.icns'))
     .pipe(electron.zfsdest('dripcap-darwin.zip'))
 
 gulp.task 'default', [
