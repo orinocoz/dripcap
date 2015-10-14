@@ -64,7 +64,7 @@ gulp.task 'linux', [
   ], (cb) ->
   gulp.src('./.build/**')
     .pipe(electron(version: '0.33.0', platform: 'linux', arch: 'x64'))
-    .pipe(electron.zfsdest('dripcap-linux.zip'))
+    .pipe(electron.zfsdest('dripcap-linux-x64.zip'))
 
 gulp.task 'darwin', [
     'copy'
