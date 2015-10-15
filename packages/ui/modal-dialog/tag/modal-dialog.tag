@@ -37,8 +37,13 @@
   @show = =>
     @visible = true
     process.nextTick -> $('.content').focus()
-    
+
   @hide = => @visible = false
+
+  @cancel = (e) =>
+    if e.currentTarget == e.target
+      @hide()
+    true
 
   </script>
 

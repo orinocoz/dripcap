@@ -27,11 +27,6 @@
   @show = =>
     @tags['modal-dialog'].show()
 
-  @cancel = (e) =>
-    if e.currentTarget == e.target
-      @tags['modal-dialog'].hide()
-    true
-
   @start = =>
     ifs = $(@tags['modal-dialog'].interface).val()
     filter = $(@tags['modal-dialog'].filter).val()
