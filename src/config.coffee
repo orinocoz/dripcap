@@ -10,7 +10,7 @@ conf =
   crashReporter:
     productName: 'dripcap'
     companyName: 'dripcap'
-    submitUrl: 'https://example.com/'
+    submitUrl: 'http://report.h2so5.net/report.php'
     autoSubmit: false
 
 module.exports = conf
