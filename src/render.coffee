@@ -21,6 +21,12 @@ dripcap.action.on 'Core: Toggle DevTools', ->
 dripcap.action.on 'Core: Quit', ->
   remote.getGlobal('dripcap').quit()
 
+dripcap.pubsub.sub 'Core:updateCapturingStatus', (data) ->
+  if (data)
+    remote.getGlobal('dripcap').pushIndicator()
+  else
+    remote.getGlobal('dripcap').popIndicator()
+
 $ ->
   $(window).unload ->
     for s in dripcap.session.list
