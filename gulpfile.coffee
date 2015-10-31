@@ -2,12 +2,15 @@ gulp = require('gulp')
 coffee = require('gulp-coffee')
 coffeelint = require('gulp-coffeelint')
 electron = require('gulp-atom-electron')
+runElectron = require("gulp-run-electron")
 fs = require('fs')
 path = require('path')
 glob = require('glob')
 exec = require('child_process').exec
 jasmine = require('gulp-jasmine')
 npm = require('npm')
+
+gulp.src(".build").pipe(runElectron());
 
 gulp.task 'test', ->
   gulp.src([
@@ -76,13 +79,7 @@ gulp.task 'darwin', [
     .pipe(electron(version: '0.33.8', platform: 'darwin', arch: 'x64', token: process.env['ELECTRON_GITHUB_TOKEN'], darwinIcon: './images/dripcap.icns'))
     .pipe(electron.zfsdest('dripcap-darwin.zip'))
 
-gulp.task 'default', [
-  'lint'
-  'copy'
-  'coffee'
-  'copypkg'
-  'npm'
-]
+gulp.task 'default', ['watch']
 
 gulp.task 'watch', ->
   gulp.watch [
@@ -96,4 +93,5 @@ gulp.task 'watch', ->
     'copy'
     'copypkg'
     'npm'
+    runElectron.rerun
   ]
