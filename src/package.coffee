@@ -25,40 +25,49 @@ class Package
     @config =
       enabled: true
 
+    @promise =
+      new Promise (resolve) =>
+        @resolve = resolve
+      .then =>
+        new Promise (resolve, reject) =>
+          req = path.resolve(@path, @main)
+          try
+            klass = require(req)
+            @exports = new klass()
+            @exports.activate()
+            @updateTheme(dripcap.theme.scheme)
+
+          catch e
+            reject(e)
+            return
+
+          resolve(@)
+
+  load: () ->
+    @promise
+
   activate: () ->
-    new Promise (resolve, reject) =>
-      unless @loaded
-        req = path.resolve(@path, @main)
-        try
-          klass = require(req)
-          @exports = new klass()
-          @exports.activate()
-          @updateTheme(dripcap.theme.scheme)
-          @loaded = true
-
-        catch e
-          reject(e)
-          return
-
-      resolve(this)
+    @resolve()
 
   updateTheme: (theme) ->
-    if @exports? && @exports.updateTheme?
-      @exports.updateTheme theme
+    @load().then =>
+      if @exports? && @exports.updateTheme?
+        @exports.updateTheme theme
 
   deactivate: () ->
-    new Promise (resolve, reject) =>
-      if @loaded
-        try
-          @exports.deactivate()
-          @exports = null
-          for key of require.cache
-            if key.startsWith(@path)
-              delete require.cache[key]
-          @loadd = false
-        catch e
-          reject(e)
-          return
-      resolve(this)
+    @load().then =>
+      new Promise (resolve, reject) =>
+        if @loaded
+          try
+            @exports.deactivate()
+            @exports = null
+            for key of require.cache
+              if key.startsWith(@path)
+                delete require.cache[key]
+            @loadd = false
+          catch e
+            reject(e)
+            return
+        resolve(this)
 
 module.exports = Package

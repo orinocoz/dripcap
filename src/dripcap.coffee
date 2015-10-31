@@ -109,7 +109,7 @@ class Dripcap extends EventEmitter
     load: (name) ->
       pkg = @loadedPackages[name]
       throw new Error "package not found: #{name}" unless pkg?
-      pkg.activate()
+      pkg.load()
 
     updatePackageList: ->
       paths = glob.sync(config.packagePath + '/**/package.json')
