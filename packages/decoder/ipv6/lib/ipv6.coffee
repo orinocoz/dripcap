@@ -2,7 +2,7 @@
 
 
 class IPv6Decoder
-  constructor: () ->
+  constructor: ->
     @lowerLayers = ['::Ethernet::<IPv6>']
 
   analyze: (packet) ->

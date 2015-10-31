@@ -1,7 +1,7 @@
 {IPv4Address, Enum, Flags} = require('dripper/type')
 
 class IPv4Decoder
-  constructor: () ->
+  constructor: ->
     @lowerLayers = ['::Ethernet::<IPv4>']
 
   analyze: (packet) ->

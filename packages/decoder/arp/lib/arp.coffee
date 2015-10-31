@@ -1,7 +1,7 @@
 {MACAddress, IPv4Address, Enum} = require('dripper/type')
 
 class ARPDecoder
-  constructor: () ->
+  constructor: ->
     @lowerLayers = ['::Ethernet::<ARP>']
 
   analyze: (packet) ->

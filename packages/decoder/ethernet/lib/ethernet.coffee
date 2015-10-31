@@ -1,7 +1,7 @@
 {MACAddress, Enum} = require('dripper/type')
 
 class EthernetDecoder
-  constructor: () ->
+  constructor: ->
     @lowerLayers = ['::<Ethernet>']
 
   analyze: (packet) ->

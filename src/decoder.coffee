@@ -6,7 +6,7 @@ msgpack = require('msgcap')
 PaperFilter = require('paperfilter')
 
 class DecoderMap
-  constructor: () ->
+  constructor: ->
     @map = {}
 
   addDecoder: (decoder) ->

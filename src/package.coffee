@@ -43,10 +43,10 @@ class Package
 
           resolve(@)
 
-  load: () ->
+  load: ->
     @promise
 
-  activate: () ->
+  activate: ->
     @resolve()
 
   updateTheme: (theme) ->
@@ -54,7 +54,7 @@ class Package
       if @exports? && @exports.updateTheme?
         @exports.updateTheme theme
 
-  deactivate: () ->
+  deactivate: ->
     @load().then =>
       new Promise (resolve, reject) =>
         if @loaded

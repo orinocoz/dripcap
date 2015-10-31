@@ -43,13 +43,13 @@ class Session extends EventEmitter
       arg = JSON.stringify decoder
       @window.webContents.executeJavaScript("session.load(#{arg})")
 
-  start: () ->
+  start: ->
     @loaded.then =>
       @window.webContents.executeJavaScript('session.stop()')
       @window.webContents.executeJavaScript('session.start()')
       dripcap.pubsub.pub 'Core:updateCapturingStatus', true, 1
 
-  stop: () ->
+  stop: ->
     @loaded.then =>
       @window.webContents.executeJavaScript('session.stop()')
       dripcap.pubsub.pub 'Core:updateCapturingStatus', false, 1

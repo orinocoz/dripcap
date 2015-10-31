@@ -18,7 +18,7 @@ gulp.task 'test', ->
 
 gulp.task 'lint', ->
   gulp.src([
-      './src/*.coffee'
+      './**/*.coffee'
     ])
     .pipe(coffeelint())
     .pipe coffeelint.reporter()
@@ -65,9 +65,9 @@ gulp.task 'linux', [
     'copypkg'
     'npm'
   ], (cb) ->
-  gulp.src('./.build/**')
-    .pipe(electron(version: '0.33.8', platform: 'linux', arch: 'x64', token: process.env['ELECTRON_GITHUB_TOKEN']))
-    .pipe(electron.zfsdest('dripcap-linux-x64.zip'))
+    gulp.src('./.build/**')
+      .pipe(electron(version: '0.33.8', platform: 'linux', arch: 'x64', token: process.env['ELECTRON_GITHUB_TOKEN']))
+      .pipe(electron.zfsdest('dripcap-linux-x64.zip'))
 
 gulp.task 'darwin', [
     'copy'
@@ -75,9 +75,9 @@ gulp.task 'darwin', [
     'copypkg'
     'npm'
   ], (cb) ->
-  gulp.src('./.build/**')
-    .pipe(electron(version: '0.33.8', platform: 'darwin', arch: 'x64', token: process.env['ELECTRON_GITHUB_TOKEN'], darwinIcon: './images/dripcap.icns'))
-    .pipe(electron.zfsdest('dripcap-darwin.zip'))
+    gulp.src('./.build/**')
+      .pipe(electron(version: '0.33.8', platform: 'darwin', arch: 'x64', token: process.env['ELECTRON_GITHUB_TOKEN'], darwinIcon: './images/dripcap.icns'))
+      .pipe(electron.zfsdest('dripcap-darwin.zip'))
 
 gulp.task 'default', ['build'], ->
   gulp.src(".build").pipe(runElectron())
