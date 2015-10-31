@@ -14,6 +14,7 @@ config = require('./src/config')
 gulp.task 'test', ->
   gulp.src([
       './packages/**/spec/*.coffee'
+      './dripper/**/spec/*.coffee'
     ])
     .pipe(jasmine())
 

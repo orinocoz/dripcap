@@ -1,0 +1,30 @@
+{
+  "name": "dripper",
+  "version": "0.0.3",
+  "description": "dripcap public classes",
+  "main": "index.coffee",
+  "scripts": {
+    "test": "jasmine-node --coffee spec"
+  },
+  "author": "h2so5",
+  "license": "MIT",
+  "dependencies": {
+    "coffee-script": "^1.9.3",
+    "commander": "^2.8.1",
+    "glob": "^5.0.13",
+    "jquery": "^2.1.4",
+    "less": "^2.5.1",
+    "msgcap": "0.0.1",
+    "riot": "2.2.2-beta"
+  },
+  "bin": {
+    "dripper": "./cli/main.js"
+  },
+  "files": [
+    "cli",
+    "component.coffee",
+    "layer.coffee",
+    "packet.coffee",
+    "type.coffee"
+  ]
+}
