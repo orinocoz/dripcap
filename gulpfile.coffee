@@ -44,6 +44,7 @@ gulp.task 'copypkg', ->
     './packages/**/*'
     './npm/**/*'
     './dripper/**/*'
+    './msgcap/**/*'
   ], base: './')
     .pipe gulp.dest('./.build/')
 
