@@ -9,6 +9,7 @@ glob = require('glob')
 exec = require('child_process').exec
 jasmine = require('gulp-jasmine')
 npm = require('npm')
+config = require('./src/config')
 
 gulp.task 'test', ->
   gulp.src([
@@ -66,7 +67,11 @@ gulp.task 'linux', [
     'npm'
   ], (cb) ->
     gulp.src('./.build/**')
-      .pipe(electron(version: '0.33.8', platform: 'linux', arch: 'x64', token: process.env['ELECTRON_GITHUB_TOKEN']))
+      .pipe(electron(
+        version: config.electronVersion,
+        platform: 'linux',
+        arch: 'x64',
+        token: process.env['ELECTRON_GITHUB_TOKEN']))
       .pipe(electron.zfsdest('dripcap-linux-x64.zip'))
 
 gulp.task 'darwin', [
@@ -76,7 +81,12 @@ gulp.task 'darwin', [
     'npm'
   ], (cb) ->
     gulp.src('./.build/**')
-      .pipe(electron(version: '0.33.8', platform: 'darwin', arch: 'x64', token: process.env['ELECTRON_GITHUB_TOKEN'], darwinIcon: './images/dripcap.icns'))
+      .pipe(electron(
+        version: config.electronVersion,
+        platform: 'darwin',
+        arch: 'x64',
+        token: process.env['ELECTRON_GITHUB_TOKEN'],
+        darwinIcon: './images/dripcap.icns'))
       .pipe(electron.zfsdest('dripcap-darwin.zip'))
 
 gulp.task 'default', ['build'], ->

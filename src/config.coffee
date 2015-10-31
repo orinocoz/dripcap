@@ -6,7 +6,7 @@ conf =
   userPackagePath: path.join homePath, '/packages'
   profilePath: path.join homePath, '/profiles'
   packagePath: path.join path.dirname(__dirname), '/packages'
-  electronVersion: '0.33.8'
+  electronVersion: '0.34.2'
   crashReporter:
     productName: 'dripcap'
     companyName: 'dripcap'
