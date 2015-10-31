@@ -24,40 +24,7 @@ app.on 'ready', ->
           mainWindow = new BrowserWindow width: 1200, height: 800
           mainWindow.loadUrl 'file://' + __dirname + '/../render.html'
           mainWindow.webContents.on 'did-finish-load', ->
-            test = "
-              ipc = require('ipc');
-              global.console = require('remote').getGlobal('console');
-
-              $(function(){
-                $.getScript('http://code.jquery.com/qunit/qunit-1.19.0.js', function() {
-                  QUnit.config.testTimeout = 10000;
-                  QUnit.log(function( details ) {
-                    if (details.result) {
-                      console.log(details.name + ': ', details.message);
-                    } else {
-                      console.log(details.name + ':', 'expected:', details.expected, 'actual:', details.actual, details.source);
-                    }
-                  });
-                  QUnit.done(function( details ) {
-                    ipc.send('test-done', details);
-                    require('remote').getCurrentWindow().close();
-                  });
-                  global.wait = function(assert, func) {
-                    var done = assert.async();
-                    var handler;
-                    return handler = setInterval(function() {
-                      if (func()) {
-                        clearInterval(handler);
-                        assert.ok(true);
-                        return done();
-                      }
-                    }, 0);
-                  };
-                  require('#{t}');
-                });
-              });
-            "
-            mainWindow.webContents.executeJavaScript test
+            mainWindow.webContents.executeJavaScript "require(require('path').join(location.pathname, '../js/uitest-init'))('#{t}');"
           mainWindow.on 'close', -> res()
 
   p.then ->
