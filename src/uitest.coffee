@@ -42,6 +42,17 @@ app.on 'ready', ->
                     ipc.send('test-done', details);
                     require('remote').getCurrentWindow().close();
                   });
+                  global.wait = function(assert, func) {
+                    var done = assert.async();
+                    var handler;
+                    return handler = setInterval(function() {
+                      if (func()) {
+                        clearInterval(handler);
+                        assert.ok(true);
+                        return done();
+                      }
+                    }, 0);
+                  };
                   require('#{t}');
                 });
               });
