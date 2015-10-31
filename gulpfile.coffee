@@ -40,7 +40,11 @@ gulp.task 'copy', ->
     .pipe gulp.dest('./.build')
 
 gulp.task 'copypkg', ->
-  gulp.src(['./packages/**/*', './npm/**/*'], base: './')
+  gulp.src([
+    './packages/**/*'
+    './npm/**/*'
+    './dripper/**/*'
+  ], base: './')
     .pipe gulp.dest('./.build/')
 
 gulp.task 'npm', ['copypkg'], ->
