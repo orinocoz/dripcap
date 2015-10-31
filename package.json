@@ -4,7 +4,7 @@
   "description": "",
   "main": "js/main.js",
   "scripts": {
-    "test": "gulp test && PAPERFILTER_TESTDATA=\"uispec/test\" DRIPCAP_UI_TEST=$(pwd) electron --disable-gpu .build && exit `cat /tmp/dripcap.test.result`"
+    "test": "gulp test && PAPERFILTER_TESTDATA=\"uispec/test\" DRIPCAP_UI_TEST=$(pwd) gulp && exit `cat /tmp/dripcap.test.result`"
   },
   "author": "h2so5",
   "license": "MIT",

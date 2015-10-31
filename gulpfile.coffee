@@ -10,8 +10,6 @@ exec = require('child_process').exec
 jasmine = require('gulp-jasmine')
 npm = require('npm')
 
-gulp.src(".build").pipe(runElectron());
-
 gulp.task 'test', ->
   gulp.src([
       './packages/**/spec/*.coffee'
@@ -44,20 +42,22 @@ gulp.task 'copypkg', ->
     .pipe gulp.dest('./.build/')
 
 gulp.task 'npm', ['copypkg'], ->
-    p = new Promise (res) ->
-      npm.load production: true, -> res()
+  p = new Promise (res) ->
+    npm.load production: true, -> res()
 
+  p = p.then ->
+    new Promise (res) ->
+      npm.prefix = './.build/'
+      npm.commands.install [], res
+
+  glob.sync('./.build/packages/**/package.json').forEach (conf) ->
+    cwd = path.dirname(conf)
     p = p.then ->
       new Promise (res) ->
-        npm.prefix = './.build/'
+        npm.prefix = cwd
         npm.commands.install [], res
 
-    glob.sync('./.build/packages/**/package.json').forEach (conf) ->
-      cwd = path.dirname(conf)
-      p = p.then ->
-        new Promise (res) ->
-          npm.prefix = cwd
-          npm.commands.install [], res
+  p
 
 gulp.task 'linux', [
     'copy'
@@ -79,9 +79,18 @@ gulp.task 'darwin', [
     .pipe(electron(version: '0.33.8', platform: 'darwin', arch: 'x64', token: process.env['ELECTRON_GITHUB_TOKEN'], darwinIcon: './images/dripcap.icns'))
     .pipe(electron.zfsdest('dripcap-darwin.zip'))
 
-gulp.task 'default', ['watch']
+gulp.task 'default', ['build'], ->
+  gulp.src(".build").pipe(runElectron())
 
-gulp.task 'watch', ->
+gulp.task 'build', [
+  'coffee'
+  'copy'
+  'copypkg'
+  'npm'
+]
+
+gulp.task 'watch', ['build'], ->
+  gulp.src(".build").pipe(runElectron())
   gulp.watch [
     './**/*.coffee'
     './**/*.tag'
@@ -89,9 +98,6 @@ gulp.task 'watch', ->
     './**/*.less'
     './**/*.cson'
   ], [
-    'coffee'
-    'copy'
-    'copypkg'
-    'npm'
+    'build'
     runElectron.rerun
   ]
