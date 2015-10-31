@@ -13,5 +13,4 @@ $ cd dripcap
 $ npm install -g gulp electron-prebuilt
 $ npm install
 $ gulp
-$ electron .build
 ```
