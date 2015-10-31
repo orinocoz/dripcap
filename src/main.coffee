@@ -25,16 +25,17 @@ class Dripcap
   pushIndicator: ->
     @indicator++
     if @indicator == 1
-      @indicatorInterval = setInterval =>
-        switch @indicator
-          when 0
-            app.dock.setBadge(" ● ○ ○ ")
-          when 1
-            app.dock.setBadge(" ○ ● ○ ")
-          when 2
-            app.dock.setBadge(" ○ ○ ● ")
-        @indicator = (@indicator + 1) % 3
-      , 500
+      if process.platform == 'darwin'
+        @indicatorInterval = setInterval =>
+          switch @indicator
+            when 0
+              app.dock.setBadge(" ● ○ ○ ")
+            when 1
+              app.dock.setBadge(" ○ ● ○ ")
+            when 2
+              app.dock.setBadge(" ○ ○ ● ")
+          @indicator = (@indicator + 1) % 3
+        , 500
 
   popIndicator: ->
     if @indicator > 0
