@@ -2,5 +2,10 @@
   "name": "theme-base16",
   "main": "./lib/base16",
   "license": "MIT",
-  "description": "Base16 scheme by Chris Kempson (https://github.com/chriskempson)"
+  "description": "dripcap Base16 scheme by Chris Kempson (https://github.com/chriskempson)",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/dripcap/dripcap.git"
+  },
+  "readme": "see README.md"
 }

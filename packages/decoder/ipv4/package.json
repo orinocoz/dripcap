@@ -1,5 +1,11 @@
 {
   "name": "ipv4",
   "main": "./lib/main",
-  "license": "MIT"
+  "license": "MIT",
+  "description": "dripcap IPv4 decoder",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/dripcap/dripcap.git"
+  },
+  "readme": "see README.md"
 }

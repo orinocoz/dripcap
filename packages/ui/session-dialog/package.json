@@ -1,5 +1,11 @@
 {
   "name": "session-dialog",
   "main": "./lib/session-dialog",
-  "license": "MIT"
+  "license": "MIT",
+  "description": "dripcap Session Dialog",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/dripcap/dripcap.git"
+  },
+  "readme": "see README.md"
 }

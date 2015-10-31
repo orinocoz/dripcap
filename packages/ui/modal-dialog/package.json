@@ -1,5 +1,11 @@
 {
   "name": "modal-dialog",
   "main": "./lib/modal-dialog",
-  "license": "MIT"
+  "license": "MIT",
+  "description": "dripcap Modal Dialog",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/dripcap/dripcap.git"
+  },
+  "readme": "see README.md"
 }

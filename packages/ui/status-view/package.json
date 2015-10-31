@@ -1,5 +1,11 @@
 {
   "name": "status-view",
   "main": "./lib/status-view",
-  "license": "MIT"
+  "license": "MIT",
+  "description": "dripcap Status View",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/dripcap/dripcap.git"
+  },
+  "readme": "see README.md"
 }
