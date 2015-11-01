@@ -18,12 +18,11 @@ module.exports = (file) ->
 
       global.wait = (assert, func) ->
         done = assert.async()
-        handler = undefined
-        handler = setInterval((->
+        handler = setInterval ->
           if func()
             clearInterval handler
             assert.ok true
             done()
-        ), 0)
+        , 10
 
       require "#{file}"

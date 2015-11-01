@@ -10,5 +10,4 @@ QUnit.test "start session", (assert) ->
 
 QUnit.test "list captured packets", (assert) ->
   dripcap.package.load('session-dialog').then (pkg) ->
-    $('[riot-tag=session-dialog] [name=start]').click()
     wait assert, -> $('[riot-tag=packet-list-view] tr').length == 102
