@@ -21,6 +21,7 @@
   </modal-dialog>
 
   <script type="text/coffeescript">
+
   @setInterfaceList = (list) =>
     @interfaceList = list
 

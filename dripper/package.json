@@ -15,7 +15,7 @@
     "jquery": "^2.1.4",
     "less": "^2.5.1",
     "msgcap": "file:../msgcap",
-    "riot": "2.2.2-beta"
+    "riot": "2.3.0-beta"
   },
   "bin": {
     "dripper": "./cli/main.js"

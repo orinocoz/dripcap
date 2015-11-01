@@ -8,5 +8,5 @@ QUnit.test "interface list", (assert) ->
   assert.deepEqual list.get(), [ 'eth0', 'nflog', 'nfqueue', 'any', 'lo' ], 'okay'
 
 QUnit.test "cancel dialog", (assert) ->
-  $('[riot-tag=session-dialog] .modal').click()
+  $('[riot-tag=session-dialog] .modal')[0].click()
   assert.ok !$('[riot-tag=session-dialog] .modal').is(':visible')

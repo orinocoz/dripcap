@@ -1,6 +1,7 @@
 require('coffee-script/register')
 config = require('./config')
 global.$ = require('jquery')
+global.riot = require('riot')
 
 Profile = require('./profile')
 prof = new Profile config.profilePath + '/default'

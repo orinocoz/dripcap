@@ -5,7 +5,7 @@ QUnit.test "show session-dialog", (assert) ->
 
 QUnit.test "start session", (assert) ->
   dripcap.package.load('session-dialog').then (pkg) ->
-    $('[riot-tag=session-dialog] [name=start]').click()
+    $('[riot-tag=session-dialog] [name=start]')[0].click()
     wait assert, -> !$('[riot-tag=session-dialog] .modal').is(':visible')
 
 QUnit.test "list captured packets", (assert) ->
@@ -14,5 +14,5 @@ QUnit.test "list captured packets", (assert) ->
 
 QUnit.test "show selected packet", (assert) ->
   dripcap.package.load('packet-view').then (pkg) ->
-    $('[riot-tag=packet-list-view] tr:not(.head):first').click()
+    $('[riot-tag=packet-list-view] tr:not(.head):first')[0].click()
     wait assert, -> $('[riot-tag=packet-view] packet-view-item').length == 47
