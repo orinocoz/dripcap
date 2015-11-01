@@ -41,8 +41,9 @@ class Dripcap
     if @indicator > 0
       @indicator--
     if @indicator <= 0
-      clearInterval @indicatorInterval
-      app.dock.setBadge("")
+      if process.platform == 'darwin'
+        clearInterval @indicatorInterval
+        app.dock.setBadge("")
 
 global.dripcap = new Dripcap
 

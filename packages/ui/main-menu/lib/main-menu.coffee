@@ -64,6 +64,14 @@ class MainMenu
               selectedScheme = k
               dripcap.theme.scheme = v
 
+    dripcap.pubsub.sub 'Core: Capturing Status Updated', (data) ->
+      if (data)
+        dripcap.menu.get(['Session', 'Start']).enabled = false
+        dripcap.menu.get(['Session', 'Stop']).enabled = true
+      else
+        dripcap.menu.get(['Session', 'Start']).enabled = true
+        dripcap.menu.get(['Session', 'Stop']).enabled = false
+
   deactivate: ->
 
 module.exports = MainMenu

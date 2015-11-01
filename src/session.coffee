@@ -47,12 +47,12 @@ class Session extends EventEmitter
     @loaded.then =>
       @window.webContents.executeJavaScript('session.stop()')
       @window.webContents.executeJavaScript('session.start()')
-      dripcap.pubsub.pub 'Core:updateCapturingStatus', true, 1
+      dripcap.pubsub.pub 'Core: Capturing Status Updated', true, 1
 
   stop: ->
     @loaded.then =>
       @window.webContents.executeJavaScript('session.stop()')
-      dripcap.pubsub.pub 'Core:updateCapturingStatus', false, 1
+      dripcap.pubsub.pub 'Core: Capturing Status Updated', false, 1
 
   close: ->
     @loaded.then =>

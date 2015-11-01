@@ -25,21 +25,6 @@ class SessionDialog
               @view.show()
               @view.update()
 
-          dripcap.action.on 'Core: Stop Sessions', ->
-            for s in dripcap.session.list
-              s.stop()
-            dripcap.menu.get(['Session', 'Start']).enabled = true
-            dripcap.menu.get(['Session', 'Stop']).enabled = false
-
-          dripcap.action.on 'Core: Start Sessions', ->
-            if dripcap.session.list.length > 0
-              for s in dripcap.session.list
-                s.start()
-              dripcap.menu.get(['Session', 'Start']).enabled = false
-              dripcap.menu.get(['Session', 'Stop']).enabled = true
-            else
-              dripcap.action.emit 'Core: New Session'
-
   updateTheme: (theme) ->
     @comp.updateTheme theme
 
