@@ -11,3 +11,8 @@ QUnit.test "start session", (assert) ->
 QUnit.test "list captured packets", (assert) ->
   dripcap.package.load('packet-list-view').then (pkg) ->
     wait assert, -> $('[riot-tag=packet-list-view] tr:not(.head)').length == 100
+
+QUnit.test "show selected packet", (assert) ->
+  dripcap.package.load('packet-view').then (pkg) ->
+    $('[riot-tag=packet-list-view] tr:not(.head):first').click()
+    wait assert, -> $('[riot-tag=packet-view] packet-view-item').length == 47
