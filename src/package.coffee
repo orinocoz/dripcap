@@ -25,16 +25,16 @@ class Package
     @config =
       enabled: true
 
-    @promise =
+    @_promise =
       new Promise (resolve) =>
-        @resolve = resolve
+        @_resolve = resolve
       .then =>
         new Promise (resolve, reject) =>
           req = path.resolve(@path, @main)
           try
             klass = require(req)
-            @exports = new klass()
-            @exports.activate()
+            @_exports = new klass()
+            @_exports.activate()
             @updateTheme(dripcap.theme.scheme)
 
           catch e
@@ -44,30 +44,30 @@ class Package
           resolve(@)
 
   load: ->
-    @promise
+    @_promise
 
   activate: ->
-    @resolve()
+    @_resolve()
 
   updateTheme: (theme) ->
     @load().then =>
-      if @exports? && @exports.updateTheme?
-        @exports.updateTheme theme
+      if @_exports? && @_exports.updateTheme?
+        @_exports.updateTheme theme
 
   deactivate: ->
     @load().then =>
       new Promise (resolve, reject) =>
         if @loaded
           try
-            @exports.deactivate()
-            @exports = null
+            @_exports.deactivate()
+            @_exports = null
             for key of require.cache
               if key.startsWith(@path)
                 delete require.cache[key]
-            @loadd = false
+            @loaded = false
           catch e
             reject(e)
             return
-        resolve(this)
+        resolve(@)
 
 module.exports = Package

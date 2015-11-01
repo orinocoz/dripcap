@@ -8,54 +8,54 @@ remote = require('remote')
 BrowserWindow = remote.require('browser-window')
 
 class Session extends EventEmitter
-  constructor: (@filterPath) ->
+  constructor: (@_filterPath) ->
     file = new tmp.File()
     sock = file.path
     file.unlink()
 
-    @server = net.createServer (c) =>
-      @msgdec = new msgpack.Decoder(c)
-      @msgdec.on 'data', (packet) =>
+    @_server = net.createServer (c) =>
+      @_msgdec = new msgpack.Decoder(c)
+      @_msgdec.on 'data', (packet) =>
         @emit 'packet', new Packet packet
 
-    @server.listen sock
+    @_server.listen sock
 
-    @window = new BrowserWindow(show: false)
-    @window.loadUrl 'file://' + __dirname + '/../session.html'
+    @_window = new BrowserWindow(show: false)
+    @_window.loadUrl 'file://' + __dirname + '/../session.html'
 
-    arg = JSON.stringify @filterPath
-    @window.webContents.executeJavaScript("session.filterPath = #{arg}")
+    arg = JSON.stringify @_filterPath
+    @_window.webContents.executeJavaScript("session.filterPath = #{arg}")
     arg = JSON.stringify sock
-    @window.webContents.executeJavaScript("session.connect(#{arg})")
+    @_window.webContents.executeJavaScript("session.connect(#{arg})")
 
-    @loaded = new Promise (res) =>
-      @window.webContents.once 'did-finish-load', -> res()
+    @_loaded = new Promise (res) =>
+      @_window.webContents.once 'did-finish-load', -> res()
 
   addCapture: (iface, options = {}) ->
-    @loaded.then =>
+    @_loaded.then =>
       settings = {iface: iface, options: options}
       arg = JSON.stringify settings
-      @window.webContents.executeJavaScript("session.capture(#{arg})")
+      @_window.webContents.executeJavaScript("session.capture(#{arg})")
       dripcap.pubsub.pub 'Core:updateCapturingSettings', settings, 1
 
   addDecoder: (decoder) ->
-    @loaded.then =>
+    @_loaded.then =>
       arg = JSON.stringify decoder
-      @window.webContents.executeJavaScript("session.load(#{arg})")
+      @_window.webContents.executeJavaScript("session.load(#{arg})")
 
   start: ->
-    @loaded.then =>
-      @window.webContents.executeJavaScript('session.stop()')
-      @window.webContents.executeJavaScript('session.start()')
+    @_loaded.then =>
+      @_window.webContents.executeJavaScript('session.stop()')
+      @_window.webContents.executeJavaScript('session.start()')
       dripcap.pubsub.pub 'Core: Capturing Status Updated', true, 1
 
   stop: ->
-    @loaded.then =>
-      @window.webContents.executeJavaScript('session.stop()')
+    @_loaded.then =>
+      @_window.webContents.executeJavaScript('session.stop()')
       dripcap.pubsub.pub 'Core: Capturing Status Updated', false, 1
 
   close: ->
-    @loaded.then =>
-      @window.close()
+    @_loaded.then =>
+      @_window.close()
 
 module.exports = Session

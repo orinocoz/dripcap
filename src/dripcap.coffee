@@ -20,15 +20,15 @@ Function::property = (prop, desc) ->
 
 class PubSub
   constructor: ->
-    @channels = {}
+    @_channels = {}
 
-  getChannel: (name) ->
-    unless @channels[name]?
-      @channels[name] = {queue: [], handlers: []}
-    @channels[name]
+  _getChannel: (name) ->
+    unless @_channels[name]?
+      @_channels[name] = {queue: [], handlers: []}
+    @_channels[name]
 
   sub: (name, cb) ->
-    ch = @getChannel name
+    ch = @_getChannel name
     ch.handlers.push cb
     for data in ch.queue
       do (data=data) ->
@@ -36,7 +36,7 @@ class PubSub
           cb data
 
   pub: (name, data, queue=0) ->
-    ch = @getChannel name
+    ch = @_getChannel name
     for cb in ch.handlers
       do (cb=cb) ->
         process.nextTick ->
@@ -60,12 +60,12 @@ class Dripcap extends EventEmitter
       super()
       @registory = {}
 
-      @defaultScheme =
+      @_defaultScheme =
         name: 'Default'
         less: ["#{__dirname}/../theme.less"]
 
-      @register 'default', @defaultScheme
-      @scheme = @defaultScheme
+      @register 'default', @_defaultScheme
+      @scheme = @_defaultScheme
 
     register: (id, scheme) ->
       @registory[id] = scheme
@@ -84,30 +84,30 @@ class Dripcap extends EventEmitter
 
   class KeybindInterface
     constructor: (@parent) ->
-      @commands = {}
+      @_commands = {}
 
     bind: (command, selector, cb) ->
-      unless @commands[command]
-        @commands[command] = {}
+      unless @_commands[command]
+        @_commands[command] = {}
         Mousetrap.bind command, (e) =>
-          for sel, cb of @commands[command]
+          for sel, cb of @_commands[command]
             cb(e) if $(e.target).is sel
 
-      @commands[command][selector] = cb
+      @_commands[command][selector] = cb
 
     unbind: (command, selector) ->
-      if (s = @commands[command])?
+      if (s = @_commands[command])?
         delete s[selector]
         if Object.keys(s) == 0
-          delete @commands[command]
+          delete @_commands[command]
           Mousetrap.unbind command
 
   class PackageInterface extends EventEmitter
     constructor: (@parent) ->
-      @loadedPackages = {}
+      @_loadedPackages = {}
 
     load: (name) ->
-      pkg = @loadedPackages[name]
+      pkg = @_loadedPackages[name]
       throw new Error "package not found: #{name}" unless pkg?
       pkg.load()
 
@@ -122,7 +122,7 @@ class Dripcap extends EventEmitter
           if _.isObject(conf = @parent.profile.package[pkg.name])
             _.extendOwn pkg.config, conf
 
-          if (loaded = @loadedPackages[pkg.name])?
+          if (loaded = @_loadedPackages[pkg.name])?
             if loaded.path != pkg.path
               console.warn "package name conflict: #{pkg.name}"
               continue
@@ -130,17 +130,17 @@ class Dripcap extends EventEmitter
               continue
             else
               loaded.deactivate()
-          @loadedPackages[pkg.name] = pkg
+          @_loadedPackages[pkg.name] = pkg
         catch e
           console.warn "failed to load #{pkg.name}/package.json : #{e}"
 
-      for k, pkg of @loadedPackages
+      for k, pkg of @_loadedPackages
         if pkg.config.enabled
           pkg.activate()
           pkg.updateTheme @parent.theme.scheme
 
     updateTheme: (scheme) ->
-      for k, pkg of @loadedPackages
+      for k, pkg of @_loadedPackages
         if pkg.config.enabled
           pkg.updateTheme scheme
 
@@ -170,7 +170,7 @@ class Dripcap extends EventEmitter
       t
 
     constructor: (@parent) ->
-      @menuTmpl = []
+      @_menuTmpl = []
 
     add: (path, template) ->
       merge = (path, root, template) ->
@@ -186,13 +186,13 @@ class Dripcap extends EventEmitter
             root.submenu[i] = merge(_.rest(path), root.submenu[i], template)
         root
 
-      @menuTmpl = merge(path, submenu: @menuTmpl, template).submenu
-      @menu = Menu.buildFromTemplate(_.clone(@menuTmpl).map action)
+      @_menuTmpl = merge(path, submenu: @_menuTmpl, template).submenu
+      @_menu = Menu.buildFromTemplate(_.clone(@_menuTmpl).map action)
 
       if process.platform != 'darwin'
-        remote.getCurrentWindow().setMenu(@menu)
+        remote.getCurrentWindow().setMenu(@_menu)
       else
-        Menu.setApplicationMenu(@menu)
+        Menu.setApplicationMenu(@_menu)
 
     remove: (path) ->
       merge = (path, root) ->
@@ -206,17 +206,17 @@ class Dripcap extends EventEmitter
               root.submenu[i] = merge(_.rest(path), root.submenu[i])
         root
 
-      @menuTmpl = merge(path, submenu: @menuTmpl).submenu
-      copy = JSON.parse(JSON.stringify(@menuTmpl)).map action
-      @menu = Menu.buildFromTemplate(copy)
-      remote.getCurrentWindow().setMenu(@menu)
+      @_menuTmpl = merge(path, submenu: @_menuTmpl).submenu
+      copy = JSON.parse(JSON.stringify(@_menuTmpl)).map action
+      @_menu = Menu.buildFromTemplate(copy)
+      remote.getCurrentWindow().setMenu(@_menu)
 
     get: (path) ->
       return null unless path.length > 0
       menu =
         submenu:
           items:
-            @menu.items
+            @_menu.items
       for p in path
         return null unless menu.submenu?
         i = _.findIndex menu.submenu.items, (ele) -> ele.label == p

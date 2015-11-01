@@ -5,37 +5,39 @@ mkpath = require('mkpath')
 
 class Profile
   constructor: (@path) ->
-    @configPath = path.join @path, '/config.cson'
-    @packagePath = path.join @path, '/package.cson'
-    @layoutPath = path.join @path, '/layout.cson'
-    @initPath = path.join @path, '/init.coffee'
+    @_configPath = path.join @path, '/config.cson'
+    @_packagePath = path.join @path, '/package.cson'
+    @_layoutPath = path.join @path, '/layout.cson'
+    @_initPath = path.join @path, '/init.coffee'
 
     try
-      @config = CSON.parse fs.readFileSync @configPath
-    catch
+      @config = CSON.parse fs.readFileSync @_configPath
+    catch e
+      console.warn e
       @config = {}
 
     try
-      @package = CSON.parse fs.readFileSync @packagePath
+      @package = CSON.parse fs.readFileSync @_packagePath
     catch e
-      console.log e
+      console.warn e
       @package = {}
 
     try
-      @layout = CSON.parse fs.readFileSync @layoutPath
-    catch
+      @layout = CSON.parse fs.readFileSync @_layoutPath
+    catch e
+      console.warn e
       @layout = {}
 
   init: ->
     try
-      require(@initPath)
+      require(@_initPath)
     catch e
       console.warn e
 
   save: ->
     mkpath.sync(@path)
-    fs.writeFileSync @configPath, CSON.stringify @config
-    fs.writeFileSync @packagePath, CSON.stringify @package
-    fs.writeFileSync @layoutPath, CSON.stringify @layout
+    fs.writeFileSync @_configPath, CSON.stringify @config
+    fs.writeFileSync @_packagePath, CSON.stringify @package
+    fs.writeFileSync @_layoutPath, CSON.stringify @layout
 
 module.exports = Profile

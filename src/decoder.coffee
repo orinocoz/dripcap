@@ -7,18 +7,18 @@ PaperFilter = require('paperfilter')
 
 class DecoderMap
   constructor: ->
-    @map = {}
+    @_map = {}
 
   addDecoder: (decoder) ->
     for p in decoder.lowerLayers
-      unless @map[p]
-        @map[p] = []
-      @map[p].push decoder
+      unless @_map[p]
+        @_map[p] = []
+      @_map[p].push decoder
 
   analyze: (packet) =>
     Promise.resolve().then =>
       prom = Promise.resolve(packet)
-      if array = @map[_.last(packet.layers).namespace]
+      if array = @_map[_.last(packet.layers).namespace]
         for decoder in array
           prom = do (decoder) ->
             prom.then ->
@@ -33,36 +33,36 @@ class DecoderMap
 
 class Session
   constructor: (@filterPath) ->
-    @captures = []
-    @filters = []
-    @decoderMap = new DecoderMap()
+    @_captures = []
+    @_filters = []
+    @_decoderMap = new DecoderMap()
 
   load: (decoder) ->
     klass = require(decoder)
-    @decoderMap.addDecoder(new klass)
+    @_decoderMap.addDecoder(new klass)
 
   connect: (sock) ->
-    @conn.end() if @conn?
-    @conn = net.createConnection sock
+    @_conn.end() if @_conn?
+    @_conn = net.createConnection sock
 
   capture: (option) ->
-    @captures.push option
+    @_captures.push option
 
   start: ->
     @stop()
-    for c in @captures
+    for c in @_captures
       f = new PaperFilter
       f.on 'packet', (packet) =>
-        @decoderMap.analyze(packet).then (packet) =>
-          @conn.write msgpack.encode(packet)
+        @_decoderMap.analyze(packet).then (packet) =>
+          @_conn.write msgpack.encode(packet)
 
       f.start(c.iface, c.options)
-      @filters.push f
+      @_filters.push f
 
   stop: ->
-    for f in @filters
+    for f in @_filters
       f.stop()
       f.removeAllListeners()
-    @filters = []
+    @_filters = []
 
 global.session = new Session
