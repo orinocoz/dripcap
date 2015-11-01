@@ -1,20 +1,20 @@
 {EventEmitter} = require('events')
 
 class Decoder extends EventEmitter
-  constructor: (@stream) ->
-    @stream.on 'data', (chunk) =>
-      if @buffer
-        buf = new Buffer(@buffer.length + chunk.length)
-        @buffer.copy(buf, 0, 0, @buffer.length)
-        chunk.copy(buf, @buffer.length, 0, chunk.length)
-        @buffer = buf
+  constructor: (@_stream) ->
+    @_stream.on 'data', (chunk) =>
+      if @_buffer
+        buf = new Buffer(@_buffer.length + chunk.length)
+        @_buffer.copy(buf, 0, 0, @_buffer.length)
+        chunk.copy(buf, @_buffer.length, 0, chunk.length)
+        @_buffer = buf
       else
-        @buffer = chunk
+        @_buffer = chunk
       try
         while (true)
-          res = decodeNext(@buffer)
+          res = decodeNext(@_buffer)
           @emit('data', res[0])
-          @buffer = res[1]
+          @_buffer = res[1]
       catch e
         unless e instanceof EOSError
           throw e
@@ -179,10 +179,10 @@ decode = (buf) ->
       throw e
 
 class Encoder extends EventEmitter
-  constructor: (@stream) ->
+  constructor: (@_stream) ->
 
   encode: (obj) ->
-    @stream.write encode(obj)
+    @_stream.write encode(obj)
 
 encode = (obj) ->
   buf = new Buffer(0)
