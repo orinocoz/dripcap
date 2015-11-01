@@ -3,11 +3,11 @@ path = require('path')
 _ = require('underscore')
 
 class Package
-  constructor: (@jsonPath) ->
-    @path = path.dirname(@jsonPath)
+  constructor: (jsonPath) ->
+    @path = path.dirname(jsonPath)
     @loaded = false
 
-    info = JSON.parse(fs.readFileSync(@jsonPath))
+    info = JSON.parse(fs.readFileSync(jsonPath))
 
     if info.name?
       @name = info.name
@@ -33,8 +33,8 @@ class Package
           req = path.resolve(@path, @main)
           try
             klass = require(req)
-            @_exports = new klass()
-            @_exports.activate()
+            @root = new klass()
+            @root.activate()
             @updateTheme(dripcap.theme.scheme)
 
           catch e
@@ -51,16 +51,16 @@ class Package
 
   updateTheme: (theme) ->
     @load().then =>
-      if @_exports? && @_exports.updateTheme?
-        @_exports.updateTheme theme
+      if @root? && @root.updateTheme?
+        @root.updateTheme theme
 
   deactivate: ->
     @load().then =>
       new Promise (resolve, reject) =>
         if @loaded
           try
-            @_exports.deactivate()
-            @_exports = null
+            @root.deactivate()
+            @root = null
             for key of require.cache
               if key.startsWith(@path)
                 delete require.cache[key]
