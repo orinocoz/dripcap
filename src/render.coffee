@@ -1,5 +1,6 @@
 require('coffee-script/register')
 config = require('./config')
+shell = require('shell')
 global.$ = require('jquery')
 global.riot = require('riot')
 
@@ -18,6 +19,12 @@ dripcap.action.on 'Core: Close Window', ->
 
 dripcap.action.on 'Core: Toggle DevTools', ->
   remote.getCurrentWindow().toggleDevTools()
+
+dripcap.action.on 'Core: Open Dripcap Website', ->
+  shell.openExternal 'https://github.com/dripcap/dripcap'
+
+dripcap.action.on 'Core: Show License', ->
+  shell.openExternal 'https://github.com/dripcap/dripcap/blob/master/LICENSE'
 
 dripcap.action.on 'Core: Quit', ->
   remote.getGlobal('dripcap').quit()

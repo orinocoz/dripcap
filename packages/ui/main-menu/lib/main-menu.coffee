@@ -1,4 +1,5 @@
 $ = require('jquery')
+fs = require('fs')
 
 class MainMenu
   activate: ->
@@ -42,6 +43,20 @@ class MainMenu
         label: 'Toggle DevTools'
         accelerator: 'Ctrl+Shift+I'
         action: 'Core: Toggle DevTools'
+      ]
+    ,
+      label: 'Help'
+      submenu: [
+        label: 'Open Website'
+        action: 'Core: Open dripcap Website'
+      ,
+        label: 'Show License'
+        action: 'Core: Show License'
+      ,
+        type: 'separator'
+      ,
+        label: 'Version ' + JSON.parse(fs.readFileSync(__dirname + '/../../../../package.json')).version
+        enabled: false
       ]
     ]
 
