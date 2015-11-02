@@ -46,6 +46,9 @@ dripcap.action.on 'Core: Start Sessions', ->
   else
     dripcap.action.emit 'Core: New Session'
 
+remote.require('power-monitor').on 'suspend', ->
+  dripcap.action.emit 'Core: Stop Sessions'
+
 $ ->
   $(window).unload ->
     for s in dripcap.session.list
