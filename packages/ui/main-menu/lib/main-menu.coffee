@@ -37,6 +37,10 @@ class MainMenu
       ]
     ,
       label: 'Theme'
+      submenu: [
+        label: '(no theme)'
+        enabled: false
+      ]
     ,
       label: 'Developer'
       submenu: [
@@ -68,7 +72,6 @@ class MainMenu
 
     selectedScheme = 'default'
     dripcap.theme.sub 'updateRegistory', ->
-      dripcap.menu.remove(['Theme'])
       for k, v of dripcap.theme.registory
         do (k = k, v = v) ->
           dripcap.menu.add ['Theme'],
@@ -78,6 +81,7 @@ class MainMenu
             click: ->
               selectedScheme = k
               dripcap.theme.scheme = v
+      dripcap.menu.remove(['Theme', '(no theme)'])
 
     dripcap.pubsub.sub 'Core: Capturing Status Updated', (data) ->
       if (data)

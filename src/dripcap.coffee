@@ -207,8 +207,7 @@ class Dripcap extends EventEmitter
         root
 
       @_menuTmpl = merge(path, submenu: @_menuTmpl).submenu
-      copy = JSON.parse(JSON.stringify(@_menuTmpl)).map action
-      @_menu = Menu.buildFromTemplate(copy)
+      @_menu = Menu.buildFromTemplate(_.clone(@_menuTmpl).map action)
       remote.getCurrentWindow().setMenu(@_menu)
 
     get: (path) ->
