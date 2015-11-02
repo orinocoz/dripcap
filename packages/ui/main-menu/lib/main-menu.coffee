@@ -50,6 +50,7 @@ class MainMenu
       ]
     ,
       label: 'Help'
+      role: 'help'
       submenu: [
         label: 'Open Website'
         action: 'Core: Open Dripcap Website'
