@@ -52,7 +52,7 @@ class MainMenu
       label: 'Help'
       submenu: [
         label: 'Open Website'
-        action: 'Core: Open dripcap Website'
+        action: 'Core: Open Dripcap Website'
       ,
         label: 'Show License'
         action: 'Core: Show License'
