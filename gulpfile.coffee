@@ -96,7 +96,7 @@ gulp.task 'darwin', [
       .pipe(electron.zfsdest('dripcap-darwin.zip'))
 
 gulp.task 'default', ['build'], ->
-  gulp.src(".build").pipe(runElectron())
+  gulp.src(".build").pipe(runElectron(['--enable-logging']))
 
 gulp.task 'build', [
   'coffee'
@@ -106,7 +106,7 @@ gulp.task 'build', [
 ]
 
 gulp.task 'watch', ['build'], ->
-  gulp.src(".build").pipe(runElectron())
+  gulp.src(".build").pipe(runElectron(['--enable-logging']))
   gulp.watch [
     './**/*.coffee'
     './**/*.tag'
