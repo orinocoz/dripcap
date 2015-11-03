@@ -110,6 +110,8 @@ class MACAddress
 
 class IPv4Address
   constructor: (@data) ->
+    if typeof @data == 'string'
+      @data = new Buffer(@data.split('.').map (v) -> parseInt(v))
     throw new Error 'expects Buffer' unless @data instanceof Buffer
     throw new Error 'invalid address length' unless @data.length == 4
 
@@ -120,7 +122,7 @@ class IPv4Address
 
   toMsgpack: -> [@data]
 
-  equals: (val) -> val.toString() == @toString()
+  equals: (val) -> (new IPv4Address val.toString()).toString() == @toString()
 
 class IPv6Address
   constructor: (@data) ->

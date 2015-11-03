@@ -114,9 +114,23 @@ describe "MACAddress", ->
     expect(addr.equals("01:23:45:67:89:AB")).toEqual(true)
 
 describe "IPv4Address", ->
+  it "can be constructed from Buffer", ->
+    expect ->
+      new IPv4Address(new Buffer([192,168,1,50]))
+    .not.toThrow()
+
+  it "can be constructed from String", ->
+    expect ->
+      new IPv4Address("192.168.1.50")
+    .not.toThrow()
+
   addr = new IPv4Address(new Buffer([192,168,1,50]))
   it "toString() returns a string representation", ->
     expect(addr.toString()).toEqual("192.168.1.50")
+
+  it "equals() returns if the given representation is equal to this", ->
+    addr = new IPv4Address(new Buffer([192,168,1,50]))
+    expect(addr.equals("192.168.1.50")).toEqual(true)
 
 describe "IPv4Host", ->
   addr = new IPv4Address(new Buffer([192,168,1,50]))
