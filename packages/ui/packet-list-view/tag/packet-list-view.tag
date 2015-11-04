@@ -132,7 +132,7 @@
       width: 100%;
     }
 
-    tr:hover {
+    tr:not(.head):hover {
       background-color: fade(@highlight, 40%);
     }
 
