@@ -27,7 +27,7 @@ dripcap.action.on 'Core: Show License', ->
   shell.openExternal 'https://github.com/dripcap/dripcap/blob/master/LICENSE'
 
 dripcap.action.on 'Core: Quit', ->
-  remote.getGlobal('dripcap').quit()
+  remote.require('app').quit()
 
 dripcap.pubsub.sub 'Core: Capturing Status Updated', (data) ->
   if (data)
