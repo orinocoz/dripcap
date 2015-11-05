@@ -11,13 +11,6 @@ jasmine = require('gulp-jasmine')
 npm = require('npm')
 config = require('./src/config')
 
-gulp.task 'test', ->
-  gulp.src([
-      './packages/**/spec/*.coffee'
-      './dripper/**/spec/*.coffee'
-    ])
-    .pipe(jasmine())
-
 gulp.task 'lint', ->
   gulp.src([
       './**/*.coffee'
@@ -97,6 +90,19 @@ gulp.task 'darwin', [
 
 gulp.task 'default', ['build'], ->
   gulp.src(".build").pipe(runElectron(['--enable-logging']))
+
+gulp.task 'jasmine', ->
+  gulp.src([
+      './packages/**/spec/*.coffee'
+      './dripper/**/spec/*.coffee'
+    ])
+    .pipe(jasmine())
+
+gulp.task 'test', ['build', 'jasmine'], ->
+  env = process.env
+  env["PAPERFILTER_TESTDATA"] = "uispec/test"
+  env["DRIPCAP_UI_TEST"] = __dirname
+  gulp.src(".build").pipe(runElectron([], env: env))
 
 gulp.task 'build', [
   'coffee'
