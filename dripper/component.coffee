@@ -55,6 +55,8 @@ exports.Component = Component
 
 html = '
   <div class="panel root">
+    <div class="panel ftop"></div>
+    <div class="panel fbottom"></div>
     <div class="hcontainer">
       <div class="panel left"></div>
       <div class="panel hcenter">
@@ -67,8 +69,6 @@ html = '
           <div class="hover vhover"></div>
           <div class="hover vhover"></div>
         </div>
-        <div class="panel ftop"></div>
-        <div class="panel fbottom"></div>
       </div>
       <div class="panel right"></div>
       <div class="splitter hsplitter"></div>
@@ -87,8 +87,8 @@ class Panel
     @root.data 'panel', @
 
     @hcontainer = @root.children '.hcontainer'
-    @fleftPanel = @root.children '.fleft'
-    @frightPanel = @root.children '.fright'
+    @ftopPanel = @root.children '.ftop'
+    @fbottomPanel = @root.children '.fbottom'
     @leftPanel = @hcontainer.children '.left'
     @hcenterPanel = @hcontainer.children '.hcenter'
     @rightPanel = @hcontainer.children '.right'
@@ -98,8 +98,6 @@ class Panel
     @hh1 = @hcontainer.children '.hhover:eq(1)'
 
     @vcontainer = @hcenterPanel.children '.vcontainer'
-    @ftopPanel = @hcenterPanel.children '.ftop'
-    @fbottomPanel = @hcenterPanel.children '.fbottom'
     @topPanel = @vcontainer.children '.top'
     @vcenterPanel = @vcontainer.children '.vcenter'
     @bottomPanel = @vcontainer.children '.bottom'
@@ -223,14 +221,6 @@ class Panel
     @update()
     res
 
-  leftFixed: (elem) ->
-    res = @fleftPanel.children().detach()
-    unless elem?
-      return res
-    elem.detach().appendTo @fleftPanel
-    @update()
-    res
-
   right: (elem) ->
     res = @rightPanel.children().detach()
     @hsp1.toggle elem?
@@ -243,14 +233,6 @@ class Panel
       @root.data 'h0', 1 / 3
       @root.data 'h1', 2 / 3
     elem.detach().appendTo @rightPanel
-    @update()
-    res
-
-  rightFixed: (elem) ->
-    res = @frightPanel.children().detach()
-    unless elem?
-      return res
-    elem.detach().appendTo @frightPanel
     @update()
     res
 
@@ -282,9 +264,7 @@ class Panel
     @hsp0.css 'left', (h0 * 100) + '%'
     @hsp1.css 'left', (h1 * 100) + '%'
 
-    @hcontainer.css 'left', @fleftPanel.width() + 'px'
-    @hcontainer.css 'right', @frightPanel.width() + 'px'
-    @vcontainer.css 'top', @ftopPanel.height() + 'px'
-    @vcontainer.css 'bottom', @fbottomPanel.height() + 'px'
+    @hcontainer.css 'top', @ftopPanel.height() + 'px'
+    @hcontainer.css 'bottom', @fbottomPanel.height() + 'px'
 
 exports.Panel = Panel
