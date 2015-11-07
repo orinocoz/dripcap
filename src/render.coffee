@@ -9,7 +9,9 @@ prof = new Profile config.profilePath + '/default'
 require('./dripcap').init prof
 
 remote = require('remote')
-remote.getCurrentWindow().show()
+
+unless process.env['DRIPCAP_UI_TEST']?
+  remote.getCurrentWindow().show()
 
 dripcap.action.on 'Core: New Window', ->
   remote.getGlobal('dripcap').newWindow()

@@ -21,7 +21,7 @@ app.on 'ready', ->
     do (t = t) ->
       p = p.then ->
         new Promise (res) ->
-          mainWindow = new BrowserWindow width: 1200, height: 800
+          mainWindow = new BrowserWindow width: 1200, height: 800, show: false
           mainWindow.loadUrl 'file://' + __dirname + '/../render.html'
           mainWindow.webContents.on 'did-finish-load', ->
             mainWindow.webContents.executeJavaScript "require(require('path').join(location.pathname, '../js/uitest-init'))('#{t}');"
