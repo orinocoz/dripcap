@@ -9,7 +9,7 @@ class PacketFilterView
       $ =>
         m = $('<div/>')
         @view = riot.mount(m[0], 'packet-filter-view')[0]
-        pkg.root.panel.bottomFixed(m)
+        pkg.root.panel.leftSouthFixed(m)
 
   updateTheme: (theme) ->
     @comp.updateTheme theme

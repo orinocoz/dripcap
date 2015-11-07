@@ -9,7 +9,7 @@ class StatusView
       $ =>
         m = $('<div/>')
         @view = riot.mount(m[0], 'status-view')[0]
-        pkg.root.panel.topFixed(m)
+        pkg.root.panel.northFixed(m)
 
         dripcap.pubsub.sub 'Core: Capturing Status Updated', (data) =>
           @view.capturing = data

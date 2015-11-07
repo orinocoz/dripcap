@@ -55,22 +55,42 @@ exports.Component = Component
 
 html = '
   <div class="panel root">
-    <div class="panel ftop"></div>
-    <div class="panel fbottom"></div>
+    <div class="panel fnorth"></div>
+    <div class="panel fsouth"></div>
     <div class="hcontainer">
-      <div class="panel left"></div>
+      <div class="panel left">
+        <div class="panel fnorth"></div>
+        <div class="panel fsouth"></div>
+        <div class="vcontainer"></div>
+      </div>
       <div class="panel hcenter">
         <div class="vcontainer">
-          <div class="panel top"></div>
-          <div class="panel vcenter"></div>
-          <div class="panel bottom"></div>
+          <div class="panel top">
+            <div class="panel fnorth"></div>
+            <div class="panel fsouth"></div>
+            <div class="vcontainer"></div>
+          </div>
+          <div class="panel vcenter">
+            <div class="panel fnorth"></div>
+            <div class="panel fsouth"></div>
+            <div class="vcontainer"></div>
+          </div>
+          <div class="panel bottom">
+            <div class="panel fnorth"></div>
+            <div class="panel fsouth"></div>
+            <div class="vcontainer"></div>
+          </div>
           <div class="splitter vsplitter"></div>
           <div class="splitter vsplitter"></div>
           <div class="hover vhover"></div>
           <div class="hover vhover"></div>
         </div>
       </div>
-      <div class="panel right"></div>
+      <div class="panel right">
+        <div class="panel fnorth"></div>
+        <div class="panel fsouth"></div>
+        <div class="vcontainer"></div>
+      </div>
       <div class="splitter hsplitter"></div>
       <div class="splitter hsplitter"></div>
       <div class="hover hhover"></div>
@@ -87,11 +107,15 @@ class Panel
     @root.data 'panel', @
 
     @hcontainer = @root.children '.hcontainer'
-    @ftopPanel = @root.children '.ftop'
-    @fbottomPanel = @root.children '.fbottom'
+    @fnorthPanel = @root.children '.fnorth'
+    @fsouthPanel = @root.children '.fsouth'
     @leftPanel = @hcontainer.children '.left'
+    @fLeftNorthPanel = @leftPanel.children '.fnorth'
+    @fLeftSouthPanel = @leftPanel.children '.fsouth'
     @hcenterPanel = @hcontainer.children '.hcenter'
     @rightPanel = @hcontainer.children '.right'
+    @fRightNorthPanel = @rightPanel.children '.fnorth'
+    @fRightSouthPanel = @rightPanel.children '.fsouth'
     @hsp0 = @hcontainer.children '.hsplitter:eq(0)'
     @hsp1 = @hcontainer.children '.hsplitter:eq(1)'
     @hh0 = @hcontainer.children '.hhover:eq(0)'
@@ -99,8 +123,14 @@ class Panel
 
     @vcontainer = @hcenterPanel.children '.vcontainer'
     @topPanel = @vcontainer.children '.top'
+    @fTopNorthPanel = @topPanel.children '.fnorth'
+    @fTopSouthPanel = @topPanel.children '.fsouth'
     @vcenterPanel = @vcontainer.children '.vcenter'
+    @fCenterNorthPanel = @vcenterPanel.children '.fnorth'
+    @fCenterSouthPanel = @vcenterPanel.children '.fsouth'
     @bottomPanel = @vcontainer.children '.bottom'
+    @fBottomNorthPanel = @bottomPanel.children '.fnorth'
+    @fBottomSouthPanel = @bottomPanel.children '.fsouth'
     @vsp0 = @vcontainer.children '.vsplitter:eq(0)'
     @vsp1 = @vcontainer.children '.vsplitter:eq(1)'
     @vh0 = @vcontainer.children '.vhover:eq(0)'
@@ -161,7 +191,8 @@ class Panel
     @update()
 
   top: (elem) ->
-    res = @topPanel.children().detach()
+    container = @topPanel.children('.vcontainer')
+    res = container.children().detach()
     @vsp0.toggle elem?
     unless elem?
       @root.data 'v0', 0.0
@@ -171,20 +202,37 @@ class Panel
     else
       @root.data 'v0', 1 / 3
       @root.data 'v1', 2 / 3
-    elem.detach().appendTo @topPanel
+    elem.detach().appendTo container
     @update()
     res
 
-  topFixed: (elem) ->
-    res = @ftopPanel.children().detach()
+  topNorthFixed: (elem) ->
+    res = @fTopNorthPanel.children().detach()
     unless elem?
       return res
-    elem.detach().appendTo @ftopPanel
+    elem.detach().appendTo @fTopNorthPanel
+    @update()
+    res
+
+  topSouthFixed: (elem) ->
+    res = @fTopSouthPanel.children().detach()
+    unless elem?
+      return res
+    elem.detach().appendTo @fTopSouthPanel
+    @update()
+    res
+
+  northFixed: (elem) ->
+    res = @fnorthPanel.children().detach()
+    unless elem?
+      return res
+    elem.detach().appendTo @fnorthPanel
     @update()
     res
 
   bottom: (elem) ->
-    res = @bottomPanel.children().detach()
+    container = @bottomPanel.children('.vcontainer')
+    res = container.children().detach()
     @vsp1.toggle elem?
     unless elem?
       @root.data 'v1', 1.0
@@ -194,20 +242,37 @@ class Panel
     else
       @root.data 'v0', 1 / 3
       @root.data 'v1', 2 / 3
-    elem.detach().appendTo @bottomPanel
+    elem.detach().appendTo container
     @update()
     res
 
-  bottomFixed: (elem) ->
-    res = @fbottomPanel.children().detach()
+  bottomNorthFixed: (elem) ->
+    res = @fBottomNorthPanel.children().detach()
     unless elem?
       return res
-    elem.detach().appendTo @fbottomPanel
+    elem.detach().appendTo @fBottomNorthPanel
+    @update()
+    res
+
+  bottomSouthFixed: (elem) ->
+    res = @fBottomSouthPanel.children().detach()
+    unless elem?
+      return res
+    elem.detach().appendTo @fBottomSouthPanel
+    @update()
+    res
+
+  southFixed: (elem) ->
+    res = @fsouthPanel.children().detach()
+    unless elem?
+      return res
+    elem.detach().appendTo @fsouthPanel
     @update()
     res
 
   left: (elem) ->
-    res = @leftPanel.children().detach()
+    container = @leftPanel.children('.vcontainer')
+    res = container.children().detach()
     @hsp0.toggle elem?
     unless elem?
       @root.data 'h0', 0.0
@@ -217,12 +282,29 @@ class Panel
     else
       @root.data 'h0', 1 / 3
       @root.data 'h1', 2 / 3
-    elem.detach().appendTo @leftPanel
+    elem.detach().appendTo container
+    @update()
+    res
+
+  leftNorthFixed: (elem) ->
+    res = @fLeftNorthPanel.children().detach()
+    unless elem?
+      return res
+    elem.detach().appendTo @fLeftNorthPanel
+    @update()
+    res
+
+  leftSouthFixed: (elem) ->
+    res = @fLeftSouthPanel.children().detach()
+    unless elem?
+      return res
+    elem.detach().appendTo @fLeftSouthPanel
     @update()
     res
 
   right: (elem) ->
-    res = @rightPanel.children().detach()
+    container = @rightPanel.children('.vcontainer')
+    res = container.children().detach()
     @hsp1.toggle elem?
     unless elem?
       @root.data 'h1', 1.0
@@ -232,15 +314,48 @@ class Panel
     else
       @root.data 'h0', 1 / 3
       @root.data 'h1', 2 / 3
-    elem.detach().appendTo @rightPanel
+    elem.detach().appendTo container
+    @update()
+    res
+
+  rightNorthFixed: (elem) ->
+    res = @fRightNorthPanel.children().detach()
+    unless elem?
+      return res
+    elem.detach().appendTo @fRightNorthPanel
+    @update()
+    res
+
+  rightSouthFixed: (elem) ->
+    res = @fRightSouthPanel.children().detach()
+    unless elem?
+      return res
+    elem.detach().appendTo @fRightSouthPanel
     @update()
     res
 
   center: (elem) ->
-    res = @vcenterPanel.children().detach()
+    container = @vcenterPanel.children('.vcontainer')
+    res = container.children().detach()
     unless elem?
       return res
-    elem.detach().appendTo @vcenterPanel
+    elem.detach().appendTo container
+    @update()
+    res
+
+  centerNorthFixed: (elem) ->
+    res = @fCenterNorthPanel.children().detach()
+    unless elem?
+      return res
+    elem.detach().appendTo @fCenterNorthPanel
+    @update()
+    res
+
+  centerSouthFixed: (elem) ->
+    res = @fCenterSouthPanel.children().detach()
+    unless elem?
+      return res
+    elem.detach().appendTo @fCenterSouthPanel
     @update()
     res
 
@@ -264,7 +379,31 @@ class Panel
     @hsp0.css 'left', (h0 * 100) + '%'
     @hsp1.css 'left', (h1 * 100) + '%'
 
-    @hcontainer.css 'top', @ftopPanel.height() + 'px'
-    @hcontainer.css 'bottom', @fbottomPanel.height() + 'px'
+    @hcontainer.css 'top', @fnorthPanel.height() + 'px'
+    @hcontainer.css 'bottom', @fsouthPanel.height() + 'px'
+
+    @leftPanel.children('.vcontainer')
+      .css 'top', @fLeftNorthPanel.height() + 'px'
+      .css 'bottom', @fLeftSouthPanel.height() + 'px'
+
+    @rightPanel.children('.vcontainer')
+      .css 'top', @fRightNorthPanel.height() + 'px'
+      .css 'bottom', @fRightSouthPanel.height() + 'px'
+
+    @topPanel.children('.vcontainer')
+      .css 'top', @fRightNorthPanel.height() + 'px'
+      .css 'bottom', @fRightSouthPanel.height() + 'px'
+
+    @topPanel.children('.vcontainer')
+      .css 'top', @fTopNorthPanel.height() + 'px'
+      .css 'bottom', @fTopSouthPanel.height() + 'px'
+
+    @bottomPanel.children('.vcontainer')
+      .css 'top', @fBottomNorthPanel.height() + 'px'
+      .css 'bottom', @fBottomSouthPanel.height() + 'px'
+
+    @vcenterPanel.children('.vcontainer')
+      .css 'top', @fCenterNorthPanel.height() + 'px'
+      .css 'bottom', @fCenterSouthPanel.height() + 'px'
 
 exports.Panel = Panel
