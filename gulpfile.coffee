@@ -48,6 +48,11 @@ gulp.task 'npm', ['copypkg'], ->
   p = p.then ->
     new Promise (res) ->
       npm.prefix = './.build/'
+      npm.commands.uninstall ['dripper', 'msgcap'], res
+
+  p = p.then ->
+    new Promise (res) ->
+      npm.prefix = './.build/'
       npm.commands.install [], res
 
   glob.sync('./.build/packages/**/package.json').forEach (conf) ->
