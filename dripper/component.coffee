@@ -401,10 +401,6 @@ class Panel
       .css 'bottom', @_fRightSouthPanel.height() + 'px'
 
     @_topPanel.children('.vcontainer')
-      .css 'top', @_fRightNorthPanel.height() + 'px'
-      .css 'bottom', @_fRightSouthPanel.height() + 'px'
-
-    @_topPanel.children('.vcontainer')
       .css 'top', @_fTopNorthPanel.height() + 'px'
       .css 'bottom', @_fTopSouthPanel.height() + 'px'
 
