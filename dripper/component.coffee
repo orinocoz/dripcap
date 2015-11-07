@@ -190,18 +190,20 @@ class Panel
 
     @_update()
 
-  top: (elem) ->
+  top: (id, elem) ->
     container = @_topPanel.children('.vcontainer')
-    res = container.children().detach()
+    res = container.children("[tab-id=#{id}]").detach()
     @_vsp0.toggle elem?
     unless elem?
       @root.data 'v0', 0.0
+      res.removeAttr 'tab-id'
       return res
     if @root.data('v1') == 1.0
       @root.data 'v0', 0.5
     else
       @root.data 'v0', 1 / 3
       @root.data 'v1', 2 / 3
+    elem.attr 'tab-id', id
     elem.detach().appendTo container
     @_update()
     res
@@ -230,18 +232,20 @@ class Panel
     @_update()
     res
 
-  bottom: (elem) ->
+  bottom: (id, elem) ->
     container = @_bottomPanel.children('.vcontainer')
-    res = container.children().detach()
+    res = container.children("[tab-id=#{id}]").detach()
     @_vsp1.toggle elem?
     unless elem?
       @root.data 'v1', 1.0
+      res.removeAttr 'tab-id'
       return res
     if @root.data('v0') == 0.0
       @root.data 'v1', 0.5
     else
       @root.data 'v0', 1 / 3
       @root.data 'v1', 2 / 3
+    elem.attr 'tab-id', id
     elem.detach().appendTo container
     @_update()
     res
@@ -270,18 +274,20 @@ class Panel
     @_update()
     res
 
-  left: (elem) ->
+  left: (id, elem) ->
     container = @_leftPanel.children('.vcontainer')
-    res = container.children().detach()
+    res = container.children("[tab-id=#{id}]").detach()
     @_hsp0.toggle elem?
     unless elem?
       @root.data 'h0', 0.0
+      res.removeAttr 'tab-id'
       return res
     if @root.data('h1') == 1.0
       @root.data 'h0', 0.5
     else
       @root.data 'h0', 1 / 3
       @root.data 'h1', 2 / 3
+    elem.attr 'tab-id', id
     elem.detach().appendTo container
     @_update()
     res
@@ -302,18 +308,20 @@ class Panel
     @_update()
     res
 
-  right: (elem) ->
+  right: (id, elem) ->
     container = @_rightPanel.children('.vcontainer')
-    res = container.children().detach()
+    res = container.children("[tab-id=#{id}]").detach()
     @_hsp1.toggle elem?
     unless elem?
       @root.data 'h1', 1.0
+      res.removeAttr 'tab-id'
       return res
     if @root.data('h0') == 0.0
       @root.data 'h1', 0.5
     else
       @root.data 'h0', 1 / 3
       @root.data 'h1', 2 / 3
+    elem.attr 'tab-id', id
     elem.detach().appendTo container
     @_update()
     res
@@ -334,11 +342,13 @@ class Panel
     @_update()
     res
 
-  center: (elem) ->
+  center: (id, elem) ->
     container = @_vcenterPanel.children('.vcontainer')
-    res = container.children().detach()
+    res = container.children("[tab-id=#{id}]").detach()
     unless elem?
+      res.removeAttr 'tab-id'
       return res
+    elem.attr 'tab-id', id
     elem.detach().appendTo container
     @_update()
     res

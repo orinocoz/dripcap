@@ -113,7 +113,7 @@ class PacketListView
     dripcap.package.load('main-view').then (pkg) =>
       $ =>
         m = $('<div class="wrapper noscroll" />')
-        pkg.root.panel.left(m)
+        pkg.root.panel.left('packet-list-view', m)
 
         n = $('<div class="wrapper" />').attr('tabIndex', '0').appendTo m
         @list = riot.mount n[0], 'packet-list-view',
