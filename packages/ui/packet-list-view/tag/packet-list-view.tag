@@ -82,15 +82,15 @@
         parseFloat(next.css('flex-grow'))
       prev.css('flex-grow', ratio * sum)
       next.css('flex-grow', (1.0 - ratio) * sum)
-      self.update()
+      self.calculate()
 
     width = [0.6, 1.3, 1.3, 0.6]
     $(@root).children('.container').each (i, elem) ->
       $(elem).css 'flex-grow', width[i]
 
-    @update()
+    @calculate()
 
-  @update = =>
+  @calculate = =>
     con = $(@root).children('.container')
 
     sum = 0
