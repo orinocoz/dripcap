@@ -7,14 +7,9 @@ class StatusView
     @comp = new Component "#{__dirname}/../tag/*.tag"
     dripcap.package.load('main-view').then (pkg) =>
       $ =>
-        panel = $('#main-view').children('.panel.root').detach()
-        panel2 = new Panel
-        panel2.center panel
-        $('#main-view').append panel2.root
-
         m = $('<div/>')
         @view = riot.mount(m[0], 'status-view')[0]
-        panel2.topFixed(m)
+        pkg.root.panel.topFixed(m)
 
         dripcap.pubsub.sub 'Core: Capturing Status Updated', (data) =>
           @view.capturing = data

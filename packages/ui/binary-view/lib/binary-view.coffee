@@ -6,17 +6,10 @@ class BinaryView
 
   activate: ->
     @comp = new Component "#{__dirname}/../tag/*.tag"
-    dripcap.package.load('packet-view').then (pkg) =>
+    dripcap.package.load('main-view').then (pkg) =>
       $ =>
-        panel = $('[riot-tag=packet-view]').closest('.panel.root').data('panel')
-        pview = panel.right()
-
-        panel2 = new Panel
-        panel.right(panel2.root)
-
         m = $('<div class="wrapper" />').attr 'tabIndex', '0'
-        panel2.center(pview)
-        panel2.bottom(m)
+        pkg.root.panel.bottom(m)
 
         @view = riot.mount(m[0], 'binary-view')[0]
         ulhex = $(@view.root).find('.hex')

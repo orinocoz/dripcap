@@ -4,18 +4,17 @@ $ = require('jquery')
 
 class MainView
   activate: ->
-    @comp = new Component "#{__dirname}/../less/*.less"
+    @_comp = new Component "#{__dirname}/../less/*.less"
     $ =>
-      panel = new Panel
-      panel.right($('<a></a>'))
-      @elem = $('<div id="main-view">').append(panel.root)
-      @elem.appendTo $('body')
+      @panel = new Panel
+      @_elem = $('<div id="main-view">').append(@panel.root)
+      @_elem.appendTo $('body')
 
   updateTheme: (theme) ->
-    @comp.updateTheme theme
+    @_comp.updateTheme theme
 
   deactivate: ->
-    @elem.remove()
-    @comp.destroy()
+    @_elem.remove()
+    @_comp.destroy()
 
 module.exports = MainView

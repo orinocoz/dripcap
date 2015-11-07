@@ -6,11 +6,10 @@ class PacketListView
 
   activate: ->
     @comp = new Component "#{__dirname}/../tag/*.tag"
-    dripcap.package.load('packet-list-view').then (pkg) =>
+    dripcap.package.load('main-view').then (pkg) =>
       $ =>
-        panel = $('[riot-tag=packet-list-view]').closest('.panel.root').data('panel')
         m = $('<div class="wrapper" />').attr 'tabIndex', '0'
-        panel.right(m)
+        pkg.root.panel.center(m)
         @view = riot.mount(m[0], 'packet-view')[0]
 
         dripcap.session.on 'created', (session) =>
