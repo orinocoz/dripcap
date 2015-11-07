@@ -103,12 +103,12 @@ html = '
 
 class Panel
   constructor: ->
-    @_root = $(html)
-    @_root.data 'panel', @
+    @root = $(html)
+    @root.data 'panel', @
 
-    @_hcontainer = @_root.children '.hcontainer'
-    @_fnorthPanel = @_root.children '.fnorth'
-    @_fsouthPanel = @_root.children '.fsouth'
+    @_hcontainer = @root.children '.hcontainer'
+    @_fnorthPanel = @root.children '.fnorth'
+    @_fsouthPanel = @root.children '.fsouth'
     @_leftPanel = @_hcontainer.children '.left'
     @_fLeftNorthPanel = @_leftPanel.children '.fnorth'
     @_fLeftSouthPanel = @_leftPanel.children '.fsouth'
@@ -136,10 +136,10 @@ class Panel
     @_vh0 = @_vcontainer.children '.vhover:eq(0)'
     @_vh1 = @_vcontainer.children '.vhover:eq(1)'
 
-    @_root.data 'v0', 0.0
-    @_root.data 'v1', 1.0
-    @_root.data 'h0', 0.0
-    @_root.data 'h1', 1.0
+    @root.data 'v0', 0.0
+    @root.data 'v1', 1.0
+    @root.data 'h0', 0.0
+    @root.data 'h1', 1.0
 
     @_vh0.hide()
     @_vh1.hide()
@@ -162,30 +162,30 @@ class Panel
 
     @_vh0.on 'mousemove', (e) =>
       v = (e.clientY - @_vcontainer.offset().top) / @_vcontainer.height()
-      v1 = @_root.data('v1')
+      v1 = @root.data('v1')
       if v < v1
-        @_root.data 'v0', v
+        @root.data 'v0', v
         @_update()
 
     @_vh1.on 'mousemove', (e) =>
       v = (e.clientY - @_vcontainer.offset().top) / @_vcontainer.height()
-      v0 = @_root.data('v0')
+      v0 = @root.data('v0')
       if v > v0
-        @_root.data 'v1', v
+        @root.data 'v1', v
         @_update()
 
     @_hh0.on 'mousemove', (e) =>
       h = (e.clientX - @_hcontainer.offset().left) / @_hcontainer.width()
-      h1 = @_root.data('h1')
+      h1 = @root.data('h1')
       if h < h1
-        @_root.data 'h0', h
+        @root.data 'h0', h
         @_update()
 
     @_hh1.on 'mousemove', (e) =>
       h = (e.clientX - @_hcontainer.offset().left) / @_hcontainer.width()
-      h0 = @_root.data('h0')
+      h0 = @root.data('h0')
       if h > h0
-        @_root.data 'h1', h
+        @root.data 'h1', h
         @_update()
 
     @_update()
@@ -195,13 +195,13 @@ class Panel
     res = container.children().detach()
     @_vsp0.toggle elem?
     unless elem?
-      @_root.data 'v0', 0.0
+      @root.data 'v0', 0.0
       return res
-    if @_root.data('v1') == 1.0
-      @_root.data 'v0', 0.5
+    if @root.data('v1') == 1.0
+      @root.data 'v0', 0.5
     else
-      @_root.data 'v0', 1 / 3
-      @_root.data 'v1', 2 / 3
+      @root.data 'v0', 1 / 3
+      @root.data 'v1', 2 / 3
     elem.detach().appendTo container
     @_update()
     res
@@ -235,13 +235,13 @@ class Panel
     res = container.children().detach()
     @_vsp1.toggle elem?
     unless elem?
-      @_root.data 'v1', 1.0
+      @root.data 'v1', 1.0
       return res
-    if @_root.data('v0') == 0.0
-      @_root.data 'v1', 0.5
+    if @root.data('v0') == 0.0
+      @root.data 'v1', 0.5
     else
-      @_root.data 'v0', 1 / 3
-      @_root.data 'v1', 2 / 3
+      @root.data 'v0', 1 / 3
+      @root.data 'v1', 2 / 3
     elem.detach().appendTo container
     @_update()
     res
@@ -275,13 +275,13 @@ class Panel
     res = container.children().detach()
     @_hsp0.toggle elem?
     unless elem?
-      @_root.data 'h0', 0.0
+      @root.data 'h0', 0.0
       return res
-    if @_root.data('h1') == 1.0
-      @_root.data 'h0', 0.5
+    if @root.data('h1') == 1.0
+      @root.data 'h0', 0.5
     else
-      @_root.data 'h0', 1 / 3
-      @_root.data 'h1', 2 / 3
+      @root.data 'h0', 1 / 3
+      @root.data 'h1', 2 / 3
     elem.detach().appendTo container
     @_update()
     res
@@ -307,13 +307,13 @@ class Panel
     res = container.children().detach()
     @_hsp1.toggle elem?
     unless elem?
-      @_root.data 'h1', 1.0
+      @root.data 'h1', 1.0
       return res
-    if @_root.data('h0') == 0.0
-      @_root.data 'h1', 0.5
+    if @root.data('h0') == 0.0
+      @root.data 'h1', 0.5
     else
-      @_root.data 'h0', 1 / 3
-      @_root.data 'h1', 2 / 3
+      @root.data 'h0', 1 / 3
+      @root.data 'h1', 2 / 3
     elem.detach().appendTo container
     @_update()
     res
@@ -360,10 +360,10 @@ class Panel
     res
 
   _update: ->
-    v0 = @_root.data('v0')
-    v1 = @_root.data('v1')
-    h0 = @_root.data('h0')
-    h1 = @_root.data('h1')
+    v0 = @root.data('v0')
+    v1 = @root.data('v1')
+    h0 = @root.data('h0')
+    h1 = @root.data('h1')
 
     @_topPanel.css 'bottom', (100 - v0 * 100) + '%'
     @_vcenterPanel.css 'top', (v0 * 100) + '%'
