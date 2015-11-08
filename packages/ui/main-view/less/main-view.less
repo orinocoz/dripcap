@@ -90,7 +90,28 @@
       margin-left: -1px;
     }
 
-    .top, .fnorth {
+    .tab {
+      float: left;
+      padding: 4px 12px;
+      cursor: default;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+
+      &:hover {
+        border-top-color: fade(@focus, 30%);
+      }
+
+      &.selected {
+        border-top-color: @focus;
+      }
+    }
+
+    .tabcontainer {
+      position: absolute;
+      border-bottom: 1px dotted @border;
+    }
+
+    .top, .fnorth, .tabcontainer {
       top: 0;
       left: 0;
       right: 0;

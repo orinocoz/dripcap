@@ -59,6 +59,7 @@ html = '
     <div class="panel fsouth"></div>
     <div class="hcontainer">
       <div class="panel left">
+        <div class="tabcontainer"></div>
         <div class="panel fnorth"></div>
         <div class="panel fsouth"></div>
         <div class="vcontainer"></div>
@@ -66,16 +67,19 @@ html = '
       <div class="panel hcenter">
         <div class="vcontainer">
           <div class="panel top">
+            <div class="tabcontainer"></div>
             <div class="panel fnorth"></div>
             <div class="panel fsouth"></div>
             <div class="vcontainer"></div>
           </div>
           <div class="panel vcenter">
+            <div class="tabcontainer"></div>
             <div class="panel fnorth"></div>
             <div class="panel fsouth"></div>
             <div class="vcontainer"></div>
           </div>
           <div class="panel bottom">
+            <div class="tabcontainer"></div>
             <div class="panel fnorth"></div>
             <div class="panel fsouth"></div>
             <div class="vcontainer"></div>
@@ -87,6 +91,7 @@ html = '
         </div>
       </div>
       <div class="panel right">
+        <div class="tabcontainer"></div>
         <div class="panel fnorth"></div>
         <div class="panel fsouth"></div>
         <div class="vcontainer"></div>
@@ -96,8 +101,6 @@ html = '
       <div class="hover hhover"></div>
       <div class="hover hhover"></div>
     </div>
-    <div class="panel fleft"></div>
-    <div class="panel fright"></div>
   </div>
 '
 
@@ -125,9 +128,9 @@ class Panel
     @_topPanel = @_vcontainer.children '.top'
     @_fTopNorthPanel = @_topPanel.children '.fnorth'
     @_fTopSouthPanel = @_topPanel.children '.fsouth'
-    @_vcenterPanel = @_vcontainer.children '.vcenter'
-    @_fCenterNorthPanel = @_vcenterPanel.children '.fnorth'
-    @_fCenterSouthPanel = @_vcenterPanel.children '.fsouth'
+    @_centerPanel = @_vcontainer.children '.vcenter'
+    @_fCenterNorthPanel = @_centerPanel.children '.fnorth'
+    @_fCenterSouthPanel = @_centerPanel.children '.fsouth'
     @_bottomPanel = @_vcontainer.children '.bottom'
     @_fBottomNorthPanel = @_bottomPanel.children '.fnorth'
     @_fBottomSouthPanel = @_bottomPanel.children '.fsouth'
@@ -155,10 +158,21 @@ class Panel
     @_hh0.on 'mouseup mouseout', -> $(@).hide()
     @_hh1.on 'mouseup mouseout', -> $(@).hide()
 
-    @_vsp0.on 'mousedown', => @_vh0.show()
-    @_vsp1.on 'mousedown', => @_vh1.show()
-    @_hsp0.on 'mousedown', => @_hh0.show()
-    @_hsp1.on 'mousedown', => @_hh1.show()
+    @_vsp0.on 'mousedown', =>
+      @_vh0.show()
+      false
+
+    @_vsp1.on 'mousedown', =>
+      @_vh1.show()
+      false
+
+    @_hsp0.on 'mousedown', =>
+      @_hh0.show()
+      false
+
+    @_hsp1.on 'mousedown', =>
+      @_hh1.show()
+      false
 
     @_vh0.on 'mousemove', (e) =>
       v = (e.clientY - @_vcontainer.offset().top) / @_vcontainer.height()
@@ -190,7 +204,7 @@ class Panel
 
     @_update()
 
-  top: (id, elem) ->
+  top: (id, elem, tab) ->
     container = @_topPanel.children('.vcontainer')
     res = container.children("[tab-id=#{id}]").detach()
     @_vsp0.toggle elem?
@@ -204,6 +218,7 @@ class Panel
       @root.data 'v0', 1 / 3
       @root.data 'v1', 2 / 3
     elem.attr 'tab-id', id
+    elem.data('tab', tab) if tab?
     elem.detach().appendTo container
     @_update()
     res
@@ -232,7 +247,7 @@ class Panel
     @_update()
     res
 
-  bottom: (id, elem) ->
+  bottom: (id, elem, tab) ->
     container = @_bottomPanel.children('.vcontainer')
     res = container.children("[tab-id=#{id}]").detach()
     @_vsp1.toggle elem?
@@ -246,6 +261,7 @@ class Panel
       @root.data 'v0', 1 / 3
       @root.data 'v1', 2 / 3
     elem.attr 'tab-id', id
+    elem.data('tab', tab) if tab?
     elem.detach().appendTo container
     @_update()
     res
@@ -274,7 +290,7 @@ class Panel
     @_update()
     res
 
-  left: (id, elem) ->
+  left: (id, elem, tab) ->
     container = @_leftPanel.children('.vcontainer')
     res = container.children("[tab-id=#{id}]").detach()
     @_hsp0.toggle elem?
@@ -288,6 +304,7 @@ class Panel
       @root.data 'h0', 1 / 3
       @root.data 'h1', 2 / 3
     elem.attr 'tab-id', id
+    elem.data('tab', tab) if tab?
     elem.detach().appendTo container
     @_update()
     res
@@ -308,7 +325,7 @@ class Panel
     @_update()
     res
 
-  right: (id, elem) ->
+  right: (id, elem, tab) ->
     container = @_rightPanel.children('.vcontainer')
     res = container.children("[tab-id=#{id}]").detach()
     @_hsp1.toggle elem?
@@ -322,6 +339,7 @@ class Panel
       @root.data 'h0', 1 / 3
       @root.data 'h1', 2 / 3
     elem.attr 'tab-id', id
+    elem.data('tab', tab) if tab?
     elem.detach().appendTo container
     @_update()
     res
@@ -342,13 +360,14 @@ class Panel
     @_update()
     res
 
-  center: (id, elem) ->
-    container = @_vcenterPanel.children('.vcontainer')
+  center: (id, elem, tab) ->
+    container = @_centerPanel.children('.vcontainer')
     res = container.children("[tab-id=#{id}]").detach()
     unless elem?
       res.removeAttr 'tab-id'
       return res
     elem.attr 'tab-id', id
+    elem.data('tab', tab) if tab?
     elem.detach().appendTo container
     @_update()
     res
@@ -376,8 +395,8 @@ class Panel
     h1 = @root.data('h1')
 
     @_topPanel.css 'bottom', (100 - v0 * 100) + '%'
-    @_vcenterPanel.css 'top', (v0 * 100) + '%'
-    @_vcenterPanel.css 'bottom', (100 - v1 * 100) + '%'
+    @_centerPanel.css 'top', (v0 * 100) + '%'
+    @_centerPanel.css 'bottom', (100 - v1 * 100) + '%'
     @_bottomPanel.css 'top', (v1 * 100) + '%'
     @_vsp0.css 'top', (v0 * 100) + '%'
     @_vsp1.css 'top', (v1 * 100) + '%'
@@ -389,27 +408,60 @@ class Panel
     @_hsp0.css 'left', (h0 * 100) + '%'
     @_hsp1.css 'left', (h1 * 100) + '%'
 
+    update = (panel) ->
+      panels = panel.children('.vcontainer').children('[tab-id]')
+      currentId = panels.filter(':visible').attr('tab-id')
+      tabs = panels.get().map (elem) ->
+        id = $(elem).attr('tab-id')
+        tab = $('<div>')
+          .addClass('tab')
+          .text(id)
+          .toggleClass('selected', currentId == id)
+          .attr('tab-id', id)
+          .click ->
+            id = $(@).attr('tab-id')
+            $(@).addClass('selected').siblings().removeClass('selected')
+            $(@).parent().siblings('.vcontainer').children('[tab-id]').each (i, elem) ->
+              $(elem).toggle($(elem).attr('tab-id') == id)
+
+        if $(elem).data('tab')?
+          tab.empty().append($(elem).data('tab').detach())
+
+        tab
+
+      panels.each (i, elem) ->
+        $(elem).toggle($(elem).attr('tab-id') == currentId)
+
+      tabcontainer = panel.children('.tabcontainer')
+      tabcontainer.empty()
+      tabcontainer.append(tabs) if tabs.length > 1
+
     @_hcontainer.css 'top', @_fnorthPanel.height() + 'px'
     @_hcontainer.css 'bottom', @_fsouthPanel.height() + 'px'
 
+    update(@_leftPanel)
     @_leftPanel.children('.vcontainer')
-      .css 'top', @_fLeftNorthPanel.height() + 'px'
+      .css 'top', @_fLeftNorthPanel.height() + @_leftPanel.children('.tabcontainer').height() + 'px'
       .css 'bottom', @_fLeftSouthPanel.height() + 'px'
 
+    update(@_rightPanel)
     @_rightPanel.children('.vcontainer')
-      .css 'top', @_fRightNorthPanel.height() + 'px'
+      .css 'top', @_fRightNorthPanel.height() + @_rightPanel.children('.tabcontainer').height() + 'px'
       .css 'bottom', @_fRightSouthPanel.height() + 'px'
 
+    update(@_topPanel)
     @_topPanel.children('.vcontainer')
-      .css 'top', @_fTopNorthPanel.height() + 'px'
+      .css 'top', @_fTopNorthPanel.height() + @_topPanel.children('.tabcontainer').height() + 'px'
       .css 'bottom', @_fTopSouthPanel.height() + 'px'
 
+    update(@_bottomPanel)
     @_bottomPanel.children('.vcontainer')
-      .css 'top', @_fBottomNorthPanel.height() + 'px'
+      .css 'top', @_fBottomNorthPanel.height() + @_bottomPanel.children('.tabcontainer').height() + 'px'
       .css 'bottom', @_fBottomSouthPanel.height() + 'px'
 
-    @_vcenterPanel.children('.vcontainer')
-      .css 'top', @_fCenterNorthPanel.height() + 'px'
+    update(@_centerPanel)
+    @_centerPanel.children('.vcontainer')
+      .css 'top', @_fCenterNorthPanel.height() + @_centerPanel.children('.tabcontainer').height() + 'px'
       .css 'bottom', @_fCenterSouthPanel.height() + 'px'
 
 exports.Panel = Panel

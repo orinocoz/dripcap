@@ -9,7 +9,7 @@ class BinaryView
     dripcap.package.load('main-view').then (pkg) =>
       $ =>
         m = $('<div class="wrapper" />').attr 'tabIndex', '0'
-        pkg.root.panel.bottom('binary-view', m)
+        pkg.root.panel.bottom('binary-view', m, $('<i class="fa fa-file-text"> Binary</i>'))
 
         @view = riot.mount(m[0], 'binary-view')[0]
         ulhex = $(@view.root).find('.hex')

@@ -9,7 +9,7 @@ class PacketListView
     dripcap.package.load('main-view').then (pkg) =>
       $ =>
         m = $('<div class="wrapper" />').attr 'tabIndex', '0'
-        pkg.root.panel.center('packet-view', m)
+        pkg.root.panel.center('packet-view', m, $('<i class="fa fa-cubes"> Packet</i>'))
         @view = riot.mount(m[0], 'packet-view')[0]
 
         dripcap.session.on 'created', (session) =>
