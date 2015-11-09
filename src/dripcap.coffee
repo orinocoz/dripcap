@@ -213,7 +213,11 @@ class Dripcap extends EventEmitter
 
       @_menuTmpl = merge(path, submenu: @_menuTmpl).submenu
       @_menu = Menu.buildFromTemplate(_.clone(@_menuTmpl).map action)
-      remote.getCurrentWindow().setMenu(@_menu)
+
+      if process.platform != 'darwin'
+        remote.getCurrentWindow().setMenu(@_menu)
+      else
+        Menu.setApplicationMenu(@_menu)
 
     get: (path) ->
       return null unless path.length > 0
