@@ -24,7 +24,9 @@ class PacketListView
     @comp.updateTheme theme
 
   deactivate: ->
-    @view.unmount()
-    @comp.destroy()
+    dripcap.package.load('main-view').then (pkg) =>
+      pkg.root.panel.center('packet-view')
+      @view.unmount()
+      @comp.destroy()
 
 module.exports = PacketListView

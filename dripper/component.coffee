@@ -211,6 +211,7 @@ class Panel
     unless elem?
       @root.data 'v0', 0.0
       res.removeAttr 'tab-id'
+      @_update()
       return res
     if @root.data('v1') == 1.0
       @root.data 'v0', 0.5
@@ -226,6 +227,7 @@ class Panel
   topNorthFixed: (elem) ->
     res = @_fTopNorthPanel.children().detach()
     unless elem?
+      @_update()
       return res
     elem.detach().appendTo @_fTopNorthPanel
     @_update()
@@ -234,6 +236,7 @@ class Panel
   topSouthFixed: (elem) ->
     res = @_fTopSouthPanel.children().detach()
     unless elem?
+      @_update()
       return res
     elem.detach().appendTo @_fTopSouthPanel
     @_update()
@@ -242,6 +245,7 @@ class Panel
   northFixed: (elem) ->
     res = @_fnorthPanel.children().detach()
     unless elem?
+      @_update()
       return res
     elem.detach().appendTo @_fnorthPanel
     @_update()
@@ -254,6 +258,7 @@ class Panel
     unless elem?
       @root.data 'v1', 1.0
       res.removeAttr 'tab-id'
+      @_update()
       return res
     if @root.data('v0') == 0.0
       @root.data 'v1', 0.5
@@ -269,6 +274,7 @@ class Panel
   bottomNorthFixed: (elem) ->
     res = @_fBottomNorthPanel.children().detach()
     unless elem?
+      @_update()
       return res
     elem.detach().appendTo @_fBottomNorthPanel
     @_update()
@@ -277,6 +283,7 @@ class Panel
   bottomSouthFixed: (elem) ->
     res = @_fBottomSouthPanel.children().detach()
     unless elem?
+      @_update()
       return res
     elem.detach().appendTo @_fBottomSouthPanel
     @_update()
@@ -285,6 +292,7 @@ class Panel
   southFixed: (elem) ->
     res = @_fsouthPanel.children().detach()
     unless elem?
+      @_update()
       return res
     elem.detach().appendTo @_fsouthPanel
     @_update()
@@ -297,6 +305,7 @@ class Panel
     unless elem?
       @root.data 'h0', 0.0
       res.removeAttr 'tab-id'
+      @_update()
       return res
     if @root.data('h1') == 1.0
       @root.data 'h0', 0.5
@@ -312,6 +321,7 @@ class Panel
   leftNorthFixed: (elem) ->
     res = @_fLeftNorthPanel.children().detach()
     unless elem?
+      @_update()
       return res
     elem.detach().appendTo @_fLeftNorthPanel
     @_update()
@@ -320,6 +330,7 @@ class Panel
   leftSouthFixed: (elem) ->
     res = @_fLeftSouthPanel.children().detach()
     unless elem?
+      @_update()
       return res
     elem.detach().appendTo @_fLeftSouthPanel
     @_update()
@@ -332,6 +343,7 @@ class Panel
     unless elem?
       @root.data 'h1', 1.0
       res.removeAttr 'tab-id'
+      @_update()
       return res
     if @root.data('h0') == 0.0
       @root.data 'h1', 0.5
@@ -347,6 +359,7 @@ class Panel
   rightNorthFixed: (elem) ->
     res = @_fRightNorthPanel.children().detach()
     unless elem?
+      @_update()
       return res
     elem.detach().appendTo @_fRightNorthPanel
     @_update()
@@ -355,6 +368,7 @@ class Panel
   rightSouthFixed: (elem) ->
     res = @_fRightSouthPanel.children().detach()
     unless elem?
+      @_update()
       return res
     elem.detach().appendTo @_fRightSouthPanel
     @_update()
@@ -365,6 +379,7 @@ class Panel
     res = container.children("[tab-id=#{id}]").detach()
     unless elem?
       res.removeAttr 'tab-id'
+      @_update()
       return res
     elem.attr 'tab-id', id
     elem.data('tab', tab) if tab?
@@ -375,6 +390,7 @@ class Panel
   centerNorthFixed: (elem) ->
     res = @_fCenterNorthPanel.children().detach()
     unless elem?
+      @_update()
       return res
     elem.detach().appendTo @_fCenterNorthPanel
     @_update()
@@ -383,6 +399,7 @@ class Panel
   centerSouthFixed: (elem) ->
     res = @_fCenterSouthPanel.children().detach()
     unless elem?
+      @_update()
       return res
     elem.detach().appendTo @_fCenterSouthPanel
     @_update()

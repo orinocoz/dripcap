@@ -15,7 +15,9 @@ class PacketFilterView
     @comp.updateTheme theme
 
   deactivate: ->
-    @view.unmount()
-    @comp.destroy()
+    dripcap.package.load('main-view').then (pkg) =>
+      pkg.root.panel.leftSouthFixed()
+      @view.unmount()
+      @comp.destroy()
 
 module.exports = PacketFilterView

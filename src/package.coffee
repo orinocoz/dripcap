@@ -5,7 +5,6 @@ _ = require('underscore')
 class Package
   constructor: (jsonPath) ->
     @path = path.dirname(jsonPath)
-    @loaded = false
 
     info = JSON.parse(fs.readFileSync(jsonPath))
 
@@ -57,17 +56,15 @@ class Package
   deactivate: ->
     @load().then =>
       new Promise (resolve, reject) =>
-        if @loaded
-          try
-            @root.deactivate()
-            @root = null
-            for key of require.cache
-              if key.startsWith(@path)
-                delete require.cache[key]
-            @loaded = false
-          catch e
-            reject(e)
-            return
+        try
+          @root.deactivate()
+          @root = null
+          for key of require.cache
+            if key.startsWith(@path)
+              delete require.cache[key]
+        catch e
+          reject(e)
+          return
         resolve(@)
 
 module.exports = Package

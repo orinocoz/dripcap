@@ -23,7 +23,9 @@ class StatusView
     @comp.updateTheme theme
 
   deactivate: ->
-    @view.unmount()
-    @comp.destroy()
+    dripcap.package.load('main-view').then (pkg) =>
+      pkg.root.panel.northFixed()
+      @view.unmount()
+      @comp.destroy()
 
 module.exports = StatusView
