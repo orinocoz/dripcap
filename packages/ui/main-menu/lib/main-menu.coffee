@@ -66,31 +66,32 @@ class MainMenu
     ]
 
     for t in template
-      dripcap.menu.add [], t
+      dripcap.menu.add 'Core: MainMenu', [], t
 
-    dripcap.menu.get(['Session', 'Start']).enabled = false
-    dripcap.menu.get(['Session', 'Stop']).enabled = false
+    dripcap.menu.get('Core: MainMenu', ['Session', 'Start']).enabled = false
+    dripcap.menu.get('Core: MainMenu', ['Session', 'Stop']).enabled = false
 
     selectedScheme = 'default'
     dripcap.theme.sub 'updateRegistory', ->
       for k, v of dripcap.theme.registory
         do (k = k, v = v) ->
-          dripcap.menu.add ['Theme'],
+          dripcap.menu.add 'Core: MainMenu', ['Theme'],
             label: v.name
             type: 'radio'
             checked: selectedScheme == k
             click: ->
               selectedScheme = k
               dripcap.theme.scheme = v
-      dripcap.menu.remove(['Theme', '(no theme)'])
+
+      dripcap.menu.remove('Core: MainMenu', ['Theme', '(no theme)'])
 
     dripcap.pubsub.sub 'Core: Capturing Status Updated', (data) ->
       if (data)
-        dripcap.menu.get(['Session', 'Start']).enabled = false
-        dripcap.menu.get(['Session', 'Stop']).enabled = true
+        dripcap.menu.get('Core: MainMenu', ['Session', 'Start']).enabled = false
+        dripcap.menu.get('Core: MainMenu', ['Session', 'Stop']).enabled = true
       else
-        dripcap.menu.get(['Session', 'Start']).enabled = true
-        dripcap.menu.get(['Session', 'Stop']).enabled = false
+        dripcap.menu.get('Core: MainMenu', ['Session', 'Start']).enabled = true
+        dripcap.menu.get('Core: MainMenu', ['Session', 'Stop']).enabled = false
 
   deactivate: ->
 

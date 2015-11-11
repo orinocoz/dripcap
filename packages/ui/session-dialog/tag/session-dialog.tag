@@ -38,8 +38,8 @@
     dripcap.session.list = [sess]
     dripcap.session.emit('created', sess)
     sess.start()
-    dripcap.menu.get(['Session', 'Start']).enabled = false
-    dripcap.menu.get(['Session', 'Stop']).enabled = true
+    dripcap.menu.get('Core: MainMenu', ['Session', 'Start']).enabled = false
+    dripcap.menu.get('Core: MainMenu', ['Session', 'Stop']).enabled = true
 
   </script>
 

@@ -175,9 +175,12 @@ class Dripcap extends EventEmitter
       t
 
     constructor: (@parent) ->
-      @_menuTmpl = []
+      @_menuTmpl = {}
+      @_menu = {}
 
-    add: (path, template) ->
+    add: (name, path, template) ->
+      @_menuTmpl[name] ?= []
+
       merge = (path, root, template) ->
         root.submenu ?= []
         if path.length == 0
@@ -191,15 +194,19 @@ class Dripcap extends EventEmitter
             root.submenu[i] = merge(_.rest(path), root.submenu[i], template)
         root
 
-      @_menuTmpl = merge(path, submenu: @_menuTmpl, template).submenu
-      @_menu = Menu.buildFromTemplate(_.clone(@_menuTmpl).map action)
 
-      if process.platform != 'darwin'
-        remote.getCurrentWindow().setMenu(@_menu)
-      else
-        Menu.setApplicationMenu(@_menu)
+      @_menuTmpl[name] = merge(path, submenu: @_menuTmpl[name], template).submenu
+      @_menu[name] = Menu.buildFromTemplate(_.clone(@_menuTmpl[name]).map action)
 
-    remove: (path) ->
+      if name == 'Core: MainMenu'
+        if process.platform != 'darwin'
+          remote.getCurrentWindow().setMenu(@_menu[name])
+        else
+          Menu.setApplicationMenu(@_menu[name])
+
+    remove: (name, path) ->
+      @_menuTmpl[name] ?= []
+
       merge = (path, root) ->
         if root.submenu? && path.length > 0
           label = _.first(path)
@@ -211,20 +218,21 @@ class Dripcap extends EventEmitter
               root.submenu[i] = merge(_.rest(path), root.submenu[i])
         root
 
-      @_menuTmpl = merge(path, submenu: @_menuTmpl).submenu
-      @_menu = Menu.buildFromTemplate(_.clone(@_menuTmpl).map action)
+      @_menuTmpl[name] = merge(path, submenu: @_menuTmpl[name]).submenu
+      @_menu[name] = Menu.buildFromTemplate(_.clone(@_menuTmpl[name]).map action)
 
-      if process.platform != 'darwin'
-        remote.getCurrentWindow().setMenu(@_menu)
-      else
-        Menu.setApplicationMenu(@_menu)
+      if name == 'Core: MainMenu'
+        if process.platform != 'darwin'
+          remote.getCurrentWindow().setMenu(@_menu[name])
+        else
+          Menu.setApplicationMenu(@_menu[name])
 
-    get: (path) ->
+    get: (name, path) ->
       return null unless path.length > 0
       menu =
         submenu:
           items:
-            @_menu.items
+            @_menu[name].items
       for p in path
         return null unless menu.submenu?
         i = _.findIndex menu.submenu.items, (ele) -> ele.label == p
