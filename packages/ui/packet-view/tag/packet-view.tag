@@ -10,21 +10,10 @@
   <i if={ base == 16 } oncontextmenu={ context }><i class="base">0x</i>{ opts.value.toString(16) }</i>
   <script type="text/coffeescript">
     remote = require('remote')
-    Menu = remote.require('menu')
-    MenuItem = remote.require('menu-item')
-
     @base = 10
 
-    setBase = (base) =>
-      => @base = base
-
     @context = =>
-      menu = new Menu()
-      menu.append(new MenuItem(label: 'Binary', type: 'radio', checked: (@base == 2), click: setBase(2)))
-      menu.append(new MenuItem(label: 'Octal', type: 'radio', checked: (@base == 8), click: setBase(8)))
-      menu.append(new MenuItem(label: 'Decimal', type: 'radio', checked: (@base == 10), click: setBase(10)))
-      menu.append(new MenuItem(label: 'Hexadecimal', type: 'radio', checked: (@base == 16), click: setBase(16)))
-      menu.popup(remote.getCurrentWindow())
+      dripcap.menu.popup('packetView: NumericValueMenu', @, remote.getCurrentWindow())
 
   </script>
 </packet-view-integer-value>
@@ -114,42 +103,11 @@
   </div>
 
   <script type="text/coffeescript">
-
     remote = require('remote')
-    Menu = remote.require('menu')
-    MenuItem = remote.require('menu-item')
-    dialog = remote.require('dialog')
-    fs = require('fs')
-    clipboard = require('clipboard')
-
-    exportRawData = =>
-      index = Math.max @clickedLayerIndex - 1, 0
-      layer = @packet.layers[index]
-      filename = "#{@packet.interface}-#{layer.name}-#{@packet.timestamp.toISOString()}.bin"
-      path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
-      if path?
-        fs.writeFileSync path, layer.payload.apply @packet.payload
-
-    exportPayload = =>
-      layer = @packet.layers[@clickedLayerIndex]
-      filename = "#{@packet.interface}-#{layer.name}-#{@packet.timestamp.toISOString()}.bin"
-      path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
-      if path?
-        fs.writeFileSync path, layer.payload.apply @packet.payload
-
-    copyAsJSON = =>
-      layer = @packet.layers[@clickedLayerIndex]
-      clipboard.writeText JSON.stringify(layer, null, ' ')
-
-    menu = new Menu()
-    menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
-    menu.append(new MenuItem(label: 'Export payload', click: exportPayload))
-    menu.append(new MenuItem(type: 'separator'))
-    menu.append(new MenuItem(label: 'Copy as JSON', click: copyAsJSON))
 
     @layerContext = (e) =>
       @clickedLayerIndex = e.item.i
-      menu.popup(remote.getCurrentWindow())
+      dripcap.menu.popup('packetView: LayerMenu', @, remote.getCurrentWindow())
 
     @set = (pkt) =>
       @packet = pkt

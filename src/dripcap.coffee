@@ -167,6 +167,7 @@ class Dripcap extends EventEmitter
     constructor: (@parent) ->
 
   class MenuInterface extends EventEmitter
+
     action = (t) ->
       if t.action?
         t.click = -> dripcap.action.emit t.action
@@ -177,6 +178,35 @@ class Dripcap extends EventEmitter
     constructor: (@parent) ->
       @_menuTmpl = {}
       @_menu = {}
+      @_handers = {}
+
+    register: (name, handler, priority = 0) ->
+      @_handers[name] ?= []
+      @_handers[name].push handler: handler, priority: priority
+      @_handers[name].sort (a, b) -> b.priority - a.priority
+      @updateMainMenu if name == 'Core: MainMenu'
+
+    unregister: (name, handler) ->
+      @_handers[name] ?= []
+      @_handers[name] = @_handers[name].filter (h) -> h.handler != handler
+      @updateMainMenu if name == 'Core: MainMenu'
+
+    updateMainMenu: ->
+      menu = new Menu()
+      for h in @_handers['Core: MainMenu']
+        menu = h.handler(menu)
+
+      if process.platform != 'darwin'
+        remote.getCurrentWindow().setMenu(menu)
+      else
+        Menu.setApplicationMenu(menu)
+
+    popup: (name, self, browserWindow, x, y) ->
+      if @_handers[name]?
+        menu = new Menu()
+        for h in @_handers[name]
+          menu = h.handler.call(self, menu)
+        menu.popup browserWindow, x, y
 
     add: (name, path, template) ->
       @_menuTmpl[name] ?= []

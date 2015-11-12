@@ -17,18 +17,21 @@ class PacketTable
     @updateSection = _.debounce @update, 100
     @container.scroll => @updateSection()
 
-    exportRawData = =>
-      filename = "#{@selctedPacket.interface}-#{@selctedPacket.timestamp.toISOString()}.bin"
-      path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
-      if path?
-        fs.writeFileSync path, @selctedPacket.payload
+    @packetMenu = (menu, e) ->
+      exportRawData = =>
+        filename = "#{@selctedPacket.interface}-#{@selctedPacket.timestamp.toISOString()}.bin"
+        path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
+        if path?
+          fs.writeFileSync path, @selctedPacket.payload
 
-    copyAsJSON = =>
-      clipboard.writeText JSON.stringify(@selctedPacket, null, ' ')
+      copyAsJSON = =>
+        clipboard.writeText JSON.stringify(@selctedPacket, null, ' ')
 
-    @menu = new Menu()
-    @menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
-    @menu.append(new MenuItem(label: 'Copy as JSON', click: copyAsJSON))
+      menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
+      menu.append(new MenuItem(label: 'Copy as JSON', click: copyAsJSON))
+      menu
+
+    dripcap.menu.register 'PacketListView: PacketMenu', @packetMenu
 
   clear: ->
     @sections = []
@@ -90,7 +93,7 @@ class PacketTable
       .on 'contextmenu', (e) =>
         e.preventDefault()
         @selctedPacket = $(e.currentTarget).data('packet')
-        @menu.popup(remote.getCurrentWindow())
+        dripcap.menu.popup('PacketListView: PacketMenu', @, remote.getCurrentWindow())
 
     process.nextTick =>
       if !@currentSection? || @currentSection.children().length + @currentSection.data('tr').length >= @sectionSize
@@ -165,6 +168,7 @@ class PacketListView
     @comp.updateTheme theme
 
   deactivate: ->
+    dripcap.menu.unregister 'PacketListView: PacketMenu', @packetMenu
     dripcap.package.load('main-view').then (pkg) =>
       pkg.root.panel.left('packet-list-view')
       @list[0].unmount()
