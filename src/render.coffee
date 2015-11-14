@@ -31,7 +31,7 @@ dripcap.action.on 'Core: Show License', ->
 dripcap.action.on 'Core: Quit', ->
   remote.require('app').quit()
 
-dripcap.pubsub.sub 'Core: Capturing Status Updated', (data) ->
+dripcap.pubsub.sub 'Core: Capturing Status', (data) ->
   if (data)
     remote.getGlobal('dripcap').pushIndicator()
   else

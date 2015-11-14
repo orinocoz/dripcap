@@ -17,11 +17,13 @@ class MainMenu
       file.append new MenuItem type: 'separator'
       file.append new MenuItem label: 'Quit', accelerator: 'Ctrl+Q', click: action 'Core: Quit'
 
+      capturing = dripcap.pubsub.get 'Core: Capturing Status'
+      capturing ?= false
       session = new Menu
       session.append new MenuItem label: 'New Session', accelerator: 'Ctrl+N', click: action 'Core: New Session'
       session.append new MenuItem type: 'separator'
-      session.append new MenuItem label: 'Start', click: action 'Core: Start Sessions'
-      session.append new MenuItem label: 'Stop', click: action 'Core: Stop Sessions'
+      session.append new MenuItem label: 'Start', enabled: !capturing, click: action 'Core: Start Sessions'
+      session.append new MenuItem label: 'Stop', enabled: capturing, click: action 'Core: Stop Sessions'
 
       theme = new Menu
       selectedScheme = 'default'
@@ -66,7 +68,7 @@ class MainMenu
     dripcap.theme.sub 'updateRegistory', ->
       dripcap.menu.updateMainMenu()
 
-    dripcap.pubsub.sub 'Core: Capturing Status Updated', ->
+    dripcap.pubsub.sub 'Core: Capturing Status', ->
       dripcap.menu.updateMainMenu()
 
   deactivate: ->

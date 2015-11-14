@@ -45,6 +45,10 @@ class PubSub
     if queue > 0 && ch.queue.length > queue
       ch.queue.splice 0, ch.queue.length - queue
 
+  get: (name, index = 0) ->
+    ch = @_getChannel name
+    ch.queue[index]
+
 class Dripcap extends EventEmitter
   class SessionInterface extends EventEmitter
     constructor: (@parent) ->
