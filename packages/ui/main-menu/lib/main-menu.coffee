@@ -1,81 +1,33 @@
 $ = require('jquery')
 fs = require('fs')
+remote = require('remote')
+Menu = remote.require('menu')
+MenuItem = remote.require('menu-item')
 
 class MainMenu
   activate: ->
-    template = [
-      label: 'File'
-      submenu: [
-        label: 'New Window'
-        accelerator: 'Ctrl+Shift+N'
-        action: 'Core: New Window'
-      ,
-        label: 'Close Window'
-        accelerator: 'Ctrl+Shift+W'
-        action: 'Core: Close Window'
-      ,
-        type: 'separator'
-      ,
-        label: 'Quit'
-        accelerator: 'Ctrl+Q'
-        action: 'Core: Quit'
-      ]
-    ,
-      label: 'Session'
-      submenu: [
-        label: 'New Session'
-        accelerator: 'Ctrl+N'
-        action: 'Core: New Session'
-      ,
-        type: 'separator'
-      ,
-        label: 'Start'
-        action: 'Core: Start Sessions'
-      ,
-        label: 'Stop'
-        action: 'Core: Stop Sessions'
-      ]
-    ,
-      label: 'Theme'
-      submenu: [
-        label: '(no theme)'
-        enabled: false
-      ]
-    ,
-      label: 'Developer'
-      submenu: [
-        label: 'Toggle DevTools'
-        accelerator: 'Ctrl+Shift+I'
-        action: 'Core: Toggle DevTools'
-      ]
-    ,
-      label: 'Help'
-      role: 'help'
-      submenu: [
-        label: 'Open Website'
-        action: 'Core: Open Dripcap Website'
-      ,
-        label: 'Show License'
-        action: 'Core: Show License'
-      ,
-        type: 'separator'
-      ,
-        label: 'Version ' + JSON.parse(fs.readFileSync(__dirname + '/../../../../package.json')).version
-        enabled: false
-      ]
-    ]
+    action = (name) ->
+      ->
+        dripcap.action.emit name
 
-    for t in template
-      dripcap.menu.add 'Core: MainMenu', [], t
+    @menu = (menu, e) ->
+      file = new Menu
+      file.append new MenuItem label: 'New Window', accelerator: 'Ctrl+Shift+N', click: action 'Core: New Window'
+      file.append new MenuItem label: 'Close Window', accelerator: 'Ctrl+Shift+W', click: action 'Core: Close Window'
+      file.append new MenuItem type: 'separator'
+      file.append new MenuItem label: 'Quit', accelerator: 'Ctrl+Q', click: action 'Core: Quit'
 
-    dripcap.menu.get('Core: MainMenu', ['Session', 'Start']).enabled = false
-    dripcap.menu.get('Core: MainMenu', ['Session', 'Stop']).enabled = false
+      session = new Menu
+      session.append new MenuItem label: 'New Session', accelerator: 'Ctrl+N', click: action 'Core: New Session'
+      session.append new MenuItem type: 'separator'
+      session.append new MenuItem label: 'Start', click: action 'Core: Start Sessions'
+      session.append new MenuItem label: 'Stop', click: action 'Core: Stop Sessions'
 
-    selectedScheme = 'default'
-    dripcap.theme.sub 'updateRegistory', ->
+      theme = new Menu
+      selectedScheme = 'default'
       for k, v of dripcap.theme.registory
         do (k = k, v = v) ->
-          dripcap.menu.add 'Core: MainMenu', ['Theme'],
+          theme.append new MenuItem
             label: v.name
             type: 'radio'
             checked: selectedScheme == k
@@ -83,16 +35,42 @@ class MainMenu
               selectedScheme = k
               dripcap.theme.scheme = v
 
-      dripcap.menu.remove('Core: MainMenu', ['Theme', '(no theme)'])
+      developer = new Menu
+      developer.append new MenuItem label: 'Toggle DevTools', accelerator: 'Ctrl+Shift+I', click: action 'Core: Toggle DevTools'
 
-    dripcap.pubsub.sub 'Core: Capturing Status Updated', (data) ->
-      if (data)
-        dripcap.menu.get('Core: MainMenu', ['Session', 'Start']).enabled = false
-        dripcap.menu.get('Core: MainMenu', ['Session', 'Stop']).enabled = true
-      else
-        dripcap.menu.get('Core: MainMenu', ['Session', 'Start']).enabled = true
-        dripcap.menu.get('Core: MainMenu', ['Session', 'Stop']).enabled = false
+      help = new Menu
+      help.append new MenuItem label: 'Open Website', click: action 'Core: Open Dripcap Website'
+      help.append new MenuItem label: 'Show License', click: action 'Core: Show License'
+      help.append new MenuItem type: 'separator'
+      help.append new MenuItem label: 'Version ' + JSON.parse(fs.readFileSync(__dirname + '/../../../../package.json')).version, enabled: false
+
+      menu.append new MenuItem label: 'File', submenu: file, type: 'submenu'
+      menu.append new MenuItem label: 'Session', submenu: session, type: 'submenu'
+      menu.append new MenuItem label: 'Theme', submenu: theme, type: 'submenu'
+      menu.append new MenuItem label: 'Developer', submenu: developer, type: 'submenu'
+      menu
+
+    @helpMenu = (menu, e) ->
+      help = new Menu
+      help.append new MenuItem label: 'Open Website', click: action 'Core: Open Dripcap Website'
+      help.append new MenuItem label: 'Show License', click: action 'Core: Show License'
+      help.append new MenuItem type: 'separator'
+      help.append new MenuItem label: 'Version ' + JSON.parse(fs.readFileSync(__dirname + '/../../../../package.json')).version, enabled: false
+
+      menu.append new MenuItem label: 'Help', submenu: help, type: 'submenu', role: 'help'
+      menu
+
+    dripcap.menu.register 'MainMenu: MainMenu', @menu
+    dripcap.menu.register 'MainMenu: MainMenu', @helpMenu, -10
+
+    dripcap.theme.sub 'updateRegistory', ->
+      dripcap.menu.updateMainMenu()
+
+    dripcap.pubsub.sub 'Core: Capturing Status Updated', ->
+      dripcap.menu.updateMainMenu()
 
   deactivate: ->
+    dripcap.menu.unregister 'MainMenu: MainMenu', @menu
+    dripcap.menu.unregister 'MainMenu: MainMenu', @helpMenu
 
 module.exports = MainMenu
