@@ -2,6 +2,7 @@ gulp = require('gulp')
 coffee = require('gulp-coffee')
 coffeelint = require('gulp-coffeelint')
 electron = require('gulp-atom-electron')
+zip = require('gulp-vinyl-zip')
 runElectron = require("gulp-run-electron")
 fs = require('fs')
 path = require('path')
@@ -76,7 +77,7 @@ gulp.task 'linux', [
         platform: 'linux',
         arch: 'x64',
         token: process.env['ELECTRON_GITHUB_TOKEN']))
-      .pipe(electron.zfsdest('dripcap-linux-x64.zip'))
+      .pipe(zip.dest('dripcap-linux-x64.zip'))
 
 gulp.task 'darwin', [
     'copy'
@@ -91,7 +92,7 @@ gulp.task 'darwin', [
         arch: 'x64',
         token: process.env['ELECTRON_GITHUB_TOKEN'],
         darwinIcon: './images/dripcap.icns'))
-      .pipe(electron.zfsdest('dripcap-darwin.zip'))
+      .pipe(zip.dest('dripcap-darwin.zip'))
 
 gulp.task 'default', ['build'], ->
   gulp.src(".build").pipe(runElectron(['--enable-logging']))
