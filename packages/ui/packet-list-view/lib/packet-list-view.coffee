@@ -17,22 +17,6 @@ class PacketTable
     @updateSection = _.debounce @update, 100
     @container.scroll => @updateSection()
 
-    @packetMenu = (menu, e) ->
-      exportRawData = =>
-        filename = "#{@selctedPacket.interface}-#{@selctedPacket.timestamp.toISOString()}.bin"
-        path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
-        if path?
-          fs.writeFileSync path, @selctedPacket.payload
-
-      copyAsJSON = =>
-        clipboard.writeText JSON.stringify(@selctedPacket, null, ' ')
-
-      menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
-      menu.append(new MenuItem(label: 'Copy as JSON', click: copyAsJSON))
-      menu
-
-    dripcap.menu.register 'PacketListView: PacketMenu', @packetMenu
-
   clear: ->
     @sections = []
     @currentSection = null
@@ -163,6 +147,22 @@ class PacketListView
             subTable.append pkt if @filter? && @filter(pkt)
             mainTable.autoScroll()
             subTable.autoScroll()
+
+    @packetMenu = (menu, e) ->
+      exportRawData = =>
+        filename = "#{@selctedPacket.interface}-#{@selctedPacket.timestamp.toISOString()}.bin"
+        path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
+        if path?
+          fs.writeFileSync path, @selctedPacket.payload
+
+      copyAsJSON = =>
+        clipboard.writeText JSON.stringify(@selctedPacket, null, ' ')
+
+      menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
+      menu.append(new MenuItem(label: 'Copy as JSON', click: copyAsJSON))
+      menu
+
+    dripcap.menu.register 'PacketListView: PacketMenu', @packetMenu
 
   updateTheme: (theme) ->
     @comp.updateTheme theme
