@@ -89,7 +89,7 @@ class PacketTable
         self.selectedLine = $(@)
         self.selectedLine.addClass('selected')
       .on 'click', ->
-        dripcap.pubsub.pub 'PacketListView:select', $(@).data('packet'), 1
+        dripcap.pubsub.pub 'PacketListView:select', $(@).data('packet')
       .on 'contextmenu', (e) =>
         e.preventDefault()
         @selctedPacket = $(e.currentTarget).data('packet')

@@ -162,13 +162,13 @@
         switch ast.body.length
           when 0
             filter = -> true
-            dripcap.pubsub.pub 'PacketFilterView:filter', filter, 1
+            dripcap.pubsub.pub 'PacketFilterView:filter', filter
           when 1
             root = ast.body[0]
             throw new SyntaxError() if root.type != "ExpressionStatement"
             f = makeFilter(root.expression)
             filter = (pkt) -> !!f(pkt)
-            dripcap.pubsub.pub 'PacketFilterView:filter', filter, 1
+            dripcap.pubsub.pub 'PacketFilterView:filter', filter
           else
             throw new SyntaxError()
       catch error

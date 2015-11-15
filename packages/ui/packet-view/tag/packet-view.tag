@@ -125,16 +125,16 @@
     @fieldRange = (e) =>
       fieldRange = e.currentTarget.getAttribute('range').split '-'
       range = [parseInt(fieldRange[0]), parseInt(fieldRange[1])]
-      dripcap.pubsub.pub 'PacketView:range', range, 1
+      dripcap.pubsub.pub 'PacketView:range', range
 
     @layerRange = (e) =>
       max = Math.max(e.item.i - 1, 0)
       layer = @packet.layers[max]
       range = [layer.payload.start, layer.payload.end]
-      dripcap.pubsub.pub 'PacketView:range', range, 1
+      dripcap.pubsub.pub 'PacketView:range', range
 
     @rangeOut = =>
-      dripcap.pubsub.pub 'PacketView:range', [0, 0], 1
+      dripcap.pubsub.pub 'PacketView:range', [0, 0]
 
   </script>
 
