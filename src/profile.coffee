@@ -32,7 +32,8 @@ class Profile
     try
       require(@_initPath)
     catch e
-      console.warn e
+      unless e.code == "MODULE_NOT_FOUND"
+        console.warn e
 
   save: ->
     mkpath.sync(@path)
