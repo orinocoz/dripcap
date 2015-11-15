@@ -12,15 +12,15 @@ class MainMenu
 
     @menu = (menu, e) ->
       file = new Menu
-      file.append new MenuItem label: 'New Window', accelerator: 'Ctrl+Shift+N', click: action 'Core: New Window'
-      file.append new MenuItem label: 'Close Window', accelerator: 'Ctrl+Shift+W', click: action 'Core: Close Window'
+      file.append new MenuItem label: 'New Window', accelerator: 'CmdOrCtrl+Shift+N', click: action 'Core: New Window'
+      file.append new MenuItem label: 'Close Window', accelerator: 'CmdOrCtrl+Shift+W', click: action 'Core: Close Window'
       file.append new MenuItem type: 'separator'
-      file.append new MenuItem label: 'Quit', accelerator: 'Ctrl+Q', click: action 'Core: Quit'
+      file.append new MenuItem label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: action 'Core: Quit'
 
       capturing = dripcap.pubsub.get 'Core: Capturing Status'
       capturing ?= false
       session = new Menu
-      session.append new MenuItem label: 'New Session', accelerator: 'Ctrl+N', click: action 'Core: New Session'
+      session.append new MenuItem label: 'New Session', accelerator: 'CmdOrCtrl+N', click: action 'Core: New Session'
       session.append new MenuItem type: 'separator'
       session.append new MenuItem label: 'Start', enabled: !capturing, click: action 'Core: Start Sessions'
       session.append new MenuItem label: 'Stop', enabled: capturing, click: action 'Core: Stop Sessions'
@@ -38,7 +38,7 @@ class MainMenu
               dripcap.theme.scheme = v
 
       developer = new Menu
-      developer.append new MenuItem label: 'Toggle DevTools', accelerator: 'Ctrl+Shift+I', click: action 'Core: Toggle DevTools'
+      developer.append new MenuItem label: 'Toggle DevTools', accelerator: 'CmdOrCtrl+Shift+I', click: action 'Core: Toggle DevTools'
 
       help = new Menu
       help.append new MenuItem label: 'Open Website', click: action 'Core: Open Dripcap Website'
