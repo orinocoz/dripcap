@@ -117,7 +117,7 @@ gulp.task 'build', [
   'npm'
 ]
 
-gulp.task 'watch', ['build'], ->
+gulp.task 'watch', ['coffee', 'copy', 'copypkg'], ->
   gulp.src(".build").pipe(runElectron(['--enable-logging']))
   gulp.watch [
     './**/*.coffee'
@@ -126,6 +126,8 @@ gulp.task 'watch', ['build'], ->
     './**/*.less'
     './**/*.cson'
   ], [
-    'build'
+    'coffee'
+    'copy'
+    'copypkg'
     runElectron.rerun
   ]
