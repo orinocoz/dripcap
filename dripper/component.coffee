@@ -7,6 +7,13 @@ glob = require('glob')
 
 tagPattern = /riot\.tag\('([a-z-]+)'/ig
 
+$.fn.extend
+  actualHeight: ->
+    y = @.clone().css(position: 'absolute', visibility: 'hidden', display: 'block').appendTo $('body')
+    height = y.height()
+    y.remove()
+    height
+
 class Component
   constructor: (tags...) ->
     @_less = ''
@@ -427,7 +434,7 @@ class Panel
 
     update = (panel) ->
       panels = panel.children('.vcontainer').children('[tab-id]')
-      currentId = panels.filter(':visible').attr('tab-id')
+      currentId = panels.filter(-> $(@).css('display') != 'none').attr('tab-id')
       tabs = panels.get().map (elem) ->
         id = $(elem).attr('tab-id')
         tab = $('<div>')
@@ -453,32 +460,32 @@ class Panel
       tabcontainer.empty()
       tabcontainer.append(tabs) if tabs.length > 1
 
-    @_hcontainer.css 'top', @_fnorthPanel.height() + 'px'
-    @_hcontainer.css 'bottom', @_fsouthPanel.height() + 'px'
+    @_hcontainer.css 'top', @_fnorthPanel.actualHeight() + 'px'
+    @_hcontainer.css 'bottom', @_fsouthPanel.actualHeight() + 'px'
 
     update(@_leftPanel)
     @_leftPanel.children('.vcontainer')
-      .css 'top', @_fLeftNorthPanel.height() + @_leftPanel.children('.tabcontainer').height() + 'px'
-      .css 'bottom', @_fLeftSouthPanel.height() + 'px'
+      .css 'top', @_fLeftNorthPanel.actualHeight() + @_leftPanel.children('.tabcontainer').actualHeight() + 'px'
+      .css 'bottom', @_fLeftSouthPanel.actualHeight() + 'px'
 
     update(@_rightPanel)
     @_rightPanel.children('.vcontainer')
-      .css 'top', @_fRightNorthPanel.height() + @_rightPanel.children('.tabcontainer').height() + 'px'
-      .css 'bottom', @_fRightSouthPanel.height() + 'px'
+      .css 'top', @_fRightNorthPanel.actualHeight() + @_rightPanel.children('.tabcontainer').actualHeight() + 'px'
+      .css 'bottom', @_fRightSouthPanel.actualHeight() + 'px'
 
     update(@_topPanel)
     @_topPanel.children('.vcontainer')
-      .css 'top', @_fTopNorthPanel.height() + @_topPanel.children('.tabcontainer').height() + 'px'
-      .css 'bottom', @_fTopSouthPanel.height() + 'px'
+      .css 'top', @_fTopNorthPanel.actualHeight() + @_topPanel.children('.tabcontainer').actualHeight() + 'px'
+      .css 'bottom', @_fTopSouthPanel.actualHeight() + 'px'
 
     update(@_bottomPanel)
     @_bottomPanel.children('.vcontainer')
-      .css 'top', @_fBottomNorthPanel.height() + @_bottomPanel.children('.tabcontainer').height() + 'px'
-      .css 'bottom', @_fBottomSouthPanel.height() + 'px'
+      .css 'top', @_fBottomNorthPanel.actualHeight() + @_bottomPanel.children('.tabcontainer').actualHeight() + 'px'
+      .css 'bottom', @_fBottomSouthPanel.actualHeight() + 'px'
 
     update(@_centerPanel)
     @_centerPanel.children('.vcontainer')
-      .css 'top', @_fCenterNorthPanel.height() + @_centerPanel.children('.tabcontainer').height() + 'px'
-      .css 'bottom', @_fCenterSouthPanel.height() + 'px'
+      .css 'top', @_fCenterNorthPanel.actualHeight() + @_centerPanel.children('.tabcontainer').actualHeight() + 'px'
+      .css 'bottom', @_fCenterSouthPanel.actualHeight() + 'px'
 
 exports.Panel = Panel
