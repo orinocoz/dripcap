@@ -18,10 +18,19 @@ class MainMenu
       file.append new MenuItem label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: action 'Core: Quit'
 
       edit = new Menu
-      edit.append new MenuItem label: 'Cut', accelerator: 'Cmd+X', selector: 'cut:'
-      edit.append new MenuItem label: 'Copy', accelerator: 'Cmd+C', selector: 'copy:'
-      edit.append new MenuItem label: 'Paste', accelerator: 'Cmd+V', selector: 'paste:'
-      edit.append new MenuItem label: 'Select All', accelerator: 'Cmd+A', selector: 'selectAll:'
+      if process.platform == 'darwin'
+        edit.append new MenuItem label: 'Cut', accelerator: 'Cmd+X', selector: 'cut:'
+        edit.append new MenuItem label: 'Copy', accelerator: 'Cmd+C', selector: 'copy:'
+        edit.append new MenuItem label: 'Paste', accelerator: 'Cmd+V', selector: 'paste:'
+        edit.append new MenuItem label: 'Select All', accelerator: 'Cmd+A', selector: 'selectAll:'
+      else
+        contents = remote.getCurrentWebContents()
+        edit.append new MenuItem label: 'Cut', accelerator: 'Ctrl+X', click: -> contents.cut()
+        edit.append new MenuItem label: 'Copy', accelerator: 'Ctrl+C', click: -> contents.copy()
+        edit.append new MenuItem label: 'Paste', accelerator: 'Ctrl+V', click: -> contents.paste()
+        edit.append new MenuItem label: 'Select All', accelerator: 'Ctrl+A', click: -> contents.selectAll()
+      edit.append new MenuItem type: 'separator'
+      edit.append new MenuItem label: 'Preferences', accelerator: 'CmdOrCtrl+,', click: action 'Core: Preferences'
 
       capturing = dripcap.pubsub.get 'Core: Capturing Status'
       capturing ?= false
@@ -30,16 +39,6 @@ class MainMenu
       session.append new MenuItem type: 'separator'
       session.append new MenuItem label: 'Start', enabled: !capturing, click: action 'Core: Start Sessions'
       session.append new MenuItem label: 'Stop', enabled: capturing, click: action 'Core: Stop Sessions'
-
-      theme = new Menu
-      for k, v of dripcap.theme.registory
-        do (k = k, v = v) ->
-          theme.append new MenuItem
-            label: v.name
-            type: 'radio'
-            checked: dripcap.theme.id == k
-            click: ->
-              dripcap.theme.id = k
 
       developer = new Menu
       developer.append new MenuItem label: 'Toggle DevTools', accelerator: 'CmdOrCtrl+Shift+I', click: action 'Core: Toggle DevTools'
@@ -52,9 +51,8 @@ class MainMenu
       help.append new MenuItem label: 'Version ' + JSON.parse(fs.readFileSync(__dirname + '/../../../../package.json')).version, enabled: false
 
       menu.append new MenuItem label: 'File', submenu: file, type: 'submenu'
-      menu.append new MenuItem label: 'Edit', submenu: edit, type: 'submenu' if process.platform == 'darwin'
+      menu.append new MenuItem label: 'Edit', submenu: edit, type: 'submenu'
       menu.append new MenuItem label: 'Session', submenu: session, type: 'submenu'
-      menu.append new MenuItem label: 'Theme', submenu: theme, type: 'submenu'
       menu.append new MenuItem label: 'Developer', submenu: developer, type: 'submenu'
       menu
 
@@ -71,7 +69,7 @@ class MainMenu
     dripcap.menu.register 'MainMenu: MainMenu', @menu
     dripcap.menu.register 'MainMenu: MainMenu', @helpMenu, -10
 
-    dripcap.theme.sub 'updateRegistory', ->
+    dripcap.theme.sub 'registoryUpdated', ->
       dripcap.menu.updateMainMenu()
 
     dripcap.pubsub.sub 'Core: Capturing Status', ->

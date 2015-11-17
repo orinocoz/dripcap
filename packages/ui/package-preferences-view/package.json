@@ -1,0 +1,11 @@
+{
+  "name": "package-preferences-view",
+  "main": "./lib/package-preferences-view",
+  "license": "MIT",
+  "description": "dripcap Package Preferences View",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/dripcap/dripcap.git"
+  },
+  "readme": "see README.md"
+}

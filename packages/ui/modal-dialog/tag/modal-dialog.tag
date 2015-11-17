@@ -18,7 +18,8 @@
       background-color: fade(@background, 70%);
 
       & > .content {
-        width: 460px;
+        width: 80%;
+        max-width: 1200px;
         padding: 10px 20px;
         border: 1px solid @border;
         border-top: 0px;
@@ -35,10 +36,17 @@
   @visible = false
 
   @show = =>
+    prev = @constructor.currentDialog
+    if prev
+      prev.hide()
+      prev.update()
+    @constructor.currentDialog = @
     @visible = true
     process.nextTick -> $('.content').focus()
 
-  @hide = => @visible = false
+  @hide = =>
+    @visible = false
+    @constructor.currentDialog = null
 
   @cancel = (e) =>
     if e.currentTarget == e.target

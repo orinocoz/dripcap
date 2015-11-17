@@ -1,0 +1,11 @@
+{
+  "name": "preferences-dialog",
+  "main": "./lib/preferences-dialog",
+  "license": "MIT",
+  "description": "dripcap Preferences Dialog",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/dripcap/dripcap.git"
+  },
+  "readme": "see README.md"
+}

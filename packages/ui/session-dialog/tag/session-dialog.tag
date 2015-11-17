@@ -20,6 +20,12 @@
     </p>
   </modal-dialog>
 
+  <style type="text/less">
+  [riot-tag=session-dialog] > modal-dialog > .modal > .content {
+    max-width: 600px;
+  }
+  </style>
+
   <script type="text/coffeescript">
 
   @setInterfaceList = (list) =>

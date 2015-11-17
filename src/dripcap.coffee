@@ -74,14 +74,14 @@ class Dripcap extends EventEmitter
 
     register: (id, scheme) ->
       @registory[id] = scheme
-      @pub 'updateRegistory', null, 1
+      @pub 'registoryUpdated', null, 1
       if @_id == id
         @scheme = @registory[id]
         @pub 'update', @scheme, 1
 
     unregister: (id) ->
       delete @registory[id]
-      @pub 'updateRegistory', null, 1
+      @pub 'registoryUpdated', null, 1
 
     @property 'id',
       get: -> @_id
@@ -113,17 +113,18 @@ class Dripcap extends EventEmitter
           delete @_commands[command]
           Mousetrap.unbind command
 
-  class PackageInterface extends EventEmitter
+  class PackageInterface extends PubSub
     constructor: (@parent) ->
-      @_loadedPackages = {}
+      super()
+      @list = {}
 
     load: (name) ->
-      pkg = @_loadedPackages[name]
+      pkg = @list[name]
       throw new Error "package not found: #{name}" unless pkg?
       pkg.load()
 
     unload: (name) ->
-      pkg = @_loadedPackages[name]
+      pkg = @list[name]
       throw new Error "package not found: #{name}" unless pkg?
       pkg.deactivate()
 
@@ -138,7 +139,7 @@ class Dripcap extends EventEmitter
           if _.isObject(conf = @parent.profile.getPackage(pkg.name))
             _.extendOwn pkg.config, conf
 
-          if (loaded = @_loadedPackages[pkg.name])?
+          if (loaded = @list[pkg.name])?
             if loaded.path != pkg.path
               console.warn "package name conflict: #{pkg.name}"
               continue
@@ -146,17 +147,19 @@ class Dripcap extends EventEmitter
               continue
             else
               loaded.deactivate()
-          @_loadedPackages[pkg.name] = pkg
+          @list[pkg.name] = pkg
         catch e
           console.warn "failed to load #{pkg.name}/package.json : #{e}"
 
-      for k, pkg of @_loadedPackages
+      for k, pkg of @list
         if pkg.config.enabled
           pkg.activate()
           pkg.updateTheme @parent.theme.scheme
 
+      @pub 'Core: Package List Updated', @list
+
     updateTheme: (scheme) ->
-      for k, pkg of @_loadedPackages
+      for k, pkg of @list
         if pkg.config.enabled
           pkg.updateTheme scheme
 

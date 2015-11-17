@@ -18,6 +18,9 @@ class Package
     else
       throw new Error 'package main required'
 
+    @description = info.description
+    @description ?= ''
+
     @version = info.version
     @version ?= '0.0.1'
 
