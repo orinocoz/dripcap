@@ -2,6 +2,8 @@ gulp = require('gulp')
 coffee = require('gulp-coffee')
 coffeelint = require('gulp-coffeelint')
 electron = require('gulp-atom-electron')
+symdest = require('gulp-symdest')
+rename = require('gulp-rename')
 zip = require('gulp-vinyl-zip')
 runElectron = require("gulp-run-electron")
 fs = require('fs')
@@ -78,6 +80,30 @@ gulp.task 'linux', [
         arch: 'x64',
         token: process.env['ELECTRON_GITHUB_TOKEN']))
       .pipe(zip.dest('dripcap-linux-x64.zip'))
+
+gulp.task 'debian-pkg', (cb) ->
+  gulp.src('./debian/**', base: './debian/')
+    .pipe gulp.dest('./.debian/')
+
+gulp.task 'debian-paperfilter', ['debian-bin'], (cb) ->
+  gulp.src('./.debian/usr/share/dripcap/resources/app/node_modules/paperfilter/bin/paperfilter-linux')
+    .pipe rename("paperfilter")
+    .pipe gulp.dest('./.debian/usr/local/lib/')
+
+gulp.task 'debian-bin', ['copy', 'coffee', 'copypkg', 'npm'], (cb) ->
+  gulp.src('./.build/**')
+    .pipe(electron(
+      version: config.electronVersion,
+      platform: 'linux',
+      arch: 'x64',
+      token: process.env['ELECTRON_GITHUB_TOKEN']))
+    .pipe(symdest('./.debian/usr/share/dripcap'))
+
+gulp.task 'debian', [
+    'debian-bin'
+    'debian-pkg'
+    'debian-paperfilter'
+  ]
 
 gulp.task 'darwin', [
     'copy'

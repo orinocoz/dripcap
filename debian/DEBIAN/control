@@ -1,0 +1,11 @@
+Package: dripcap
+Version: 0.0.8
+Architecture: amd64
+Maintainer: h2so5 <mail@h2so5.net>
+Depends: libpcap0.8
+Section: net
+Priority: optional
+Vcs-Git: git://github.com/dripcap/dripcap.git
+Vcs-browser: http://github.com/dripcap/dripcap
+Homepage: http://github.com/dripcap/dripcap
+Description: Caffeinated packet analyzer

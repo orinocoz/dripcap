@@ -26,6 +26,7 @@ notifications:
 before_deploy:
 - gulp darwin
 - gulp linux
+- npm run dpkg
 deploy:
   provider: releases
   prerelease: true
@@ -34,6 +35,7 @@ deploy:
   file:
   - dripcap-darwin.zip
   - dripcap-linux-x64.zip
+  - dripcap-x64.deb
   skip_cleanup: true
   on:
     tags: true

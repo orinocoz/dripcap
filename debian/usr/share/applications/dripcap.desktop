@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Dripcap
+Comment=Caffeinated packet analyzer
+Exec=dripcap
+Terminal=false
+Type=Application
+Icon=dripcap
+Categories=Network;Monitor
+StartupNotify=true
