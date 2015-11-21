@@ -30,17 +30,21 @@ class Package
       .then =>
         new Promise (resolve, reject) =>
           req = path.resolve(@path, @main)
+          res = null
           try
             klass = require(req)
             @root = new klass()
-            @root.activate()
+            res = @root.activate()
             @updateTheme(dripcap.theme.scheme)
 
           catch e
             reject(e)
             return
 
-          resolve(@)
+          if res instanceof Promise
+            res.then => resolve(@)
+          else
+            resolve(@)
 
   load: ->
     @_promise
