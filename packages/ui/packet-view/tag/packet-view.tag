@@ -76,6 +76,12 @@
 
   </script>
 
+  <style type="text/less">
+    [riot-tag=packet-view-item] {
+      -webkit-user-select: auto;
+    }
+  </style>
+
 </packet-view-item>
 
 <packet-view>
@@ -140,6 +146,8 @@
 
   <style type="text/less">
     [riot-tag=packet-view] {
+      -webkit-user-select: auto;
+
       table {
         width: 100%;
         align-self: stretch;

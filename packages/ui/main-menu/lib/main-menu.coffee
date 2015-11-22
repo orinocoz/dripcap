@@ -17,6 +17,12 @@ class MainMenu
       file.append new MenuItem type: 'separator'
       file.append new MenuItem label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: action 'Core: Quit'
 
+      edit = new Menu
+      edit.append new MenuItem label: 'Cut', accelerator: 'Cmd+X', selector: 'cut:'
+      edit.append new MenuItem label: 'Copy', accelerator: 'Cmd+C', selector: 'copy:'
+      edit.append new MenuItem label: 'Paste', accelerator: 'Cmd+V', selector: 'paste:'
+      edit.append new MenuItem label: 'Select All', accelerator: 'Cmd+A', selector: 'selectAll:'
+
       capturing = dripcap.pubsub.get 'Core: Capturing Status'
       capturing ?= false
       session = new Menu
@@ -46,6 +52,7 @@ class MainMenu
       help.append new MenuItem label: 'Version ' + JSON.parse(fs.readFileSync(__dirname + '/../../../../package.json')).version, enabled: false
 
       menu.append new MenuItem label: 'File', submenu: file, type: 'submenu'
+      menu.append new MenuItem label: 'Edit', submenu: edit, type: 'submenu' if process.platform == 'darwin'
       menu.append new MenuItem label: 'Session', submenu: session, type: 'submenu'
       menu.append new MenuItem label: 'Theme', submenu: theme, type: 'submenu'
       menu.append new MenuItem label: 'Developer', submenu: developer, type: 'submenu'
