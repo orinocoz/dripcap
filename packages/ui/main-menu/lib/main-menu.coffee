@@ -26,16 +26,14 @@ class MainMenu
       session.append new MenuItem label: 'Stop', enabled: capturing, click: action 'Core: Stop Sessions'
 
       theme = new Menu
-      selectedScheme = 'default'
       for k, v of dripcap.theme.registory
         do (k = k, v = v) ->
           theme.append new MenuItem
             label: v.name
             type: 'radio'
-            checked: selectedScheme == k
+            checked: dripcap.theme.id == k
             click: ->
-              selectedScheme = k
-              dripcap.theme.scheme = v
+              dripcap.theme.id = k
 
       developer = new Menu
       developer.append new MenuItem label: 'Toggle DevTools', accelerator: 'CmdOrCtrl+Shift+I', click: action 'Core: Toggle DevTools'

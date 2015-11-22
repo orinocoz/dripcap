@@ -69,22 +69,28 @@ class Dripcap extends EventEmitter
         less: ["#{__dirname}/../theme.less"]
 
       @register 'default', @_defaultScheme
-      @scheme = @_defaultScheme
+      @id = 'default'
 
     register: (id, scheme) ->
       @registory[id] = scheme
       @pub 'updateRegistory', null, 1
+      if @_id == id
+        @scheme = @registory[id]
+        @pub 'update', @scheme, 1
 
     unregister: (id) ->
       delete @registory[id]
       @pub 'updateRegistory', null, 1
 
-    @property 'scheme',
-      get: -> @_scheme
-      set: (s) ->
-        unless _.isEqual @_scheme, s
-          @_scheme = s
-          @pub 'update', s, 1
+    @property 'id',
+      get: -> @_id
+      set: (id) ->
+        if id != @_id
+          @_id = id
+          @parent.profile.config.theme = id
+          if @registory[id]?
+            @scheme = @registory[id]
+            @pub 'update', @scheme, 1
 
   class KeybindInterface
     constructor: (@parent) ->
@@ -282,6 +288,8 @@ class Dripcap extends EventEmitter
       throw new Error 'global.dripcap already exists!'
     global.dripcap = @
 
+    theme = @profile.config.theme
+
     @session = new SessionInterface @
     @theme = new ThemeInterface @
     @keybind = new KeybindInterface @
@@ -296,6 +304,8 @@ class Dripcap extends EventEmitter
 
     @theme.sub 'update', (scheme) =>
       @package.updateTheme scheme
+
+    @theme.id = theme
 
     @package.updatePackageList()
     @profile.init()

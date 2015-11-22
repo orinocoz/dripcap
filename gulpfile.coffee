@@ -31,7 +31,6 @@ gulp.task 'copy', ->
       './package.json'
       './src/*.html'
       './src/*.less'
-      './src/*.cson'
     ])
     .pipe gulp.dest('./.build')
 
@@ -150,7 +149,6 @@ gulp.task 'watch', ['coffee', 'copy', 'copypkg'], ->
     './**/*.tag'
     './**/*.json'
     './**/*.less'
-    './**/*.cson'
   ], [
     'coffee'
     'copy'
