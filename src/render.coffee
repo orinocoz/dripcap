@@ -22,6 +22,9 @@ dripcap.action.on 'Core: Close Window', ->
 dripcap.action.on 'Core: Toggle DevTools', ->
   remote.getCurrentWindow().toggleDevTools()
 
+dripcap.action.on 'Core: Open User Directory', ->
+  shell.showItemInFolder config.profilePath
+
 dripcap.action.on 'Core: Open Dripcap Website', ->
   shell.openExternal 'https://github.com/dripcap/dripcap'
 

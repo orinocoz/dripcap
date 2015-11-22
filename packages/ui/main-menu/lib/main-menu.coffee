@@ -39,6 +39,7 @@ class MainMenu
 
       developer = new Menu
       developer.append new MenuItem label: 'Toggle DevTools', accelerator: 'CmdOrCtrl+Shift+I', click: action 'Core: Toggle DevTools'
+      developer.append new MenuItem label: 'Open User Directory', click: action 'Core: Open User Directory'
 
       help = new Menu
       help.append new MenuItem label: 'Open Website', click: action 'Core: Open Dripcap Website'
