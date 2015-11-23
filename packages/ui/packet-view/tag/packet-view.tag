@@ -29,7 +29,7 @@
 
 <packet-view-item>
   <li>
-    <p class="label" onclick={ toggle } range={ opts.field.range.start + '-' + opts.field.range.end } onmouseover={ fieldRange } onmouseout={ rangeOut }>
+    <p class="label" onclick={ toggle } range={ opts.field.range.start + '-' + opts.field.range.end } oncontextmenu={ context } onmouseover={ fieldRange } onmouseout={ rangeOut }>
       <i class="fa fa-circle-o" show={ !opts.field.fields }></i>
       <i class="fa fa-arrow-circle-right" show={ opts.field.fields && !show }></i>
       <i class="fa fa-arrow-circle-down" show={ opts.field.fields && show }></i>
@@ -44,6 +44,7 @@
   </li>
 
   <script type="text/coffeescript">
+    remote = require('remote')
     @show = false
 
     @toggle = (e) =>
@@ -54,6 +55,10 @@
 
     @fieldRange = (e) =>
       @parent.fieldRange(e)
+
+    @context = =>
+      if window.getSelection().toString().length > 0
+        dripcap.menu.popup('packetView: ContextMenu', @, remote.getCurrentWindow())
 
     @on 'update', =>
       @layer = @parent.layer

@@ -13,6 +13,7 @@ Mousetrap = require('mousetrap')
 npm = require('npm')
 remote = require('remote')
 Menu = remote.require('menu')
+MenuItem = remote.require('menu-item')
 _ = require('underscore')
 
 Function::property = (prop, desc) ->
@@ -215,6 +216,7 @@ class Dripcap extends EventEmitter
         menu = new Menu()
         for h in @_handlers[name]
           menu = h.handler.call(self, menu)
+          menu.append(new MenuItem(type: 'separator'))
         menu.popup browserWindow, x, y
 
     add: (name, path, template) ->

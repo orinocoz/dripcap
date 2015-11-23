@@ -159,7 +159,7 @@ class PacketListView
         clipboard.writeText JSON.stringify(@selctedPacket, null, ' ')
 
       menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
-      menu.append(new MenuItem(label: 'Copy as JSON', click: copyAsJSON))
+      menu.append(new MenuItem(label: 'Copy Packet as JSON', click: copyAsJSON))
       menu
 
     dripcap.menu.register 'PacketListView: PacketMenu', @packetMenu

@@ -25,7 +25,13 @@ class PacketListView
           @view.set(pkt)
           @view.update()
 
-    @numValueMenu  = (menu, e) ->
+    @copyMenu = (menu, e) ->
+      copy = ->
+        remote.getCurrentWebContents().copy()
+      menu.append(new MenuItem(label: 'Copy', click: copy, accelerator: 'CmdOrCtrl+C'))
+      menu
+
+    @numValueMenu = (menu, e) ->
       setBase = (base) =>
         => @base = base
 
@@ -58,18 +64,24 @@ class PacketListView
       menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
       menu.append(new MenuItem(label: 'Export payload', click: exportPayload))
       menu.append(new MenuItem(type: 'separator'))
-      menu.append(new MenuItem(label: 'Copy as JSON', click: copyAsJSON))
+      menu.append(new MenuItem(label: 'Copy Layer as JSON', click: copyAsJSON))
       menu
 
     dripcap.menu.register 'packetView: LayerMenu', @layerMenu
+    dripcap.menu.register 'packetView: LayerMenu', @copyMenu
     dripcap.menu.register 'packetView: NumericValueMenu', @numValueMenu
+    dripcap.menu.register 'packetView: NumericValueMenu', @copyMenu
+    dripcap.menu.register 'packetView: ContextMenu', @copyMenu
 
   updateTheme: (theme) ->
     @comp.updateTheme theme
 
   deactivate: ->
     dripcap.menu.unregister 'packetView: LayerMenu', @layerMenu
+    dripcap.menu.unregister 'packetView: LayerMenu', @copyMenu
     dripcap.menu.unregister 'packetView: NumericValueMenu', @numValueMenu
+    dripcap.menu.unregister 'packetView: NumericValueMenu', @copyMenu
+    dripcap.menu.unregister 'packetView: ContextMenu', @copyMenu
 
     dripcap.package.load('main-view').then (pkg) =>
       pkg.root.panel.center('packet-view')
