@@ -3,6 +3,13 @@ path = require('path')
 CSON = require('cson')
 mkpath = require('mkpath')
 
+observe = (obj, callback) ->
+  Object.observe obj, (changes) ->
+    for c in changes
+      if typeof obj[c.name] == 'object'
+        observe obj[c.name], callback
+    callback.apply @, arguments
+
 class Profile
   constructor: (@path) ->
     @_configPath = path.join @path, '/config.cson'
@@ -28,6 +35,10 @@ class Profile
       console.warn e
       @layout = {}
 
+    observe @config, => @_save()
+    observe @package, => @_save()
+    observe @layout, => @_save()
+
   init: ->
     try
       require(@_initPath)
@@ -35,7 +46,7 @@ class Profile
       unless e.code == "MODULE_NOT_FOUND"
         console.warn e
 
-  save: ->
+  _save: ->
     mkpath.sync(@path)
     fs.writeFileSync @_configPath, CSON.stringify @config
     fs.writeFileSync @_packagePath, CSON.stringify @package

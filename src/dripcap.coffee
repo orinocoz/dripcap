@@ -315,6 +315,5 @@ class Dripcap extends EventEmitter
     $(window).unload =>
       for k, pkg of @package.loadedPackages
         pkg.deactivate()
-      @profile.save()
 
 exports.init = (prof) -> new Dripcap prof
