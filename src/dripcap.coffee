@@ -88,7 +88,7 @@ class Dripcap extends EventEmitter
       set: (id) ->
         if id != @_id
           @_id = id
-          @parent.profile.config.theme = id
+          @parent.profile.setConfig 'theme', id
           if @registory[id]?
             @scheme = @registory[id]
             @pub 'update', @scheme, 1
@@ -135,7 +135,7 @@ class Dripcap extends EventEmitter
         try
           pkg = new Package(p)
 
-          if _.isObject(conf = @parent.profile.package[pkg.name])
+          if _.isObject(conf = @parent.profile.getPackage(pkg.name))
             _.extendOwn pkg.config, conf
 
           if (loaded = @_loadedPackages[pkg.name])?
@@ -290,7 +290,7 @@ class Dripcap extends EventEmitter
       throw new Error 'global.dripcap already exists!'
     global.dripcap = @
 
-    theme = @profile.config.theme
+    theme = @profile.getConfig('theme')
 
     @session = new SessionInterface @
     @theme = new ThemeInterface @

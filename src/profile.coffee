@@ -2,54 +2,48 @@ fs = require('fs')
 path = require('path')
 CSON = require('cson')
 mkpath = require('mkpath')
+_ = require('underscore')
 
-observe = (obj, callback) ->
-  Object.observe obj, (changes) ->
-    for c in changes
-      if typeof obj[c.name] == 'object'
-        observe obj[c.name], callback
-    callback.apply @, arguments
+class Category
+  constructor: (@_name, @_path, defaultValue = {}) ->
+    try
+      @_data = CSON.parse fs.readFileSync @_path
+    catch e
+      console.warn e
+      @_data = defaultValue
+      @_save()
+
+  get: (key) -> @_data[key]
+
+  set: (key, value) ->
+    unless _.isEqual value, @_data[key]
+      @_data[key] = value
+      @_save()
+
+  _save: ->
+    fs.writeFileSync @_path, CSON.stringify @_data
 
 class Profile
   constructor: (@path) ->
-    @_configPath = path.join @path, '/config.cson'
-    @_packagePath = path.join @path, '/package.cson'
-    @_layoutPath = path.join @path, '/layout.cson'
     @_initPath = path.join @path, '/init.coffee'
 
-    try
-      @config = CSON.parse fs.readFileSync @_configPath
-    catch e
-      console.warn e
-      @config = {}
+    @_config = new Category 'config', path.join(@path, '/config.cson')
+    @_package = new Category 'package', path.join(@path,'/package.cson')
+    @_layout = new Category 'layout', path.join(@path,'/layout.cson')
 
-    try
-      @package = CSON.parse fs.readFileSync @_packagePath
-    catch e
-      console.warn e
-      @package = {}
-
-    try
-      @layout = CSON.parse fs.readFileSync @_layoutPath
-    catch e
-      console.warn e
-      @layout = {}
-
-    observe @config, => @_save()
-    observe @package, => @_save()
-    observe @layout, => @_save()
+  getConfig:  (key) -> @_config.get key
+  setConfig:  (key, value) -> @_config.set key, value
+  getPackage: (key) -> @_package.get key
+  setPackage: (key, value) -> @_package.set key, value
+  getLayout:  (key) -> @_layout.get key
+  setLayout:  (key, value) -> @_layout.set key, value
 
   init: ->
+    mkpath.sync(@path)
     try
       require(@_initPath)
     catch e
       unless e.code == "MODULE_NOT_FOUND"
         console.warn e
-
-  _save: ->
-    mkpath.sync(@path)
-    fs.writeFileSync @_configPath, CSON.stringify @config
-    fs.writeFileSync @_packagePath, CSON.stringify @package
-    fs.writeFileSync @_layoutPath, CSON.stringify @layout
 
 module.exports = Profile
