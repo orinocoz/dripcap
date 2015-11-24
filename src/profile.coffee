@@ -6,6 +6,7 @@ _ = require('underscore')
 
 class Category
   constructor: (@_name, @_path, defaultValue = {}) ->
+
     try
       @_data = CSON.parse fs.readFileSync @_path
     catch e
@@ -25,6 +26,7 @@ class Category
 
 class Profile
   constructor: (@path) ->
+    mkpath.sync(@path)
     @_initPath = path.join @path, '/init.coffee'
 
     @_config = new Category 'config', path.join(@path, '/config.cson')
@@ -39,7 +41,6 @@ class Profile
   setLayout:  (key, value) -> @_layout.set key, value
 
   init: ->
-    mkpath.sync(@path)
     try
       require(@_initPath)
     catch e
