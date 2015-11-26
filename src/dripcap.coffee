@@ -214,9 +214,11 @@ class Dripcap extends EventEmitter
     popup: (name, self, browserWindow, x, y) ->
       if @_handlers[name]?
         menu = new Menu()
-        for h in @_handlers[name]
+        handlers = @_handlers[name]
+        for h, i in handlers
           menu = h.handler.call(self, menu)
-          menu.append(new MenuItem(type: 'separator'))
+          if i < handlers.length - 1
+            menu.append(new MenuItem(type: 'separator'))
         menu.popup browserWindow, x, y
 
     add: (name, path, template) ->
