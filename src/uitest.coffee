@@ -3,7 +3,7 @@ BrowserWindow = require('browser-window')
 glob = require('glob')
 path = require('path')
 fs = require('fs')
-ipc = require('ipc')
+ipc = require('electron').ipcMain
 
 app.on 'ready', ->
   total = 0
@@ -22,7 +22,7 @@ app.on 'ready', ->
       p = p.then ->
         new Promise (res) ->
           mainWindow = new BrowserWindow width: 1200, height: 800, show: false
-          mainWindow.loadUrl 'file://' + __dirname + '/../render.html'
+          mainWindow.loadURL 'file://' + __dirname + '/../render.html'
           mainWindow.webContents.on 'did-finish-load', ->
             mainWindow.webContents.executeJavaScript "require(require('path').join(location.pathname, '../js/uitest-init'))('#{t}');"
           mainWindow.on 'close', -> res()

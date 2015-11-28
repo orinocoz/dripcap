@@ -1,4 +1,4 @@
-ipc = require('ipc')
+ipc = require('electron').ipcRenderer
 global.console = require('remote').getGlobal('console')
 
 module.exports = (file) ->

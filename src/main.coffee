@@ -20,7 +20,7 @@ class Dripcap
       'title-bar-style': 'hidden-inset'
 
     mainWindow = new BrowserWindow options
-    mainWindow.loadUrl 'file://' + __dirname + '/../render.html'
+    mainWindow.loadURL 'file://' + __dirname + '/../render.html'
 
   pushIndicator: ->
     @_indicator++
