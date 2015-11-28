@@ -10,7 +10,7 @@ Caffeinated packet analyzer
 
 ```bash
 $ cd dripcap
-$ npm install -g gulp node-gyp
+$ npm install -g gulp browserify node-gyp
 $ npm install
 $ gulp
 ```

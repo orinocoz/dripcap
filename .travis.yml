@@ -13,7 +13,7 @@ addons:
     - libpcap-dev
 install:
 - export CXX="g++-4.8"
-- npm install -g gulp electron-prebuilt
+- npm install -g gulp electron-prebuilt browserify
 - npm install
 before_script:
 - export DISPLAY=':99.0'

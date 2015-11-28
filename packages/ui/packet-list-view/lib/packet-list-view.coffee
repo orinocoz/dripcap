@@ -3,6 +3,7 @@ _ = require('underscore')
 riot = require('riot')
 fs = require('fs')
 {Component} = require('dripper/component')
+Filter = require('dripper/filter')
 remote = require('remote')
 Menu = remote.require('menu')
 MenuItem = remote.require('menu-item')
@@ -124,27 +125,36 @@ class PacketListView
           subTable = new PacketTable container, sub
 
           dripcap.pubsub.sub 'PacketFilterView:filter', _.debounce (f) =>
-            filterd = []
-            for pkt in packets
-              filterd.push pkt if f(pkt)
 
-            if packets.length != filterd.length
-              @filter = f
-              subTable.clear()
-              for pkt in filterd
+            if @_filterInterval?
+              clearInterval @_filterInterval
+              @_filterInterval = null
+
+            if @_filter?
+              @_filter.terminate()
+              @_filter = null
+
+            if f.length > 0
+              @_filter = new Filter(f)
+              @_filter.on 'filtered', (pkt) ->
                 subTable.append pkt
+
+              subTable.clear()
+              for pkt in packets
+                @_filter.process pkt
+
               sub.show()
               main.hide()
             else
-              @filter = null
               sub.hide()
               main.show()
-          , 200
+              
+          , 400
 
           session.on 'packet', (pkt) =>
             packets.push pkt
             mainTable.append pkt
-            subTable.append pkt if @filter? && @filter(pkt)
+            @_filter.process pkt if @_filter?
             mainTable.autoScroll()
             subTable.autoScroll()
 
