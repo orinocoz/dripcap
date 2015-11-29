@@ -5,7 +5,7 @@
   "main": "index.coffee",
   "scripts": {
     "test": "jasmine-node --coffee spec",
-    "postinstall": "browserify -g coffeeify --extension=.coffee filter-worker.coffee > filter-worker-bundle.js"
+    "postinstall": "npm install coffeeify && browserify -g coffeeify --extension=.coffee filter-worker.coffee > filter-worker-bundle.js"
   },
   "author": "h2so5",
   "license": "MIT",
@@ -31,8 +31,5 @@
     "filter-parse.coffee",
     "filter-worker.coffee",
     "type.coffee"
-  ],
-  "devDependencies": {
-    "coffeeify": "^1.2.0"
-  }
+  ]
 }
