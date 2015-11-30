@@ -11,17 +11,18 @@
     }
   </style>
 
-  <script type="text/coffeescript">
-    parse = require('dripper/filter-parse')
+  <script type="es6">
+    import parse from 'dripper/filter-parse'
 
-    @change = (e) =>
-      try
-        filter = $(e.target).val().trim()
-        $(@filter).toggleClass('error', false)
+    this.change = (e) => {
+      try {
+        let filter = $(e.target).val().trim()
+        $(this.filter).toggleClass('error', false)
         parse(filter)
-        dripcap.pubsub.pub 'PacketFilterView:filter', filter
-      catch error
-        $(@filter).toggleClass('error', true)
-
+        dripcap.pubsub.pub('PacketFilterView:filter', filter)
+      } catch (error) {
+        $(this.filter).toggleClass('error', true)
+      }
+    }
   </script>
 </packet-filter-view>

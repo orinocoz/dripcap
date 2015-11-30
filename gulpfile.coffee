@@ -1,4 +1,5 @@
 gulp = require('gulp')
+babel = require('gulp-babel')
 coffee = require('gulp-coffee')
 coffeelint = require('gulp-coffeelint')
 electron = require('gulp-atom-electron')
@@ -12,6 +13,7 @@ glob = require('glob')
 exec = require('child_process').exec
 jasmine = require('gulp-jasmine')
 npm = require('npm')
+require('babel-core/register')
 config = require('./src/config')
 
 gulp.task 'lint', ->
@@ -20,6 +22,11 @@ gulp.task 'lint', ->
     ])
     .pipe(coffeelint())
     .pipe coffeelint.reporter()
+
+gulp.task 'babel', ->
+  gulp.src('./src/**/*.js', base: './src/')
+    .pipe(babel())
+    .pipe gulp.dest('./.build/js/')
 
 gulp.task 'coffee', ->
   gulp.src('./src/**/*.coffee', base: './src/')
@@ -68,6 +75,7 @@ gulp.task 'npm', ['copypkg'], ->
 
 gulp.task 'linux', [
     'copy'
+    'babel'
     'coffee'
     'copypkg'
     'npm'
@@ -106,6 +114,7 @@ gulp.task 'debian', [
 
 gulp.task 'darwin', [
     'copy'
+    'babel'
     'coffee'
     'copypkg'
     'npm'
@@ -136,13 +145,14 @@ gulp.task 'test', ['build', 'jasmine'], ->
   gulp.src(".build").pipe(runElectron([], env: env))
 
 gulp.task 'build', [
+  'babel'
   'coffee'
   'copy'
   'copypkg'
   'npm'
 ]
 
-gulp.task 'watch', ['coffee', 'copy', 'copypkg'], ->
+gulp.task 'watch', ['babel', 'coffee', 'copy', 'copypkg'], ->
   gulp.src(".build").pipe(runElectron(['--enable-logging']))
   gulp.watch [
     './**/*.coffee'
@@ -150,6 +160,7 @@ gulp.task 'watch', ['coffee', 'copy', 'copypkg'], ->
     './**/*.json'
     './**/*.less'
   ], [
+    'babel'
     'coffee'
     'copy'
     'copypkg'

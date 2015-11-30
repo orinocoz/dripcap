@@ -1,3 +1,4 @@
+require('babel-core/register')(ignore: /.+\/node_modules\/(?!dripper).+\/.+.js/)
 require('coffee-script/register')
 config = require('./config')
 shell = require('shell')

@@ -10,7 +10,7 @@
     <span if={ settings } show={ settings.options.promisc }><i class="fa fa-eye"></i> promiscuous</span>
   </div>
 
-  <style type="text/less">
+  <style type="less">
     @splitter: fade(@scroll-bar, 40%);
 
     [riot-tag=status-view] {
@@ -38,20 +38,24 @@
     }
   </style>
 
-  <script type="text/coffeescript">
+  <script type="es6">
 
-  @on 'mount', =>
-    if process.platform == 'darwin'
-      $(@root).css 'padding-left', '90px'
+  this.on('mount', () => {
+    if (process.platform === 'darwin')
+      $(this.root).css('padding-left', '90px')
+  })
 
-  @startCapture = ->
-    dripcap.action.emit 'Core: Start Sessions'
+  this.startCapture = () => {
+    dripcap.action.emit('Core: Start Sessions')
+  }
 
-  @stopCapture = ->
-    dripcap.action.emit 'Core: Stop Sessions'
+  this.stopCapture = () => {
+    dripcap.action.emit('Core: Stop Sessions')
+  }
 
-  @newCapture = ->
-    dripcap.action.emit 'Core: New Session'
+  this.newCapture = () => {
+    dripcap.action.emit('Core: New Session')
+  }
 
   </script>
 

@@ -1,6 +1,7 @@
 fs = require('fs')
 path = require('path')
 _ = require('underscore')
+require('babel-core/register')
 
 class Package
   constructor: (jsonPath) ->
@@ -41,6 +42,7 @@ class Package
             @updateTheme(dripcap.theme.scheme)
 
           catch e
+            console.error e
             reject(e)
             return
 

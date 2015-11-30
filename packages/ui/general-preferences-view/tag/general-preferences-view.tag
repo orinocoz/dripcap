@@ -25,14 +25,16 @@
   }
   </style>
 
-  <script type="text/coffeescript">
+  <script type="es6">
 
-  @setThemeList = (list) =>
-    @currentTheme = dripcap.theme.id
-    @themeList = list
+  this.setThemeList = (list) => {
+    this.currentTheme = dripcap.theme.id
+    this.themeList = list
+  }
 
-  @updateTheme = =>
-    dripcap.theme.id = $(@theme).val()
+  this.updateTheme = () => {
+    dripcap.theme.id = $(this.theme).val()
+  }
 
   </script>
 

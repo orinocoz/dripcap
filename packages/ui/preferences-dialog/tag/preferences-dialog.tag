@@ -9,24 +9,25 @@
   }
   </style>
 
-  <script type="text/coffeescript">
+  <script type="es6">
 
-  @setInterfaceList = (list) =>
-    @interfaceList = list
+  this.setInterfaceList = (list) => {
+    this.interfaceList = list
+  }
 
-  @show = =>
-    @tags['modal-dialog'].show()
+  this.show = () => this.tags['modal-dialog'].show()
 
-  @start = =>
-    ifs = $(@tags['modal-dialog'].interface).val()
-    filter = $(@tags['modal-dialog'].filter).val()
-    promisc = $(@tags['modal-dialog'].promisc).prop('checked')
+  this.start = (list) => {
+    let ifs = $(this.tags['modal-dialog'].interface).val()
+    let filter = $(this.tags['modal-dialog'].filter).val()
+    let promisc = $(this.tags['modal-dialog'].promisc).prop('checked')
 
-    @tags['modal-dialog'].hide()
-    sess = dripcap.session.create ifs, filter: filter, promisc: promisc
+    this.tags['modal-dialog'].hide()
+    let sess = dripcap.session.create(ifs, {filter: filter, promisc: promisc})
     dripcap.session.list = [sess]
     dripcap.session.emit('created', sess)
     sess.start()
+  }
 
   </script>
 

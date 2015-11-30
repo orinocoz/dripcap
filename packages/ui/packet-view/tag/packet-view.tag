@@ -8,22 +8,21 @@
   <i if={ base == 8 } oncontextmenu={ context }><i class="base">0</i>{ opts.value.toString(8) }</i>
   <i if={ base == 10 } oncontextmenu={ context }>{ opts.value.toString(10) }</i>
   <i if={ base == 16 } oncontextmenu={ context }><i class="base">0x</i>{ opts.value.toString(16) }</i>
-  <script type="text/coffeescript">
-    remote = require('remote')
-    @base = 10
-
-    @context = =>
-      dripcap.menu.popup('packetView: NumericValueMenu', @, remote.getCurrentWindow())
-
+  <script type="es6">
+    import remote from 'remote'
+    this.base = 10
+    this.context = () => dripcap.menu.popup('packetView: NumericValueMenu', this, remote.getCurrentWindow())
   </script>
 </packet-view-integer-value>
 
 <packet-view-string-value>
   <i></i>
-  <script type="text/coffeescript">
-    @on 'update', =>
-      if @opts.value?
-        @root.innerHTML = $('<div/>').text(@opts.value.toString()).html()
+  <script type="es6">
+    this.on('update', () => {
+      if (this.opts.value != null) {
+        this.root.innerHTML = $('<div/>').text(this.opts.value.toString()).html()
+      }
+    })
   </script>
 </packet-view-string-value>
 
@@ -43,42 +42,45 @@
     </ul>
   </li>
 
-  <script type="text/coffeescript">
-    remote = require('remote')
-    @show = false
+  <script type="es6">
+  import remote from 'remote'
+  this.show = false
 
-    @toggle = (e) =>
-      @show = !@show if opts.field.fields?
-      e.stopPropagation()
+  this.toggle = (e) => {
+    if (this.opts.field.fields != null) {
+      this.show = !this.show
+    }
+    e.stopPropagation()
+  }
 
-    @rangeOut = => @parent.rangeOut()
+  this.rangeOut = () => this.parent.rangeOut()
 
-    @fieldRange = (e) =>
-      @parent.fieldRange(e)
+  this.fieldRange = (e) => this.parent.fieldRange(e)
 
-    @context = =>
-      if window.getSelection().toString().length > 0
-        dripcap.menu.popup('packetView: ContextMenu', @, remote.getCurrentWindow())
+  this.context = () => {
+    if (window.getSelection().toString().length > 0) {
+      dripcap.menu.popup('packetView: ContextMenu', this, remote.getCurrentWindow())
+    }
+  }
 
-    @on 'update', =>
-      @layer = @parent.layer
+  this.on('update', () => {
+    this.layer = this.parent.layer
+    if (opts.field.value != null) {
+      this.value = opts.field.value
+    } else {
+      this.value = this.layer.attrs[opts.field.attr]
+    }
 
-      @value =
-        if opts.field.value?
-          opts.field.value
-        else
-          @layer.attrs[opts.field.attr]
-
-      @type =
-        if typeof @value == 'boolean'
-          'boolean'
-        else if Number.isInteger(@value)
-          'integer'
-        else if Buffer.isBuffer @value
-          'buffer'
-        else
-          'string'
-
+    if (typeof this.value == 'boolean') {
+      this.type = 'boolean'
+    } else if (Number.isInteger(this.value)) {
+      this.type = 'integer'
+    } else if (Buffer.isBuffer(this.value)) {
+      this.type = 'buffer'
+    } else {
+      this.type = 'string'
+    }
+  })
   </script>
 
   <style type="text/less">
@@ -113,39 +115,45 @@
     </div>
   </div>
 
-  <script type="text/coffeescript">
-    remote = require('remote')
+  <script type="es6">
+  import remote from 'remote'
 
-    @layerContext = (e) =>
-      @clickedLayerIndex = e.item.i
-      dripcap.menu.popup('packetView: LayerMenu', @, remote.getCurrentWindow())
+  this.layerContext = (e) => {
+    this.clickedLayerIndex = e.item.i
+    dripcap.menu.popup('packetView: LayerMenu', this, remote.getCurrentWindow())
+  }
 
-    @set = (pkt) =>
-      @packet = pkt
-      @layers = []
-      if pkt?
-        for i in pkt.layers
-          @layers.push false
-        @layers[@layers.length - 1] = true
+  this.set = (pkt) => {
+    this.packet = pkt
+    this.layers = []
+    if (pkt != null) {
+      for (let i of pkt.layers) {
+        this.layers.push(false)
+      }
+      this.layers[this.layers.length - 1] = true
+    }
+  }
 
-    @toggleLayer = (e) =>
-      index = e.item.i
-      @layers[index] = !@layers[index]
-      e.stopPropagation()
+  this.toggleLayer = (e) => {
+    let index = e.item.i
+    this.layers[index] = !this.layers[index]
+    e.stopPropagation()
+  }
 
-    @fieldRange = (e) =>
-      fieldRange = e.currentTarget.getAttribute('range').split '-'
-      range = [parseInt(fieldRange[0]), parseInt(fieldRange[1])]
-      dripcap.pubsub.pub 'PacketView:range', range
+  this.fieldRange = (e) => {
+    let fieldRange = e.currentTarget.getAttribute('range').split('-')
+    let range = [parseInt(fieldRange[0]), parseInt(fieldRange[1])]
+    dripcap.pubsub.pub('PacketView:range', range)
+  }
 
-    @layerRange = (e) =>
-      max = Math.max(e.item.i - 1, 0)
-      layer = @packet.layers[max]
-      range = [layer.payload.start, layer.payload.end]
-      dripcap.pubsub.pub 'PacketView:range', range
+  this.layerRange = (e) => {
+    let max = Math.max(e.item.i - 1, 0)
+    let layer = this.packet.layers[max]
+    let range = [layer.payload.start, layer.payload.end]
+    dripcap.pubsub.pub('PacketView:range', range)
+  }
 
-    @rangeOut = =>
-      dripcap.pubsub.pub 'PacketView:range', [0, 0]
+  this.rangeOut = () => dripcap.pubsub.pub('PacketView:range', [0, 0])
 
   </script>
 

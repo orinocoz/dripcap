@@ -32,26 +32,29 @@
 
   </style>
 
-  <script type="text/coffeescript">
-  @visible = false
+  <script type="es6">
+  this.visible = false
 
-  @show = =>
-    prev = @constructor.currentDialog
-    if prev
+  this.show = () => {
+    let prev = this.constructor.currentDialog
+    if (prev) {
       prev.hide()
       prev.update()
-    @constructor.currentDialog = @
-    @visible = true
-    process.nextTick -> $('.content').focus()
+    }
+    this.constructor.currentDialog = this
+    this.visible = true
+    process.nextTick(() => $('.content').focus())
+  }
 
-  @hide = =>
-    @visible = false
-    @constructor.currentDialog = null
+  this.hide = () => {
+    this.visible = false
+    this.constructor.currentDialog = null
+  }
 
-  @cancel = (e) =>
-    if e.currentTarget == e.target
-      @hide()
-    true
+  this.cancel = (e) => {
+    if (e.currentTarget === e.target) this.hide()
+    return true
+  }
 
   </script>
 
