@@ -13,18 +13,18 @@
     </li>
   </ul>
 
-  <script type="text/coffeescript">
-
-    @setEnabled = (e) =>
-      pkg = e.item.pkg
-      enabled = $(e.currentTarget).is(':checked')
+  <script type="es6">
+    this.setEnabled = (e) => {
+      let pkg = e.item.pkg
+      let enabled = $(e.currentTarget).is(':checked')
       pkg.config.enabled = enabled
-      dripcap.profile.setPackage pkg.name, pkg.config
-      if enabled
+      dripcap.profile.setPackage(pkg.name, pkg.config)
+      if (enabled) {
         pkg.activate()
-      else
+      } else {
         pkg.deactivate()
-
+      }
+    }
   </script>
 
   <style type="text/less">
