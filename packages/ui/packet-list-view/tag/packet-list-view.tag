@@ -59,49 +59,45 @@
   }
   </style>
 
-  <script type="text/coffeescript">
+  <script type="es6">
 
-  @on 'mount', =>
-    hover = $(@root).find('.hover-slider')
-    $(@root).find('.slider').on 'mousedown', ->
-      hover.data('slider', $(@)).show()
-    hover.on 'mouseup mouseout', ->
-      $(@).hide()
+  this.on('mount', () => {
+    let hover = $(this.root).find('.hover-slider')
+    hover.on('mouseup mouseout', () => $(this).hide())
+    $(this.root).find('.slider').on('mousedown', () => hover.data('slider', $(this)).show())
 
-    root = $(@root)
-    self = @
-    hover.on 'mousemove', (e) ->
-      slider = $(@).data('slider')
-      prev = slider.prevAll('.container').first()
-      next = slider.nextAll('.container').first()
+    let root = $(this.root)
+    self = this
+    hover.on('mousemove', (e) => {
+      let slider = $(this).data('slider')
+      let prev = slider.prevAll('.container').first()
+      let next = slider.nextAll('.container').first()
 
-      left = prev.position().left
-      right = left + prev.width() + next.width()
-      ratio = (e.clientX - left) / (right - left)
-      sum = parseFloat(prev.css('flex-grow')) +
-        parseFloat(next.css('flex-grow'))
+      let left = prev.position().left
+      let right = left + prev.width() + next.width()
+      let ratio = (e.clientX - left) / (right - left)
+      let sum = parseFloat(prev.css('flex-grow')) + parseFloat(next.css('flex-grow'))
       prev.css('flex-grow', ratio * sum)
       next.css('flex-grow', (1.0 - ratio) * sum)
       self.calculate()
+    })
 
-    width = [0.6, 1.3, 1.3, 0.6]
-    $(@root).children('.container').each (i, elem) ->
-      $(elem).css 'flex-grow', width[i]
+    let width = [0.6, 1.3, 1.3, 0.6]
+    $(this.root).children('.container').each((i, elem) => $(elem).css('flex-grow', width[i]))
+    this.calculate()
+  })
 
-    @calculate()
-
-  @calculate = =>
-    con = $(@root).children('.container')
-
-    sum = 0
-    con.each ->
-      sum += $(@).width()
-
-    thMain = $('[riot-tag=packet-list-view] table.main th')
-    thSub = $('[riot-tag=packet-list-view] table.sub th')
-    con.each (i) ->
-      $(thMain[i]).css 'width', ($(@).width() / sum * 100) + '%'
-      $(thSub[i]).css 'width', ($(@).width() / sum * 100) + '%'
+  this.calculate = () => {
+    let con = $(this.root).children('.container')
+    let sum = 0
+    con.each(() => sum += $(this).width())
+    let thMain = $('[riot-tag=packet-list-view] table.main th')
+    let thSub = $('[riot-tag=packet-list-view] table.sub th')
+    con.each((i) => {
+      $(thMain[i]).css('width', ($(this).width() / sum * 100) + '%')
+      $(thSub[i]).css('width', ($(this).width() / sum * 100) + '%')
+    })
+  }
 
   </script>
 </packet-list-view-header>
