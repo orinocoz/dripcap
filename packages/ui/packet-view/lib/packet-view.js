@@ -46,28 +46,31 @@ export default class PacketListView {
       return menu
     }
 
-    this.layerMenu = (menu, e) => {
+    this.layerMenu = function(menu, e) {
       let exportRawData = () => {
+        let packet = this.packet
         let index = Math.max(this.clickedLayerIndex - 1, 0)
-        let layer = this.packet.layers[index]
-        let filename = `${this.packet.interface}-${layer.name}-${this.packet.timestamp.toISOString()}.bin`
+        let layer = packet.layers[index]
+        let filename = `${packet.interface}-${layer.name}-${packet.timestamp.toISOString()}.bin`
         let path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
         if (path != null) {
-          fs.writeFileSync(path, layer.payload.apply(this.packet.payload))
+          fs.writeFileSync(path, layer.payload.apply(packet.payload))
         }
       }
 
       let exportPayload = () => {
-        let layer = this.packet.layers[this.clickedLayerIndex]
-        let filename = `${this.packet.interface}-${layer.name}-${this.packet.timestamp.toISOString()}.bin`
+        let packet = this.packet
+        let layer = packet.layers[this.clickedLayerIndex]
+        let filename = `${packet.interface}-${layer.name}-${packet.timestamp.toISOString()}.bin`
         let path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
         if (path != null) {
-          fs.writeFileSync(path, layer.payload.apply(this.packet.payload))
+          fs.writeFileSync(path, layer.payload.apply(packet.payload))
         }
       }
 
       let copyAsJSON = () => {
-        let layer = this.packet.layers[this.clickedLayerIndex]
+        let packet = this.packet
+        let layer = packet.layers[this.clickedLayerIndex]
         clipboard.writeText(JSON.stringify(layer, null, ' '))
       }
 

@@ -185,16 +185,18 @@ export default class PacketListView {
       })
     })
 
-    this.packetMenu = (menu, e) => {
+    this.packetMenu = function(menu, e) {
       let exportRawData = () => {
-        filename = `${this.selctedPacket.interface}-${this.selctedPacket.timestamp.toISOString()}.bin`
-        path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
+        let filename = `${this.selctedPacket.interface}-${this.selctedPacket.timestamp.toISOString()}.bin`
+        let path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
         if (path != null) {
           fs.writeFileSync(path, this.selctedPacket.payload)
         }
       }
 
-      let copyAsJSON = () => clipboard.writeText(JSON.stringify(this.selctedPacket, null, ' '))
+      let copyAsJSON = () => {
+        clipboard.writeText(JSON.stringify(this.selctedPacket, null, ' '))
+      }
 
       menu.append(new MenuItem({label: 'Export raw data', click: exportRawData}))
       menu.append(new MenuItem({label: 'Copy Packet as JSON', click: copyAsJSON}))
