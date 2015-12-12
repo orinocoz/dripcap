@@ -17,7 +17,7 @@ app.on 'ready', ->
 
   p = Promise.resolve()
   uitest = process.env['DRIPCAP_UI_TEST']
-  for t in glob.sync(path.join(uitest, '/**/uispec/*.coffee'))
+  for t in glob.sync(path.join(uitest, '/**/uispec/*._'))
     do (t = t) ->
       p = p.then ->
         new Promise (res) ->
