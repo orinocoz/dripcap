@@ -35,40 +35,6 @@ class Dripcap {
       })
     }
   }
-
-  pushIndicator() {
-    this._indicator++
-    if (this._indicator === 1) {
-      if (process.platform === 'darwin') {
-        this._indicatorInterval = setInterval(() => {
-          switch (this._indicator) {
-            case 0:
-              app.dock.setBadge(" ● ○ ○ ")
-              break
-            case 1:
-              app.dock.setBadge(" ○ ● ○ ")
-              break
-            case 2:
-              app.dock.setBadge(" ○ ○ ● ")
-              break
-          }
-          this._indicator = (this._indicator + 1) % 3
-        }, 500)
-      }
-    }
-  }
-
-  popIndicator() {
-    if (this._indicator > 0) {
-      this._indicator--
-    }
-    if (this._indicator <= 0) {
-      if (process.platform === 'darwin') {
-        clearInterval(this._indicatorInterval)
-        app.dock.setBadge("")
-      }
-    }
-  }
 }
 
 global.dripcap = new Dripcap()

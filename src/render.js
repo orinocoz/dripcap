@@ -41,13 +41,6 @@ dripcap.action.on('Core: Quit', () => {
   remote.require('app').quit()
 })
 
-dripcap.pubsub.sub('Core: Capturing Status', (data) => {
-  if (data)
-    remote.getGlobal('dripcap').pushIndicator()
-  else
-    remote.getGlobal('dripcap').popIndicator()
-})
-
 dripcap.action.on('Core: Stop Sessions', () => {
   for (let s of dripcap.session.list) {
     s.stop()
