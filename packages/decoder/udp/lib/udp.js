@@ -37,7 +37,7 @@ export default class UDPDecoder {
         })
 
         let srcAddr = packet.layers[2].attrs.src
-        if (srcAddr.constructor.name === 'IPv4Address')
+        if (srcAddr instanceof IPv4Address)
           layer.attrs.src = new IPv4Host(srcAddr, source)
         else
           layer.attrs.src = new IPv6Host(srcAddr, source)
@@ -51,7 +51,7 @@ export default class UDPDecoder {
         })
 
         let dstAddr = packet.layers[2].attrs.dst
-        if (dstAddr.constructor.name === 'IPv4Address')
+        if (dstAddr instanceof IPv4Address)
           layer.attrs.dst = new IPv4Host(dstAddr, destination)
         else
           layer.attrs.dst = new IPv6Host(dstAddr, destination)
