@@ -21,34 +21,33 @@ class DecoderMap {
   }
 
   analyze(packet) {
-    return Promise.resolve().then((function(_this) {
-      return function() {
-        var array, decoder, i, len, prom;
-        prom = Promise.resolve(packet);
-        if (array = _this._map[_.last(packet.layers).namespace]) {
-          for (i = 0, len = array.length; i < len; i++) {
-            decoder = array[i];
-            prom = (function(decoder) {
-              return prom.then(function() {
-                return new Promise(function(res, rej) {
-                  return process.nextTick(function() {
-                    return decoder.analyze(packet).then(rej, res);
-                  });
-                });
-              });
-            })(decoder);
-          }
+    return Promise.resolve().then(() => {
+      let prom = Promise.resolve(packet)
+      let array = this._map[_.last(packet.layers).namespace]
+      if (array) {
+        for (let decoder of array) {
+          prom = (function(decoder) {
+            return prom.then(() => {
+              return new Promise((res, rej) => {
+                process.nextTick(() => {
+                  decoder.analyze(packet).then(rej, res)
+                })
+              })
+            })
+          })(decoder)
         }
-        prom = prom.then(function() {
-          return Promise.resolve(packet);
-        });
-        return prom.then(function(packet) {
-          return Promise.resolve(packet);
-        }, function(packet) {
-          return _this.analyze(packet);
-        });
-      };
-    })(this));
+      }
+
+      prom = prom.then(() => {
+        return Promise.resolve(packet)
+      })
+
+      return prom.then((packet) => {
+        return Promise.resolve(packet)
+      }, (packet) => {
+        return this.analyze(packet)
+      })
+    })
   }
 }
 
