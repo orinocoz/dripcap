@@ -15,8 +15,8 @@
   "author": "h2so5",
   "license": "MIT",
   "dependencies": {
-    "babel-core": "5.8.1",
-    "babel-register": "6.2.0",
+    "babel-core": "5.8.34",
+    "babel-register": "6.3.13",
     "coffee-script": "^1.9.3",
     "dripper": "file:./dripper",
     "electron-rebuild": "^1.0.0",
