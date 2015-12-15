@@ -7,6 +7,7 @@ $ = require('jquery')
 Profile = require('./profile')
 Package = require('./package')
 Session = require('./session')
+PubSub = require('./pubsub')
 PaperFilter = require('paperfilter')
 Mousetrap = require('mousetrap')
 {EventEmitter} = require('events')
@@ -18,37 +19,6 @@ _ = require('underscore')
 
 Function::property = (prop, desc) ->
   Object.defineProperty @prototype, prop, desc
-
-class PubSub
-  constructor: ->
-    @_channels = {}
-
-  _getChannel: (name) ->
-    unless @_channels[name]?
-      @_channels[name] = {queue: [], handlers: []}
-    @_channels[name]
-
-  sub: (name, cb) ->
-    ch = @_getChannel name
-    ch.handlers.push cb
-    for data in ch.queue
-      do (data=data) ->
-        process.nextTick ->
-          cb data
-
-  pub: (name, data, queue=0) ->
-    ch = @_getChannel name
-    for cb in ch.handlers
-      do (cb=cb) ->
-        process.nextTick ->
-          cb data
-    ch.queue.push data
-    if queue > 0 && ch.queue.length > queue
-      ch.queue.splice 0, ch.queue.length - queue
-
-  get: (name, index = 0) ->
-    ch = @_getChannel name
-    ch.queue[index]
 
 class Dripcap extends EventEmitter
   class SessionInterface extends EventEmitter
