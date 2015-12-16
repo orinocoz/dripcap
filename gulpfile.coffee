@@ -87,7 +87,7 @@ gulp.task 'debian-pkg', (cb) ->
 gulp.task 'debian-paperfilter', ['debian-bin'], (cb) ->
   gulp.src('./.debian/usr/share/dripcap/resources/app/node_modules/paperfilter/bin/paperfilter-linux')
     .pipe rename("paperfilter")
-    .pipe gulp.dest('./.debian/usr/local/lib/')
+    .pipe gulp.dest('./.debian/usr/bin/')
 
 gulp.task 'debian-bin', ['copy', 'coffee', 'copypkg', 'npm'], (cb) ->
   gulp.src('./.build/**')

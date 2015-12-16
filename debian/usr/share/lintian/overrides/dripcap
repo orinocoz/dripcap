@@ -1,0 +1,10 @@
+dripcap: arch-dependent-file-in-usr-share
+dripcap: changelog-file-missing-in-native-package
+dripcap: embedded-library
+dripcap: package-installs-python-bytecode
+dripcap: unstripped-binary-or-object
+dripcap: python-script-but-no-python-dep
+dripcap: missing-dependency-on-libc
+dripcap: shell-script-fails-syntax-check
+dripcap: wrong-path-for-interpreter
+dripcap: shlib-with-executable-bit

@@ -9,3 +9,4 @@ Vcs-Git: git://github.com/dripcap/dripcap.git
 Vcs-browser: http://github.com/dripcap/dripcap
 Homepage: http://github.com/dripcap/dripcap
 Description: Caffeinated packet analyzer
+ Dripcap is an electron-based hackable packet analyzer.

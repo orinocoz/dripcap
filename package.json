@@ -28,7 +28,7 @@
     "msgcap": "file:./msgcap",
     "msgpack-lite": "^0.1.11",
     "npm": "^3.3.12",
-    "paperfilter": "^0.0.11",
+    "paperfilter": "^0.0.12",
     "riot": "2.3.0",
     "semver": "^5.0.3",
     "temporary": "0.0.8",

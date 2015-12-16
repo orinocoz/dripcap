@@ -1,2 +1,2 @@
 #!/bin/sh
-/usr/local/lib/paperfilter setcap
+/usr/bin/paperfilter setcap
