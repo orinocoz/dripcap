@@ -13,6 +13,9 @@ addons:
     - libpcap-dev
 install:
 - export CXX="g++-4.8"
+- npm install -g npm_lazy
+- npm_lazy > /dev/null 2>&1 &
+- npm config set registry http://localhost:8080/
 - npm install -g gulp electron-prebuilt browserify
 - npm install
 before_script:
