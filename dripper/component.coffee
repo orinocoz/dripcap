@@ -1,6 +1,5 @@
 $ = require('jquery')
 riot = require('riot')
-coffee = require('coffee-script')
 less = require('less')
 fs = require('fs')
 glob = require('glob')
@@ -22,9 +21,6 @@ class Component
     riot.parsers.css.less = (tag, css) =>
       @_less += css
       ''
-
-    riot.parsers.js.coffeescript = (js) ->
-      coffee.compile(js)
 
     for pattern in tags
       for tag in glob.sync(pattern)

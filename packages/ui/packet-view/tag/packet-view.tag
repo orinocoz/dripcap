@@ -8,7 +8,7 @@
   <i if={ base == 8 } oncontextmenu={ context }><i class="base">0</i>{ opts.value.toString(8) }</i>
   <i if={ base == 10 } oncontextmenu={ context }>{ opts.value.toString(10) }</i>
   <i if={ base == 16 } oncontextmenu={ context }><i class="base">0x</i>{ opts.value.toString(16) }</i>
-  <script type="text/coffeescript">
+  <script type="coffee">
     remote = require('remote')
     @base = 10
 
@@ -20,7 +20,7 @@
 
 <packet-view-string-value>
   <i></i>
-  <script type="text/coffeescript">
+  <script type="coffee">
     @on 'update', =>
       if @opts.value?
         @root.innerHTML = $('<div/>').text(@opts.value.toString()).html()
@@ -43,7 +43,7 @@
     </ul>
   </li>
 
-  <script type="text/coffeescript">
+  <script type="coffee">
     remote = require('remote')
     @show = false
 
@@ -113,7 +113,7 @@
     </div>
   </div>
 
-  <script type="text/coffeescript">
+  <script type="coffee">
     remote = require('remote')
 
     @layerContext = (e) =>

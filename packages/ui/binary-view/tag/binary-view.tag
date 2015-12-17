@@ -5,7 +5,7 @@
     <div class="ascii"></div>
   </div>
 
-  <script type="text/coffeescript">
+  <script type="coffee">
 
   </script>
 

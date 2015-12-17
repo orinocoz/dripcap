@@ -13,7 +13,7 @@
     </li>
   </ul>
 
-  <script type="text/coffeescript">
+  <script type="coffee">
 
     @setEnabled = (e) =>
       pkg = e.item.pkg

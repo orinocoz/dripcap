@@ -32,7 +32,7 @@
 
   </style>
 
-  <script type="text/coffeescript">
+  <script type="coffee">
   @visible = false
 
   @show = =>

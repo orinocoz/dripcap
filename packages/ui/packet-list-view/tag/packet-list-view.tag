@@ -59,7 +59,7 @@
   }
   </style>
 
-  <script type="text/coffeescript">
+  <script type="coffee">
 
   @on 'mount', =>
     hover = $(@root).find('.hover-slider')

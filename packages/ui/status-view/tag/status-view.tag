@@ -38,7 +38,7 @@
     }
   </style>
 
-  <script type="text/coffeescript">
+  <script type="coffee">
 
   @on 'mount', =>
     if process.platform == 'darwin'

@@ -25,7 +25,7 @@
   }
   </style>
 
-  <script type="text/coffeescript">
+  <script type="coffee">
 
   @setThemeList = (list) =>
     @currentTheme = dripcap.theme.id

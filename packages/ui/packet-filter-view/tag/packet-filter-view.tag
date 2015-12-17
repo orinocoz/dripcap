@@ -11,7 +11,7 @@
     }
   </style>
 
-  <script type="text/coffeescript">
+  <script type="coffee">
     parse = require('dripper/filter-parse')
 
     @change = (e) =>

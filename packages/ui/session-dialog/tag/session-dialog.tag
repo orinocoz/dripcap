@@ -26,7 +26,7 @@
   }
   </style>
 
-  <script type="text/coffeescript">
+  <script type="coffee">
 
   @setInterfaceList = (list) =>
     @interfaceList = list
