@@ -3,6 +3,7 @@ riot = require('riot')
 less = require('less')
 fs = require('fs')
 glob = require('glob')
+_ = require('underscore')
 
 tagPattern = /riot\.tag\('([a-z-]+)'/ig
 
@@ -112,6 +113,11 @@ class Panel
     @root = $(html)
     @root.data 'panel', @
 
+    @update = _.debounce () =>
+      @_update()
+    , 500
+    $(window).resize => @update()
+
     @_hcontainer = @root.children '.hcontainer'
     @_fnorthPanel = @root.children '.fnorth'
     @_fsouthPanel = @root.children '.fsouth'
@@ -182,30 +188,30 @@ class Panel
       v1 = @root.data('v1')
       if v < v1
         @root.data 'v0', v
-        @_update()
+        @update()
 
     @_vh1.on 'mousemove', (e) =>
       v = (e.clientY - @_vcontainer.offset().top) / @_vcontainer.height()
       v0 = @root.data('v0')
       if v > v0
         @root.data 'v1', v
-        @_update()
+        @update()
 
     @_hh0.on 'mousemove', (e) =>
       h = (e.clientX - @_hcontainer.offset().left) / @_hcontainer.width()
       h1 = @root.data('h1')
       if h < h1
         @root.data 'h0', h
-        @_update()
+        @update()
 
     @_hh1.on 'mousemove', (e) =>
       h = (e.clientX - @_hcontainer.offset().left) / @_hcontainer.width()
       h0 = @root.data('h0')
       if h > h0
         @root.data 'h1', h
-        @_update()
+        @update()
 
-    @_update()
+    @update()
 
   top: (id, elem, tab) ->
     container = @_topPanel.children('.vcontainer')
@@ -214,7 +220,7 @@ class Panel
     unless elem?
       @root.data 'v0', 0.0
       res.removeAttr 'tab-id'
-      @_update()
+      @update()
       return res
     if @root.data('v1') == 1.0
       @root.data 'v0', 0.5
@@ -224,34 +230,34 @@ class Panel
     elem.attr 'tab-id', id
     elem.data('tab', tab) if tab?
     elem.detach().appendTo container
-    @_update()
+    @update()
     res
 
   topNorthFixed: (elem) ->
     res = @_fTopNorthPanel.children().detach()
     unless elem?
-      @_update()
+      @update()
       return res
     elem.detach().appendTo @_fTopNorthPanel
-    @_update()
+    @update()
     res
 
   topSouthFixed: (elem) ->
     res = @_fTopSouthPanel.children().detach()
     unless elem?
-      @_update()
+      @update()
       return res
     elem.detach().appendTo @_fTopSouthPanel
-    @_update()
+    @update()
     res
 
   northFixed: (elem) ->
     res = @_fnorthPanel.children().detach()
     unless elem?
-      @_update()
+      @update()
       return res
     elem.detach().appendTo @_fnorthPanel
-    @_update()
+    @update()
     res
 
   bottom: (id, elem, tab) ->
@@ -261,7 +267,7 @@ class Panel
     unless elem?
       @root.data 'v1', 1.0
       res.removeAttr 'tab-id'
-      @_update()
+      @update()
       return res
     if @root.data('v0') == 0.0
       @root.data 'v1', 0.5
@@ -271,34 +277,34 @@ class Panel
     elem.attr 'tab-id', id
     elem.data('tab', tab) if tab?
     elem.detach().appendTo container
-    @_update()
+    @update()
     res
 
   bottomNorthFixed: (elem) ->
     res = @_fBottomNorthPanel.children().detach()
     unless elem?
-      @_update()
+      @update()
       return res
     elem.detach().appendTo @_fBottomNorthPanel
-    @_update()
+    @update()
     res
 
   bottomSouthFixed: (elem) ->
     res = @_fBottomSouthPanel.children().detach()
     unless elem?
-      @_update()
+      @update()
       return res
     elem.detach().appendTo @_fBottomSouthPanel
-    @_update()
+    @update()
     res
 
   southFixed: (elem) ->
     res = @_fsouthPanel.children().detach()
     unless elem?
-      @_update()
+      @update()
       return res
     elem.detach().appendTo @_fsouthPanel
-    @_update()
+    @update()
     res
 
   left: (id, elem, tab) ->
@@ -308,7 +314,7 @@ class Panel
     unless elem?
       @root.data 'h0', 0.0
       res.removeAttr 'tab-id'
-      @_update()
+      @update()
       return res
     if @root.data('h1') == 1.0
       @root.data 'h0', 0.5
@@ -318,25 +324,25 @@ class Panel
     elem.attr 'tab-id', id
     elem.data('tab', tab) if tab?
     elem.detach().appendTo container
-    @_update()
+    @update()
     res
 
   leftNorthFixed: (elem) ->
     res = @_fLeftNorthPanel.children().detach()
     unless elem?
-      @_update()
+      @update()
       return res
     elem.detach().appendTo @_fLeftNorthPanel
-    @_update()
+    @update()
     res
 
   leftSouthFixed: (elem) ->
     res = @_fLeftSouthPanel.children().detach()
     unless elem?
-      @_update()
+      @update()
       return res
     elem.detach().appendTo @_fLeftSouthPanel
-    @_update()
+    @update()
     res
 
   right: (id, elem, tab) ->
@@ -346,7 +352,7 @@ class Panel
     unless elem?
       @root.data 'h1', 1.0
       res.removeAttr 'tab-id'
-      @_update()
+      @update()
       return res
     if @root.data('h0') == 0.0
       @root.data 'h1', 0.5
@@ -356,25 +362,25 @@ class Panel
     elem.attr 'tab-id', id
     elem.data('tab', tab) if tab?
     elem.detach().appendTo container
-    @_update()
+    @update()
     res
 
   rightNorthFixed: (elem) ->
     res = @_fRightNorthPanel.children().detach()
     unless elem?
-      @_update()
+      @update()
       return res
     elem.detach().appendTo @_fRightNorthPanel
-    @_update()
+    @update()
     res
 
   rightSouthFixed: (elem) ->
     res = @_fRightSouthPanel.children().detach()
     unless elem?
-      @_update()
+      @update()
       return res
     elem.detach().appendTo @_fRightSouthPanel
-    @_update()
+    @update()
     res
 
   center: (id, elem, tab) ->
@@ -382,30 +388,30 @@ class Panel
     res = container.children("[tab-id=#{id}]").detach()
     unless elem?
       res.removeAttr 'tab-id'
-      @_update()
+      @update()
       return res
     elem.attr 'tab-id', id
     elem.data('tab', tab) if tab?
     elem.detach().appendTo container
-    @_update()
+    @update()
     res
 
   centerNorthFixed: (elem) ->
     res = @_fCenterNorthPanel.children().detach()
     unless elem?
-      @_update()
+      @update()
       return res
     elem.detach().appendTo @_fCenterNorthPanel
-    @_update()
+    @update()
     res
 
   centerSouthFixed: (elem) ->
     res = @_fCenterSouthPanel.children().detach()
     unless elem?
-      @_update()
+      @update()
       return res
     elem.detach().appendTo @_fCenterSouthPanel
-    @_update()
+    @update()
     res
 
   _update: ->
