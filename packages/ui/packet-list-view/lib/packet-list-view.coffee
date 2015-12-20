@@ -104,13 +104,12 @@ class PacketListView
         pkg.root.panel.left('packet-list-view', m)
 
         n = $('<div class="wrapper" />').attr('tabIndex', '0').appendTo m
-        @list = riot.mount n[0], 'packet-list-view',
-          items: []
+        @list = riot.mount(n[0], 'packet-list-view', items: [])[0]
 
         h = $('<div class="wrapper noscroll" />').css('bottom', 'auto').appendTo m
-        riot.mount h[0], 'packet-list-view-header'
+        @header = riot.mount(h[0], 'packet-list-view-header')[0]
 
-        dripcap.session.on 'created', (session) ->
+        dripcap.session.on 'created', (session) =>
           container = n
           packets = []
 
@@ -123,6 +122,7 @@ class PacketListView
           sub.empty().append(shead)
           mainTable = new PacketTable container, main
           subTable = new PacketTable container, sub
+          @header.calculate()
 
           dripcap.pubsub.sub 'PacketFilterView:filter', _.debounce (f) =>
 
@@ -148,7 +148,6 @@ class PacketListView
             else
               sub.hide()
               main.show()
-              
           , 400
 
           session.on 'packet', (pkt) =>
@@ -181,7 +180,8 @@ class PacketListView
     dripcap.menu.unregister 'PacketListView: PacketMenu', @packetMenu
     dripcap.package.load('main-view').then (pkg) =>
       pkg.root.panel.left('packet-list-view')
-      @list[0].unmount()
+      @list.unmount()
+      @header.unmount()
       @comp.destroy()
 
 module.exports = PacketListView
