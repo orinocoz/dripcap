@@ -32,8 +32,8 @@ class Category
     _.uniq @_handlers[key]
 
   unwatch: (key, handler) ->
-    @_handlers[key] ?= []
-    @_handlers[key] = _.without(@_handlers[key], handler)
+    if @_handlers[key]?
+      @_handlers[key] = _.without(@_handlers[key], handler)
 
   _save: ->
     fs.writeFileSync @_path, CSON.stringify @_data
@@ -46,7 +46,7 @@ class Profile
     @_config = new Category 'config', path.join(@path, '/config.cson'),
       snaplen: 1600
       theme: "default"
-      
+
     @_package = new Category 'package', path.join(@path,'/package.cson')
     @_layout = new Category 'layout', path.join(@path,'/layout.cson')
 

@@ -37,8 +37,7 @@ class Enum
       @attrs = {"#{underscore(@name)}": true}
 
   @property 'name', get: ->
-    str = @table[@value]
-    str ?= 'unknown'
+    str = @table[@value] ?  'unknown'
     str
 
   @property 'known', get: ->

@@ -90,8 +90,8 @@ makeFilter = (node) ->
             (pkt) ->
               lhs = lf(pkt)
               rhs = rf(pkt)
-              return lhs.equals(rhs) if lhs? && lhs.equals?
-              return rhs.equals(lhs) if rhs? && rhs.equals?
+              return lhs.equals(rhs) if lhs?.equals?
+              return rhs.equals(lhs) if rhs?.equals?
               lhs == rhs
           when '!='
             (pkt) -> lf(pkt) != rf(pkt)

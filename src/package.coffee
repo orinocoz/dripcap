@@ -18,11 +18,9 @@ class Package
     else
       throw new Error 'package main required'
 
-    @description = info.description
-    @description ?= ''
+    @description = info.description ? ''
 
-    @version = info.version
-    @version ?= '0.0.1'
+    @version = info.version ? '0.0.1'
 
     @config =
       enabled: true
@@ -57,7 +55,7 @@ class Package
 
   updateTheme: (theme) ->
     @load().then =>
-      if @root? && @root.updateTheme?
+      if @root?.updateTheme?
         @root.updateTheme theme
 
   deactivate: ->
