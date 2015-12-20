@@ -38,9 +38,10 @@
     ifs = $(@tags['modal-dialog'].interface).val()
     filter = $(@tags['modal-dialog'].filter).val()
     promisc = $(@tags['modal-dialog'].promisc).prop('checked')
+    snaplen = dripcap.profile.getConfig 'snaplen'
 
     @tags['modal-dialog'].hide()
-    sess = dripcap.session.create ifs, filter: filter, promisc: promisc
+    sess = dripcap.session.create ifs, filter: filter, promisc: promisc, snaplen: snaplen
     dripcap.session.list = [sess]
     dripcap.session.emit('created', sess)
     sess.start()

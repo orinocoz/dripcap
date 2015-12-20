@@ -193,7 +193,7 @@ input, textarea, select {
   }
 }
 
-input[type="text"] {
+input[type="text"], input[type="number"] {
   box-sizing: border-box;
 }
 
@@ -210,6 +210,12 @@ input[type=checkbox], input[type=radio] {
 
 input[type=checkbox]:checked {
   background-color: @focus;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
