@@ -13,6 +13,7 @@ class Category
       @_data = defaultValue
       @_save()
 
+    @_data = _.extend defaultValue, @_data
     @_handlers = {}
 
   get: (key) -> @_data[key]
@@ -42,7 +43,10 @@ class Profile
     mkpath.sync(@path)
     @_initPath = path.join @path, '/init.coffee'
 
-    @_config = new Category 'config', path.join(@path, '/config.cson')
+    @_config = new Category 'config', path.join(@path, '/config.cson'),
+      snaplen: 1600
+      theme: "default"
+      
     @_package = new Category 'package', path.join(@path,'/package.cson')
     @_layout = new Category 'layout', path.join(@path,'/layout.cson')
 
