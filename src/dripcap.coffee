@@ -189,30 +189,47 @@ class Dripcap extends EventEmitter
       t
 
     constructor: (@parent) ->
-      @_menuTmpl = {}
-      @_menu = {}
       @_handlers = {}
+      @_mainHadlers = {}
+      @_mainPriorities = {}
 
     register: (name, handler, priority = 0) ->
       @_handlers[name] ?= []
       @_handlers[name].push handler: handler, priority: priority
       @_handlers[name].sort (a, b) -> b.priority - a.priority
-      @updateMainMenu() if name == 'MainMenu: MainMenu'
 
     unregister: (name, handler) ->
       @_handlers[name] ?= []
       @_handlers[name] = @_handlers[name].filter (h) -> h.handler != handler
-      @updateMainMenu() if name == 'MainMenu: MainMenu'
+
+    registerMain: (name, handler, priority = 0) ->
+      @_mainHadlers[name] ?= []
+      @_mainHadlers[name].push handler: handler, priority: priority
+      @_mainHadlers[name].sort (a, b) -> b.priority - a.priority
+      @updateMainMenu()
+
+    unregisterMain: (name, handler) ->
+      @_mainHadlers[name] ?= []
+      @_mainHadlers[name] = @_mainHadlers[name].filter (h) -> h.handler != handler
+      @updateMainMenu()
+
+    setMainPriority: (name, priority) ->
+      @_mainPriorities[name] = priority
 
     updateMainMenu: ->
-      menu = new Menu()
-      for h in @_handlers['MainMenu: MainMenu']
-        menu = h.handler.call(@, menu)
+      root = new Menu()
+      keys = Object.keys @_mainHadlers
+      keys.sort (a, b) => (@_mainPriorities[b] ? 0) - (@_mainPriorities[a] ? 0)
+      for k in keys
+        menu = new Menu()
+        for h in @_mainHadlers[k]
+          menu = h.handler.call(@, menu)
+        root.append new MenuItem label: k, submenu: menu, type: 'submenu'
 
       if process.platform != 'darwin'
-        remote.getCurrentWindow().setMenu(menu)
+        remote.getCurrentWindow().setMenu(root)
       else
-        Menu.setApplicationMenu(menu)
+        Menu.setApplicationMenu(root)
 
     popup: (name, self, browserWindow, x, y) ->
       if @_handlers[name]?
@@ -223,68 +240,6 @@ class Dripcap extends EventEmitter
           if i < handlers.length - 1
             menu.append(new MenuItem(type: 'separator'))
         menu.popup browserWindow, x, y
-
-    add: (name, path, template) ->
-      @_menuTmpl[name] ?= []
-
-      merge = (path, root, template) ->
-        root.submenu ?= []
-        if path.length == 0
-          root.submenu.push template
-        else
-          label = _.first(path)
-          i = _.findIndex root.submenu, (ele) -> ele.label == label
-          if i < 0
-            root.submenu.push merge(_.rest(path), label: label, submenu: [], template)
-          else
-            root.submenu[i] = merge(_.rest(path), root.submenu[i], template)
-        root
-
-
-      @_menuTmpl[name] = merge(path, submenu: @_menuTmpl[name], template).submenu
-      @_menu[name] = Menu.buildFromTemplate(_.clone(@_menuTmpl[name]).map action)
-
-      if name == 'Core: MainMenu'
-        if process.platform != 'darwin'
-          remote.getCurrentWindow().setMenu(@_menu[name])
-        else
-          Menu.setApplicationMenu(@_menu[name])
-
-    remove: (name, path) ->
-      @_menuTmpl[name] ?= []
-
-      merge = (path, root) ->
-        if root.submenu? && path.length > 0
-          label = _.first(path)
-          i = _.findIndex root.submenu, (ele) -> ele.label == label
-          if i >= 0
-            if path.length == 1
-              root.submenu.splice i, 1
-            else
-              root.submenu[i] = merge(_.rest(path), root.submenu[i])
-        root
-
-      @_menuTmpl[name] = merge(path, submenu: @_menuTmpl[name]).submenu
-      @_menu[name] = Menu.buildFromTemplate(_.clone(@_menuTmpl[name]).map action)
-
-      if name == 'Core: MainMenu'
-        if process.platform != 'darwin'
-          remote.getCurrentWindow().setMenu(@_menu[name])
-        else
-          Menu.setApplicationMenu(@_menu[name])
-
-    get: (name, path) ->
-      return null unless path.length > 0
-      menu =
-        submenu:
-          items:
-            @_menu[name].items
-      for p in path
-        return null unless menu.submenu?
-        i = _.findIndex menu.submenu.items, (ele) -> ele.label == p
-        return null if i < 0
-        menu = menu.submenu.items[i]
-      menu
 
   getInterfaceList: ->
     filter = new PaperFilter

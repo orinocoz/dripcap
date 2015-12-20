@@ -1,6 +1,7 @@
 $ = require('jquery')
 fs = require('fs')
 remote = require('remote')
+app = remote.require('app')
 Menu = remote.require('menu')
 MenuItem = remote.require('menu-item')
 
@@ -10,64 +11,60 @@ class MainMenu
       ->
         dripcap.action.emit name
 
-    @menu = (menu, e) ->
-      file = new Menu
-      file.append new MenuItem label: 'New Window', accelerator: 'CmdOrCtrl+Shift+N', click: action 'Core: New Window'
-      file.append new MenuItem label: 'Close Window', accelerator: 'CmdOrCtrl+Shift+W', click: action 'Core: Close Window'
-      file.append new MenuItem type: 'separator'
-      file.append new MenuItem label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: action 'Core: Quit'
+    @fileMenu = (menu, e) ->
+      menu.append new MenuItem label: 'New Window', accelerator: 'CmdOrCtrl+Shift+N', click: action 'Core: New Window'
+      menu.append new MenuItem label: 'Close Window', accelerator: 'CmdOrCtrl+Shift+W', click: action 'Core: Close Window'
+      menu.append new MenuItem type: 'separator'
+      menu.append new MenuItem label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: action 'Core: Quit'
+      menu
 
-      edit = new Menu
+    @editMenu = (menu, e) ->
       if process.platform == 'darwin'
-        edit.append new MenuItem label: 'Cut', accelerator: 'Cmd+X', selector: 'cut:'
-        edit.append new MenuItem label: 'Copy', accelerator: 'Cmd+C', selector: 'copy:'
-        edit.append new MenuItem label: 'Paste', accelerator: 'Cmd+V', selector: 'paste:'
-        edit.append new MenuItem label: 'Select All', accelerator: 'Cmd+A', selector: 'selectAll:'
+        menu.append new MenuItem label: 'Cut', accelerator: 'Cmd+X', selector: 'cut:'
+        menu.append new MenuItem label: 'Copy', accelerator: 'Cmd+C', selector: 'copy:'
+        menu.append new MenuItem label: 'Paste', accelerator: 'Cmd+V', selector: 'paste:'
+        menu.append new MenuItem label: 'Select All', accelerator: 'Cmd+A', selector: 'selectAll:'
       else
         contents = remote.getCurrentWebContents()
-        edit.append new MenuItem label: 'Cut', accelerator: 'Ctrl+X', click: -> contents.cut()
-        edit.append new MenuItem label: 'Copy', accelerator: 'Ctrl+C', click: -> contents.copy()
-        edit.append new MenuItem label: 'Paste', accelerator: 'Ctrl+V', click: -> contents.paste()
-        edit.append new MenuItem label: 'Select All', accelerator: 'Ctrl+A', click: -> contents.selectAll()
-      edit.append new MenuItem type: 'separator'
-      edit.append new MenuItem label: 'Preferences', accelerator: 'CmdOrCtrl+,', click: action 'Core: Preferences'
+        menu.append new MenuItem label: 'Cut', accelerator: 'Ctrl+X', click: -> contents.cut()
+        menu.append new MenuItem label: 'Copy', accelerator: 'Ctrl+C', click: -> contents.copy()
+        menu.append new MenuItem label: 'Paste', accelerator: 'Ctrl+V', click: -> contents.paste()
+        menu.append new MenuItem label: 'Select All', accelerator: 'Ctrl+A', click: -> contents.selectAll()
+      menu.append new MenuItem type: 'separator'
+      menu.append new MenuItem label: 'Preferences', accelerator: 'CmdOrCtrl+,', click: action 'Core: Preferences'
+      menu
 
-      capturing = dripcap.pubsub.get 'Core: Capturing Status'
-      capturing ?= false
-      session = new Menu
-      session.append new MenuItem label: 'New Session', accelerator: 'CmdOrCtrl+N', click: action 'Core: New Session'
-      session.append new MenuItem type: 'separator'
-      session.append new MenuItem label: 'Start', enabled: !capturing, click: action 'Core: Start Sessions'
-      session.append new MenuItem label: 'Stop', enabled: capturing, click: action 'Core: Stop Sessions'
+    @captureMenu = (menu, e) ->
+      capturing = dripcap.pubsub.get 'Core: Capturing Status' ? false
+      menu.append new MenuItem label: 'New Session', accelerator: 'CmdOrCtrl+N', click: action 'Core: New Session'
+      menu.append new MenuItem type: 'separator'
+      menu.append new MenuItem label: 'Start', enabled: !capturing, click: action 'Core: Start Sessions'
+      menu.append new MenuItem label: 'Stop', enabled: capturing, click: action 'Core: Stop Sessions'
+      menu
 
-      developer = new Menu
-      developer.append new MenuItem label: 'Toggle DevTools', accelerator: 'CmdOrCtrl+Shift+I', click: action 'Core: Toggle DevTools'
-      developer.append new MenuItem label: 'Open User Directory', click: action 'Core: Open User Directory'
-
-      help = new Menu
-      help.append new MenuItem label: 'Open Website', click: action 'Core: Open Dripcap Website'
-      help.append new MenuItem label: 'Show License', click: action 'Core: Show License'
-      help.append new MenuItem type: 'separator'
-      help.append new MenuItem label: 'Version ' + JSON.parse(fs.readFileSync(__dirname + '/../../../../package.json')).version, enabled: false
-
-      menu.append new MenuItem label: 'File', submenu: file, type: 'submenu'
-      menu.append new MenuItem label: 'Edit', submenu: edit, type: 'submenu'
-      menu.append new MenuItem label: 'Session', submenu: session, type: 'submenu'
-      menu.append new MenuItem label: 'Developer', submenu: developer, type: 'submenu'
+    @devMenu = (menu, e) ->
+      menu.append new MenuItem label: 'Toggle DevTools', accelerator: 'CmdOrCtrl+Shift+I', click: action 'Core: Toggle DevTools'
+      menu.append new MenuItem label: 'Open User Directory', click: action 'Core: Open User Directory'
       menu
 
     @helpMenu = (menu, e) ->
-      help = new Menu
-      help.append new MenuItem label: 'Open Website', click: action 'Core: Open Dripcap Website'
-      help.append new MenuItem label: 'Show License', click: action 'Core: Show License'
-      help.append new MenuItem type: 'separator'
-      help.append new MenuItem label: 'Version ' + JSON.parse(fs.readFileSync(__dirname + '/../../../../package.json')).version, enabled: false
-
-      menu.append new MenuItem label: 'Help', submenu: help, type: 'submenu', role: 'help'
+      menu.append new MenuItem label: 'Open Website', click: action 'Core: Open Dripcap Website'
+      menu.append new MenuItem label: 'Show License', click: action 'Core: Show License'
+      menu.append new MenuItem type: 'separator'
+      menu.append new MenuItem label: 'Version ' + JSON.parse(fs.readFileSync(__dirname + '/../../../../package.json')).version, enabled: false
       menu
 
-    dripcap.menu.register 'MainMenu: MainMenu', @menu
-    dripcap.menu.register 'MainMenu: MainMenu', @helpMenu, -10
+    if process.platform == 'darwin'
+      @appMenu = (menu, e) -> menu
+      name = app.getName()
+      dripcap.menu.registerMain name, @appMenu
+      dripcap.menu.setMainPriority name, 999
+
+    dripcap.menu.registerMain 'File', @fileMenu
+    dripcap.menu.registerMain 'Edit', @editMenu
+    dripcap.menu.registerMain 'Capture', @captureMenu
+    dripcap.menu.registerMain 'Developer', @devMenu
+    dripcap.menu.registerMain 'Help', @helpMenu
 
     dripcap.theme.sub 'registoryUpdated', ->
       dripcap.menu.updateMainMenu()
@@ -76,7 +73,12 @@ class MainMenu
       dripcap.menu.updateMainMenu()
 
   deactivate: ->
-    dripcap.menu.unregister 'MainMenu: MainMenu', @menu
-    dripcap.menu.unregister 'MainMenu: MainMenu', @helpMenu
+    if process.platform == 'darwin'
+      dripcap.menu.unregisterMain app.getName(), @appMenu
+    dripcap.menu.unregisterMain 'File', @fileMenu
+    dripcap.menu.unregisterMain 'Edit', @editMenu
+    dripcap.menu.unregisterMain 'Capture', @captureMenu
+    dripcap.menu.unregisterMain 'Developer', @devMenu
+    dripcap.menu.unregisterMain 'Help', @helpMenu
 
 module.exports = MainMenu

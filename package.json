@@ -1,5 +1,6 @@
 {
   "name": "dripcap",
+  "productName": "Dripcap",
   "version": "0.0.10",
   "description": "☕️ Caffeinated packet analyzer",
   "repository": {
