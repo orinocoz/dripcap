@@ -1,10 +1,12 @@
 fs = require('fs')
 path = require('path')
 _ = require('underscore')
+config = require('./config')
 
 class Package
   constructor: (jsonPath) ->
     @path = path.dirname(jsonPath)
+    @userPackage = path.normalize(@path).startsWith(path.normalize(config.userPackagePath))
 
     info = JSON.parse(fs.readFileSync(jsonPath))
 
@@ -25,6 +27,9 @@ class Package
     @config =
       enabled: true
 
+    @_reset()
+
+  _reset: ->
     @_promise =
       new Promise (resolve) =>
         @_resolve = resolve
@@ -64,6 +69,7 @@ class Package
         try
           @root.deactivate()
           @root = null
+          @_reset()
           for key of require.cache
             if key.startsWith(@path)
               delete require.cache[key]
