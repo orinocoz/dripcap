@@ -9,11 +9,15 @@
             <input type="checkbox" name="enabled" onclick={ setEnabled } checked={ pkg.config.enabled }> Enabled
           </label>
         </li>
+        <li if={ pkg.userPackage }>
+          <input type="button" value="Uninstall" onclick={ uninstallPackage }>
+        </li>
       </ul>
     </li>
   </ul>
 
   <script type="coffee">
+    _ = require('underscore')
 
     @setEnabled = (e) =>
       pkg = e.item.pkg
@@ -24,6 +28,14 @@
         pkg.activate()
       else
         pkg.deactivate()
+
+    @uninstallPackage = (e) =>
+      pkg = e.item.pkg
+      pkg.deactivate() if pkg.config.enabled
+      dripcap.package.uninstall(pkg.name).then =>
+        $(e.target).parents('li.packages').fadeOut 400, =>
+          @packageList = _.without(@packageList, pkg)
+          @update()
 
   </script>
 
@@ -56,6 +68,12 @@
       padding: 10px 0 0 0;
       li {
         padding: 5px 0;
+        display: inline;
+
+        input {
+          max-width: 120px;
+          margin: 0 10px;
+        }
       }
     }
 

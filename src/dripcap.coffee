@@ -1,6 +1,7 @@
 path = require('path')
 glob = require('glob')
 semver = require('semver')
+rmdir = require('rmdir')
 config = require('./config')
 rebuild = require('electron-rebuild')
 $ = require('jquery')
@@ -173,6 +174,12 @@ class Dripcap extends EventEmitter
       npm.load production: true, =>
         npm.commands.install config.userPackagePath, [name], =>
           @parent.updatePackageList()
+
+    uninstall: (name) ->
+      new Promise (res) ->
+        rmdir path.join(config.userPackagePath, name), (err) ->
+          throw err if err?
+          res()
 
   class ActionInterface extends EventEmitter
     constructor: (@parent) ->

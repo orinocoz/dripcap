@@ -28,9 +28,10 @@
     "mousetrap": "^1.5.3",
     "msgcap": "file:./msgcap",
     "msgpack-lite": "^0.1.11",
-    "npm": "^3.3.12",
+    "npm": "^3.5.2",
     "paperfilter": "^0.0.16",
     "riot": "2.3.0",
+    "rmdir": "^1.1.0",
     "semver": "^5.0.3",
     "temporary": "0.0.8",
     "underscore": "^1.8.3"
