@@ -173,7 +173,7 @@ class Dripcap extends EventEmitter
     install: (name) ->
       npm.load production: true, =>
         npm.commands.install config.userPackagePath, [name], =>
-          @parent.updatePackageList()
+          @updatePackageList()
 
     uninstall: (name) ->
       new Promise (res) ->
