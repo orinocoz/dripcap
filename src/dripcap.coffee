@@ -16,6 +16,10 @@ remote = require('remote')
 Menu = remote.require('menu')
 MenuItem = remote.require('menu-item')
 _ = require('underscore')
+fs = require('fs')
+zlib = require('zlib')
+tar = require('tar')
+request = require('request')
 
 Function::property = (prop, desc) ->
   Object.defineProperty @prototype, prop, desc
@@ -168,13 +172,47 @@ class Dripcap extends EventEmitter
           rebuild.rebuildNativeModules(ver, config.userPackagePath)
 
     install: (name) ->
-      npm.load {production: true, prefix: config.userPackagePath}, =>
-        npm.commands.install config.userPackagePath, [name], =>
-          @updatePackageList()
+      pkgpath = path.join(config.userPackagePath, name)
+      tarurl = ''
+
+      p = Promise.resolve().then ->
+        new Promise (res) ->
+          npm.load {production: true}, ->
+            npm.commands.view [name], (e, data) ->
+              throw e if e?
+              pkg = data[Object.keys(data)[0]]
+              if ver = pkg.engines?.dripcap
+                if semver.satisfies config.version, ver
+                  if tarurl = pkg.dist?.tarball
+                    res()
+                  else
+                    throw new Error 'Tarball not found'
+                else
+                  throw new Error 'Dripcap version mismatch'
+              else
+                throw new Error 'This package is not for dripcap'
+
+      if @list[name]?
+        p = p.then => @uninstall(name)
+
+      p = p.then ->
+        new Promise (res) ->
+          gunzip = zlib.createGunzip()
+          extractor = tar.Extract({path: pkgpath, strip: 1})
+          request(tarurl).pipe(gunzip).pipe(extractor).on 'finish', -> res()
+
+      p = p.then ->
+        new Promise (res) ->
+          npm.commands.install pkgpath, [], ->
+            res()
+            @updatePackageList()
+            
+      p
 
     uninstall: (name) ->
+      pkgpath = path.join(config.userPackagePath, name)
       new Promise (res) ->
-        rmdir path.join(config.userPackagePath, name), (err) ->
+        rmdir pkgpath, (err) ->
           throw err if err?
           res()
 
@@ -256,6 +294,7 @@ class Dripcap extends EventEmitter
 
     theme = @profile.getConfig('theme')
 
+    @config = config
     @session = new SessionInterface @
     @theme = new ThemeInterface @
     @keybind = new KeybindInterface @

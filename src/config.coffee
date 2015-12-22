@@ -1,4 +1,5 @@
 path = require('path')
+fs = require('fs')
 homePath = path.join process.env['HOME'], '/.dripcap'
 
 conf =
@@ -7,6 +8,7 @@ conf =
   profilePath: path.join homePath, '/profiles'
   packagePath: path.join path.dirname(__dirname), '/packages'
   electronVersion: '0.35.1'
+  version: JSON.parse(fs.readFileSync(__dirname + '/../package.json')).version
   crashReporter:
     productName: 'dripcap'
     companyName: 'dripcap'

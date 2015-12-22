@@ -51,7 +51,7 @@ class MainMenu
       menu.append new MenuItem label: 'Open Website', click: action 'Core: Open Dripcap Website'
       menu.append new MenuItem label: 'Show License', click: action 'Core: Show License'
       menu.append new MenuItem type: 'separator'
-      menu.append new MenuItem label: 'Version ' + JSON.parse(fs.readFileSync(__dirname + '/../../../../package.json')).version, enabled: false
+      menu.append new MenuItem label: 'Version ' + dripcap.config.version, enabled: false
       menu
 
     if process.platform == 'darwin'
