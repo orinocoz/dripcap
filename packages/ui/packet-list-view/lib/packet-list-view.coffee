@@ -76,9 +76,9 @@ class PacketTable
       .on 'click', ->
         dripcap.pubsub.pub 'PacketListView:select', $(@).data('packet')
       .on 'contextmenu', (e) =>
-        e.preventDefault()
         @selctedPacket = $(e.currentTarget).data('packet')
         dripcap.menu.popup('PacketListView: PacketMenu', @, remote.getCurrentWindow())
+        e.stopPropagation()
 
     process.nextTick =>
       if !@currentSection? || @currentSection.children().length + @currentSection.data('tr').length >= @sectionSize

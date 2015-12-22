@@ -12,8 +12,9 @@
     remote = require('remote')
     @base = 10
 
-    @context = =>
+    @context = (e) =>
       dripcap.menu.popup('packetView: NumericValueMenu', @, remote.getCurrentWindow())
+      e.stopPropagation()
 
   </script>
 </packet-view-integer-value>
@@ -56,9 +57,10 @@
     @fieldRange = (e) =>
       @parent.fieldRange(e)
 
-    @context = =>
+    @context = (e) =>
       if window.getSelection().toString().length > 0
         dripcap.menu.popup('packetView: ContextMenu', @, remote.getCurrentWindow())
+        e.stopPropagation()
 
     @on 'update', =>
       @layer = @parent.layer
@@ -119,6 +121,7 @@
     @layerContext = (e) =>
       @clickedLayerIndex = e.item.i
       dripcap.menu.popup('packetView: LayerMenu', @, remote.getCurrentWindow())
+      e.stopPropagation()
 
     @set = (pkt) =>
       @packet = pkt
