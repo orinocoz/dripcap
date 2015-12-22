@@ -21,12 +21,8 @@ class Package
       throw new Error 'package main required'
 
     @description = info.description ? ''
-
     @version = info.version ? '0.0.1'
-
-    @config =
-      enabled: true
-
+    @config = dripcap.profile.getPackageConfig @name
     @_reset()
 
   _reset: ->
@@ -39,7 +35,7 @@ class Package
           res = null
           try
             klass = require(req)
-            @root = new klass()
+            @root = new klass(@)
             res = @root.activate()
             @updateTheme(dripcap.theme.scheme)
 

@@ -5,11 +5,12 @@ mkpath = require('mkpath')
 _ = require('underscore')
 
 class Category
-  constructor: (@_name, @_path, defaultValue = {}) ->
+  constructor: (@_path, defaultValue = {}) ->
     try
       @_data = CSON.parse fs.readFileSync @_path
     catch e
-      console.warn e
+      if e.code != 'ENOENT'
+        console.warn e
       @_data = defaultValue
       @_save()
 
@@ -40,30 +41,28 @@ class Category
 
 class Profile
   constructor: (@path) ->
+    @_packagePath = path.join @path, 'packages'
     mkpath.sync(@path)
-    @_initPath = path.join @path, '/init.coffee'
+    mkpath.sync(@_packagePath)
 
-    @_config = new Category 'config', path.join(@path, '/config.cson'),
+    @_initPath = path.join @path, 'init.coffee'
+
+    @_config = new Category path.join(@path, 'config.cson'),
       snaplen: 1600
       theme: "default"
 
-    @_package = new Category 'package', path.join(@path,'/package.cson')
-    @_layout = new Category 'layout', path.join(@path,'/layout.cson')
+    @_packages = {}
 
   getConfig:     (key) -> @_config.get key
   setConfig:     (key, value) -> @_config.set key, value
   watchConfig:   (key, handler) -> @_config.watch key, handler
   unwatchConfig: (key, handler) -> @_config.unwatch key, handler
 
-  getPackage:     (key) -> @_package.get key
-  setPackage:     (key, value) -> @_package.set key, value
-  watchPackage:   (key, handler) -> @_package.watch key, handler
-  unwatchPackage: (key, handler) -> @_package.unwatch key, handler
-
-  getLayout:     (key) -> @_layout.get key
-  setLayout:     (key, value) -> @_layout.set key, value
-  watchLayout:   (key, handler) -> @_layout.watch key, handler
-  unwatchLayout: (key, handler) -> @_layout.unwatch key, handler
+  getPackageConfig: (name) ->
+    if !@_packages[name]?
+      @_packages[name] = new Category path.join(@_packagePath, "#{name}.cson"),
+        enabled: true
+    @_packages[name]
 
   init: ->
     try

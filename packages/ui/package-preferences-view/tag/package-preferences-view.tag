@@ -6,7 +6,7 @@
       <ul class="items">
         <li>
           <label>
-            <input type="checkbox" name="enabled" onclick={ setEnabled } checked={ pkg.config.enabled }> Enabled
+            <input type="checkbox" name="enabled" onclick={ setEnabled } checked={ pkg.config.get('enabled') }> Enabled
           </label>
         </li>
         <li if={ pkg.userPackage }>
@@ -22,8 +22,7 @@
     @setEnabled = (e) =>
       pkg = e.item.pkg
       enabled = $(e.currentTarget).is(':checked')
-      pkg.config.enabled = enabled
-      dripcap.profile.setPackage pkg.name, pkg.config
+      pkg.config.set 'enabled', enabled
       if enabled
         pkg.activate()
       else
@@ -31,7 +30,7 @@
 
     @uninstallPackage = (e) =>
       pkg = e.item.pkg
-      pkg.deactivate() if pkg.config.enabled
+      pkg.deactivate() if pkg.config.get 'enabled'
       dripcap.package.uninstall(pkg.name).then =>
         $(e.target).parents('li.packages').fadeOut 400, =>
           @packageList = _.without(@packageList, pkg)

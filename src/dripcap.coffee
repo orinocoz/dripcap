@@ -137,9 +137,6 @@ class Dripcap extends EventEmitter
         try
           pkg = new Package(p)
 
-          if _.isObject(conf = @parent.profile.getPackage(pkg.name))
-            _.extendOwn pkg.config, conf
-
           if (loaded = @list[pkg.name])?
             if loaded.path != pkg.path
               console.warn "package name conflict: #{pkg.name}"
@@ -153,7 +150,7 @@ class Dripcap extends EventEmitter
           console.warn "failed to load #{pkg.name}/package.json : #{e}"
 
       for k, pkg of @list
-        if pkg.config.enabled
+        if pkg.config.get('enabled')
           pkg.activate()
           pkg.updateTheme @parent.theme.scheme
 
@@ -161,7 +158,7 @@ class Dripcap extends EventEmitter
 
     updateTheme: (scheme) ->
       for k, pkg of @list
-        if pkg.config.enabled
+        if pkg.config.get('enabled')
           pkg.updateTheme scheme
 
     rebuild: (path) ->
@@ -171,7 +168,7 @@ class Dripcap extends EventEmitter
           rebuild.rebuildNativeModules(ver, config.userPackagePath)
 
     install: (name) ->
-      npm.load production: true, =>
+      npm.load {production: true, prefix: config.userPackagePath}, =>
         npm.commands.install config.userPackagePath, [name], =>
           @updatePackageList()
 
