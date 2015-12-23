@@ -192,8 +192,14 @@ class Dripcap extends EventEmitter
               else
                 throw new Error 'This package is not for dripcap'
 
-      if @list[name]?
-        p = p.then => @uninstall(name)
+      p = p.then =>
+        new Promise (res) ->
+          fs.stat pkgpath, (e) -> res(e)
+        .then (e) =>
+          if e?
+            Promise.resolve()
+          else
+            @uninstall(name)
 
       p = p.then ->
         new Promise (res) ->
