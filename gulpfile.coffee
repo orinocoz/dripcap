@@ -83,7 +83,7 @@ gulp.task 'linux', [
 
 gulp.task 'debian-pkg', (cb) ->
   gulp.src('./debian/**', base: './debian/')
-    .pipe(replace('{{DRIPCAP_VERSION}}', config.version))
+    .pipe(replace('{{DRIPCAP_VERSION}}', config.version, skipBinary: true))
     .pipe gulp.dest('./.debian/')
 
 gulp.task 'debian-paperfilter', ['debian-bin'], (cb) ->
