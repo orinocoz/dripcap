@@ -62,11 +62,17 @@ class PacketTable
 
   append: (pkt) ->
     self = @
+    len =
+      if pkt.truncated
+        "<td>#{ pkt.length } <i class=\"fa fa-exclamation-circle\"></i></td>"
+      else
+        "<td>#{ pkt.length }</td>"
+
     tr = $('<tr>')
       .append("<td>#{ pkt.name }</td>")
       .append("<td>#{ pkt.attrs.src }</td>")
       .append("<td>#{ pkt.attrs.dst }</td>")
-      .append("<td>#{ pkt.length }</td>")
+      .append(len)
       .attr('data-filter-rev', '0')
       .data('packet', pkt)
       .on 'click', ->

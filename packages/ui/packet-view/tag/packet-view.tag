@@ -98,6 +98,15 @@
       <li>
         <i class="fa fa-circle-o"></i><a class="name"> Timestamp: </a><i>{ packet.timestamp }</i>
       </li>
+      <li>
+        <i class="fa fa-circle-o"></i><a class="name"> Captured Length: </a><i>{ packet.caplen }</i>
+      </li>
+      <li>
+        <i class="fa fa-circle-o"></i><a class="name"> Actual Length: </a><i>{ packet.length }</i>
+      </li>
+      <li if={ packet.truncated }>
+        <i class="fa fa-exclamation-circle warn"> This packet is truncated.</i>
+      </li>
     </ul>
     <div each={ layer, i in packet.layers } if={ i > 0 } onclick={ toggleLayer }>
       <p class="layer-name" oncontextmenu={ layerContext } onmouseover={ layerRange } onmouseout={ rangeOut }>
@@ -172,6 +181,9 @@
         cursor: default;
       }
 
+      .warn {
+        color: @error;
+      }
 
       .layer-name {
         white-space: nowrap;

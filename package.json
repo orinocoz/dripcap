@@ -29,7 +29,7 @@
     "msgcap": "file:./msgcap",
     "msgpack-lite": "^0.1.11",
     "npm": "^3.5.2",
-    "paperfilter": "^0.0.16",
+    "paperfilter": "^0.0.17",
     "request": "^2.67.0",
     "riot": "2.3.0",
     "rmdir": "^1.1.0",
