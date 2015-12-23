@@ -52,4 +52,5 @@ _testmain.go
 *.prof
 
 .build
+.debian
 *.asar
