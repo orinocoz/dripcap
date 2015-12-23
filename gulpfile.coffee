@@ -4,6 +4,7 @@ coffeelint = require('gulp-coffeelint')
 electron = require('gulp-atom-electron')
 symdest = require('gulp-symdest')
 rename = require('gulp-rename')
+replace = require('gulp-replace')
 zip = require('gulp-vinyl-zip')
 runElectron = require("gulp-run-electron")
 fs = require('fs')
@@ -82,6 +83,7 @@ gulp.task 'linux', [
 
 gulp.task 'debian-pkg', (cb) ->
   gulp.src('./debian/**', base: './debian/')
+    .pipe(replace('{{DRIPCAP_VERSION}}', config.version))
     .pipe gulp.dest('./.debian/')
 
 gulp.task 'debian-paperfilter', ['debian-bin'], (cb) ->

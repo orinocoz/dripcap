@@ -1,5 +1,5 @@
 Package: dripcap
-Version: 0.0.8
+Version: {{DRIPCAP_VERSION}}
 Architecture: amd64
 Maintainer: h2so5 <mail@h2so5.net>
 Depends: libpcap0.8
