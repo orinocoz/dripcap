@@ -1,0 +1,11 @@
+{
+  "name": "install-preferences-view",
+  "main": "./lib/install-preferences-view",
+  "license": "MIT",
+  "description": "dripcap Install Preferences View",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/dripcap/dripcap.git"
+  },
+  "readme": "see README.md"
+}
