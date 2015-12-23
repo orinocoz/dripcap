@@ -116,7 +116,7 @@ class Panel
     @update = _.debounce () =>
       @_update()
     , 500
-    $(window).resize => @update()
+    $(window).resize => @_update()
 
     @_hcontainer = @root.children '.hcontainer'
     @_fnorthPanel = @root.children '.fnorth'
@@ -188,28 +188,28 @@ class Panel
       v1 = @root.data('v1')
       if v < v1
         @root.data 'v0', v
-        @update()
+        @_update()
 
     @_vh1.on 'mousemove', (e) =>
       v = (e.clientY - @_vcontainer.offset().top) / @_vcontainer.height()
       v0 = @root.data('v0')
       if v > v0
         @root.data 'v1', v
-        @update()
+        @_update()
 
     @_hh0.on 'mousemove', (e) =>
       h = (e.clientX - @_hcontainer.offset().left) / @_hcontainer.width()
       h1 = @root.data('h1')
       if h < h1
         @root.data 'h0', h
-        @update()
+        @_update()
 
     @_hh1.on 'mousemove', (e) =>
       h = (e.clientX - @_hcontainer.offset().left) / @_hcontainer.width()
       h0 = @root.data('h0')
       if h > h0
         @root.data 'h1', h
-        @update()
+        @_update()
 
     @update()
 
