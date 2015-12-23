@@ -7,7 +7,7 @@ conf =
   userPackagePath: path.join homePath, '/packages'
   profilePath: path.join homePath, '/profiles'
   packagePath: path.join path.dirname(__dirname), '/packages'
-  electronVersion: '0.35.1'
+  electronVersion: '0.36.1'
   version: JSON.parse(fs.readFileSync(__dirname + '/../package.json')).version
   crashReporter:
     productName: 'dripcap'
