@@ -49,7 +49,8 @@ class Profile
 
     @_config = new Category path.join(@path, 'config.cson'),
       snaplen: 1600
-      theme: "default"
+      theme: 'default'
+      "package-registory": 'https://registry.npmjs.org/'
 
     @_packages = {}
 

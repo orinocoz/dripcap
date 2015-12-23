@@ -177,7 +177,7 @@ class Dripcap extends EventEmitter
 
       p = Promise.resolve().then ->
         new Promise (res) ->
-          npm.load {production: true}, ->
+          npm.load {production: true, registry: config['package-registory']}, ->
             npm.commands.view [name], (e, data) ->
               throw e if e?
               pkg = data[Object.keys(data)[0]]
@@ -201,12 +201,12 @@ class Dripcap extends EventEmitter
           extractor = tar.Extract({path: pkgpath, strip: 1})
           request(tarurl).pipe(gunzip).pipe(extractor).on 'finish', -> res()
 
-      p = p.then ->
-        new Promise (res) ->
-          npm.commands.install pkgpath, [], ->
+      p = p.then =>
+        new Promise (res) =>
+          npm.commands.install pkgpath, [], =>
             res()
             @updatePackageList()
-            
+
       p
 
     uninstall: (name) ->
