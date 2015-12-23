@@ -59,6 +59,12 @@ class Package
       if @root?.updateTheme?
         @root.updateTheme theme
 
+  renderPreferences: ->
+    if @root?.renderPreferences?
+      @root.renderPreferences()
+    else
+      null
+
   deactivate: ->
     @load().then =>
       new Promise (resolve, reject) =>

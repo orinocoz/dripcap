@@ -4,7 +4,6 @@ riot = require('riot')
 
 class PackagePreferencesView
   activate: ->
-
     @comp = new Component "#{__dirname}/../tag/*.tag"
     dripcap.package.load('preferences-dialog').then (pkg) =>
       $ =>

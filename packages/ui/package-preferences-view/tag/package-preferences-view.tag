@@ -1,19 +1,33 @@
-<package-preferences-view>
+<package-preferences-view-item>
+  <li class="packages">
+    <p class="head">{ opts.pkg.name } <i>{ opts.pkg.description }</i></p>
+    <ul class="items">
+      <li>
+        <label>
+          <input type="checkbox" name="enabled" onclick={ setEnabled } checked={ opts.pkg.config.get('enabled') }> Enabled
+        </label>
+      </li>
+      <li>
+        <div class="preferences"></div>
+      </li>
+      <li if={ opts.pkg.userPackage }>
+        <input type="button" value="Uninstall" onclick={ uninstallPackage }>
+      </li>
+    </ul>
+  </li>
 
+  <script type="coffee">
+    @on 'mount', =>
+      @pref = $(@root).find('.preferences').empty()
+      if elem = opts.pkg.renderPreferences()
+        @pref.append elem
+    </script>
+</package-preferences-view-item>
+
+<package-preferences-view>
   <ul>
-    <li each={ pkg in packageList } class="packages">
-      <p class="head">{ pkg.name } <i>{ pkg.description }</i></p>
-      <ul class="items">
-        <li>
-          <label>
-            <input type="checkbox" name="enabled" onclick={ setEnabled } checked={ pkg.config.get('enabled') }> Enabled
-          </label>
-        </li>
-        <li if={ pkg.userPackage }>
-          <input type="button" value="Uninstall" onclick={ uninstallPackage }>
-        </li>
-      </ul>
-    </li>
+    <package-preferences-view-item each={ pkg in packageList } pkg={ pkg }>
+    </package-preferences-view-item>
   </ul>
 
   <script type="coffee">
@@ -73,6 +87,10 @@
           max-width: 120px;
           margin: 0 10px;
         }
+      }
+
+      .preferences {
+        margin: 20px 10px 10px;
       }
     }
 
