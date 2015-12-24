@@ -4,8 +4,7 @@
   "description": "dripcap public classes",
   "main": "index.coffee",
   "scripts": {
-    "test": "jasmine-node --coffee spec",
-    "postinstall": "npm install coffeeify && browserify -g coffeeify --extension=.coffee filter-worker.coffee > filter-worker-bundle.js"
+    "test": "jasmine-node --coffee spec"
   },
   "author": "h2so5",
   "license": "MIT",
