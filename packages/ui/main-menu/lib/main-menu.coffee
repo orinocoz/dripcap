@@ -7,9 +7,7 @@ MenuItem = remote.require('menu-item')
 
 class MainMenu
   activate: ->
-    action = (name) ->
-      ->
-        dripcap.action.emit name
+    action = (name) -> -> dripcap.action.emit name
 
     @fileMenu = (menu, e) ->
       menu.append new MenuItem label: 'New Window', accelerator: 'CmdOrCtrl+Shift+N', click: action 'Core: New Window'
@@ -34,14 +32,6 @@ class MainMenu
       menu.append new MenuItem label: 'Preferences', accelerator: 'CmdOrCtrl+,', click: action 'Core: Preferences'
       menu
 
-    @captureMenu = (menu, e) ->
-      capturing = dripcap.pubsub.get 'Core: Capturing Status' ? false
-      menu.append new MenuItem label: 'New Session', accelerator: 'CmdOrCtrl+N', click: action 'Core: New Session'
-      menu.append new MenuItem type: 'separator'
-      menu.append new MenuItem label: 'Start', enabled: !capturing, click: action 'Core: Start Sessions'
-      menu.append new MenuItem label: 'Stop', enabled: capturing, click: action 'Core: Stop Sessions'
-      menu
-
     @devMenu = (menu, e) ->
       menu.append new MenuItem label: 'Toggle DevTools', accelerator: 'CmdOrCtrl+Shift+I', click: action 'Core: Toggle DevTools'
       menu.append new MenuItem label: 'Open User Directory', click: action 'Core: Open User Directory'
@@ -62,14 +52,11 @@ class MainMenu
 
     dripcap.menu.registerMain 'File', @fileMenu
     dripcap.menu.registerMain 'Edit', @editMenu
-    dripcap.menu.registerMain 'Capture', @captureMenu
     dripcap.menu.registerMain 'Developer', @devMenu
     dripcap.menu.registerMain 'Help', @helpMenu
+    dripcap.menu.setMainPriority 'Help', -999
 
     dripcap.theme.sub 'registoryUpdated', ->
-      dripcap.menu.updateMainMenu()
-
-    dripcap.pubsub.sub 'Core: Capturing Status', ->
       dripcap.menu.updateMainMenu()
 
   deactivate: ->
@@ -77,7 +64,6 @@ class MainMenu
       dripcap.menu.unregisterMain app.getName(), @appMenu
     dripcap.menu.unregisterMain 'File', @fileMenu
     dripcap.menu.unregisterMain 'Edit', @editMenu
-    dripcap.menu.unregisterMain 'Capture', @captureMenu
     dripcap.menu.unregisterMain 'Developer', @devMenu
     dripcap.menu.unregisterMain 'Help', @helpMenu
 
