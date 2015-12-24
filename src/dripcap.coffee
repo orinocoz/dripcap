@@ -53,7 +53,7 @@ class PubSub
 
   get: (name, index = 0) ->
     ch = @_getChannel name
-    ch.queue[index]
+    ch.queue[ch.queue.length - index - 1]
 
 class Dripcap extends EventEmitter
   class SessionInterface extends EventEmitter
