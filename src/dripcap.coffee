@@ -103,11 +103,10 @@ class Dripcap extends EventEmitter
       @_commands = {}
 
     bind: (command, selector, cb) ->
-      unless @_commands[command]
-        @_commands[command] = {}
-        Mousetrap.bind command, (e) =>
-          for sel, cb of @_commands[command]
-            cb(e) if $(e.target).is sel
+      @_commands[command] ?= {}
+      Mousetrap.bind command, (e) =>
+        for sel, cb of @_commands[command]
+          cb(e) if $(e.target).is sel
 
       @_commands[command][selector] = cb
 
