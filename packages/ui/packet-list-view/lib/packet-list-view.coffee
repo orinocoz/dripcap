@@ -80,10 +80,10 @@ class PacketTable
         self.selectedLine = $(@)
         self.selectedLine.addClass('selected')
       .on 'click', ->
-        dripcap.pubsub.pub 'PacketListView:select', $(@).data('packet')
+        dripcap.pubsub.pub 'packet-list-view:select', $(@).data('packet')
       .on 'contextmenu', (e) =>
         @selctedPacket = $(e.currentTarget).data('packet')
-        dripcap.menu.popup('PacketListView: PacketMenu', @, remote.getCurrentWindow())
+        dripcap.menu.popup('packet-list-view:packet-menu', @, remote.getCurrentWindow())
         e.stopPropagation()
 
     process.nextTick =>
@@ -130,7 +130,7 @@ class PacketListView
           subTable = new PacketTable container, sub
           @header.calculate()
 
-          dripcap.pubsub.sub 'PacketFilterView:filter', _.debounce (f) =>
+          dripcap.pubsub.sub 'packet-filter-view:filter', _.debounce (f) =>
 
             if @_filterInterval?
               clearInterval @_filterInterval
@@ -177,13 +177,13 @@ class PacketListView
       menu.append(new MenuItem(label: 'Copy Packet as JSON', click: copyAsJSON))
       menu
 
-    dripcap.menu.register 'PacketListView: PacketMenu', @packetMenu
+    dripcap.menu.register 'packet-list-view:packet-menu', @packetMenu
 
   updateTheme: (theme) ->
     @comp.updateTheme theme
 
   deactivate: ->
-    dripcap.menu.unregister 'PacketListView: PacketMenu', @packetMenu
+    dripcap.menu.unregister 'packet-list-view:packet-menu', @packetMenu
     dripcap.package.load('main-view').then (pkg) =>
       pkg.root.panel.left('packet-list-view')
       @list.unmount()

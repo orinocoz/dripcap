@@ -11,11 +11,11 @@ class StatusView
         @view = riot.mount(m[0], 'status-view')[0]
         pkg.root.panel.northFixed(m)
 
-        dripcap.pubsub.sub 'Core: Capturing Status', (data) =>
+        dripcap.pubsub.sub 'core:capturing-status', (data) =>
           @view.capturing = data
           @view.update()
 
-        dripcap.pubsub.sub 'Core: Capturing Settings', (data) =>
+        dripcap.pubsub.sub 'core:capturing-settings', (data) =>
           @view.settings = data
           @view.update()
 

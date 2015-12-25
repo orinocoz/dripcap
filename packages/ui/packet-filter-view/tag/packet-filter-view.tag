@@ -19,7 +19,7 @@
         filter = $(e.target).val().trim()
         $(@filter).toggleClass('error', false)
         parse(filter)
-        dripcap.pubsub.pub 'PacketFilterView:filter', filter
+        dripcap.pubsub.pub 'packet-filter-view:filter', filter
       catch error
         $(@filter).toggleClass('error', true)
 

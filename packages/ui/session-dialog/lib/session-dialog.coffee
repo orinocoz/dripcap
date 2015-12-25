@@ -8,16 +8,15 @@ class SessionDialog
   activate: ->
     @captureMenu = (menu, e) ->
       action = (name) -> -> dripcap.action.emit name
-      capturing = dripcap.pubsub.get('Core: Capturing Status') ? false
-      console.log dripcap.pubsub.get('Core: Capturing Status')
-      menu.append new MenuItem label: 'New Session', accelerator: 'CmdOrCtrl+N', click: action 'Core: New Session'
+      capturing = dripcap.pubsub.get('core:capturing-status') ? false
+      menu.append new MenuItem label: 'New Session', accelerator: 'CmdOrCtrl+N', click: action 'core:new-session'
       menu.append new MenuItem type: 'separator'
-      menu.append new MenuItem label: 'Start', enabled: !capturing, click: action 'Core: Start Sessions'
-      menu.append new MenuItem label: 'Stop', enabled: capturing, click: action 'Core: Stop Sessions'
+      menu.append new MenuItem label: 'Start', enabled: !capturing, click: action 'core:start-sessions'
+      menu.append new MenuItem label: 'Stop', enabled: capturing, click: action 'core:stop-sessions'
       menu
 
     dripcap.menu.registerMain 'Capture', @captureMenu
-    dripcap.pubsub.sub 'Core: Capturing Status', ->
+    dripcap.pubsub.sub 'core:capturing-status', ->
       dripcap.menu.updateMainMenu()
 
     @comp = new Component "#{__dirname}/../tag/*.tag"
@@ -34,7 +33,7 @@ class SessionDialog
             @view.setInterfaceList(list)
             @view.update()
 
-          dripcap.action.on 'Core: New Session', =>
+          dripcap.action.on 'core:new-session', =>
             dripcap.getInterfaceList().then (list) =>
               @view.setInterfaceList(list)
               @view.show()

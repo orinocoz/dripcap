@@ -14,7 +14,7 @@ class PreferencesDialog
           @_view = riot.mount(n[0], 'preferences-dialog')[0]
           $(@_view.root).find('.content').append($('<div class="root-container" />').append(@panel.root))
 
-          dripcap.action.on 'Core: Preferences', =>
+          dripcap.action.on 'core:preferences', =>
             @_view.show()
             @_view.update()
 

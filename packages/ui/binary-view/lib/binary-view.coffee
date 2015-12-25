@@ -28,7 +28,7 @@ class BinaryView
           r = ulascii.find('i').slice(range[0], range[1])
           r.addClass('selected')
 
-        dripcap.pubsub.sub 'PacketListView:select', (pkt) ->
+        dripcap.pubsub.sub 'packet-list-view:select', (pkt) ->
           ulhex.empty()
           ulascii.empty()
 

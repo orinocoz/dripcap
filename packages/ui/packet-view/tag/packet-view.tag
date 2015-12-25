@@ -13,7 +13,7 @@
     @base = 10
 
     @context = (e) =>
-      dripcap.menu.popup('packetView: NumericValueMenu', @, remote.getCurrentWindow())
+      dripcap.menu.popup('packet-view:numeric-value-menu', @, remote.getCurrentWindow())
       e.stopPropagation()
 
   </script>
@@ -59,7 +59,7 @@
 
     @context = (e) =>
       if window.getSelection().toString().length > 0
-        dripcap.menu.popup('packetView: ContextMenu', @, remote.getCurrentWindow())
+        dripcap.menu.popup('packet-view:context-menu', @, remote.getCurrentWindow())
         e.stopPropagation()
 
     @on 'update', =>
@@ -129,7 +129,7 @@
 
     @layerContext = (e) =>
       @clickedLayerIndex = e.item.i
-      dripcap.menu.popup('packetView: LayerMenu', @, remote.getCurrentWindow())
+      dripcap.menu.popup('packet-view:layer-menu', @, remote.getCurrentWindow())
       e.stopPropagation()
 
     @set = (pkt) =>

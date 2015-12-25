@@ -54,13 +54,13 @@
         $(@root).css('padding-left', '75px')
 
   @startCapture = ->
-    dripcap.action.emit 'Core: Start Sessions'
+    dripcap.action.emit 'core:start-sessions'
 
   @stopCapture = ->
-    dripcap.action.emit 'Core: Stop Sessions'
+    dripcap.action.emit 'core:stop-sessions'
 
   @newCapture = ->
-    dripcap.action.emit 'Core: New Session'
+    dripcap.action.emit 'core:new-session'
 
   </script>
 

@@ -157,7 +157,7 @@ class Dripcap extends EventEmitter
           pkg.activate()
           pkg.updateTheme @parent.theme.scheme
 
-      @pub 'Core: Package List Updated', @list
+      @pub 'core:package-list-updated', @list
 
     updateTheme: (scheme) ->
       for k, pkg of @list

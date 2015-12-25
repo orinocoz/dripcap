@@ -21,7 +21,7 @@ class PacketListView
           @view.set(null)
           @view.update()
 
-        dripcap.pubsub.sub 'PacketListView:select', (pkt) =>
+        dripcap.pubsub.sub 'packet-list-view:select', (pkt) =>
           @view.set(pkt)
           @view.update()
 
@@ -67,21 +67,21 @@ class PacketListView
       menu.append(new MenuItem(label: 'Copy Layer as JSON', click: copyAsJSON))
       menu
 
-    dripcap.menu.register 'packetView: LayerMenu', @layerMenu
-    dripcap.menu.register 'packetView: LayerMenu', @copyMenu
-    dripcap.menu.register 'packetView: NumericValueMenu', @numValueMenu
-    dripcap.menu.register 'packetView: NumericValueMenu', @copyMenu
-    dripcap.menu.register 'packetView: ContextMenu', @copyMenu
+    dripcap.menu.register 'packet-view:layer-menu', @layerMenu
+    dripcap.menu.register 'packet-view:layer-menu', @copyMenu
+    dripcap.menu.register 'packet-view:numeric-value-menu', @numValueMenu
+    dripcap.menu.register 'packet-view:numeric-value-menu', @copyMenu
+    dripcap.menu.register 'packet-view:context-menu', @copyMenu
 
   updateTheme: (theme) ->
     @comp.updateTheme theme
 
   deactivate: ->
-    dripcap.menu.unregister 'packetView: LayerMenu', @layerMenu
-    dripcap.menu.unregister 'packetView: LayerMenu', @copyMenu
-    dripcap.menu.unregister 'packetView: NumericValueMenu', @numValueMenu
-    dripcap.menu.unregister 'packetView: NumericValueMenu', @copyMenu
-    dripcap.menu.unregister 'packetView: ContextMenu', @copyMenu
+    dripcap.menu.unregister 'packet-view:layer-menu', @layerMenu
+    dripcap.menu.unregister 'packet-view:layer-menu', @copyMenu
+    dripcap.menu.unregister 'packet-view:numeric-value-menu', @numValueMenu
+    dripcap.menu.unregister 'packet-view:numeric-value-menu', @copyMenu
+    dripcap.menu.unregister 'packet-view:context-menu', @copyMenu
 
     dripcap.package.load('main-view').then (pkg) =>
       pkg.root.panel.center('packet-view')

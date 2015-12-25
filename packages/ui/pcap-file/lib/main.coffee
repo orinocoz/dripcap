@@ -14,10 +14,10 @@ class MainMenu
 
     @menu = (menu, e) ->
       file = new Menu
-      file.append new MenuItem label: 'New Window', accelerator: 'CmdOrCtrl+Shift+N', click: action 'Core: New Window'
-      file.append new MenuItem label: 'Close Window', accelerator: 'CmdOrCtrl+Shift+W', click: action 'Core: Close Window'
+      file.append new MenuItem label: 'New Window', accelerator: 'CmdOrCtrl+Shift+N', click: action 'core:new-window'
+      file.append new MenuItem label: 'Close Window', accelerator: 'CmdOrCtrl+Shift+W', click: action 'core:close-window'
       file.append new MenuItem type: 'separator'
-      file.append new MenuItem label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: action 'Core: Quit'
+      file.append new MenuItem label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: action 'core:quit'
 
       edit = new Menu
       if process.platform == 'darwin'
@@ -32,22 +32,22 @@ class MainMenu
         edit.append new MenuItem label: 'Paste', accelerator: 'Ctrl+V', click: -> contents.paste()
         edit.append new MenuItem label: 'Select All', accelerator: 'Ctrl+A', click: -> contents.selectAll()
       edit.append new MenuItem type: 'separator'
-      edit.append new MenuItem label: 'Preferences', accelerator: 'CmdOrCtrl+,', click: action 'Core: Preferences'
+      edit.append new MenuItem label: 'Preferences', accelerator: 'CmdOrCtrl+,', click: action 'core:preferences'
 
-      capturing = dripcap.pubsub.get 'Core: Capturing Status' ? false
+      capturing = dripcap.pubsub.get 'core:capturing-status' ? false
       session = new Menu
-      session.append new MenuItem label: 'New Session', accelerator: 'CmdOrCtrl+N', click: action 'Core: New Session'
+      session.append new MenuItem label: 'New Session', accelerator: 'CmdOrCtrl+N', click: action 'core:new-session'
       session.append new MenuItem type: 'separator'
-      session.append new MenuItem label: 'Start', enabled: !capturing, click: action 'Core: Start Sessions'
-      session.append new MenuItem label: 'Stop', enabled: capturing, click: action 'Core: Stop Sessions'
+      session.append new MenuItem label: 'Start', enabled: !capturing, click: action 'core:start-sessions'
+      session.append new MenuItem label: 'Stop', enabled: capturing, click: action 'core:stop-sessions'
 
       developer = new Menu
-      developer.append new MenuItem label: 'Toggle DevTools', accelerator: 'CmdOrCtrl+Shift+I', click: action 'Core: Toggle DevTools'
-      developer.append new MenuItem label: 'Open User Directory', click: action 'Core: Open User Directory'
+      developer.append new MenuItem label: 'Toggle DevTools', accelerator: 'CmdOrCtrl+Shift+I', click: action 'core:toggle-devtools'
+      developer.append new MenuItem label: 'Open User Directory', click: action 'core:open-user-directroy'
 
       help = new Menu
-      help.append new MenuItem label: 'Open Website', click: action 'Core: Open Dripcap Website'
-      help.append new MenuItem label: 'Show License', click: action 'Core: Show License'
+      help.append new MenuItem label: 'Open Website', click: action 'core:open-website'
+      help.append new MenuItem label: 'Show License', click: action 'core:show-license'
       help.append new MenuItem type: 'separator'
       help.append new MenuItem label: 'Version ' + config, enabled: false
 
@@ -59,8 +59,8 @@ class MainMenu
 
     @helpMenu = (menu, e) ->
       help = new Menu
-      help.append new MenuItem label: 'Open Website', click: action 'Core: Open Dripcap Website'
-      help.append new MenuItem label: 'Show License', click: action 'Core: Show License'
+      help.append new MenuItem label: 'Open Website', click: action 'core:open-website'
+      help.append new MenuItem label: 'Show License', click: action 'core:show-license'
       help.append new MenuItem type: 'separator'
       help.append new MenuItem label: 'Version ' + config, enabled: false
 
@@ -73,7 +73,7 @@ class MainMenu
     dripcap.theme.sub 'registoryUpdated', ->
       dripcap.menu.updateMainMenu()
 
-    dripcap.pubsub.sub 'Core: Capturing Status', ->
+    dripcap.pubsub.sub 'core:capturing-status', ->
       dripcap.menu.updateMainMenu()
 
   deactivate: ->

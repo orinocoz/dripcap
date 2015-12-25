@@ -11,7 +11,7 @@ class PackagePreferencesView
         @_view = riot.mount(m[0], 'package-preferences-view')[0]
         pkg.root.panel.center('packages', m, $('<i class="fa fa-gift"> Packages</i>'))
 
-        dripcap.package.sub 'Core: Package List Updated', (list) =>
+        dripcap.package.sub 'core:package-list-updated', (list) =>
           @_view.packageList = Object.keys(list).map (v) -> list[v]
           @_view.update()
 

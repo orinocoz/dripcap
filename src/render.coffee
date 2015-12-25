@@ -13,46 +13,46 @@ remote = require('remote')
 unless process.env['DRIPCAP_UI_TEST']?
   remote.getCurrentWindow().show()
 
-dripcap.action.on 'Core: New Window', ->
+dripcap.action.on 'core:new-window', ->
   remote.getGlobal('dripcap').newWindow()
 
-dripcap.action.on 'Core: Close Window', ->
+dripcap.action.on 'core:close-window', ->
   remote.getCurrentWindow().close()
 
-dripcap.action.on 'Core: Toggle DevTools', ->
+dripcap.action.on 'core:toggle-devtools', ->
   remote.getCurrentWindow().toggleDevTools()
 
-dripcap.action.on 'Core: Open User Directory', ->
+dripcap.action.on 'core:open-user-directroy', ->
   shell.showItemInFolder config.profilePath
 
-dripcap.action.on 'Core: Open Dripcap Website', ->
+dripcap.action.on 'core:open-website', ->
   shell.openExternal 'https://github.com/dripcap/dripcap'
 
-dripcap.action.on 'Core: Show License', ->
+dripcap.action.on 'core:show-license', ->
   shell.openExternal 'https://github.com/dripcap/dripcap/blob/master/LICENSE'
 
-dripcap.action.on 'Core: Quit', ->
+dripcap.action.on 'core:quit', ->
   remote.require('app').quit()
 
-dripcap.pubsub.sub 'Core: Capturing Status', (data) ->
+dripcap.pubsub.sub 'core:capturing-status', (data) ->
   if (data)
     remote.getGlobal('dripcap').pushIndicator()
   else
     remote.getGlobal('dripcap').popIndicator()
 
-dripcap.action.on 'Core: Stop Sessions', ->
+dripcap.action.on 'core:stop-sessions', ->
   for s in dripcap.session.list
     s.stop()
 
-dripcap.action.on 'Core: Start Sessions', ->
+dripcap.action.on 'core:start-sessions', ->
   if dripcap.session.list.length > 0
     for s in dripcap.session.list
       s.start()
   else
-    dripcap.action.emit 'Core: New Session'
+    dripcap.action.emit 'core:new-session'
 
 remote.require('power-monitor').on 'suspend', ->
-  dripcap.action.emit 'Core: Stop Sessions'
+  dripcap.action.emit 'core:stop-sessions'
 
 $ ->
   $(window).unload ->

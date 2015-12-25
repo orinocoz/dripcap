@@ -10,10 +10,10 @@ class MainMenu
     action = (name) -> -> dripcap.action.emit name
 
     @fileMenu = (menu, e) ->
-      menu.append new MenuItem label: 'New Window', accelerator: 'CmdOrCtrl+Shift+N', click: action 'Core: New Window'
-      menu.append new MenuItem label: 'Close Window', accelerator: 'CmdOrCtrl+Shift+W', click: action 'Core: Close Window'
+      menu.append new MenuItem label: 'New Window', accelerator: 'CmdOrCtrl+Shift+N', click: action 'core:new-window'
+      menu.append new MenuItem label: 'Close Window', accelerator: 'CmdOrCtrl+Shift+W', click: action 'core:close-window'
       menu.append new MenuItem type: 'separator'
-      menu.append new MenuItem label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: action 'Core: Quit'
+      menu.append new MenuItem label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: action 'core:quit'
       menu
 
     @editMenu = (menu, e) ->
@@ -29,17 +29,17 @@ class MainMenu
         menu.append new MenuItem label: 'Paste', accelerator: 'Ctrl+V', click: -> contents.paste()
         menu.append new MenuItem label: 'Select All', accelerator: 'Ctrl+A', click: -> contents.selectAll()
       menu.append new MenuItem type: 'separator'
-      menu.append new MenuItem label: 'Preferences', accelerator: 'CmdOrCtrl+,', click: action 'Core: Preferences'
+      menu.append new MenuItem label: 'Preferences', accelerator: 'CmdOrCtrl+,', click: action 'core:preferences'
       menu
 
     @devMenu = (menu, e) ->
-      menu.append new MenuItem label: 'Toggle DevTools', accelerator: 'CmdOrCtrl+Shift+I', click: action 'Core: Toggle DevTools'
-      menu.append new MenuItem label: 'Open User Directory', click: action 'Core: Open User Directory'
+      menu.append new MenuItem label: 'Toggle DevTools', accelerator: 'CmdOrCtrl+Shift+I', click: action 'core:toggle-devtools'
+      menu.append new MenuItem label: 'Open User Directory', click: action 'core:open-user-directroy'
       menu
 
     @helpMenu = (menu, e) ->
-      menu.append new MenuItem label: 'Open Website', click: action 'Core: Open Dripcap Website'
-      menu.append new MenuItem label: 'Show License', click: action 'Core: Show License'
+      menu.append new MenuItem label: 'Open Website', click: action 'core:open-website'
+      menu.append new MenuItem label: 'Show License', click: action 'core:show-license'
       menu.append new MenuItem type: 'separator'
       menu.append new MenuItem label: 'Version ' + dripcap.config.version, enabled: false
       menu

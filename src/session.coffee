@@ -36,7 +36,7 @@ class Session extends EventEmitter
       settings = {iface: iface, options: options}
       arg = JSON.stringify settings
       @_window.webContents.executeJavaScript("session.capture(#{arg})")
-      dripcap.pubsub.pub 'Core: Capturing Settings', settings
+      dripcap.pubsub.pub 'core:capturing-settings', settings
 
   addDecoder: (decoder) ->
     @_loaded.then =>
@@ -47,12 +47,12 @@ class Session extends EventEmitter
     @_loaded.then =>
       @_window.webContents.executeJavaScript('session.stop()')
       @_window.webContents.executeJavaScript('session.start()')
-      dripcap.pubsub.pub 'Core: Capturing Status', true
+      dripcap.pubsub.pub 'core:capturing-status', true
 
   stop: ->
     @_loaded.then =>
       @_window.webContents.executeJavaScript('session.stop()')
-      dripcap.pubsub.pub 'Core: Capturing Status', false
+      dripcap.pubsub.pub 'core:capturing-status', false
 
   close: ->
     @_loaded.then =>
