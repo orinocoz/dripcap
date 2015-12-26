@@ -16,7 +16,7 @@ install:
 - npm install -g npm_lazy
 - npm_lazy > /dev/null 2>&1 &
 - npm config set registry http://localhost:8080/
-- npm install -g gulp electron-prebuilt 
+- npm install -g gulp electron-prebuilt
 - npm install
 before_script:
 - export DISPLAY=':99.0'
@@ -41,4 +41,6 @@ deploy:
     tags: true
 env:
   global:
-    secure: PDTa8agVefW++LH9YNWkSsP/sr4/xWiAylXB+WXIEclLU7WeoyDyIxVXON8mHIt/fKyGGKw5QYC1e1IVAbnARZy+H7IJopeWsbsT9CMIVZuXiSOPFUN2svk1YtXpFbo20QlBbCQPB1mcbdGVShWJOTe4FpYNX3Nav0q66Nes3j8fiiNZa2m7tLfR4aXlwNv0wUtTzzdWC5jzMT73//ZTjuPWV1tIPJUu/a5wxkEhCYXM1why3cH6BMRYRZYGlg++TFacA+Efkjc1FHPs24nahqia4PQ6dkNWb1VxdFKuX+73HX2FaV1IWROung4RbK/+k3x6zBdKXpQJXtZA3F88P8fbRerUczt06CNgZLf85cG9OucoJ/cK16XJbMYzC3B8WKdHlBQTP98Kv59WhrI4+NoGaiNGgpczLfei54Gqqwgp40q6OQalgA/NoYXdxVzBNXT+Gtd/obESqx3z5k5iGhZicShwnMP8ySudjv+oms+PoWtdqKg6rtndsAHbhsi+wQPUK6YmLznUlARVTf2TK5g7CSW2cGjCgUXEwSc1ohFNSOi5iWm/jsgwk3yUxk27TizsiRv9LOLFQLP20ghGh5+DiF5hHJtM+CK9qysAGFXK6IHUdkDjBkjpGOJEWGmSGYSLFid+TKzVCAnQA5OYhml7AMW0bngNcUlDdysvE1s=
+    - GOPATH: /home/travis/gopath
+    - GOBIN: /home/travis/gopath/bin
+    - secure: PDTa8agVefW++LH9YNWkSsP/sr4/xWiAylXB+WXIEclLU7WeoyDyIxVXON8mHIt/fKyGGKw5QYC1e1IVAbnARZy+H7IJopeWsbsT9CMIVZuXiSOPFUN2svk1YtXpFbo20QlBbCQPB1mcbdGVShWJOTe4FpYNX3Nav0q66Nes3j8fiiNZa2m7tLfR4aXlwNv0wUtTzzdWC5jzMT73//ZTjuPWV1tIPJUu/a5wxkEhCYXM1why3cH6BMRYRZYGlg++TFacA+Efkjc1FHPs24nahqia4PQ6dkNWb1VxdFKuX+73HX2FaV1IWROung4RbK/+k3x6zBdKXpQJXtZA3F88P8fbRerUczt06CNgZLf85cG9OucoJ/cK16XJbMYzC3B8WKdHlBQTP98Kv59WhrI4+NoGaiNGgpczLfei54Gqqwgp40q6OQalgA/NoYXdxVzBNXT+Gtd/obESqx3z5k5iGhZicShwnMP8ySudjv+oms+PoWtdqKg6rtndsAHbhsi+wQPUK6YmLznUlARVTf2TK5g7CSW2cGjCgUXEwSc1ohFNSOi5iWm/jsgwk3yUxk27TizsiRv9LOLFQLP20ghGh5+DiF5hHJtM+CK9qysAGFXK6IHUdkDjBkjpGOJEWGmSGYSLFid+TKzVCAnQA5OYhml7AMW0bngNcUlDdysvE1s=
