@@ -16,9 +16,6 @@
     [riot-tag=status-view] {
       border-bottom: 1px solid @splitter;
 
-      transition-property: padding-left;
-      transition-duration: 0.3s;
-
       .status {
         width: 100%;
         padding: 12px 10px;
@@ -45,13 +42,7 @@
 
   @on 'mount', =>
     if process.platform == 'darwin'
-      $(@root).css 'padding-left', '75px'
-
-      dripcap.event.on 'enter-full-screen', =>
-        $(@root).css('padding-left', '0')
-
-      dripcap.event.on 'leave-full-screen', =>
-        $(@root).css('padding-left', '75px')
+      $(@root).css 'padding-left', '90px'
 
   @startCapture = ->
     dripcap.action.emit 'core:start-sessions'

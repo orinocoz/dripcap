@@ -22,11 +22,12 @@ class Dripcap
     mainWindow = new BrowserWindow options
     mainWindow.loadURL 'file://' + __dirname + '/../render.html'
 
-    webContents = mainWindow.webContents
-    mainWindow.on 'enter-full-screen', ->
-      webContents.executeJavaScript("dripcap.event.emit('enter-full-screen')")
-    mainWindow.on 'leave-full-screen', ->
-      webContents.executeJavaScript("dripcap.event.emit('leave-full-screen')")
+    if process.platform == 'darwin'
+      webContents = mainWindow.webContents
+      mainWindow.on 'enter-full-screen', ->
+        webContents.executeJavaScript("$('#main-view').css('top', '32px')")
+      mainWindow.on 'leave-full-screen', ->
+        webContents.executeJavaScript("$('#main-view').css('top', '0')")
 
   pushIndicator: ->
     @_indicator++
