@@ -41,8 +41,9 @@ html, body {
     <div class="container"><i class="fa fa-cog fa-spin"></i></div>
   </div>
   <script>
+  require('coffee-script/register');
   process.nextTick(function(){
-    require('./js/render');
+    require('dripcap/render');
   });
   </script>
 </body>

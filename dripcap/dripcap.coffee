@@ -1,13 +1,13 @@
+config = require('./config')
+Profile = require('./profile')
+Package = require('./pkg')
+Session = require('./session')
 path = require('path')
 glob = require('glob')
 semver = require('semver')
 rmdir = require('rmdir')
-config = require('./config')
 rebuild = require('electron-rebuild')
 $ = require('jquery')
-Profile = require('./profile')
-Package = require('./package')
-Session = require('./session')
 PaperFilter = require('paperfilter')
 Mousetrap = require('mousetrap')
 {EventEmitter} = require('events')
@@ -72,7 +72,7 @@ class Dripcap extends EventEmitter
 
       @_defaultScheme =
         name: 'Default'
-        less: ["#{__dirname}/../theme.less"]
+        less: ["#{__dirname}/theme.less"]
 
       @register 'default', @_defaultScheme
       @id = 'default'
@@ -233,13 +233,6 @@ class Dripcap extends EventEmitter
     constructor: (@parent) ->
 
   class MenuInterface extends EventEmitter
-    action = (t) ->
-      if t.action?
-        t.click = -> dripcap.action.emit t.action
-      if t.submenu?
-        t.submenu = t.submenu.map action
-      t
-
     constructor: (@parent) ->
       @_handlers = {}
       @_mainHadlers = {}
@@ -298,12 +291,10 @@ class Dripcap extends EventEmitter
     filter.list()
 
   constructor: (@profile) ->
-    if global.dripcap?
-      throw new Error 'global.dripcap already exists!'
     global.dripcap = @
 
+  _init: ->
     theme = @profile.getConfig('theme')
-
     @config = config
     @session = new SessionInterface @
     @theme = new ThemeInterface @
@@ -329,4 +320,10 @@ class Dripcap extends EventEmitter
       for k, pkg of @package.loadedPackages
         pkg.deactivate()
 
-exports.init = (prof) -> new Dripcap prof
+instance = null
+
+module.exports = (prof) ->
+  if prof?
+    instance = new Dripcap prof
+    instance._init()
+  instance

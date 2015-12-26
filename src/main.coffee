@@ -2,7 +2,7 @@ require('coffee-script/register')
 app = require('app')
 BrowserWindow = require('browser-window')
 mkpath = require('mkpath')
-config = require('./config')
+config = require('dripcap/config')
 require('crash-reporter').start(config.crashReporter)
 
 mkpath.sync(config.userPackagePath)

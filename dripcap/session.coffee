@@ -21,7 +21,7 @@ class Session extends EventEmitter
     @_server.listen sock
 
     @_window = new BrowserWindow(show: false)
-    @_window.loadURL 'file://' + __dirname + '/../session.html'
+    @_window.loadURL 'file://' + __dirname + '/session.html'
 
     arg = JSON.stringify @_filterPath
     @_window.webContents.executeJavaScript("session.filterPath = #{arg}")

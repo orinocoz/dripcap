@@ -1,7 +1,7 @@
 fs = require('fs')
 path = require('path')
 _ = require('underscore')
-config = require('./config')
+config = require('dripcap/config')
 
 class Package
   constructor: (jsonPath) ->

@@ -13,14 +13,19 @@
     "test": "gulp test && exit `cat /tmp/dripcap.test.result`",
     "dpkg": "gulp debian && cd .debian && fakeroot dpkg-deb --build . ../dripcap-x64.deb"
   },
+  "engines": {
+    "electron": "0.36.1"
+  },
   "author": "h2so5",
   "license": "MIT",
   "dependencies": {
+    "dripper": "file:./dripper",
+    "paperfilter": "file:./paperfilter",
+    "dripcap": "file:./dripcap",
     "browserify": "^12.0.1",
     "coffee-script": "^1.9.3",
     "coffeeify": "^2.0.1",
     "cson": "^3.0.1",
-    "dripper": "file:./dripper",
     "electron-rebuild": "^1.0.0",
     "font-awesome": "^4.3.0",
     "glob": "^5.0.14",
@@ -31,7 +36,6 @@
     "msgcap": "file:./msgcap",
     "msgpack-lite": "^0.1.11",
     "npm": "^3.5.2",
-    "paperfilter": "file:./paperfilter",
     "request": "^2.67.0",
     "riot": "2.3.0",
     "rmdir": "^1.1.0",

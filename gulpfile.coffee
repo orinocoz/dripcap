@@ -13,7 +13,7 @@ glob = require('glob')
 exec = require('child_process').exec
 jasmine = require('gulp-jasmine')
 npm = require('npm')
-config = require('./src/config')
+pkg = require('./package.json')
 
 gulp.task 'lint', ->
   gulp.src([
@@ -38,7 +38,7 @@ gulp.task 'copy', ->
 gulp.task 'copypkg', ->
   gulp.src([
     './packages/**/*'
-    './npm/**/*'
+    './dripcap/**/*'
     './dripper/**/*'
     './paperfilter/**/*'
     './msgcap/**/*'
@@ -76,7 +76,7 @@ gulp.task 'linux', [
   ], (cb) ->
     gulp.src('./.build/**')
       .pipe(electron(
-        version: config.electronVersion,
+        version: pkg.engines.electron,
         platform: 'linux',
         arch: 'x64',
         token: process.env['ELECTRON_GITHUB_TOKEN']))
@@ -84,7 +84,7 @@ gulp.task 'linux', [
 
 gulp.task 'debian-pkg', (cb) ->
   gulp.src('./debian/**', base: './debian/')
-    .pipe(replace('{{DRIPCAP_VERSION}}', config.version, skipBinary: true))
+    .pipe(replace('{{DRIPCAP_VERSION}}', pkg.version, skipBinary: true))
     .pipe gulp.dest('./.debian/')
 
 gulp.task 'debian-paperfilter', ['debian-bin'], (cb) ->
@@ -95,7 +95,7 @@ gulp.task 'debian-paperfilter', ['debian-bin'], (cb) ->
 gulp.task 'debian-bin', ['copy', 'coffee', 'copypkg', 'npm'], (cb) ->
   gulp.src('./.build/**')
     .pipe(electron(
-      version: config.electronVersion,
+      version: pkg.engines.electron,
       platform: 'linux',
       arch: 'x64',
       token: process.env['ELECTRON_GITHUB_TOKEN']))
@@ -115,7 +115,7 @@ gulp.task 'darwin', [
   ], (cb) ->
     gulp.src('./.build/**')
       .pipe(electron(
-        version: config.electronVersion,
+        version:  pkg.engines.electron,
         platform: 'darwin',
         arch: 'x64',
         token: process.env['ELECTRON_GITHUB_TOKEN'],
