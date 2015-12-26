@@ -21,6 +21,9 @@ class Dripcap
 
     mainWindow = new BrowserWindow options
     mainWindow.loadURL 'file://' + __dirname + '/../render.html'
+    unless process.env['DRIPCAP_UI_TEST']?
+      mainWindow.webContents.on 'did-finish-load', ->
+        mainWindow.show()
 
   pushIndicator: ->
     @_indicator++

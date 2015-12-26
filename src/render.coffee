@@ -10,8 +10,10 @@ require('./dripcap').init prof
 
 remote = require('remote')
 
-unless process.env['DRIPCAP_UI_TEST']?
-  remote.getCurrentWindow().show()
+dripcap.package.sub 'core:package-loaded', ->
+  setTimeout ->
+    $('#splash').fadeOut()
+  , 500
 
 dripcap.action.on 'core:new-window', ->
   remote.getGlobal('dripcap').newWindow()

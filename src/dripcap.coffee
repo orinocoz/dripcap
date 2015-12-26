@@ -121,6 +121,9 @@ class Dripcap extends EventEmitter
     constructor: (@parent) ->
       super()
       @list = {}
+      @triggerlLoaded = _.debounce =>
+        @pub 'core:package-loaded'
+      , 500
 
     load: (name) ->
       pkg = @list[name]
@@ -156,6 +159,7 @@ class Dripcap extends EventEmitter
         if pkg.config.get('enabled')
           pkg.activate()
           pkg.updateTheme @parent.theme.scheme
+          @triggerlLoaded()
 
       @pub 'core:package-list-updated', @list
 

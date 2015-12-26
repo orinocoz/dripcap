@@ -4,16 +4,46 @@
 <meta charset="UTF-8">
 <title>Dripcap</title>
 <link href="./node_modules/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css">
-<script>
-require('./js/render');
-</script>
 <style>
 html, body {
   margin: 0;
   height: 100%;
 }
+
+#splash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  color: #2b303b;
+  background-color: #dfe1e8;
+  z-index: 999;
+}
+
+#splash .container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+#splash i {
+  max-width: 50%;
+  font-size: 64px;
+  opacity: 0.4;
+}
+
 </style>
 </head>
 <body>
+  <div id="splash">
+    <div class="container"><i class="fa fa-cog fa-spin"></i></div>
+  </div>
+  <script>
+  process.nextTick(function(){
+    require('./js/render');
+  });
+  </script>
 </body>
 </html>
