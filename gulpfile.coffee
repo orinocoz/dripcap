@@ -6,6 +6,7 @@ symdest = require('gulp-symdest')
 rename = require('gulp-rename')
 replace = require('gulp-replace')
 zip = require('gulp-vinyl-zip')
+sequence = require('gulp-sequence')
 runElectron = require("gulp-run-electron")
 fs = require('fs')
 path = require('path')
@@ -67,12 +68,7 @@ gulp.task 'npm', ['copypkg'], ->
 
   p
 
-gulp.task 'linux', [
-    'copy'
-    'coffee'
-    'copypkg'
-    'npm'
-  ], (cb) ->
+gulp.task 'linux', ['build'], (cb) ->
     gulp.src('./.build/**')
       .pipe(electron(
         version: pkg.engines.electron,
@@ -100,18 +96,13 @@ gulp.task 'debian-bin', ['copy', 'coffee', 'copypkg', 'npm'], (cb) ->
       token: process.env['ELECTRON_GITHUB_TOKEN']))
     .pipe(symdest('./.debian/usr/share/dripcap'))
 
-gulp.task 'debian', [
-    'debian-bin'
-    'debian-pkg'
-    'debian-paperfilter'
-  ]
+gulp.task 'debian', sequence(
+  'debian-bin',
+  'debian-pkg',
+  'debian-paperfilter'
+)
 
-gulp.task 'darwin', [
-    'copy'
-    'coffee'
-    'copypkg'
-    'npm'
-  ], (cb) ->
+gulp.task 'darwin', ['build'], (cb) ->
     gulp.src('./.build/**')
       .pipe(electron(
         version:  pkg.engines.electron,
@@ -131,25 +122,9 @@ gulp.task 'jasmine', ->
     ])
     .pipe(jasmine())
 
-gulp.task 'test', ['build', 'jasmine']
+gulp.task 'test', sequence(['build', 'jasmine'])
 
-gulp.task 'build', [
-  'coffee'
-  'copy'
-  'copypkg'
+gulp.task 'build', sequence(
+  ['coffee', 'copy', 'copypkg'],
   'npm'
-]
-
-gulp.task 'watch', ['coffee', 'copy', 'copypkg'], ->
-  gulp.src(".build").pipe(runElectron(['--enable-logging']))
-  gulp.watch [
-    './**/*.coffee'
-    './**/*.tag'
-    './**/*.json'
-    './**/*.less'
-  ], [
-    'coffee'
-    'copy'
-    'copypkg'
-    runElectron.rerun
-  ]
+)
