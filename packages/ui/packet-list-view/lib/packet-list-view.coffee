@@ -63,7 +63,7 @@ class PacketTable
   append: (pkt) ->
     self = @
     len =
-      if pkt.truncated
+      if pkt.caplen < pkt.length
         "<td>#{ pkt.length } <i class=\"fa fa-exclamation-circle\"></i></td>"
       else
         "<td>#{ pkt.length }</td>"

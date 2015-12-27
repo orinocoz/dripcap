@@ -106,7 +106,7 @@
       <li>
         <i class="fa fa-circle-o"></i><a class="name"> Actual Length: </a><i>{ packet.length }</i>
       </li>
-      <li if={ packet.truncated }>
+      <li if={ packet.caplen < packet.length }>
         <i class="fa fa-exclamation-circle warn"> This packet is truncated.</i>
       </li>
     </ul>

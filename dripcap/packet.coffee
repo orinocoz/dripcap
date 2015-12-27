@@ -15,9 +15,7 @@ class Packet
     throw new Error 'empty packet' if @layers.length == 0
     for layer in @layers.slice(0).reverse()
       return layer.namespace if layer.namespace?
-
-  @property 'length', get: -> @payload.length
-
+      
   @property 'name', get: ->
     throw new Error 'empty packet' if @layers.length == 0
     for layer in @layers.slice(0).reverse()
