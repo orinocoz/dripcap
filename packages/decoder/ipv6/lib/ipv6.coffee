@@ -1,4 +1,4 @@
-{IPv6Address, Enum, Flags} = require('dripper/type')
+{IPv6Address, Enum, Flags} = require('dripcap/type')
 
 
 class IPv6Decoder

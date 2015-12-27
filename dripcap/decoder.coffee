@@ -1,5 +1,5 @@
 require('coffee-script/register')
-require('dripper/type')
+require('dripcap/type')
 _ = require('underscore')
 net = require('net')
 msgpack = require('msgcap')

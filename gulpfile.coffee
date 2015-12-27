@@ -39,7 +39,6 @@ gulp.task 'copypkg', ->
   gulp.src([
     './packages/**/*'
     './dripcap/**/*'
-    './dripper/**/*'
     './paperfilter/**/*'
     './msgcap/**/*'
   ], base: './')
@@ -52,7 +51,7 @@ gulp.task 'npm', ['copypkg'], ->
   p = p.then ->
     new Promise (res) ->
       npm.prefix = './.build/'
-      npm.commands.uninstall ['dripper', 'msgcap'], res
+      npm.commands.uninstall ['dripcap', 'msgcap'], res
 
   p = p.then ->
     new Promise (res) ->
@@ -128,7 +127,7 @@ gulp.task 'default', ['build'], ->
 gulp.task 'jasmine', ->
   gulp.src([
       './packages/**/spec/*.coffee'
-      './dripper/**/spec/*.coffee'
+      './dripcap/**/spec/*.coffee'
     ])
     .pipe(jasmine())
 

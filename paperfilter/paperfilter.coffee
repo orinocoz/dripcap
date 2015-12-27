@@ -4,8 +4,8 @@ os = require('os')
 crypto = require('crypto')
 childProcess = require('child_process')
 msgpack = require('msgpack-lite')
-Layer = require('dripper/layer')
-{PayloadSlice} = require('dripper/type')
+Layer = require('dripcap/layer')
+{PayloadSlice} = require('dripcap/type')
 {EventEmitter} = require('events')
 
 testdata = process.env['PAPERFILTER_TESTDATA']

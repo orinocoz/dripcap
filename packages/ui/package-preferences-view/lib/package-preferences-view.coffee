@@ -1,6 +1,6 @@
 $ = require('jquery')
 riot = require('riot')
-{Component} = require('dripper/component')
+{Component} = require('dripcap/component')
 
 class PackagePreferencesView
   activate: ->

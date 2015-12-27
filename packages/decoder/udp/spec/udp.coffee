@@ -2,7 +2,7 @@ fs = require('fs')
 EthernetDecoder = require('../../ethernet/lib/ethernet')
 IPv4Decoder = require('../../ipv4/lib/ipv4')
 UDPDecoder = require('../lib/udp')
-{PayloadSlice} = require('dripper/type')
+{PayloadSlice} = require('dripcap/type')
 
 describe "UDP", ->
   payload = fs.readFileSync(__dirname + '/data.bin')

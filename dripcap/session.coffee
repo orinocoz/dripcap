@@ -1,6 +1,6 @@
-require('dripper/type')
+require('dripcap/type')
 {EventEmitter} = require('events')
-Packet = require('dripper/packet')
+Packet = require('dripcap/packet')
 net = require('net')
 tmp = require('temporary')
 msgpack = require('msgcap')

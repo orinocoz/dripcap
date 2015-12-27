@@ -1,7 +1,7 @@
 fs = require('fs')
 EthernetDecoder = require('../../ethernet/lib/ethernet')
 ARPDecoder = require('../lib/arp')
-{PayloadSlice} = require('dripper/type')
+{PayloadSlice} = require('dripcap/type')
 
 describe "ARP", ->
   payload = fs.readFileSync(__dirname + '/data.bin')

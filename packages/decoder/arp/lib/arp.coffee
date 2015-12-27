@@ -1,4 +1,4 @@
-{MACAddress, IPv4Address, Enum} = require('dripper/type')
+{MACAddress, IPv4Address, Enum} = require('dripcap/type')
 
 class ARPDecoder
   constructor: ->

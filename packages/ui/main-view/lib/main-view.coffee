@@ -1,5 +1,5 @@
 $ = require('jquery')
-{Component, Panel} = require('dripper/component')
+{Component, Panel} = require('dripcap/component')
 
 
 class MainView

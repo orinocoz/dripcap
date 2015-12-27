@@ -1,4 +1,4 @@
-{MACAddress, Enum} = require('dripper/type')
+{MACAddress, Enum} = require('dripcap/type')
 
 class EthernetDecoder
   constructor: ->

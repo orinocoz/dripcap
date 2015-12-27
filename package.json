@@ -19,7 +19,6 @@
   "author": "h2so5",
   "license": "MIT",
   "dependencies": {
-    "dripper": "file:./dripper",
     "paperfilter": "file:./paperfilter",
     "dripcap": "file:./dripcap",
     "browserify": "^12.0.1",

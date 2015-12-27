@@ -1,4 +1,4 @@
-{IPv4Host, IPv6Host, IPv4Address, Flags} = require('dripper/type')
+{IPv4Host, IPv6Host, IPv4Address, Flags} = require('dripcap/type')
 
 class TCPDecoder
   constructor: ->

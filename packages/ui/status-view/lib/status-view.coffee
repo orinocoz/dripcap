@@ -1,6 +1,6 @@
 $ = require('jquery')
 riot = require('riot')
-{Component, Panel} = require('dripper/component')
+{Component, Panel} = require('dripcap/component')
 
 class StatusView
   activate: ->

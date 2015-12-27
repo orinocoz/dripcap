@@ -13,7 +13,7 @@
 
   <script type="coffee">
     $ = require('jquery')
-    parse = require('dripper/filter-parse')
+    parse = require('dripcap/filter-parse')
 
     @change = (e) =>
       try
