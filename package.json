@@ -10,7 +10,7 @@
   "readme": "see README.md",
   "main": "js/main.js",
   "scripts": {
-    "test": "gulp test && exit `cat /tmp/dripcap.test.result`",
+    "test": "gulp test",
     "dpkg": "gulp debian && cd .debian && fakeroot dpkg-deb --build . ../dripcap-x64.deb"
   },
   "engines": {

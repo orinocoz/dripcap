@@ -131,11 +131,7 @@ gulp.task 'jasmine', ->
     ])
     .pipe(jasmine())
 
-gulp.task 'test', ['build', 'jasmine'], ->
-  env = process.env
-  env["PAPERFILTER_TESTDATA"] = "uispec/test"
-  env["DRIPCAP_UI_TEST"] = __dirname
-  gulp.src(".build").pipe(runElectron([], env: env))
+gulp.task 'test', ['build', 'jasmine']
 
 gulp.task 'build', [
   'coffee'
