@@ -103,81 +103,84 @@ class PacketTable
 
 class PacketListView
   activate: ->
-    @comp = new Component "#{__dirname}/../tag/*.tag"
-    dripcap.package.load('main-view').then (pkg) =>
-      $ =>
-        m = $('<div class="wrapper noscroll" />')
-        pkg.root.panel.left('packet-list-view', m)
+    new Promise (res) =>
+      @comp = new Component "#{__dirname}/../tag/*.tag"
+      dripcap.package.load('main-view').then (pkg) =>
+        $ =>
+          m = $('<div class="wrapper noscroll" />')
+          pkg.root.panel.left('packet-list-view', m)
 
-        n = $('<div class="wrapper" />').attr('tabIndex', '0').appendTo m
-        @list = riot.mount(n[0], 'packet-list-view', items: [])[0]
+          n = $('<div class="wrapper" />').attr('tabIndex', '0').appendTo m
+          @list = riot.mount(n[0], 'packet-list-view', items: [])[0]
 
-        h = $('<div class="wrapper noscroll" />').css('bottom', 'auto').appendTo m
-        @header = riot.mount(h[0], 'packet-list-view-header')[0]
+          h = $('<div class="wrapper noscroll" />').css('bottom', 'auto').appendTo m
+          @header = riot.mount(h[0], 'packet-list-view-header')[0]
 
-        dripcap.session.on 'created', (session) =>
-          container = n
-          packets = []
+          dripcap.session.on 'created', (session) =>
+            container = n
+            packets = []
 
-          main = $('[riot-tag=packet-list-view] table.main')
-          sub = $('[riot-tag=packet-list-view] table.sub').hide()
+            main = $('[riot-tag=packet-list-view] table.main')
+            sub = $('[riot-tag=packet-list-view] table.sub').hide()
 
-          mhead = main.find('tr.head').detach()
-          shead = sub.find('tr.head').detach()
-          main.empty().append(mhead)
-          sub.empty().append(shead)
-          mainTable = new PacketTable container, main
-          subTable = new PacketTable container, sub
-          @header.calculate()
+            mhead = main.find('tr.head').detach()
+            shead = sub.find('tr.head').detach()
+            main.empty().append(mhead)
+            sub.empty().append(shead)
+            mainTable = new PacketTable container, main
+            subTable = new PacketTable container, sub
+            @header.calculate()
 
-          dripcap.pubsub.sub 'packet-filter-view:filter', _.debounce (f) =>
+            dripcap.pubsub.sub 'packet-filter-view:filter', _.debounce (f) =>
 
-            if @_filterInterval?
-              clearInterval @_filterInterval
-              @_filterInterval = null
+              if @_filterInterval?
+                clearInterval @_filterInterval
+                @_filterInterval = null
 
-            if @_filter?
-              @_filter.terminate()
-              @_filter = null
+              if @_filter?
+                @_filter.terminate()
+                @_filter = null
 
-            if f.length > 0
-              @_filter = new Filter(f)
-              @_filter.on 'filtered', (pkt) ->
-                subTable.append pkt
+              if f.length > 0
+                @_filter = new Filter(f)
+                @_filter.on 'filtered', (pkt) ->
+                  subTable.append pkt
 
-              subTable.clear()
-              for pkt in packets
-                @_filter.process pkt
+                subTable.clear()
+                for pkt in packets
+                  @_filter.process pkt
 
-              sub.show()
-              main.hide()
-            else
-              sub.hide()
-              main.show()
-          , 400
+                sub.show()
+                main.hide()
+              else
+                sub.hide()
+                main.show()
+            , 400
 
-          session.on 'packet', (pkt) =>
-            packets.push pkt
-            mainTable.append pkt
-            @_filter.process pkt if @_filter?
-            mainTable.autoScroll()
-            subTable.autoScroll()
+            session.on 'packet', (pkt) =>
+              packets.push pkt
+              mainTable.append pkt
+              @_filter.process pkt if @_filter?
+              mainTable.autoScroll()
+              subTable.autoScroll()
 
-    @packetMenu = (menu, e) ->
-      exportRawData = =>
-        filename = "#{@selctedPacket.interface}-#{@selctedPacket.timestamp.toISOString()}.bin"
-        path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
-        if path?
-          fs.writeFileSync path, @selctedPacket.payload
+          res()
 
-      copyAsJSON = =>
-        clipboard.writeText JSON.stringify(@selctedPacket, null, ' ')
+      @packetMenu = (menu, e) ->
+        exportRawData = =>
+          filename = "#{@selctedPacket.interface}-#{@selctedPacket.timestamp.toISOString()}.bin"
+          path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
+          if path?
+            fs.writeFileSync path, @selctedPacket.payload
 
-      menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
-      menu.append(new MenuItem(label: 'Copy Packet as JSON', click: copyAsJSON))
-      menu
+        copyAsJSON = =>
+          clipboard.writeText JSON.stringify(@selctedPacket, null, ' ')
 
-    dripcap.menu.register 'packet-list-view:packet-menu', @packetMenu
+        menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
+        menu.append(new MenuItem(label: 'Copy Packet as JSON', click: copyAsJSON))
+        menu
+
+      dripcap.menu.register 'packet-list-view:packet-menu', @packetMenu
 
   updateTheme: (theme) ->
     @comp.updateTheme theme

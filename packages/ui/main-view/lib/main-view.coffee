@@ -4,11 +4,13 @@ $ = require('jquery')
 
 class MainView
   activate: ->
-    @_comp = new Component "#{__dirname}/../less/*.less"
-    $ =>
-      @panel = new Panel
-      @_elem = $('<div id="main-view">').append(@panel.root)
-      @_elem.appendTo $('body')
+    new Promise (res) =>
+      @_comp = new Component "#{__dirname}/../less/*.less"
+      $ =>
+        @panel = new Panel
+        @_elem = $('<div id="main-view">').append(@panel.root)
+        @_elem.appendTo $('body')
+        res()
 
   updateTheme: (theme) ->
     @_comp.updateTheme theme

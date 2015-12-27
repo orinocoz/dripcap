@@ -10,68 +10,71 @@ clipboard = require('clipboard')
 class PacketListView
 
   activate: ->
-    @comp = new Component "#{__dirname}/../tag/*.tag"
-    dripcap.package.load('main-view').then (pkg) =>
-      $ =>
-        m = $('<div class="wrapper" />').attr 'tabIndex', '0'
-        pkg.root.panel.center('packet-view', m, $('<i class="fa fa-cubes"> Packet</i>'))
-        @view = riot.mount(m[0], 'packet-view')[0]
+    new Promise (res) =>
+      @comp = new Component "#{__dirname}/../tag/*.tag"
+      dripcap.package.load('main-view').then (pkg) =>
+        $ =>
+          m = $('<div class="wrapper" />').attr 'tabIndex', '0'
+          pkg.root.panel.center('packet-view', m, $('<i class="fa fa-cubes"> Packet</i>'))
+          @view = riot.mount(m[0], 'packet-view')[0]
 
-        dripcap.session.on 'created', (session) =>
-          @view.set(null)
-          @view.update()
+          dripcap.session.on 'created', (session) =>
+            @view.set(null)
+            @view.update()
 
-        dripcap.pubsub.sub 'packet-list-view:select', (pkt) =>
-          @view.set(pkt)
-          @view.update()
+          dripcap.pubsub.sub 'packet-list-view:select', (pkt) =>
+            @view.set(pkt)
+            @view.update()
 
-    @copyMenu = (menu, e) ->
-      copy = ->
-        remote.getCurrentWebContents().copy()
-      menu.append(new MenuItem(label: 'Copy', click: copy, accelerator: 'CmdOrCtrl+C'))
-      menu
+          res()
 
-    @numValueMenu = (menu, e) ->
-      setBase = (base) =>
-        => @base = base
+      @copyMenu = (menu, e) ->
+        copy = ->
+          remote.getCurrentWebContents().copy()
+        menu.append(new MenuItem(label: 'Copy', click: copy, accelerator: 'CmdOrCtrl+C'))
+        menu
 
-      menu.append(new MenuItem(label: 'Binary', type: 'radio', checked: (@base == 2), click: setBase(2)))
-      menu.append(new MenuItem(label: 'Octal', type: 'radio', checked: (@base == 8), click: setBase(8)))
-      menu.append(new MenuItem(label: 'Decimal', type: 'radio', checked: (@base == 10), click: setBase(10)))
-      menu.append(new MenuItem(label: 'Hexadecimal', type: 'radio', checked: (@base == 16), click: setBase(16)))
-      menu
+      @numValueMenu = (menu, e) ->
+        setBase = (base) =>
+          => @base = base
 
-    @layerMenu = (menu, e) ->
-      exportRawData = =>
-        index = Math.max @clickedLayerIndex - 1, 0
-        layer = @packet.layers[index]
-        filename = "#{@packet.interface}-#{layer.name}-#{@packet.timestamp.toISOString()}.bin"
-        path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
-        if path?
-          fs.writeFileSync path, layer.payload.apply @packet.payload
+        menu.append(new MenuItem(label: 'Binary', type: 'radio', checked: (@base == 2), click: setBase(2)))
+        menu.append(new MenuItem(label: 'Octal', type: 'radio', checked: (@base == 8), click: setBase(8)))
+        menu.append(new MenuItem(label: 'Decimal', type: 'radio', checked: (@base == 10), click: setBase(10)))
+        menu.append(new MenuItem(label: 'Hexadecimal', type: 'radio', checked: (@base == 16), click: setBase(16)))
+        menu
 
-      exportPayload = =>
-        layer = @packet.layers[@clickedLayerIndex]
-        filename = "#{@packet.interface}-#{layer.name}-#{@packet.timestamp.toISOString()}.bin"
-        path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
-        if path?
-          fs.writeFileSync path, layer.payload.apply @packet.payload
+      @layerMenu = (menu, e) ->
+        exportRawData = =>
+          index = Math.max @clickedLayerIndex - 1, 0
+          layer = @packet.layers[index]
+          filename = "#{@packet.interface}-#{layer.name}-#{@packet.timestamp.toISOString()}.bin"
+          path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
+          if path?
+            fs.writeFileSync path, layer.payload.apply @packet.payload
 
-      copyAsJSON = =>
-        layer = @packet.layers[@clickedLayerIndex]
-        clipboard.writeText JSON.stringify(layer, null, ' ')
+        exportPayload = =>
+          layer = @packet.layers[@clickedLayerIndex]
+          filename = "#{@packet.interface}-#{layer.name}-#{@packet.timestamp.toISOString()}.bin"
+          path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
+          if path?
+            fs.writeFileSync path, layer.payload.apply @packet.payload
 
-      menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
-      menu.append(new MenuItem(label: 'Export payload', click: exportPayload))
-      menu.append(new MenuItem(type: 'separator'))
-      menu.append(new MenuItem(label: 'Copy Layer as JSON', click: copyAsJSON))
-      menu
+        copyAsJSON = =>
+          layer = @packet.layers[@clickedLayerIndex]
+          clipboard.writeText JSON.stringify(layer, null, ' ')
 
-    dripcap.menu.register 'packet-view:layer-menu', @layerMenu
-    dripcap.menu.register 'packet-view:layer-menu', @copyMenu
-    dripcap.menu.register 'packet-view:numeric-value-menu', @numValueMenu
-    dripcap.menu.register 'packet-view:numeric-value-menu', @copyMenu
-    dripcap.menu.register 'packet-view:context-menu', @copyMenu
+        menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
+        menu.append(new MenuItem(label: 'Export payload', click: exportPayload))
+        menu.append(new MenuItem(type: 'separator'))
+        menu.append(new MenuItem(label: 'Copy Layer as JSON', click: copyAsJSON))
+        menu
+
+      dripcap.menu.register 'packet-view:layer-menu', @layerMenu
+      dripcap.menu.register 'packet-view:layer-menu', @copyMenu
+      dripcap.menu.register 'packet-view:numeric-value-menu', @numValueMenu
+      dripcap.menu.register 'packet-view:numeric-value-menu', @copyMenu
+      dripcap.menu.register 'packet-view:context-menu', @copyMenu
 
   updateTheme: (theme) ->
     @comp.updateTheme theme

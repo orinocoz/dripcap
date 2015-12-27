@@ -11,9 +11,7 @@ require('dripcap')(prof)
 remote = require('remote')
 
 dripcap.package.sub 'core:package-loaded', ->
-  setTimeout ->
-    $('#splash').fadeOut()
-  , 500
+  process.nextTick -> $('#splash').fadeOut()
 
 dripcap.action.on 'core:new-window', ->
   remote.getGlobal('dripcap').newWindow()

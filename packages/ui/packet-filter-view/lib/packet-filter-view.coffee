@@ -4,12 +4,14 @@ riot = require('riot')
 
 class PacketFilterView
   activate: ->
-    @comp = new Component "#{__dirname}/../tag/*.tag"
-    dripcap.package.load('main-view').then (pkg) =>
-      $ =>
-        m = $('<div/>')
-        @view = riot.mount(m[0], 'packet-filter-view')[0]
-        pkg.root.panel.leftSouthFixed(m)
+    new Promise (res) =>
+      @comp = new Component "#{__dirname}/../tag/*.tag"
+      dripcap.package.load('main-view').then (pkg) =>
+        $ =>
+          m = $('<div/>')
+          @view = riot.mount(m[0], 'packet-filter-view')[0]
+          pkg.root.panel.leftSouthFixed(m)
+      res()
 
   updateTheme: (theme) ->
     @comp.updateTheme theme
