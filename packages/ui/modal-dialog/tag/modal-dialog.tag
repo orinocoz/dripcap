@@ -33,6 +33,8 @@
   </style>
 
   <script type="coffee">
+  $ = require('jquery')
+  
   @visible = false
 
   @show = =>

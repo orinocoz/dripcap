@@ -1,7 +1,7 @@
 require('coffee-script/register')
 config = require('dripcap/config')
 shell = require('shell')
-global.$ = require('jquery')
+$ = require('jquery')
 global.riot = require('riot')
 
 Profile = require('dripcap/profile')

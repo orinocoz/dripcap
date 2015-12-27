@@ -39,6 +39,7 @@
   </style>
 
   <script type="coffee">
+  $ = require('jquery')
 
   @on 'mount', =>
     if process.platform == 'darwin'

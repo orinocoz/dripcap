@@ -12,6 +12,7 @@
   </style>
 
   <script type="coffee">
+    $ = require('jquery')
     parse = require('dripper/filter-parse')
 
     @change = (e) =>

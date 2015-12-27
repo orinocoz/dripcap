@@ -40,6 +40,7 @@
   </style>
 
   <script type="coffee">
+  $ = require('jquery')
 
   @installing = false
   @message = ''

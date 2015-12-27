@@ -1,5 +1,5 @@
 ipc = require('electron').ipcRenderer
-global.console = require('remote').getGlobal('console')
+$ = require('jquery')
 
 module.exports = (file) ->
   $ ->

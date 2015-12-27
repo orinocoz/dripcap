@@ -10,6 +10,7 @@
   </style>
 
   <script type="coffee">
+  $ = require('jquery')
 
   @setInterfaceList = (list) =>
     @interfaceList = list

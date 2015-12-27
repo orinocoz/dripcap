@@ -22,6 +22,8 @@
 <packet-view-string-value>
   <i></i>
   <script type="coffee">
+    $ = require('jquery')
+
     @on 'update', =>
       if @opts.value?
         @root.innerHTML = $('<div/>').text(@opts.value.toString()).html()

@@ -60,7 +60,8 @@
   </style>
 
   <script type="coffee">
-
+  $ = require('jquery')
+  
   @on 'mount', =>
     hover = $(@root).find('.hover-slider')
     $(@root).find('.slider').on 'mousedown', ->

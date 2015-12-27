@@ -17,6 +17,8 @@
   </li>
 
   <script type="coffee">
+    $ = require('jquery')
+
     @on 'mount', =>
       @pref = $(@root).find('.preferences').empty()
       if elem = opts.pkg.renderPreferences()

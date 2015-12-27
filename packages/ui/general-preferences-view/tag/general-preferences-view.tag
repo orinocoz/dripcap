@@ -34,6 +34,7 @@
   </style>
 
   <script type="coffee">
+  $ = require('jquery')
 
   @on 'mount', =>
     @currentSnaplen = dripcap.profile.getConfig 'snaplen'
