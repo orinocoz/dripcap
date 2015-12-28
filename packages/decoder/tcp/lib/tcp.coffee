@@ -1,8 +1,8 @@
 {IPv4Host, IPv6Host, IPv4Address, Flags} = require('dripcap/type')
 
 class TCPDecoder
-  constructor: ->
-    @lowerLayers = [
+  lowerLayers: ->
+    [
       '::Ethernet::IPv4::<TCP>'
       '::Ethernet::IPv6::<TCP>'
     ]

@@ -1,8 +1,8 @@
 {IPv4Host, IPv6Host, IPv4Address, Flags} = require('dripcap/type')
 
 class UDPDecoder
-  constructor: ->
-    @lowerLayers = [
+  lowerLayers: ->
+    [
       '::Ethernet::IPv4::<UDP>'
       '::Ethernet::IPv6::<UDP>'
     ]

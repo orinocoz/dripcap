@@ -1,8 +1,8 @@
 {MACAddress, IPv4Address, Enum} = require('dripcap/type')
 
 class ARPDecoder
-  constructor: ->
-    @lowerLayers = ['::Ethernet::<ARP>']
+  lowerLayers: ->
+    ['::Ethernet::<ARP>']
 
   analyze: (packet) ->
     new Promise (resolve, reject) ->

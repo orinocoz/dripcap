@@ -10,7 +10,7 @@ class DecoderMap
     @_map = {}
 
   addDecoder: (decoder) ->
-    for p in decoder.lowerLayers
+    for p in decoder.lowerLayers()
       unless @_map[p]
         @_map[p] = []
       @_map[p].push decoder

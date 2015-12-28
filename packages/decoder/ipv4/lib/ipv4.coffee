@@ -1,8 +1,8 @@
 {IPv4Address, Enum, Flags} = require('dripcap/type')
 
 class IPv4Decoder
-  constructor: ->
-    @lowerLayers = ['::Ethernet::<IPv4>']
+  lowerLayers: ->
+    ['::Ethernet::<IPv4>']
 
   analyze: (packet) ->
     new Promise (resolve, reject) ->

@@ -2,8 +2,8 @@
 
 
 class IPv6Decoder
-  constructor: ->
-    @lowerLayers = ['::Ethernet::<IPv6>']
+  lowerLayers: ->
+    ['::Ethernet::<IPv6>']
 
   analyze: (packet) ->
     new Promise (resolve, reject) ->

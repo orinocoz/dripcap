@@ -1,8 +1,8 @@
 {MACAddress, Enum} = require('dripcap/type')
 
 class EthernetDecoder
-  constructor: ->
-    @lowerLayers = ['::<Ethernet>']
+  lowerLayers: ->
+    ['::<Ethernet>']
 
   analyze: (packet) ->
     new Promise (resolve, reject) ->
