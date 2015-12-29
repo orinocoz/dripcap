@@ -9,7 +9,6 @@ rmdir = require('rmdir')
 rebuild = require('electron-rebuild')
 $ = require('jquery')
 PaperFilter = require('paperfilter')
-Mousetrap = require('mousetrap')
 {EventEmitter} = require('events')
 npm = require('npm')
 remote = require('remote')
@@ -20,6 +19,7 @@ fs = require('fs')
 zlib = require('zlib')
 tar = require('tar')
 request = require('request')
+Mousetrap = require('mousetrap')
 
 Function::property = (prop, desc) ->
   Object.defineProperty @prototype, prop, desc
@@ -98,24 +98,56 @@ class Dripcap extends EventEmitter
             @scheme = @registory[id]
             @pub 'update', @scheme, 1
 
-  class KeybindInterface
+  class KeybindInterface extends EventEmitter
     constructor: (@parent) ->
+      @_builtinCommands = {}
       @_commands = {}
 
-    bind: (command, selector, cb) ->
-      @_commands[command] ?= {}
-      Mousetrap.bind command, (e) =>
-        for sel, cb of @_commands[command]
-          cb(e) if $(e.target).is sel
+    bind: (command, selector, act) ->
+      @_builtinCommands[command] ?= {}
+      @_builtinCommands[command][selector] = act
+      @_update()
 
-      @_commands[command][selector] = cb
+    unbind: (command, selector, act) ->
+      if (@_builtinCommands[command]?[selector] == act)
+        delete @_builtinCommands[command][selector]
+        if Object.keys(@_builtinCommands[command]) == 0
+          delete @_builtinCommands[command]
+      @_update()
 
-    unbind: (command, selector) ->
-      if (s = @_commands[command])?
-        delete s[selector]
-        if Object.keys(s) == 0
-          delete @_commands[command]
-          Mousetrap.unbind command
+    get: (selector, action) ->
+      for sel, commands of dripcap.profile.getKeymap()
+        for command, act of commands
+          if sel == selector && act == action
+            return command
+
+      for command, sels of @_commands
+        for sel, act of sels
+          if sel == selector && act == action
+            return command
+      null
+
+    _update: ->
+      Mousetrap.reset()
+
+      @_commands = _.clone @_builtinCommands
+      for selector, commands of dripcap.profile.getKeymap()
+        for command, act of commands
+          @_commands[command] ?= {}
+          @_commands[command][selector] = act
+
+      for command, sels of @_commands
+        do (command=command, sels=sels) =>
+          Mousetrap.bind command, (e) =>
+            for sel, act of @_commands[command]
+              unless sel.startsWith '!'
+                if $(e.target).is(sel) || $(e.target).parents(sel).length
+                  if _.isFunction act
+                    act(e)
+                  else
+                    dripcap.action.emit act
+
+      @emit 'update'
 
   class PackageInterface extends PubSub
     constructor: (@parent) ->
@@ -239,6 +271,22 @@ class Dripcap extends EventEmitter
       @_mainHadlers = {}
       @_mainPriorities = {}
 
+      @_updateMainMenu = _.debounce =>
+        root = new Menu()
+        keys = Object.keys @_mainHadlers
+        keys.sort (a, b) => (@_mainPriorities[b] ? 0) - (@_mainPriorities[a] ? 0)
+        for k in keys
+          menu = new Menu()
+          for h in @_mainHadlers[k]
+            menu = h.handler.call(@, menu)
+          root.append new MenuItem label: k, submenu: menu, type: 'submenu'
+
+        if process.platform != 'darwin'
+          remote.getCurrentWindow().setMenu(root)
+        else
+          Menu.setApplicationMenu(root)
+      , 100
+
     register: (name, handler, priority = 0) ->
       @_handlers[name] ?= []
       @_handlers[name].push handler: handler, priority: priority
@@ -262,20 +310,7 @@ class Dripcap extends EventEmitter
     setMainPriority: (name, priority) ->
       @_mainPriorities[name] = priority
 
-    updateMainMenu: ->
-      root = new Menu()
-      keys = Object.keys @_mainHadlers
-      keys.sort (a, b) => (@_mainPriorities[b] ? 0) - (@_mainPriorities[a] ? 0)
-      for k in keys
-        menu = new Menu()
-        for h in @_mainHadlers[k]
-          menu = h.handler.call(@, menu)
-        root.append new MenuItem label: k, submenu: menu, type: 'submenu'
-
-      if process.platform != 'darwin'
-        remote.getCurrentWindow().setMenu(root)
-      else
-        Menu.setApplicationMenu(root)
+    updateMainMenu: -> @_updateMainMenu()
 
     popup: (name, self, browserWindow, x, y) ->
       if @_handlers[name]?

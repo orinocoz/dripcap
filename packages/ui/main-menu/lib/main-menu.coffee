@@ -10,11 +10,17 @@ class MainMenu
     new Promise (res) =>
       action = (name) -> -> dripcap.action.emit name
 
+      dripcap.keybind.bind 'command+shift+n', '!menu', 'core:new-window'
+      dripcap.keybind.bind 'command+shift+w', '!menu', 'core:close-window'
+      dripcap.keybind.bind 'command+q', '!menu', 'core:quit'
+      dripcap.keybind.bind 'command+,', '!menu', 'core:preferences'
+      dripcap.keybind.bind 'command+shift+i', '!menu', 'core:toggle-devtools'
+
       @fileMenu = (menu, e) ->
-        menu.append new MenuItem label: 'New Window', accelerator: 'CmdOrCtrl+Shift+N', click: action 'core:new-window'
-        menu.append new MenuItem label: 'Close Window', accelerator: 'CmdOrCtrl+Shift+W', click: action 'core:close-window'
+        menu.append new MenuItem label: 'New Window', accelerator: dripcap.keybind.get('!menu', 'core:new-window'), click: action 'core:new-window'
+        menu.append new MenuItem label: 'Close Window', accelerator: dripcap.keybind.get('!menu', 'core:close-window'), click: action 'core:close-window'
         menu.append new MenuItem type: 'separator'
-        menu.append new MenuItem label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: action 'core:quit'
+        menu.append new MenuItem label: 'Quit', accelerator: dripcap.keybind.get('!menu', 'core:quit'), click: action 'core:quit'
         menu
 
       @editMenu = (menu, e) ->
@@ -30,11 +36,11 @@ class MainMenu
           menu.append new MenuItem label: 'Paste', accelerator: 'Ctrl+V', click: -> contents.paste()
           menu.append new MenuItem label: 'Select All', accelerator: 'Ctrl+A', click: -> contents.selectAll()
         menu.append new MenuItem type: 'separator'
-        menu.append new MenuItem label: 'Preferences', accelerator: 'CmdOrCtrl+,', click: action 'core:preferences'
+        menu.append new MenuItem label: 'Preferences', accelerator: dripcap.keybind.get('!menu', 'core:preferences'), click: action 'core:preferences'
         menu
 
       @devMenu = (menu, e) ->
-        menu.append new MenuItem label: 'Toggle DevTools', accelerator: 'CmdOrCtrl+Shift+I', click: action 'core:toggle-devtools'
+        menu.append new MenuItem label: 'Toggle DevTools', accelerator: dripcap.keybind.get('!menu', 'core:toggle-devtools'), click: action 'core:toggle-devtools'
         menu.append new MenuItem label: 'Open User Directory', click: action 'core:open-user-directroy'
         menu
 
@@ -59,10 +65,19 @@ class MainMenu
 
       dripcap.theme.sub 'registoryUpdated', ->
         dripcap.menu.updateMainMenu()
-        
+
+      dripcap.keybind.on 'update', ->
+        dripcap.menu.updateMainMenu()
+
       res()
 
   deactivate: ->
+    dripcap.keybind.unbind 'command+shift+n', '!menu', 'core:new-window'
+    dripcap.keybind.unbind 'command+shift+w', '!menu', 'core:close-window'
+    dripcap.keybind.unbind 'command+q', '!menu', 'core:quit'
+    dripcap.keybind.unbind 'command+,', '!menu', 'core:preferences'
+    dripcap.keybind.unbind 'command+shift+i', '!menu', 'core:toggle-devtools'
+
     if process.platform == 'darwin'
       dripcap.menu.unregisterMain app.getName(), @appMenu
     dripcap.menu.unregisterMain 'File', @fileMenu

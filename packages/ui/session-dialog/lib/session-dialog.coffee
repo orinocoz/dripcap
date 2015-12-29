@@ -7,10 +7,12 @@ MenuItem = remote.require('menu-item')
 class SessionDialog
   activate: ->
     new Promise (res) =>
+      dripcap.keybind.bind 'command+n', '!menu', 'core:new-session'
+
       @captureMenu = (menu, e) ->
         action = (name) -> -> dripcap.action.emit name
         capturing = dripcap.pubsub.get('core:capturing-status') ? false
-        menu.append new MenuItem label: 'New Session', accelerator: 'CmdOrCtrl+N', click: action 'core:new-session'
+        menu.append new MenuItem label: 'New Session', accelerator: dripcap.keybind.get('!menu', 'core:new-session'), click: action 'core:new-session'
         menu.append new MenuItem type: 'separator'
         menu.append new MenuItem label: 'Start', enabled: !capturing, click: action 'core:start-sessions'
         menu.append new MenuItem label: 'Stop', enabled: capturing, click: action 'core:stop-sessions'
@@ -47,6 +49,7 @@ class SessionDialog
 
   deactivate: ->
     dripcap.menu.unregisterMain 'Capture', @captureMenu
+    dripcap.keybind.unbind 'command+n', '!menu', 'core:new-session'
     dripcap.keybind.unbind 'enter', '[riot-tag=session-dialog] .content'
     @view.unmount()
     @comp.destroy()

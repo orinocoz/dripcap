@@ -54,10 +54,19 @@ class Profile
 
     @_packages = {}
 
+    try
+      @_keyMap = CSON.parse fs.readFileSync path.join(@path, 'keymap.cson')
+    catch e
+      if e.code != 'ENOENT'
+        console.warn e
+      @_keyMap = {}
+
   getConfig:     (key) -> @_config.get key
   setConfig:     (key, value) -> @_config.set key, value
   watchConfig:   (key, handler) -> @_config.watch key, handler
   unwatchConfig: (key, handler) -> @_config.unwatch key, handler
+
+  getKeymap: -> @_keyMap
 
   getPackageConfig: (name) ->
     if !@_packages[name]?
