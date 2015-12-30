@@ -2,16 +2,14 @@ require('dripcap/type')
 {EventEmitter} = require('events')
 Packet = require('dripcap/packet')
 net = require('net')
-tmp = require('temporary')
+temp = require('temp')
 msgpack = require('msgcap')
 remote = require('remote')
 BrowserWindow = remote.require('browser-window')
 
 class Session extends EventEmitter
   constructor: (@_filterPath) ->
-    file = new tmp.File()
-    sock = file.path
-    file.unlink()
+    sock = temp.path(suffix: '.sock')
 
     @_server = net.createServer (c) =>
       @_msgdec = new msgpack.Decoder(c)
