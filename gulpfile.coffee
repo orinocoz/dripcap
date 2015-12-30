@@ -113,10 +113,7 @@ gulp.task 'darwin', ['build'], (cb) ->
       .pipe(symdest('./.builtapp/dripcap-darwin'))
 
 gulp.task 'darwin-sign', ['darwin'], (cb) ->
-  sign = process.env['DRIPCAP_DARWIN_SIGN']
-  exec 'codesign --deep --force --verify --verbose --sign "' + sign + '" ./.builtapp/dripcap-darwin/dripcap.app/Contents/Frameworks/*', ->
-    exec 'codesign --deep --force --verify --verbose --sign "' + sign + '" "./.builtapp/dripcap-darwin/dripcap.app"', ->
-      exec 'ditto -c -k --sequesterRsrc --keepParent ./.builtapp/dripcap-darwin/dripcap.app ./dripcap-darwin.zip', -> cb()
+  exec './macdeploy.sh', -> cb()
 
 gulp.task 'default', ['build'], ->
   gulp.src(".build").pipe(runElectron(['--enable-logging']))
