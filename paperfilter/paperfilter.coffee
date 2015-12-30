@@ -1,6 +1,7 @@
 fs = require('fs')
 zlib = require('zlib')
 os = require('os')
+path = require('path')
 crypto = require('crypto')
 childProcess = require('child_process')
 msgpack = require('msgpack-lite')
@@ -57,15 +58,20 @@ class PaperFilter extends EventEmitter
             else
               throw err
       when 'darwin'
+        helperPath = path.join __dirname, "../../../../Frameworks/Dripcap Helper Installer.app/Contents/MacOS/Dripcap Helper Installer"
+
         try
-          script = "mkdir /usr/local/lib ; cp #{@exec} #{@path} && #{@path} setcap"
-          childProcess.execFileSync 'osascript', ['-e', "do shell script \"#{script}\" with administrator privileges"]
+          childProcess.execFileSync helperPath
         catch err
-          if err?
-            if err.status == -1
-              return false
-            else
-              throw err
+          try
+            script = "mkdir /usr/local/lib ; cp #{@exec} #{@path} && #{@path} setcap"
+            childProcess.execFileSync 'osascript', ['-e', "do shell script \"#{script}\" with administrator privileges"]
+          catch err
+            if err?
+              if err.status == -1
+                return false
+              else
+                throw err
 
   list: ->
     new Promise (res, rej) =>
