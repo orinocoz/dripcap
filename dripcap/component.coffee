@@ -116,7 +116,9 @@ class Panel
     @update = _.debounce () =>
       @_update()
     , 500
+
     $(window).resize => @_update()
+    dripcap.package.sub 'core:package-loaded', => @update()
 
     @_hcontainer = @root.children '.hcontainer'
     @_fnorthPanel = @root.children '.fnorth'
