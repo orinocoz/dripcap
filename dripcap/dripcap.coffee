@@ -119,12 +119,18 @@ class Dripcap extends EventEmitter
       for sel, commands of dripcap.profile.getKeymap()
         for command, act of commands
           if sel == selector && act == action
-            return command
+            if process.platform == 'linux'
+              return command.replace 'command', 'ctrl'
+            else
+              return command
 
       for command, sels of @_commands
         for sel, act of sels
           if sel == selector && act == action
-            return command
+            if process.platform == 'linux'
+              return command.replace 'command', 'ctrl'
+            else
+              return command
       null
 
     _update: ->
@@ -138,6 +144,8 @@ class Dripcap extends EventEmitter
 
       for command, sels of @_commands
         do (command=command, sels=sels) =>
+          if process.platform == 'linux'
+            command = command.replace 'command', 'ctrl'
           Mousetrap.bind command, (e) =>
             for sel, act of @_commands[command]
               unless sel.startsWith '!'
