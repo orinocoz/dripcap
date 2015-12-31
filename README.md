@@ -8,6 +8,9 @@ Caffeinated packet analyzer
 
 ## Build
 
+- Node.js >= 4.0
+- go >= 1.5
+
 ```bash
 $ cd dripcap
 $ npm install -g gulp node-gyp
