@@ -109,6 +109,19 @@ gulp.task 'darwin', ['build'], (cb) ->
         platform: 'darwin',
         arch: 'x64',
         token: process.env['ELECTRON_GITHUB_TOKEN'],
+        darwinBundleDocumentTypes: [
+          name: 'Libpcap File Format'
+          role: 'Editor'
+          ostypes: []
+          extensions: ['pcap']
+          iconFile: ''
+        ,
+          name: 'PCAP Next Generation Capture File Format'
+          role: 'Editor'
+          ostypes: []
+          extensions: ['pcapng']
+          iconFile: ''
+        ]
         darwinIcon: './images/dripcap.icns'))
       .pipe(symdest('./.builtapp/dripcap-darwin'))
 
