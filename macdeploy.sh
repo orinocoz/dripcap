@@ -5,6 +5,7 @@ cd .builtapp
 
 git clone https://github.com/dripcap/dripcap-helper.git
 cp ./dripcap-darwin/dripcap.app/Contents/Resources/app/node_modules/paperfilter/bin/paperfilter dripcap-helper/paperfilter
+plutil -replace 'CFBundleVersion' -string `node -p "require('../package.json').version"` dripcap-helper/DripcapHelper/Info.plist
 cd dripcap-helper
 xcodebuild -configuration Release
 cd ..
