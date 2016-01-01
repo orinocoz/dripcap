@@ -34,6 +34,7 @@
 
   <script type="coffee">
     _ = require('underscore')
+    $ = require('jquery')
 
     @setEnabled = (e) =>
       pkg = e.item.pkg
