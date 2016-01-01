@@ -1,0 +1,11 @@
+{
+  "name": "welcome-dialog",
+  "main": "./lib/welcome-dialog",
+  "license": "MIT",
+  "description": "Dripcap Welcome Dialog",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/dripcap/dripcap.git"
+  },
+  "readme": "see README.md"
+}

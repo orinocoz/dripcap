@@ -51,6 +51,7 @@ class Profile
       snaplen: 1600
       theme: 'default'
       "package-registory": 'https://registry.npmjs.org/'
+      startupDialog: true
 
     @_packages = {}
 
