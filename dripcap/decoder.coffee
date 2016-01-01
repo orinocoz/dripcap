@@ -44,6 +44,10 @@ class Session
   connect: (sock) ->
     @_conn.end() if @_conn?
     @_conn = net.createConnection sock
+    @_msgdec = new msgpack.Decoder @_conn
+    @_msgdec.on 'data', (packet) =>
+      @_decoderMap.analyze(packet).then (packet) =>
+        @_conn.write msgpack.encode(packet)
 
   capture: (option) ->
     @_captures.push option

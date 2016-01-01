@@ -11,23 +11,24 @@ class Session extends EventEmitter
   constructor: (@_filterPath) ->
     sock = temp.path(suffix: '.sock')
 
-    @_server = net.createServer (c) =>
-      @_msgdec = new msgpack.Decoder(c)
-      @_msgdec.on 'data', (packet) =>
-        @emit 'packet', new Packet packet
-
-    @_server.listen sock
-
     @_window = new BrowserWindow(show: false)
     @_window.loadURL 'file://' + __dirname + '/session.html'
 
-    arg = JSON.stringify @_filterPath
-    @_window.webContents.executeJavaScript("session.filterPath = #{arg}")
-    arg = JSON.stringify sock
-    @_window.webContents.executeJavaScript("session.connect(#{arg})")
-
     @_loaded = new Promise (res) =>
       @_window.webContents.once 'did-finish-load', -> res()
+    .then =>
+      new Promise (res) =>
+        @_server = net.createServer (c) =>
+          @_msgenc = new msgpack.Encoder(c)
+          @_msgdec = new msgpack.Decoder(c)
+          @_msgdec.on 'data', (packet) =>
+            @emit 'packet', new Packet packet
+          res()
+        @_server.listen sock
+        arg = JSON.stringify @_filterPath
+        @_window.webContents.executeJavaScript("session.filterPath = #{arg}")
+        arg = JSON.stringify sock
+        @_window.webContents.executeJavaScript("session.connect(#{arg})")
 
   addCapture: (iface, options = {}) ->
     @_loaded.then =>
@@ -40,6 +41,10 @@ class Session extends EventEmitter
     @_loaded.then =>
       arg = JSON.stringify decoder
       @_window.webContents.executeJavaScript("session.load(#{arg})")
+
+  decode: (packet) ->
+    @_loaded.then =>
+      @_msgenc.encode packet
 
   start: ->
     @_loaded.then =>
@@ -54,6 +59,7 @@ class Session extends EventEmitter
 
   close: ->
     @_loaded.then =>
+      @_server.close()
       @_window.close()
 
 module.exports = Session

@@ -115,12 +115,6 @@ gulp.task 'darwin', ['build'], (cb) ->
           ostypes: []
           extensions: ['pcap']
           iconFile: ''
-        ,
-          name: 'PCAP Next Generation Capture File Format'
-          role: 'Editor'
-          ostypes: []
-          extensions: ['pcapng']
-          iconFile: ''
         ]
         darwinIcon: './images/dripcap.icns'))
       .pipe(symdest('./.builtapp/dripcap-darwin'))
