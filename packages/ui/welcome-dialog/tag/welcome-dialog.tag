@@ -3,6 +3,9 @@
   <modal-dialog>
     <h2>Welcome to Dripcap</h2>
     <p>
+      <img src={ parent.logo }>
+    </p>
+    <p>
       <input type="button" value="Start a New Capturing" onclick={ parent.start }>
     </p>
     <p>
@@ -21,6 +24,16 @@
   <style type="text/less">
   [riot-tag=welcome-dialog] > modal-dialog > .modal > .content {
     max-width: 600px;
+    input[type=button] {
+      height: 60px;
+    }
+
+    img {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto;
+      display: block;
+    }
   }
   </style>
 
