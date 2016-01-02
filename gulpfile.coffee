@@ -52,7 +52,7 @@ gulp.task 'npm', ['copypkg'], ->
   p = p.then ->
     new Promise (res) ->
       npm.prefix = './.build/'
-      npm.commands.uninstall ['dripcap', 'msgcap'], res
+      npm.commands.uninstall ['dripcap', 'msgcap', 'paperfilter'], res
 
   p = p.then ->
     new Promise (res) ->
