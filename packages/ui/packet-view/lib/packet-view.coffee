@@ -45,23 +45,30 @@ class PacketListView
         menu
 
       @layerMenu = (menu, e) ->
+        find = (layer, ns) ->
+          if layer.layers?
+            for k, v of layer.layers
+              return v if k == ns
+            for k, v of layer.layers
+              r = find(v, ns)
+              return r if r?
+
         exportRawData = =>
-          index = Math.max @clickedLayerIndex - 1, 0
-          layer = @packet.layers[index]
+          layer = find @packet, @clickedLayerNamespace
           filename = "#{@packet.interface}-#{layer.name}-#{@packet.timestamp.toISOString()}.bin"
           path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
           if path?
             fs.writeFileSync path, layer.payload.apply @packet.payload
 
         exportPayload = =>
-          layer = @packet.layers[@clickedLayerIndex]
+          layer = find @packet, @clickedLayerNamespace
           filename = "#{@packet.interface}-#{layer.name}-#{@packet.timestamp.toISOString()}.bin"
           path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
           if path?
             fs.writeFileSync path, layer.payload.apply @packet.payload
 
         copyAsJSON = =>
-          layer = @packet.layers[@clickedLayerIndex]
+          layer = find @packet, @clickedLayerNamespace
           clipboard.writeText JSON.stringify(layer, null, ' ')
 
         menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))

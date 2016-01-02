@@ -7,16 +7,16 @@ class UDPDecoder
       '::Ethernet::IPv6::<UDP>'
     ]
 
-  analyze: (packet) ->
+  analyze: (packet, parentLayer) ->
     new Promise (resolve, reject) ->
 
-      slice = packet.layers[2].payload
+      slice = parentLayer.payload
       payload = slice.apply packet.payload
 
       layer =
         name: 'UDP'
         aliases: []
-        namespace: packet.layers[2].namespace.replace('<UDP>', 'UDP')
+        namespace: parentLayer.namespace.replace('<UDP>', 'UDP')
         fields: []
         attrs: {}
 
@@ -31,7 +31,7 @@ class UDPDecoder
           value: source
           range: slice.slice(0, 2)
 
-        srcAddr = packet.layers[2].attrs.src
+        srcAddr = parentLayer.attrs.src
         layer.attrs.src =
           if srcAddr instanceof IPv4Address
             new IPv4Host(srcAddr, source)
@@ -45,7 +45,7 @@ class UDPDecoder
           value: destination
           range: slice.slice(2, 4)
 
-        dstAddr = packet.layers[2].attrs.dst
+        dstAddr = parentLayer.attrs.dst
         layer.attrs.dst =
           if dstAddr instanceof IPv4Address
             new IPv4Host(dstAddr, destination)
@@ -81,11 +81,12 @@ class UDPDecoder
       catch e
         layer.error = e.message
 
-      packet.layers.push layer
+      parentLayer.layers =
+        "#{layer.namespace}": layer
 
       if layer.error?
-        reject(packet)
+        reject(parentLayer)
       else
-        resolve(packet)
+        resolve(parentLayer)
 
 module.exports = UDPDecoder

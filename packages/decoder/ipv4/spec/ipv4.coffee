@@ -11,19 +11,23 @@ describe "IPv4", ->
     interface: 'eth0'
     options: {}
     payload: payload
-    layers: [
-      namespace: '::<Ethernet>'
-      name: 'Raw Frame'
-      payload: new PayloadSlice(0, payload.length)
-      summary: ''
-    ]
+    layers:
+      '::<Ethernet>':
+        namespace: '::<Ethernet>'
+        name: 'Raw Frame'
+        payload: new PayloadSlice(0, payload.length)
+        summary: ''
 
   beforeEach (done) ->
-    (new EthernetDecoder()).analyze(packet).then (packet) ->
-      (new IPv4Decoder()).analyze(packet).then -> done()
+    (new EthernetDecoder()).analyze(packet, packet.layers['::<Ethernet>']).then (layer) ->
+      (new IPv4Decoder()).analyze(packet, layer.layers['::Ethernet::<IPv4>']).then (layer) ->
+        done()
 
   it "decodes an ipv4 frame from an ethernet frame", ->
-    layer = packet.layers[2]
+    layer = packet
+      .layers['::<Ethernet>']
+      .layers['::Ethernet::<IPv4>']
+      .layers['::Ethernet::IPv4::<TCP>']
     expect(layer.namespace).toEqual '::Ethernet::IPv4::<TCP>'
     expect(layer.name).toEqual 'IPv4'
     expect(layer.summary).toEqual '[TCP] 192.168.150.35 -> 52.21.92.31'

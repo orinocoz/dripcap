@@ -10,19 +10,20 @@ describe "Ethernet", ->
     interface: 'eth0'
     options: {}
     payload: payload
-    layers: [
-      namespace: '::<Ethernet>'
-      name: 'Raw Frame'
-      payload: new PayloadSlice(0, payload.length)
-      summary: ''
-    ]
+    layers:
+      '::<Ethernet>':
+        namespace: '::<Ethernet>'
+        name: 'Raw Frame'
+        payload: new PayloadSlice(0, payload.length)
+        summary: ''
 
   beforeEach (done) ->
-    decoder = new EthernetDecoder()
-    decoder.analyze(packet).then -> done()
+    (new EthernetDecoder()).analyze(packet, packet.layers['::<Ethernet>']).then (layer) -> done()
 
   it "decodes an ethernet frame from a raw frame", ->
-    layer = packet.layers[1]
+    layer = packet
+      .layers['::<Ethernet>']
+      .layers['::Ethernet::<ARP>']
     expect(layer.namespace).toEqual '::Ethernet::<ARP>'
     expect(layer.name).toEqual 'Ethernet'
     expect(layer.summary).toEqual '[ARP] 00:10:38:23:14:b0 -> 74:27:ea:0f:18:95'
@@ -38,19 +39,20 @@ describe "Ethernet", ->
     interface: 'eth0'
     options: {}
     payload: payload
-    layers: [
-      namespace: '::<Ethernet>'
-      name: 'Raw Frame'
-      payload: new PayloadSlice(0, payload.length)
-      summary: ''
-    ]
+    layers:
+      '::<Ethernet>':
+        namespace: '::<Ethernet>'
+        name: 'Raw Frame'
+        payload: new PayloadSlice(0, payload.length)
+        summary: ''
 
   beforeEach (done) ->
-    decoder = new EthernetDecoder()
-    decoder.analyze(packet).then -> done()
+    (new EthernetDecoder()).analyze(packet, packet.layers['::<Ethernet>']).then (layer) -> done()
 
   it "decodes an ethernet frame from a raw frame", ->
-    layer = packet.layers[1]
+    layer = packet
+      .layers['::<Ethernet>']
+      .layers['::Ethernet']
     expect(layer.namespace).toEqual '::Ethernet'
     expect(layer.name).toEqual 'Ethernet'
     expect(layer.summary).toEqual '00:1a:eb:33:bd:b2 -> 01:80:c2:00:00:00'

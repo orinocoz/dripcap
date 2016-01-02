@@ -4,10 +4,10 @@ class ARPDecoder
   lowerLayers: ->
     ['::Ethernet::<ARP>']
 
-  analyze: (packet) ->
+  analyze: (packet, parentLayer) ->
     new Promise (resolve, reject) ->
 
-      slice = packet.layers[1].payload
+      slice = parentLayer.payload
       payload = slice.apply packet.payload
 
       layer =
@@ -105,23 +105,24 @@ class ARPDecoder
           range: slice.slice(24, 28)
         layer.attrs.tpa = tpa
 
-        ethPadding = packet.layers[1].payload.slice 28
-        packet.layers[1].payload = packet.layers[1].payload.slice 0, 28
-        packet.layers[1].fields.push
+        ethPadding = parentLayer.payload.slice 28
+        parentLayer.payload = parentLayer.payload.slice 0, 28
+        parentLayer.fields.push
           name: 'Padding'
           attr: 'padding'
           range: ethPadding
-        packet.layers[1].attrs.padding = ethPadding
+        parentLayer.attrs.padding = ethPadding
 
         layer.summary = "[#{operation.name.toUpperCase()}] #{sha}-#{spa} -> #{tha}-#{tpa}"
       catch e
         layer.error = e.message
 
-      packet.layers.push layer
+      parentLayer.layers =
+        "#{layer.namespace}": layer
 
       if layer.error?
-        reject(packet)
+        reject(parentLayer)
       else
-        resolve(packet)
+        resolve(parentLayer)
 
 module.exports = ARPDecoder

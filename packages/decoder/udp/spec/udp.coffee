@@ -12,20 +12,25 @@ describe "UDP", ->
     interface: 'eth0'
     options: {}
     payload: payload
-    layers: [
-      namespace: '::<Ethernet>'
-      name: 'Raw Frame'
-      payload: new PayloadSlice(0, payload.length)
-      summary: ''
-    ]
+    layers:
+      '::<Ethernet>':
+        namespace: '::<Ethernet>'
+        name: 'Raw Frame'
+        payload: new PayloadSlice(0, payload.length)
+        summary: ''
 
   beforeEach (done) ->
-    (new EthernetDecoder()).analyze(packet).then (packet) ->
-      (new IPv4Decoder()).analyze(packet).then (packet) ->
-        (new UDPDecoder()).analyze(packet).then -> done()
+    (new EthernetDecoder()).analyze(packet, packet.layers['::<Ethernet>']).then (layer) ->
+      (new IPv4Decoder()).analyze(packet, layer.layers['::Ethernet::<IPv4>']).then (layer) ->
+        (new UDPDecoder()).analyze(packet, layer.layers['::Ethernet::IPv4::<UDP>']).then ->
+          done()
 
   it "decodes a udp frame from an ipv4 frame", ->
-    layer = packet.layers[3]
+    layer = packet
+      .layers['::<Ethernet>']
+      .layers['::Ethernet::<IPv4>']
+      .layers['::Ethernet::IPv4::<UDP>']
+      .layers['::Ethernet::IPv4::UDP']
     expect(layer.namespace).toEqual '::Ethernet::IPv4::UDP'
     expect(layer.name).toEqual 'UDP'
     expect(layer.summary).toEqual '192.168.150.35:9466 -> 8.8.8.8:53'

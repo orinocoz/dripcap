@@ -15,21 +15,18 @@ class DecoderMap
         @_map[p] = []
       @_map[p].push decoder
 
-  analyze: (packet) =>
+  analyze: (packet, layers) =>
     Promise.resolve().then =>
-      prom = Promise.resolve(packet)
-      if array = @_map[_.last(packet.layers).namespace]
-        for decoder in array
-          prom = do (decoder) ->
-            prom.then ->
-              new Promise (res, rej) ->
-                process.nextTick ->
-                  decoder.analyze(packet).then rej, res
-      prom = prom.then -> Promise.resolve(packet)
-      prom.then (packet) ->
-        Promise.resolve(packet)
-      , (packet) =>
-        @analyze(packet)
+      prom = Promise.resolve()
+      for ns, layer of layers
+        for decoder in @_map[ns] ? []
+          prom = do (decoder, layer) =>
+            prom.then =>
+              decoder.analyze(packet, layer).then (layer) =>
+                @analyze(packet, layer.layers)
+              , (layer) ->
+                Promise.resolve(layer)
+      prom
 
 class Session
   constructor: (@filterPath) ->
@@ -46,7 +43,7 @@ class Session
     @_conn = net.createConnection sock
     @_msgdec = new msgpack.Decoder @_conn
     @_msgdec.on 'data', (packet) =>
-      @_decoderMap.analyze(packet).then (packet) =>
+      @_decoderMap.analyze(packet, packet.layers).then () =>
         @_conn.write msgpack.encode(packet)
 
   capture: (option) ->
@@ -57,7 +54,7 @@ class Session
     for c in @_captures
       f = new PaperFilter
       f.on 'packet', (packet) =>
-        @_decoderMap.analyze(packet).then (packet) =>
+        @_decoderMap.analyze(packet, packet.layers).then () =>
           @_conn.write msgpack.encode(packet)
 
       f.start(c.iface, c.options)

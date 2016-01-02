@@ -4,10 +4,9 @@ class IPv4Decoder
   lowerLayers: ->
     ['::Ethernet::<IPv4>']
 
-  analyze: (packet) ->
+  analyze: (packet, parentLayer) ->
     new Promise (resolve, reject) ->
-
-      slice = packet.layers[1].payload
+      slice = parentLayer.payload
       payload = slice.apply packet.payload
 
       layer =
@@ -145,12 +144,13 @@ class IPv4Decoder
       catch e
         layer.error = e.message
 
-      packet.layers.push layer
+      parentLayer.layers =
+        "#{layer.namespace}": layer
 
       if layer.error?
-        reject(packet)
+        reject(parentLayer)
       else
-        resolve(packet)
+        resolve(parentLayer)
 
 module.exports = IPv4Decoder
 

@@ -7,16 +7,15 @@ class TCPDecoder
       '::Ethernet::IPv6::<TCP>'
     ]
 
-  analyze: (packet) ->
+  analyze: (packet, parentLayer) ->
     new Promise (resolve, reject) ->
-
-      slice = packet.layers[2].payload
+      slice = parentLayer.payload
       payload = slice.apply packet.payload
 
       layer =
         name: 'TCP'
         aliases: []
-        namespace: packet.layers[2].namespace.replace('<TCP>', 'TCP')
+        namespace: parentLayer.namespace.replace('<TCP>', 'TCP')
         fields: []
         attrs: {}
 
@@ -31,7 +30,7 @@ class TCPDecoder
           value: source
           range: slice.slice(0, 2)
 
-        srcAddr = packet.layers[2].attrs.src
+        srcAddr = parentLayer.attrs.src
         layer.attrs.src =
           if srcAddr instanceof IPv4Address
             new IPv4Host(srcAddr, source)
@@ -45,7 +44,7 @@ class TCPDecoder
           value: destination
           range: slice.slice(2, 4)
 
-        dstAddr = packet.layers[2].attrs.dst
+        dstAddr = parentLayer.attrs.dst
         layer.attrs.dst =
           if dstAddr instanceof IPv4Address
             new IPv4Host(dstAddr, destination)
@@ -259,11 +258,12 @@ class TCPDecoder
       catch e
         layer.error = e.message
 
-      packet.layers.push layer
+      parentLayer.layers =
+        "#{layer.namespace}": layer
 
       if layer.error?
-        reject(packet)
+        reject(parentLayer)
       else
-        resolve(packet)
+        resolve(parentLayer)
 
 module.exports = TCPDecoder

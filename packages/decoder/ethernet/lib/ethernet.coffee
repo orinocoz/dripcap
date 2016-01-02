@@ -4,10 +4,10 @@ class EthernetDecoder
   lowerLayers: ->
     ['::<Ethernet>']
 
-  analyze: (packet) ->
+  analyze: (packet, parentLayer) ->
     new Promise (resolve, reject) ->
 
-      slice = packet.layers[0].payload
+      slice = parentLayer.payload
       payload = slice.apply packet.payload
 
       layer =
@@ -80,11 +80,12 @@ class EthernetDecoder
       catch e
         layer.error = e.message
 
-      packet.layers.push layer
+      parentLayer.layers =
+        "#{layer.namespace}": layer
 
       if layer.error?
-        reject(packet)
+        reject(parentLayer)
       else
-        resolve(packet)
+        resolve(parentLayer)
 
 module.exports = EthernetDecoder

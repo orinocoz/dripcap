@@ -12,20 +12,25 @@ describe "TCP", ->
     interface: 'eth0'
     options: {}
     payload: payload
-    layers: [
-      namespace: '::<Ethernet>'
-      name: 'Raw Frame'
-      payload: new PayloadSlice(0, payload.length)
-      summary: ''
-    ]
+    layers:
+      '::<Ethernet>':
+        namespace: '::<Ethernet>'
+        name: 'Raw Frame'
+        payload: new PayloadSlice(0, payload.length)
+        summary: ''
 
   beforeEach (done) ->
-    (new EthernetDecoder()).analyze(packet).then (packet) ->
-      (new IPv4Decoder()).analyze(packet).then (packet) ->
-        (new TCPDecoder()).analyze(packet).then -> done()
+    (new EthernetDecoder()).analyze(packet, packet.layers['::<Ethernet>']).then (layer) ->
+      (new IPv4Decoder()).analyze(packet, layer.layers['::Ethernet::<IPv4>']).then (layer) ->
+        (new TCPDecoder()).analyze(packet, layer.layers['::Ethernet::IPv4::<TCP>']).then ->
+          done()
 
   it "decodes an tcp frame from an ipv4 frame", ->
-    layer = packet.layers[3]
+    layer = packet
+      .layers['::<Ethernet>']
+      .layers['::Ethernet::<IPv4>']
+      .layers['::Ethernet::IPv4::<TCP>']
+      .layers['::Ethernet::IPv4::TCP']
     expect(layer.namespace).toEqual '::Ethernet::IPv4::TCP'
     expect(layer.name).toEqual 'TCP'
     expect(layer.summary).toEqual '173.194.117.168:443 -> 192.168.150.35:44700 seq:1651424476 ack:1509819690'

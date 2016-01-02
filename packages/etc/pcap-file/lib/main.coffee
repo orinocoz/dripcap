@@ -84,12 +84,14 @@ class Pcap
         caplen: inclLen
         length: origLen
         truncated: inclLen < origLen
-        layers: [
-          namespace: namespace
-          name: 'Raw Frame'
-          payload: new PayloadSlice(0, payload.length)
-          summary: summary
-        ]
+        layers:
+          "#{namespace}":
+            namespace: namespace
+            name: 'Raw Frame'
+            payload: new PayloadSlice(0, payload.length)
+            summary: summary
+            namespace: namespace
+
       @packets.push packet
       offset += inclLen
 

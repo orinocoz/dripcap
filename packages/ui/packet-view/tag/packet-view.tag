@@ -65,7 +65,7 @@
         e.stopPropagation()
 
     @on 'update', =>
-      @layer = @parent.layer
+      @layer = opts.layer
 
       @value =
         if opts.field.value?
@@ -93,6 +93,51 @@
 
 </packet-view-item>
 
+<packet-view-layer>
+  <p class="layer-name" oncontextmenu={ layerContext } onclick={ toggleLayer } onmouseover={ layerRange } onmouseout={ rangeOut }>
+    <i class="fa fa-arrow-circle-right" show={ !visible }></i>
+    <i class="fa fa-arrow-circle-down" show={ visible }></i>
+    { layer.name }
+    <i class="summary">{ layer.summary }</i>
+  </p>
+  <ul show={ visible }>
+    <packet-view-item each={ f in layer.fields } layer={ layer } field={ f }></packet-view-item>
+    <li if={ layer.error }>
+      <a class="name">Error:</a> { layer.error }
+    </li>
+  </ul>
+  <packet-view-layer each={ ns in rootKeys } layer={ rootLayers[ns] }></packet-view-layer>
+
+  <script type="coffee">
+    remote = require('remote')
+    @visible = true
+
+    @on 'update', =>
+      @layer = opts.layer
+      @rootKeys = []
+      if @layer.layers?
+        @rootLayers = @layer.layers
+        @rootKeys = Object.keys @rootLayers
+
+    @layerContext = (e) =>
+      @clickedLayerNamespace = e.item.ns
+      dripcap.menu.popup('packet-view:layer-menu', @, remote.getCurrentWindow())
+      e.stopPropagation()
+
+    @rangeOut = => @parent.rangeOut()
+
+    @fieldRange = (e) => @parent.fieldRange(e)
+
+    @layerRange = (e) => @parent.layerRange(e)
+
+    @toggleLayer = (e) =>
+      @visible = !@visible
+      e.stopPropagation()
+
+  </script>
+
+</packet-view-layer>
+
 <packet-view>
 
   <div if={ packet }>
@@ -110,42 +155,17 @@
         <i class="fa fa-exclamation-circle warn"> This packet is truncated.</i>
       </li>
     </ul>
-    <div each={ layer, i in packet.layers } if={ i > 0 } onclick={ toggleLayer }>
-      <p class="layer-name" oncontextmenu={ layerContext } onmouseover={ layerRange } onmouseout={ rangeOut }>
-        <i class="fa fa-arrow-circle-right" show={ !layers[i] }></i>
-        <i class="fa fa-arrow-circle-down" show={ layers[i] }></i>
-        { layer.name }
-        <i class="summary">{ layer.summary }</i>
-      </p>
-      <ul show={ layers[i] }>
-        <packet-view-item each={ f in layer.fields } layer={ layer } field={ f }></packet-view-item>
-        <li if={ layer.error }>
-          <a class="name">Error:</a> { layer.error }
-        </li>
-      </ul>
-    </div>
+    <packet-view-layer each={ ns in rootKeys } layer={ rootLayers[ns] }></packet-view-layer>
   </div>
 
   <script type="coffee">
     remote = require('remote')
 
-    @layerContext = (e) =>
-      @clickedLayerIndex = e.item.i
-      dripcap.menu.popup('packet-view:layer-menu', @, remote.getCurrentWindow())
-      e.stopPropagation()
-
     @set = (pkt) =>
       @packet = pkt
-      @layers = []
       if pkt?
-        for i in pkt.layers
-          @layers.push false
-        @layers[@layers.length - 1] = true
-
-    @toggleLayer = (e) =>
-      index = e.item.i
-      @layers[index] = !@layers[index]
-      e.stopPropagation()
+        @rootLayers = @packet.layers[Object.keys(@packet.layers)[0]].layers
+        @rootKeys = Object.keys @rootLayers
 
     @fieldRange = (e) =>
       fieldRange = e.currentTarget.getAttribute('range').split '-'
@@ -153,8 +173,15 @@
       dripcap.pubsub.pub 'packet-view:range', range
 
     @layerRange = (e) =>
-      max = Math.max(e.item.i - 1, 0)
-      layer = @packet.layers[max]
+      find = (layer, ns) ->
+        if layer.layers?
+          for k, v of layer.layers
+            return v if k == ns
+          for k, v of layer.layers
+            r = find(v, ns)
+            return r if r?
+
+      layer = find @packet, e.item.ns
       range = [layer.payload.start, layer.payload.end]
       dripcap.pubsub.pub 'packet-view:range', range
 

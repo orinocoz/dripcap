@@ -127,12 +127,12 @@ class PaperFilter extends EventEmitter
           caplen: data.capture_length
           length: data.length
           truncated: data.truncated
-          layers: [
-            namespace: namespace
-            name: 'Raw Frame'
-            payload: new PayloadSlice(0, data.payload.length)
-            summary: summary
-          ]
+          layers:
+            "#{namespace}":
+              name: 'Raw Frame'
+              payload: new PayloadSlice(0, data.payload.length)
+              summary: summary
+              namespace: namespace
         @emit('packet', packet)
     .catch ->
       throw new Error 'interface not found'

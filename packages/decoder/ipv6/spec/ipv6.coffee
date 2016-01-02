@@ -11,19 +11,23 @@ describe "IPv6", ->
     interface: 'eth0'
     options: {}
     payload: payload
-    layers: [
-      namespace: '::<Ethernet>'
-      name: 'Raw Frame'
-      payload: new PayloadSlice(0, payload.length)
-      summary: ''
-    ]
+    layers:
+      '::<Ethernet>':
+        namespace: '::<Ethernet>'
+        name: 'Raw Frame'
+        payload: new PayloadSlice(0, payload.length)
+        summary: ''
 
   beforeEach (done) ->
-    (new EthernetDecoder()).analyze(packet).then (packet) ->
-      (new IPv6Decoder()).analyze(packet).then -> done()
+    (new EthernetDecoder()).analyze(packet, packet.layers['::<Ethernet>']).then (layer) ->
+      (new IPv6Decoder()).analyze(packet, layer.layers['::Ethernet::<IPv6>']).then (layer) ->
+        done()
 
   it "decodes an IPv6 frame from an ethernet frame", ->
-    layer = packet.layers[2]
+    layer = packet
+      .layers['::<Ethernet>']
+      .layers['::Ethernet::<IPv6>']
+      .layers['::Ethernet::IPv6::<ICMP>']
     expect(layer.namespace).toEqual '::Ethernet::IPv6::<ICMP>'
     expect(layer.name).toEqual 'IPv6'
     expect(layer.summary).toEqual '[ICMP] fe80::7627:eaff:fe0f:1895 -> ff02::1:ff0f:1895'
