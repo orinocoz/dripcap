@@ -2,7 +2,7 @@
   "name": "udp",
   "main": "./lib/main",
   "license": "MIT",
-  "description": "dripcap UDP decoder",
+  "description": "Dripcap UDP decoder",
   "repository": {
     "type" : "git",
     "url" : "https://github.com/dripcap/dripcap.git"

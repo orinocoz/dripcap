@@ -2,7 +2,7 @@
   "name": "packet-view",
   "main": "./lib/packet-view",
   "license": "MIT",
-  "description": "dripcap Packet View",
+  "description": "Dripcap Packet View",
   "repository": {
     "type" : "git",
     "url" : "https://github.com/dripcap/dripcap.git"

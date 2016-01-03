@@ -2,7 +2,7 @@
   "name": "general-preferences-view",
   "main": "./lib/general-preferences-view",
   "license": "MIT",
-  "description": "dripcap General Preferences View",
+  "description": "Dripcap General Preferences View",
   "repository": {
     "type" : "git",
     "url" : "https://github.com/dripcap/dripcap.git"

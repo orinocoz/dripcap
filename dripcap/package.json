@@ -1,7 +1,7 @@
 {
   "name": "dripcap",
   "version": "0.0.1",
-  "description": "dripcap core",
+  "description": "Dripcap core",
   "main": "dripcap.coffee",
   "scripts": {
     "test": "jasmine-node --coffee spec"

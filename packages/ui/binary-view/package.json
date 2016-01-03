@@ -2,7 +2,7 @@
   "name": "binary-view",
   "main": "./lib/binary-view",
   "license": "MIT",
-  "description": "dripcap Binary View",
+  "description": "Dripcap Binary View",
   "repository": {
     "type" : "git",
     "url" : "https://github.com/dripcap/dripcap.git"

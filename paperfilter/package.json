@@ -1,7 +1,7 @@
 {
   "name": "paperfilter",
   "version": "0.0.18",
-  "description": "dripcap paperFilter",
+  "description": "Dripcap paperFilter",
   "main": "paperfilter.coffee",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
