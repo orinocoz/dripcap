@@ -108,7 +108,7 @@ class PcapFile
       menu.append new MenuItem type: 'separator'
       menu
 
-    dripcap.menu.registerMain 'File', @fileMenu
+    dripcap.menu.registerMain 'File', @fileMenu, 5
 
     dripcap.action.on 'pcap-file:open', ->
       path = dialog.showOpenDialog remote.getCurrentWindow(),
@@ -133,6 +133,7 @@ class PcapFile
           sess.decode pkt
 
   deactivate: ->
+    dripcap.action.removeAllListeners 'pcap-file:open'
     dripcap.keybind.unbind 'command+o', '!menu', 'pcap-file:open'
     dripcap.menu.unregisterMain 'File', @fileMenu
 
