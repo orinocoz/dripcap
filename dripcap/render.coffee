@@ -2,7 +2,6 @@ require('coffee-script/register')
 config = require('dripcap/config')
 shell = require('shell')
 $ = require('jquery')
-global.riot = require('riot')
 
 Profile = require('dripcap/profile')
 prof = new Profile config.profilePath + '/default'

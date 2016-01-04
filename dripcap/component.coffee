@@ -27,7 +27,7 @@ class Component
       for tag in glob.sync(pattern)
         if tag.endsWith('.tag')
           data = fs.readFileSync(tag, encoding: 'utf8')
-          code = riot.compile(data)
+          code = "riot = require('riot');\n" + riot.compile(data)
           while match = tagPattern.exec code
             @_names.push match[1]
           new Function(code)()
