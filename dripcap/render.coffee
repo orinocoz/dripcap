@@ -54,6 +54,10 @@ dripcap.action.on 'core:start-sessions', ->
 remote.require('power-monitor').on 'suspend', ->
   dripcap.action.emit 'core:stop-sessions'
 
+document.ondragover = document.ondrop = (e) ->
+  e.preventDefault()
+  false
+
 $ ->
   $(window).unload ->
     for s in dripcap.session.list
