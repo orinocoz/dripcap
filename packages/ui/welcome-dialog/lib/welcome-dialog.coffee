@@ -13,6 +13,10 @@ class WelcomeDialog
             @view = riot.mount(n[0], 'welcome-dialog')[0]
             @view.logo = __dirname + '/../images/dripcap.png'
 
+            dripcap.session.on 'created', =>
+              @view.hide()
+              @view.update()
+
             dripcap.package.sub 'core:package-loaded', =>
               if dripcap.profile.getConfig 'startupDialog'
                 @view.show()

@@ -1,3 +1,4 @@
+$ = require('jquery')
 fs = require('fs')
 remote = require('remote')
 MenuItem = remote.require('menu-item')
@@ -117,22 +118,37 @@ class PcapFile
         extensions: ['pcap']
       ]
 
-      if path?
-        pcap = new Pcap path[0]
-        sess = new Session(config.filterPath)
-        dripcap.session.emit('created', sess)
+      @_open(path[0]) if path?
 
-        count = 0
+    @_drop = (e) =>
+      e.preventDefault()
+      files = e.originalEvent.dataTransfer.files
+      if files.length > 0 && files[0].path.endsWith '.pcap'
+        @_open(files[0].path)
 
-        do (sess=sess, len=pcap.packets.length) ->
-          sess.on 'packet', ->
-            count++
-            sess.close() if count >= len
+    new Promise (res) =>
+      dripcap.package.load('main-view').then (pkg) =>
+        $ =>
+          $('body').on 'drop', @_drop
+          res()
 
-        for pkt in pcap.packets
-          sess.decode pkt
+  _open: (path) ->
+    pcap = new Pcap path
+    sess = new Session(config.filterPath)
+    dripcap.session.emit('created', sess)
+
+    count = 0
+
+    do (sess=sess, len=pcap.packets.length) ->
+      sess.on 'packet', ->
+        count++
+        sess.close() if count >= len
+
+    for pkt in pcap.packets
+      sess.decode pkt
 
   deactivate: ->
+    $('body').off 'drop', @_drop
     dripcap.action.removeAllListeners 'pcap-file:open'
     dripcap.keybind.unbind 'command+o', '!menu', 'pcap-file:open'
     dripcap.menu.unregisterMain 'File', @fileMenu

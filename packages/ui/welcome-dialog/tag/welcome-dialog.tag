@@ -49,6 +49,9 @@
   @show = =>
     @tags['modal-dialog'].show()
 
+  @hide = =>
+    @tags['modal-dialog'].hide()
+
   @start = =>
     dripcap.action.emit 'core:new-session'
 
