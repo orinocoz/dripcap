@@ -3,6 +3,6 @@ class IPv4
     dripcap.session.registerDecoder("#{__dirname}/ipv4")
 
   deactivate: ->
-    dripcap.session.unregisteDecoder("#{__dirname}/ipv4")
+    dripcap.session.unregisterDecoder("#{__dirname}/ipv4")
 
 module.exports = IPv4

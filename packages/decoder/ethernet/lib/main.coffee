@@ -3,6 +3,6 @@ class Ethernet
     dripcap.session.registerDecoder("#{__dirname}/ethernet")
 
   deactivate: ->
-    dripcap.session.unregisteDecoder("#{__dirname}/ethernet")
+    dripcap.session.unregisterDecoder("#{__dirname}/ethernet")
 
 module.exports = Ethernet
