@@ -1,8 +1,8 @@
 class IPv6
   activate: ->
-    dripcap.session.on 'created', @callback = (session) ->
-      session.addDecoder("#{__dirname}/ipv6")
+    dripcap.session.registerDecoder("#{__dirname}/ipv6")
 
-  deactivate: -> dripcap.session.removeListener 'created', @callback
+  deactivate: ->
+    dripcap.session.unregisteDecoder("#{__dirname}/ipv6")
 
 module.exports = IPv6

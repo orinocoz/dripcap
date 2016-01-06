@@ -1,8 +1,8 @@
 class UDP
   activate: ->
-    dripcap.session.on 'created', @callback = (session) ->
-      session.addDecoder("#{__dirname}/udp")
+    dripcap.session.registerDecoder("#{__dirname}/udp")
 
-  deactivate: -> dripcap.session.removeListener 'created', @callback
+  deactivate: ->
+    dripcap.session.unregisteDecoder("#{__dirname}/udp")
 
 module.exports = UDP

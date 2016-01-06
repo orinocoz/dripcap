@@ -3,7 +3,6 @@ fs = require('fs')
 remote = require('remote')
 MenuItem = remote.require('menu-item')
 dialog = remote.require('dialog')
-config = require('dripcap/config')
 Layer = require('dripcap/layer')
 Session = require('dripcap/session')
 {linkid2name} = require('dripcap/enum')
@@ -134,7 +133,7 @@ class PcapFile
 
   _open: (path) ->
     pcap = new Pcap path
-    sess = new Session(config.filterPath)
+    sess = dripcap.session.create()
     dripcap.session.emit('created', sess)
 
     count = 0

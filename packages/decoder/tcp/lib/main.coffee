@@ -1,8 +1,8 @@
 class TCP
   activate: ->
-    dripcap.session.on 'created', @callback = (session) ->
-      session.addDecoder("#{__dirname}/tcp")
+    dripcap.session.registerDecoder("#{__dirname}/tcp")
 
-  deactivate: -> dripcap.session.removeListener 'created', @callback
+  deactivate: ->
+    dripcap.session.unregisteDecoder("#{__dirname}/tcp")
 
 module.exports = TCP

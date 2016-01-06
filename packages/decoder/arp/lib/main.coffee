@@ -1,8 +1,8 @@
 class ARP
   activate: ->
-    dripcap.session.on 'created', @callback = (session) ->
-      session.addDecoder("#{__dirname}/arp")
+    dripcap.session.registerDecoder("#{__dirname}/arp")
 
-  deactivate: -> dripcap.session.removeListener 'created', @callback
+  deactivate: ->
+    dripcap.session.unregisteDecoder("#{__dirname}/arp")
 
 module.exports = ARP

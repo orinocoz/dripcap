@@ -1,8 +1,8 @@
 class IPv4
   activate: ->
-    dripcap.session.on 'created', @callback = (session) ->
-      session.addDecoder("#{__dirname}/ipv4")
+    dripcap.session.registerDecoder("#{__dirname}/ipv4")
 
-  deactivate: -> dripcap.session.removeListener 'created', @callback
+  deactivate: ->
+    dripcap.session.unregisteDecoder("#{__dirname}/ipv4")
 
 module.exports = IPv4

@@ -59,10 +59,19 @@ class Dripcap extends EventEmitter
   class SessionInterface extends EventEmitter
     constructor: (@parent) ->
       @list = []
+      @_decoders = {}
+
+    registerDecoder: (dec) ->
+      @_decoders[dec] = null
+
+    unregisterDecoder: (dec) ->
+      delete @_decoders[dec]
 
     create: (ifs, options={}) ->
       sess = new Session(config.filterPath)
-      sess.addCapture(ifs, options)
+      sess.addCapture(ifs, options) if ifs?
+      for dec of @_decoders
+        sess.addDecoder dec
       sess
 
   class ThemeInterface extends PubSub
