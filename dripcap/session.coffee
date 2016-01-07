@@ -30,32 +30,35 @@ class Session extends EventEmitter
         arg = JSON.stringify sock
         @_window.webContents.executeJavaScript("session.connect(#{arg})")
 
+    @_exec = @_loaded
+
   addCapture: (iface, options = {}) ->
-    @_loaded.then =>
-      settings = {iface: iface, options: options}
-      arg = JSON.stringify settings
-      @_window.webContents.executeJavaScript("session.capture(#{arg})")
+    settings = {iface: iface, options: options}
+    arg = JSON.stringify settings
+    @_execute("session.capture(#{arg})").then ->
       dripcap.pubsub.pub 'core:capturing-settings', settings
 
   addDecoder: (decoder) ->
-    @_loaded.then =>
-      arg = JSON.stringify decoder
-      @_window.webContents.executeJavaScript("session.load(#{arg})")
+    arg = JSON.stringify decoder
+    @_execute("session.load(#{arg})")
 
   decode: (packet) ->
-    @_loaded.then =>
-      @_msgenc.encode packet
+    @_execute('').then =>
+      @_msgenc.encode type: 'packet', body: packet
 
   start: ->
-    @_loaded.then =>
-      @_window.webContents.executeJavaScript('session.stop()')
-      @_window.webContents.executeJavaScript('session.start()')
+    @_execute('session.stop()').then =>
+      @_execute('session.start()')
+    .then =>
       dripcap.pubsub.pub 'core:capturing-status', true
 
   stop: ->
-    @_loaded.then =>
-      @_window.webContents.executeJavaScript('session.stop()')
+    @_execute('session.stop()').then ->
       dripcap.pubsub.pub 'core:capturing-status', false
+
+  _execute: (js) ->
+    @_exec = @_exec.then =>
+      @_msgenc.encode type: 'script', body: js
 
   close: ->
     @_loaded.then =>
