@@ -48,10 +48,12 @@ class PaperFilter extends EventEmitter
       when 'linux'
         try
           script = "cp #{@exec} #{@path} && #{@path} setcap"
-          if process.env['XDG_CURRENT_DESKTOP'] == 'KDE'
+          if childProcess.spawnSync('kdesudo', ['--help']).status == 0
             childProcess.execFileSync 'kdesudo', ['--', 'sh', '-c', script]
-          else
-            childProcess.execFileSync 'gksu', ['--user', 'root', '--', 'sh', '-c', script]
+          else if childProcess.spawnSync('gksu', ['-h']).status == 0
+            childProcess.execFileSync 'gksu', ['--sudo-mode', '--description', 'Dripcap', '--user', 'root', '--', 'sh', '-c', script]
+          else if childProcess.spawnSync('pkexec', ['--help']).status == 0
+            childProcess.execFileSync 'pkexec', ['sh', '-c', script]
         catch err
           if err?
             if err.status == 126
