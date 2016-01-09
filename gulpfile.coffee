@@ -132,7 +132,13 @@ gulp.task 'jasmine', ->
     ])
     .pipe(jasmine())
 
-gulp.task 'test', sequence(['build', 'jasmine'])
+gulp.task 'test', sequence('build', 'jasmine', 'uitest')
+
+gulp.task 'uitest', ->
+  env = process.env
+  env.DRIPCAP_UI_TEST ?= __dirname
+  env.PAPERFILTER_TESTDATA ?= path.join __dirname, 'uispec/test'
+  gulp.src(".build").pipe(runElectron([], env: env))
 
 gulp.task 'build', sequence(
   ['coffee', 'copy', 'copypkg'],
