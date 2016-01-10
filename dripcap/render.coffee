@@ -21,6 +21,9 @@ dripcap.action.on 'core:close-window', ->
 dripcap.action.on 'core:toggle-devtools', ->
   remote.getCurrentWindow().toggleDevTools()
 
+dripcap.action.on 'core:window-zoom', ->
+  remote.getCurrentWindow().maximize()
+
 dripcap.action.on 'core:open-user-directroy', ->
   shell.showItemInFolder config.profilePath
 

@@ -14,7 +14,7 @@
     "dpkg": "gulp debian && cd .debian && fakeroot dpkg-deb --build . ../dripcap-x64.deb"
   },
   "engines": {
-    "electron": "0.36.2"
+    "electron": "0.36.3"
   },
   "author": "h2so5",
   "license": "MIT",

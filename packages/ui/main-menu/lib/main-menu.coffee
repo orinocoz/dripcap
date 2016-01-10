@@ -15,6 +15,8 @@ class MainMenu
       dripcap.keybind.bind 'command+q', '!menu', 'core:quit'
       dripcap.keybind.bind 'command+,', '!menu', 'core:preferences'
       dripcap.keybind.bind 'command+shift+i', '!menu', 'core:toggle-devtools'
+      dripcap.keybind.bind 'command+m', '!menu', 'core:window-minimize'
+      dripcap.keybind.bind 'command+alt+ctrl+m', '!menu', 'core:window-zoom'
 
       @fileMenu = (menu, e) ->
         menu.append new MenuItem label: 'New Window', accelerator: dripcap.keybind.get('!menu', 'core:new-window'), click: action 'core:new-window'
@@ -44,6 +46,14 @@ class MainMenu
         menu.append new MenuItem label: 'Open User Directory', click: action 'core:open-user-directroy'
         menu
 
+      @windowMenu = (menu, e) ->
+        menu.append new MenuItem label: 'Minimize', accelerator: dripcap.keybind.get('!menu', 'core:window-minimize'), role: 'minimize'
+        if process.platform == 'darwin'
+          menu.append new MenuItem label: 'Zoom', accelerator: dripcap.keybind.get('!menu', 'core:window-zoom'), click: action 'core:window-zoom'
+          menu.append new MenuItem type: 'separator'
+          menu.append new MenuItem label: 'Bring All to Front', accelerator: dripcap.keybind.get('!menu', 'core:window-front'), role: 'front'
+        menu
+
       @helpMenu = (menu, e) ->
         menu.append new MenuItem label: 'Open Website', click: action 'core:open-website'
         menu.append new MenuItem label: 'Show License', click: action 'core:show-license'
@@ -60,6 +70,7 @@ class MainMenu
       dripcap.menu.registerMain 'File', @fileMenu
       dripcap.menu.registerMain 'Edit', @editMenu
       dripcap.menu.registerMain 'Developer', @devMenu
+      dripcap.menu.registerMain 'Window', @windowMenu
       dripcap.menu.registerMain 'Help', @helpMenu
       dripcap.menu.setMainPriority 'Help', -999
 
@@ -77,12 +88,15 @@ class MainMenu
     dripcap.keybind.unbind 'command+q', '!menu', 'core:quit'
     dripcap.keybind.unbind 'command+,', '!menu', 'core:preferences'
     dripcap.keybind.unbind 'command+shift+i', '!menu', 'core:toggle-devtools'
+    dripcap.keybind.unbind 'command+m', '!menu', 'core:window-minimize'
+    dripcap.keybind.unbind 'command+alt+ctrl+i', '!menu', 'core:window-zoom'
 
     if process.platform == 'darwin'
       dripcap.menu.unregisterMain app.getName(), @appMenu
     dripcap.menu.unregisterMain 'File', @fileMenu
     dripcap.menu.unregisterMain 'Edit', @editMenu
     dripcap.menu.unregisterMain 'Developer', @devMenu
+    dripcap.menu.unregisterMain 'Window', @windowMenu
     dripcap.menu.unregisterMain 'Help', @helpMenu
 
 module.exports = MainMenu

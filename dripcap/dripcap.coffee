@@ -296,7 +296,11 @@ class Dripcap extends EventEmitter
           menu = new Menu()
           for h in @_mainHadlers[k]
             menu = h.handler.call(@, menu)
-          root.append new MenuItem label: k, submenu: menu, type: 'submenu'
+          item = label: k, submenu: menu, type: 'submenu'
+          switch k
+            when 'Help' then item.role = 'help'
+            when 'Window' then item.role = 'window'
+          root.append new MenuItem item
 
         if process.platform != 'darwin'
           remote.getCurrentWindow().setMenu(root)
