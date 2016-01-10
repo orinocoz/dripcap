@@ -9,6 +9,7 @@ Menu = remote.require('menu')
 MenuItem = remote.require('menu-item')
 dialog = remote.require('dialog')
 clipboard = require('clipboard')
+notifier = require('node-notifier')
 
 class PacketTable
   constructor: (@container, @table) ->
@@ -174,7 +175,9 @@ class PacketListView
             fs.writeFileSync path, @selctedPacket.payload
 
         copyAsJSON = =>
-          clipboard.writeText JSON.stringify(@selctedPacket, null, ' ')
+          json = JSON.stringify(@selctedPacket, null, ' ')
+          clipboard.writeText json
+          notifier.notify title: 'Copied', message: json, icon: '/Users/Ron/dripcap/images/dripcap.icns'
 
         menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
         menu.append(new MenuItem(label: 'Copy Packet as JSON', click: copyAsJSON))

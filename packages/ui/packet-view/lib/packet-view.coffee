@@ -6,6 +6,7 @@ MenuItem = remote.require('menu-item')
 dialog = remote.require('dialog')
 fs = require('fs')
 clipboard = require('clipboard')
+notifier = require('node-notifier')
 
 class PacketListView
 
@@ -69,7 +70,9 @@ class PacketListView
 
         copyAsJSON = =>
           layer = find @packet, @clickedLayerNamespace
-          clipboard.writeText JSON.stringify(layer, null, ' ')
+          json = JSON.stringify(layer, null, ' ')
+          clipboard.writeText json
+          notifier.notify title: 'Copied', message: json
 
         menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
         menu.append(new MenuItem(label: 'Export payload', click: exportPayload))

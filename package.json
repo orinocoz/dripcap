@@ -34,6 +34,7 @@
     "mousetrap": "^1.5.3",
     "msgcap": "file:./msgcap",
     "msgpack-lite": "^0.1.11",
+    "node-notifier": "^4.4.0",
     "npm": "^3.5.2",
     "paperfilter": "file:./paperfilter",
     "request": "^2.67.0",
