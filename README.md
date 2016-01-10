@@ -10,6 +10,7 @@ Caffeinated packet analyzer
 
 - Node.js >= 4.0
 - go >= 1.5
+- libpcap-dev (Linux)
 
 ```bash
 $ cd dripcap
