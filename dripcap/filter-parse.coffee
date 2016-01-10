@@ -5,11 +5,20 @@ makeFilter = (node) ->
     res = switch node.type
       when 'Identifier'
         (pkt) ->
-          for layer in pkt.layers
-            return layer if layer.name.toLowerCase() == node.name.toLowerCase()
-            if layer.aliases?
-              for a in layer.aliases
-                return layer if a.toLowerCase() == node.name.toLowerCase()
+          name = node.name.toLowerCase()
+          find = (layers, name) ->
+            for ns, layer of layers
+              return layer if layer.name.toLowerCase() == name
+              if layer.aliases?
+                for alias in layer.aliases
+                  return layer if alias.toLowerCase() == name
+              if layer.layers?
+                child = find(layer.layers, name)
+                return child if child?
+            null
+
+          layer = find(pkt.layers, name)
+          return layer if layer?
           return pkt.attrs[node.name] if pkt.attrs.hasOwnProperty(node.name)
           return pkt[node.name] if pkt[node.name]?
           switch node.name
