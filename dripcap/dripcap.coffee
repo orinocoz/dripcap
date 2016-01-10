@@ -207,7 +207,6 @@ class Dripcap extends EventEmitter
       for k, pkg of @list
         if pkg.config.get('enabled')
           pkg.activate()
-          pkg.updateTheme @parent.theme.scheme
           pkg.load().then =>
             process.nextTick => @triggerlLoaded()
 
