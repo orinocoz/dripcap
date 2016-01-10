@@ -132,8 +132,7 @@ class PacketListView
             subTable = new PacketTable container, sub
             @header.calculate()
 
-            dripcap.pubsub.sub 'packet-filter-view:filter', _.debounce (f) =>
-
+            dripcap.pubsub.sub 'packet-filter-view:filter', (f) =>
               if @_filterInterval?
                 clearInterval @_filterInterval
                 @_filterInterval = null
