@@ -19,7 +19,7 @@
   "author": "h2so5",
   "license": "MIT",
   "dependencies": {
-    "browserify": "^12.0.1",
+    "browserify": "^13.0.0",
     "coffee-script": "^1.9.3",
     "coffeeify": "^2.0.1",
     "cson": "^3.0.1",
