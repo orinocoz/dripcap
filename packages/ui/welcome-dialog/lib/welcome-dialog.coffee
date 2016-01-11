@@ -1,5 +1,6 @@
 $ = require('jquery')
 riot = require('riot')
+_ = require('underscore')
 {Component} = require('dripcap/component')
 
 class WelcomeDialog
@@ -17,7 +18,7 @@ class WelcomeDialog
               @view.hide()
               @view.update()
 
-            dripcap.package.sub 'core:package-loaded', =>
+            dripcap.package.sub 'core:package-loaded', _.once =>
               if dripcap.profile.getConfig 'startupDialog'
                 @view.show()
                 @view.update()
