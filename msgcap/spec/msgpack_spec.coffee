@@ -27,7 +27,7 @@ describe "msgpack.Decoder", ->
     decoder = new msgpack.Decoder(s)
     decoder.on 'data', (data) ->
       array.push data
-      done() if array.length >= 5
+      done() if array.length >= 6
 
     for i in [0..5]
       s.push(buf.slice(0, i))
