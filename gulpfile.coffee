@@ -128,7 +128,8 @@ gulp.task 'default', ['build'], ->
 gulp.task 'jasmine', ->
   gulp.src([
       './packages/**/spec/*.coffee'
-      './dripcap/**/spec/*.coffee'
+      './dripcap/spec/*.coffee'
+      './msgcap/spec/*.coffee'
     ])
     .pipe(jasmine())
 

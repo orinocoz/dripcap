@@ -5,7 +5,7 @@ fs = require('fs')
 buf = new Buffer([130, 167, 99, 111, 109, 112, 97, 99, 116, 195, 166, 115, 99, 104, 101, 109, 97, 0])
 obj =
   compact: true
-  schema: [0, null, "test"]
+  schema: [0, null, "test", "いろはにほへとちりぬるを"]
   empty: [{},[]]
   large: 3312760687
   date: new Date()

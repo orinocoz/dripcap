@@ -88,17 +88,17 @@ decodeNext = (buf) ->
       assertLength(buf, 2)
       len = buf.readUInt8(1, true)
       assertLength(buf, len + 2)
-      [buf.slice(2, 2 + len).toString(), buf.slice(len + 2)]
+      [buf.slice(2, 2 + len).toString('utf8'), buf.slice(len + 2)]
     when 0xda
       assertLength(buf, 3)
       len = buf.readUInt16BE(1, true)
       assertLength(buf, len + 3)
-      [buf.slice(3, 3 + len).toString(), buf.slice(len + 3)]
+      [buf.slice(3, 3 + len).toString('utf8'), buf.slice(len + 3)]
     when 0xdb
       assertLength(buf, 5)
       len = buf.readUInt32BE(1, true)
       assertLength(buf, len + 5)
-      [buf.slice(5, 5 + len).toString(), buf.slice(len + 5)]
+      [buf.slice(5, 5 + len).toString('utf8'), buf.slice(len + 5)]
     when 0xc4
       assertLength(buf, 2)
       len = buf.readUInt8(1, true)
@@ -157,7 +157,7 @@ decodeNext = (buf) ->
         when (buf[0] & 0b11100000) == 0b10100000
           len = (buf[0] & 0b00011111)
           assertLength(buf, len + 1)
-          [buf.slice(1, 1 + len).toString(), buf.slice(len + 1)]
+          [buf.slice(1, 1 + len).toString('utf8'), buf.slice(len + 1)]
         when (buf[0] & 0b11110000) == 0b10010000
           len = (buf[0] & 0b00001111)
           decodeArray(buf.slice(1), len)
@@ -212,9 +212,10 @@ encode = (obj) ->
         buf.writeDoubleBE(obj, buf.length - 8)
 
     when "string"
+      utf8 = new Buffer obj, 'utf8'
       buf = append buf, [0xdb, 0x0, 0x0, 0x0, 0x0]
-      buf.writeUInt32BE(obj.length, buf.length - 4)
-      buf = append buf, obj
+      buf.writeUInt32BE(utf8.length, buf.length - 4)
+      buf = append buf, utf8
 
     when "object"
       if Array.isArray obj
