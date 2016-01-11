@@ -176,7 +176,7 @@
       find = (layer, ns) ->
         if layer.layers?
           for k, v of layer.layers
-            return v if k == ns
+            return layer if k == ns
           for k, v of layer.layers
             r = find(v, ns)
             return r if r?
