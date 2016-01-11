@@ -1,0 +1,11 @@
+{
+  "name": "dns",
+  "main": "./lib/main",
+  "license": "MIT",
+  "description": "DNS decoder",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/dripcap/dripcap.git"
+  },
+  "readme": "see README.md"
+}
