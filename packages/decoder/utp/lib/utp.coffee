@@ -14,8 +14,10 @@ class UTPDecoder
 
       layer =
         name: 'μTP'
-        aliases: ['uTP']
-        aliases: ['Micro Transport Protocol']
+        aliases: [
+          'uTP'
+          'Micro Transport Protocol'
+        ]
         namespace: parentLayer.namespace + '::uTP'
         fields: []
         attrs: {}
