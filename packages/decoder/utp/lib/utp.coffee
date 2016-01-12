@@ -124,9 +124,9 @@ class UTPDecoder
             for b, i in bytes
               fields.push
                 name: "#{ack + 2 + i * 8} - #{ack + 2 + (i + 1) * 8 - 1}"
-                value: '' + ((b >> 0) & 0x1) + ((b >> 1) & 0x1) + ((b >> 2) & 0x1) + ((b >> 3) & 0x1) +
-                            ((b >> 4) & 0x1) + ((b >> 5) & 0x1) + ((b >> 6) & 0x1) + ((b >> 7) & 0x1)
+                value: b
                 range: slice.slice(offset + 2 + i, offset + 2 + 1 + i)
+                tag: 'utp-bitmask-value'
 
             extensions.fields.push
               name: "Selective acks"

@@ -1,3 +1,12 @@
+<packet-view-custom-value>
+  <script type="coffee">
+    riot = require('riot')
+    @on 'mount', =>
+      if opts.tag?
+        riot.mount(@root, opts.tag, value: opts.value)
+  </script>
+</packet-view-custom-value>
+
 <packet-view-boolean-value>
   <i class="fa fa-check-square-o" if={ opts.value }></i>
   <i class="fa fa-square-o" if={ !opts.value }></i>
@@ -40,6 +49,7 @@
       <packet-view-boolean-value if={ type == 'boolean' } value={ value }></packet-view-boolean-value>
       <packet-view-integer-value if={ type == 'integer' } value={ value }></packet-view-integer-value>
       <packet-view-string-value if={ type == 'string' } value={ value }></packet-view-string-value>
+      <packet-view-custom-value if={ type == 'custom' } tag={ tag } value={ value }></packet-view-custom-value>
     </p>
     <ul show={ opts.field.fields && show }>
       <packet-view-item each={ f in opts.field.fields } layer={ opts.layer } field={ f }></packet-view-item>
@@ -74,7 +84,10 @@
           @layer.attrs[opts.field.attr]
 
       @type =
-        if typeof @value == 'boolean'
+        if opts.field.tag?
+          @tag = opts.field.tag
+          'custom'
+        else if typeof @value == 'boolean'
           'boolean'
         else if Number.isInteger(@value)
           'integer'
