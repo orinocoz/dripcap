@@ -1,6 +1,7 @@
 $ = require('jquery')
 riot = require('riot')
-{Component, Panel} = require('dripcap/component')
+Component = require('dripcap/component')
+Panel = require('dripcap/panel')
 
 class BinaryView
 
@@ -52,7 +53,7 @@ class BinaryView
             process.nextTick ->
               ulhex[0].innerHTML = hexhtml
               ulascii[0].innerHTML = asciihtml
-              
+
           res()
 
   updateTheme: (theme) ->

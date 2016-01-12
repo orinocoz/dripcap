@@ -1,4 +1,4 @@
-{Component} = require('dripcap/component')
+Component = require('dripcap/component')
 
 class UTP
   activate: ->

@@ -1,6 +1,7 @@
 $ = require('jquery')
 riot = require('riot')
-{Component, Panel} = require('dripcap/component')
+Component = require('dripcap/component')
+Panel = require('dripcap/panel')
 
 class PreferencesDialog
   activate: ->

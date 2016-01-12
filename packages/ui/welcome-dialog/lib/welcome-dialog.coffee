@@ -1,7 +1,7 @@
 $ = require('jquery')
 riot = require('riot')
 _ = require('underscore')
-{Component} = require('dripcap/component')
+Component = require('dripcap/component')
 
 class WelcomeDialog
   activate: ->
