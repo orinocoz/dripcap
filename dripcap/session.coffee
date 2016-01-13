@@ -14,6 +14,8 @@ class Session extends EventEmitter
     @_window = new BrowserWindow(show: false)
     @_window.loadURL 'file://' + __dirname + '/session.html'
 
+    @_event = new EventEmitter
+
     @_loaded = new Promise (res) =>
       @_window.webContents.once 'did-finish-load', -> res()
     .then =>
@@ -22,7 +24,7 @@ class Session extends EventEmitter
           @_msgenc = new msgpack.Encoder(c)
           @_msgdec = new msgpack.Decoder(c)
           @_msgdec.on 'data', (packet) =>
-            @emit 'packet', new Packet packet
+            @_event.emit 'packet', packet
           res()
         @_server.listen sock
         arg = JSON.stringify @_filterPath
@@ -47,12 +49,15 @@ class Session extends EventEmitter
       @_msgenc.encode type: 'packet', body: packet
 
   start: ->
-    @_execute('session.stop()').then =>
+    @stop().then =>
+      @_event.on 'packet', (packet) =>
+        @emit 'packet', new Packet packet
       @_execute('session.start()')
     .then =>
       dripcap.pubsub.pub 'core:capturing-status', true
 
   stop: ->
+    @_event.removeAllListeners()
     @_execute('session.stop()').then ->
       dripcap.pubsub.pub 'core:capturing-status', false
 
