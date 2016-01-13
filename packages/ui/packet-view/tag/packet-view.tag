@@ -165,7 +165,7 @@
         <i class="fa fa-circle-o"></i><a class="name"> Actual Length: </a><i>{ packet.length }</i>
       </li>
       <li if={ packet.caplen < packet.length }>
-        <i class="fa fa-exclamation-circle warn"> This packet is truncated.</i>
+        <i class="fa fa-exclamation-circle warn"> This packet has been truncated.</i>
       </li>
     </ul>
     <packet-view-layer each={ ns in rootKeys } layer={ rootLayers[ns] }></packet-view-layer>
