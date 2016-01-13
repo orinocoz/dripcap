@@ -1,6 +1,7 @@
 Packet = require('./packet')
 msgpack = require('msgcap')
 parse = require('./filter-parse')
+require('./type')
 
 self.addEventListener 'message', (e) ->
   switch e.data.cmd
