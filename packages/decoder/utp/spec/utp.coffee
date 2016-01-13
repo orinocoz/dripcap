@@ -38,3 +38,11 @@ describe "uTP", ->
     expect(layer.namespace).toEqual '::Ethernet::IPv4::UDP::uTP'
     expect(layer.name).toEqual 'μTP'
     expect(layer.summary).toEqual '[ST_STATE] seq:34897 ack:47930'
+    expect(layer.attrs.type.name).toEqual 'ST_STATE'
+    expect(layer.attrs.version).toEqual 1
+    expect(layer.attrs.id).toEqual 2539
+    expect(layer.attrs.timestamp).toEqual 201104162
+    expect(layer.attrs.timestampDiff).toEqual 3659171752
+    expect(layer.attrs.windowSize).toEqual 262144
+    expect(layer.attrs.seq).toEqual 34897
+    expect(layer.attrs.ack).toEqual 47930

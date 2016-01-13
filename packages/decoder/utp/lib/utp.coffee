@@ -71,38 +71,44 @@ class UTPDecoder
         connectionID = payload.readUInt16BE(2, true)
         layer.fields.push
           name: 'Connection ID'
-          value: connectionID
+          attr: 'id'
           range: slice.slice(2, 4)
+        layer.attrs.id = connectionID
 
         timestamp = payload.readUInt32BE(4, true)
         layer.fields.push
           name: 'Timestamp Microseconds'
-          value: timestamp
+          attr: 'timestamp'
           range: slice.slice(4, 8)
+        layer.attrs.timestamp = timestamp
 
         timestampDiff = payload.readUInt32BE(8, true)
         layer.fields.push
           name: 'Timestamp Difference Microseconds'
-          value: timestampDiff
+          attr: 'timestampDiff'
           range: slice.slice(8, 12)
+        layer.attrs.timestampDiff = timestampDiff
 
         windowSize = payload.readUInt32BE(12, true)
         layer.fields.push
           name: 'Window Size'
-          value: windowSize
+          attr: 'windowSize'
           range: slice.slice(12, 16)
+        layer.attrs.windowSize = windowSize
 
         seq = payload.readUInt16BE(16, true)
         layer.fields.push
           name: 'Sequence Number'
-          value: seq
+          attr: 'seq'
           range: slice.slice(16, 18)
+        layer.attrs.seq = seq
 
         ack = payload.readUInt16BE(18, true)
         layer.fields.push
           name: 'Acknowledgment Number'
-          value: ack
+          attr: 'ack'
           range: slice.slice(18, 20)
+        layer.attrs.ack = ack
 
         extensions =
           name: 'Extensions'
