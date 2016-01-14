@@ -10,7 +10,7 @@ class PackagePreferencesView
         $ =>
           m = $('<div class="wrapper"/>')
           @_view = riot.mount(m[0], 'package-preferences-view')[0]
-          pkg.root.panel.center('packages', m, $('<i class="fa fa-gift"> Packages</i>'))
+          pkg.root.panel.center('package', m, $('<i class="fa fa-gift"> Packages</i>'))
 
           dripcap.package.sub 'core:package-list-updated', (list) =>
             @_view.packageList = Object.keys(list).map (v) -> list[v]
