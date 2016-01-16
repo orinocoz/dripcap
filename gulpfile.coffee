@@ -82,8 +82,8 @@ gulp.task 'debian-pkg', (cb) ->
     .pipe(replace('{{DRIPCAP_VERSION}}', pkg.version, skipBinary: true))
     .pipe gulp.dest('./.debian/')
 
-gulp.task 'debian-paperfilter', ['debian-bin'], (cb) ->
-  gulp.src('./.debian/usr/share/dripcap/resources/app/node_modules/paperfilter/bin/paperfilter-linux')
+gulp.task 'debian-paperfilter', (cb) ->
+  gulp.src('./.debian/usr/share/dripcap/resources/app/node_modules/paperfilter/bin/paperfilter')
     .pipe rename("paperfilter")
     .pipe gulp.dest('./.debian/usr/bin/')
 
