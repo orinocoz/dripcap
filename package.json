@@ -1,7 +1,7 @@
 {
   "name": "dripcap",
   "productName": "Dripcap",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "☕️ Caffeinated packet analyzer",
   "repository": {
     "type": "git",
@@ -14,7 +14,7 @@
     "dpkg": "gulp debian && cd .debian && fakeroot dpkg-deb --build . ../dripcap-x64.deb"
   },
   "engines": {
-    "electron": "0.36.3"
+    "electron": "0.36.4"
   },
   "author": "h2so5",
   "license": "MIT",
