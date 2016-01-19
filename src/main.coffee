@@ -1,6 +1,7 @@
 require('coffee-script/register')
 app = require('app')
 BrowserWindow = require('browser-window')
+electronDetach = require('electron-detach')
 mkpath = require('mkpath')
 config = require('dripcap/config')
 require('crash-reporter').start(config.crashReporter)
@@ -52,7 +53,7 @@ global.dripcap = new Dripcap
 
 if process.env['DRIPCAP_UI_TEST']?
   require './uitest'
-else
+else if process.env['DRIPCAP_ATTACH']? || electronDetach(requireCmdlineArg: false)
   app.on 'window-all-closed', ->
     app.quit()
 

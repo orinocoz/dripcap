@@ -123,7 +123,9 @@ gulp.task 'darwin-sign', ['darwin'], (cb) ->
   exec './macdeploy.sh', -> cb()
 
 gulp.task 'default', ['build'], ->
-  gulp.src(".build").pipe(runElectron(['--enable-logging']))
+  gulp.src(".build").pipe(runElectron(['--enable-logging'], env: Object.assign({
+      DRIPCAP_ATTACH: '1'
+    }, process.env)))
 
 gulp.task 'jasmine', ->
   gulp.src([
@@ -136,10 +138,10 @@ gulp.task 'jasmine', ->
 gulp.task 'test', sequence('build', 'jasmine', 'uitest')
 
 gulp.task 'uitest', ->
-  env = process.env
-  env.DRIPCAP_UI_TEST ?= __dirname
-  env.PAPERFILTER_TESTDATA ?= path.join __dirname, 'uispec/test'
-  gulp.src(".build").pipe(runElectron([], env: env))
+  gulp.src(".build").pipe(runElectron([], env: Object.assign({
+      DRIPCAP_UI_TEST: __dirname
+      PAPERFILTER_TESTDATA: path.join __dirname, 'uispec/test'
+    }, process.env)))
 
 gulp.task 'build', sequence(
   ['coffee', 'copy', 'copypkg'],

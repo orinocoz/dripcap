@@ -24,6 +24,7 @@
     "coffeeify": "^2.0.1",
     "cson": "^3.0.1",
     "dripcap": "file:./dripcap",
+    "electron-detach": "^0.3.0",
     "electron-rebuild": "^1.0.0",
     "esprima": "^2.7.1",
     "font-awesome": "^4.3.0",
