@@ -29,11 +29,11 @@ notifications:
 before_deploy:
 - gulp linux
 - npm run dpkg
+- zip paperfilter-linux-x64.zip .build/node_modules/paperfilter/bin/paperfilter
 deploy:
   provider: releases
   api_key:
     secure: RZynYJOGSBraBPp18CKTJ5XAefzu/9QgaIzF157BHRJVkIUsGDy8gVtR1W4AyjPP9hmLrpgZF55/lic2P/pY8hHvVCtHDYEeQNuwigs3EY+ZZiCotCQYDXF0mEoPI+6nWtyGo34dhDzIukTofsOEUBsDuLhJyWxc6gmhxfp8N/GhMp6GRkwOPIg56BbqEuZJngiA1xN1DgUbK+U0sKVbEGqUMpGciM8bO9YhkBNEGd1bcYOFiq/ke6EdH+VcG3dvyG2DGI3ZELuy/lboxYhhffvqotrYL0/eyIaZBx817F7kjsNg/Q8R64c/AxBv9L4AoHdOFV+l7Eey8ThA8ysmu7kauEAYvTlOS5wI9N5oQ4E4vEz+nPnfA1+/riOazOcCuDkssaCcHWZunAhGzfEP7HViXNVKbvYhWPv8058/c6JxybBxE7D+goDo9lKYsgW61gHe6Uu39/q1cZh27JoruRJv4k5SXio+fnbkrqtRsEkEbwrwbSnz1r9Gic0ybB5NJVTGMDDzUdUvrIErky+PzRgz2gvk+UUKOdgDkWxCj0nB8Ntgs7TpBlfNLicaq2J7uExDjvqCtllZr5vB3yxnqekT5b+vFyOASLvFjxYt8htdBzLzO675TGJWe9O5eFtMRJ9pwkO7GNt2KlIl7Zn9GvxyGpG8C/0xHqu/7HBwXXU=
-  before_deploy: "zip paperfilter-linux-x64.zip .build/node_modules/paperfilter/bin/paperfilter"
   file:
   - dripcap-linux-x64.zip
   - dripcap-x64.deb
