@@ -29,7 +29,7 @@ notifications:
 before_deploy:
 - gulp linux
 - npm run dpkg
-- zip paperfilter-linux-x64.zip .build/node_modules/paperfilter/bin/paperfilter
+- zip -j paperfilter-linux-x64.zip .build/node_modules/paperfilter/bin/paperfilter
 deploy:
   provider: releases
   api_key:
