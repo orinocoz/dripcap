@@ -53,7 +53,6 @@
     "gulp-coffee": "^2.3.1",
     "gulp-coffeelint": "^0.6.0",
     "gulp-jasmine": "^2.0.1",
-    "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.5.4",
     "gulp-run-electron": "^1.2.2",
     "gulp-sequence": "^0.4.4",

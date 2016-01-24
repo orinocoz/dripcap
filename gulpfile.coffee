@@ -3,7 +3,6 @@ coffee = require('gulp-coffee')
 coffeelint = require('gulp-coffeelint')
 electron = require('gulp-atom-electron')
 symdest = require('gulp-symdest')
-rename = require('gulp-rename')
 replace = require('gulp-replace')
 zip = require('gulp-vinyl-zip')
 sequence = require('gulp-sequence')
@@ -83,8 +82,7 @@ gulp.task 'debian-pkg', (cb) ->
     .pipe gulp.dest('./.debian/')
 
 gulp.task 'debian-paperfilter', (cb) ->
-  gulp.src('./.debian/usr/share/dripcap/resources/app/node_modules/paperfilter/bin/paperfilter')
-    .pipe rename("paperfilter")
+  gulp.src('./.build/node_modules/paperfilter/bin/paperfilter')
     .pipe gulp.dest('./.debian/usr/bin/')
 
 gulp.task 'debian-bin', ['copy', 'coffee', 'copypkg', 'npm'], (cb) ->
