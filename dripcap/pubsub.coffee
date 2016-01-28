@@ -12,15 +12,13 @@ class PubSub
     ch.handlers.push cb
     for data in ch.queue
       do (data) ->
-        process.nextTick ->
-          cb data
+        cb data
 
   pub: (name, data, queue=0) ->
     ch = @_getChannel name
     for cb in ch.handlers
       do (cb) ->
-        process.nextTick ->
-          cb data
+        cb data
     ch.queue.push data
     if queue > 0 && ch.queue.length > queue
       ch.queue.splice 0, ch.queue.length - queue

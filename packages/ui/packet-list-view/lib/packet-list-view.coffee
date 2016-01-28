@@ -87,20 +87,19 @@ class PacketTable
         dripcap.menu.popup('packet-list-view:packet-menu', @, remote.getCurrentWindow())
         e.stopPropagation()
 
-    process.nextTick =>
-      if !@currentSection? || @currentSection.children().length + @currentSection.data('tr').length >= @sectionSize
-        @currentSection = $('<tbody>').hide()
-        @currentSection.data('tr', [])
-        @sections.push @currentSection
-        @table.append @currentSection
-        @update()
+    if !@currentSection? || @currentSection.children().length + @currentSection.data('tr').length >= @sectionSize
+      @currentSection = $('<tbody>').hide()
+      @currentSection.data('tr', [])
+      @sections.push @currentSection
+      @table.append @currentSection
+      @update()
 
-      @updateSection()
+    @updateSection()
 
-      if @currentSection.is(':visible')
-        @currentSection.append tr
-      else
-        @currentSection.data('tr').push tr
+    if @currentSection.is(':visible')
+      @currentSection.append tr
+    else
+      @currentSection.data('tr').push tr
 
 class PacketListView
   activate: ->
