@@ -12,9 +12,9 @@ Layer = require('dripcap/layer')
 
 testdata = process.env['PAPERFILTER_TESTDATA']
 
-helperPath =  "../../../../Frameworks/Dripcap Helper Installer.app"
-helperPfPath = "#{helperPath}/Contents/Resources/paperfilter"
-helperAppPath = "#{helperPath}/Contents/MacOS/Dripcap Helper Installer"
+helperPath = path.join __dirname, "../../../../Frameworks/Dripcap Helper Installer.app"
+helperPfPath = path.join helperPath, "/Contents/Resources/paperfilter"
+helperAppPath = path.join helperPath, "/Contents/MacOS/Dripcap Helper Installer"
 
 class PaperFilter extends EventEmitter
   constructor: ->
@@ -48,11 +48,8 @@ class PaperFilter extends EventEmitter
         return false
       childProcess.execFileSync @path, ['testcap']
     catch err
-      if err?
-        if err.code == 'ENOENT' || err.status == 1
-          return false
-        else
-          throw err
+      console.warn err
+      return false
     true
 
   setcap: ->
