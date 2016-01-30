@@ -28,6 +28,7 @@
     "electron-rebuild": "^1.0.0",
     "esprima": "^2.7.1",
     "font-awesome": "^4.3.0",
+    "geit": "0.0.7",
     "glob": "^6.0.2",
     "jquery": "^2.1.4",
     "less": "^2.5.1",

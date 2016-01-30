@@ -1,5 +1,7 @@
 require('coffee-script/register')
 app = require('app')
+updater = require('./updater')
+dialog = require('electron').dialog
 BrowserWindow = require('browser-window')
 electronDetach = require('electron-detach')
 mkpath = require('mkpath')
@@ -12,6 +14,27 @@ mkpath.sync(config.profilePath)
 class Dripcap
   constructor: ->
     @_indicator = 0
+
+  checkForUpdates: ->
+    autoUpdater = require('electron').autoUpdater
+    autoUpdater.on 'error', (e) ->
+      console.warn e.toString()
+
+    autoUpdater.on 'checking-for-update', -> console.log('Checking for update')
+    .on 'update-available', -> console.log('Update available')
+    .on 'update-not-available', -> console.log('Update not available')
+    .on 'update-downloaded', ->
+      index = dialog.showMessageBox
+        message: "Updates Available",
+        detail: "Do you want to install a new version now?",
+        buttons: ["Restart and Install", "Not Now"]
+
+      if index == 0
+        autoUpdater.quitAndInstall()
+
+    updater.createServer (url) ->
+      autoUpdater.setFeedURL(url)
+      autoUpdater.checkForUpdates()
 
   newWindow: ->
     options =
@@ -58,4 +81,6 @@ else if process.env['DRIPCAP_ATTACH']? || electronDetach(requireCmdlineArg: fals
     app.quit()
 
   app.on 'ready', ->
+    if process.platform == 'darwin'
+      dripcap.checkForUpdates()
     dripcap.newWindow()
