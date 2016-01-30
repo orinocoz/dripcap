@@ -12,9 +12,22 @@ Layer = require('dripcap/layer')
 
 testdata = process.env['PAPERFILTER_TESTDATA']
 
+helperPath =  "../../../../Frameworks/Dripcap Helper Installer.app"
+helperPfPath = "#{helperPath}/Contents/Resources/paperfilter"
+helperAppPath = "#{helperPath}/Contents/MacOS/Dripcap Helper Installer"
+
 class PaperFilter extends EventEmitter
   constructor: ->
     @exec = __dirname + '/bin/paperfilter'
+
+    if process.platform == 'darwin'
+      pf = helperPfPath
+      try
+        fs.accessSync pf
+        @exec = pf
+      catch e
+        console.warn e
+
     @path =
       if testdata?
         @exec
@@ -61,10 +74,9 @@ class PaperFilter extends EventEmitter
             else
               throw err
       when 'darwin'
-        helperPath = path.join __dirname, "../../../../Frameworks/Dripcap Helper Installer.app/Contents/MacOS/Dripcap Helper Installer"
 
         try
-          childProcess.execFileSync helperPath
+          childProcess.execFileSync helperAppPath
         catch err
           try
             script = "mkdir /usr/local/lib ; cp #{@exec} #{@path} && #{@path} setcap"
