@@ -11,6 +11,7 @@ addons:
     - g++-4.8
     - xvfb
     - libpcap-dev
+    - alien
 install:
 - export CXX="g++-4.8"
 - npm install -g npm_lazy
@@ -29,6 +30,8 @@ notifications:
 before_deploy:
 - gulp linux
 - npm run dpkg
+- fakeroot alien --to-rpm --scripts dripcap-x64.deb
+- mv *.rpm dripcap-x64.rpm
 - zip -j paperfilter-linux-x64.zip .build/node_modules/paperfilter/bin/paperfilter
 deploy:
   provider: releases
@@ -37,6 +40,7 @@ deploy:
   file:
   - dripcap-linux-x64.zip
   - dripcap-x64.deb
+  - dripcap-x64.rpm
   - paperfilter-linux-x64.zip
   skip_cleanup: true
   on:
