@@ -17,12 +17,14 @@ class Dripcap
 
   checkForUpdates: ->
     autoUpdater = require('electron').autoUpdater
-    autoUpdater.on 'error', (e) ->
+    autoUpdater.on 'error', (e) =>
       console.warn e.toString()
-
-    autoUpdater.on 'checking-for-update', -> console.log('Checking for update')
+      setTimeout @checkForUpdates, 60 * 60 * 1000 * 4
+    .on 'checking-for-update', -> console.log('Checking for update')
     .on 'update-available', -> console.log('Update available')
-    .on 'update-not-available', -> console.log('Update not available')
+    .on 'update-not-available', =>
+      console.log('Update not available')
+      setTimeout @checkForUpdates, 60 * 60 * 1000 * 4
     .on 'update-downloaded', ->
       index = dialog.showMessageBox
         message: "Updates Available",
