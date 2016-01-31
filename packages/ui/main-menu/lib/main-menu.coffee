@@ -55,7 +55,8 @@ class MainMenu
         menu
 
       @helpMenu = (menu, e) ->
-        menu.append new MenuItem label: 'Open Website', click: action 'core:open-website'
+        menu.append new MenuItem label: 'Visit Website', click: action 'core:open-website'
+        menu.append new MenuItem label: 'Visit Wiki', click: action 'core:open-wiki'
         menu.append new MenuItem label: 'Show License', click: action 'core:show-license'
         menu.append new MenuItem type: 'separator'
         menu.append new MenuItem label: 'Version ' + dripcap.config.version, enabled: false

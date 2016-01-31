@@ -15,6 +15,9 @@
       <input type="button" value="Open Preferences" onclick={ parent.pref }>
     </p>
     <p>
+      <input type="button" value="Visit Wiki" onclick={ parent.wiki }>
+    </p>
+    <p>
       <label>
         <input type="checkbox" name="startup" checked={ parent.startup } onclick={ parent.setStartup }> Show this dialog at startup
       </label>
@@ -25,7 +28,7 @@
   [riot-tag=welcome-dialog] > modal-dialog > .modal > .content {
     max-width: 600px;
     input[type=button] {
-      height: 60px;
+      height: 50px;
     }
 
     img {
@@ -61,6 +64,9 @@
 
   @pref = =>
     dripcap.action.emit 'core:preferences'
+
+  @wiki = =>
+    dripcap.action.emit 'core:open-wiki'
 
   </script>
 

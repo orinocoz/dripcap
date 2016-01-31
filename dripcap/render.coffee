@@ -30,6 +30,9 @@ dripcap.action.on 'core:open-user-directroy', ->
 dripcap.action.on 'core:open-website', ->
   shell.openExternal 'https://github.com/dripcap/dripcap'
 
+dripcap.action.on 'core:open-wiki', ->
+  shell.openExternal 'https://github.com/dripcap/dripcap/wiki'
+
 dripcap.action.on 'core:show-license', ->
   shell.openExternal 'https://github.com/dripcap/dripcap/blob/master/LICENSE'
 
