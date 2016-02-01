@@ -14,4 +14,4 @@ cd ..
 cp -r ./dripcap-helper/build/Release/Dripcap\ Helper\ Installer.app ./dripcap-darwin/dripcap.app/Contents/Frameworks
 codesign --deep --force --verify --verbose --sign "$DRIPCAP_DARWIN_SIGN" ./dripcap-darwin/dripcap.app/Contents/Frameworks/*
 codesign --deep --force --verify --verbose --sign "$DRIPCAP_DARWIN_SIGN" "./dripcap-darwin/dripcap.app"
-ditto -c -k --sequesterRsrc --keepParent ./dripcap-darwin/dripcap.app ../dripcap-darwin.zip
+ditto -c -k --sequesterRsrc --keepParent ./dripcap-darwin/dripcap.app ../dripcap-darwin-amd64.zip
