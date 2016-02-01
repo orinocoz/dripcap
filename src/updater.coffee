@@ -15,7 +15,7 @@ exports.createServer = (cb) ->
       pkg = JSON.parse(data.toString())
       if semver.gt(pkg.version, config.version)
         res.writeHead(200)
-        res.write(JSON.stringify(url: "https://github.com/dripcap/dripcap/releases/download/v#{pkg.version}/dripcap-darwin.zip"))
+        res.write(JSON.stringify(url: "https://github.com/dripcap/dripcap/releases/download/v#{pkg.version}/dripcap-darwin-amd64.zip"))
       else
         res.writeHead(204)
       res.end()

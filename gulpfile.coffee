@@ -74,7 +74,7 @@ gulp.task 'linux', ['build'], (cb) ->
         platform: 'linux',
         arch: 'x64',
         token: process.env['ELECTRON_GITHUB_TOKEN']))
-      .pipe(zip.dest('dripcap-linux-x64.zip'))
+      .pipe(zip.dest('dripcap-linux-amd64.zip'))
 
 gulp.task 'debian-pkg', (cb) ->
   gulp.src('./debian/**', base: './debian/')
