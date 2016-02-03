@@ -11,7 +11,7 @@
   "main": "js/main.js",
   "scripts": {
     "test": "gulp test && exit `cat /tmp/dripcap.test.result`",
-    "dpkg": "gulp debian && cd .debian && fakeroot dpkg-deb --build . ../dripcap-linux-amd64.deb"
+    "dpkg": "chmod -R g-w debian && gulp debian && cd .debian && fakeroot dpkg-deb --build . ../dripcap-linux-amd64.deb"
   },
   "engines": {
     "electron": "0.36.6"
