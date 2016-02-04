@@ -10,11 +10,16 @@ addons:
     - gcc-4.8
     - g++-4.8
     - xvfb
-    - libpcap-dev
     - lintian
     - alien
 install:
 - export CXX="g++-4.8"
+- wget http://www.tcpdump.org/release/libpcap-1.7.4.tar.gz
+- tar xzf libpcap-1.7.4.tar.gz
+- (cd libpcap-1.7.4 && ./configure -q --enable-shared=no && make)
+- export C_INCLUDE_PATH="${PWD}/libpcap-1.7.4"
+- export LIBRARY_PATH="${PWD}/libpcap-1.7.4"
+- export DISPLAY=':99.0'
 - npm install -g npm_lazy
 - npm_lazy > /dev/null 2>&1 &
 - npm config set registry http://localhost:8080/

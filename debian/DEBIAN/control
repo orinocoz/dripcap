@@ -2,7 +2,6 @@ Package: dripcap
 Version: {{DRIPCAP_VERSION}}
 Architecture: amd64
 Maintainer: h2so5 <mail@h2so5.net>
-Depends: libpcap0.8, gksu
 Section: net
 Priority: optional
 Vcs-Git: git://github.com/dripcap/dripcap.git
