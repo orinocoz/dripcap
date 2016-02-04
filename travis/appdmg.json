@@ -1,0 +1,10 @@
+{
+  "title": "Dripcap",
+  "icon": "../images/dripcap.icns",
+  "background": "../images/dmg-background.png",
+  "icon-size": 128,
+  "contents": [
+    { "x": 450, "y": 180, "type": "link", "path": "/Applications" },
+    { "x": 180, "y": 180, "type": "file", "path": "../.builtapp/dripcap-darwin/Dripcap.app" }
+  ]
+}
