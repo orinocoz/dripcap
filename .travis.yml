@@ -3,9 +3,6 @@ language: cpp
 os:
   - linux
   - osx
-matrix:
-  allow_failures:
-    - os: osx
 addons:
   apt:
     sources:
@@ -25,8 +22,7 @@ install:
 before_script:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-script.sh ; fi
 script:
-#- npm test
-- true
+- npm test
 notifications:
   slack:
     secure: lD8KoxYN3DBs9D6C8XvpX2Jc+myv2tprVqcV5bbK8Ea7gcduiy29vM4i4Vx4eXeeEbXMW0BSnpe1sJ5QO/1vHvFOm8FbPzL5nsxuNCSE/2uL3MufOtJgAzgb/7RQHKSfploG8ajMSBlRpQl9qtMZb8LhoCAZh/czWsIZQwji7r2gdafaRcwh2sgMbO1G/C1W4/IoytrIhe8doi4KBRkC/bt0BarptstlkjMvZTbIKjY0YrB8VZyWqOMO3U6d1+4nKcoL2wsIZeB1UD1RgLkqvFd+4IBDh3fkrKTIftjBfh/manEf+ECzq9e4DkTLoBcGas5MniOILJgzC7R5TOeehYIVui4KHUZx2tbMFaYz+FANsdMtTUCLI46N3QeJpo17noQJ4A1ztecnQ+Q4d+cyROTnhTILv2hQn1LLVe3GLN8fkH0Oj2X4FkY3RPrWDKDeTItlMCGWrSvHM7q+hN6GhbDzDdyzE/OH3HtTr/nacXy3WEsdYIwaoJQOvuDx5/a8JawheEDJIfXE2IAKWn7LfHojKghEEAt4kyhsIMBSpsVkxmV3Tc4wyKSDp6h7/EFNoLP3J2cOClFJZCLeV3VTq5SaRfURTkB8p262m+KokxzLeAzO3xHY95gdbyxHMEQnI1qt19FMtJ1h9ZWALObN64NhevnJpkprgzfZdh6Z42s=

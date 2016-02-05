@@ -50,7 +50,7 @@ module.exports = (file) ->
       failed: 0
       passed: 0
 
-    timeout = 30000
+    timeout = 60000
 
     promise = Promise.resolve()
     for h in hadlers
