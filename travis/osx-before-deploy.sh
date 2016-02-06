@@ -30,5 +30,5 @@ codesign --deep --force --verify --verbose --sign "$DRIPCAP_DARWIN_SIGN" "./drip
 ditto -c -k --sequesterRsrc --keepParent ./dripcap-darwin/dripcap.app ../dripcap-darwin-amd64.zip
 
 cd ..
-npm install -g appdmg
+npm install -g appdmg > /dev/null
 appdmg travis/appdmg.json dripcap-darwin-amd64.dmg
