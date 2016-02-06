@@ -6,6 +6,14 @@ Caffeinated packet analyzer
 
 ![screenshot](https://github.com/h2so5/dripcap/blob/master/images/screenshot.png)
 
+## Download
+
+- Mac OS X (dmg)
+- Linux (deb)
+- Linux (rpm)
+
+https://github.com/dripcap/dripcap/releases
+
 ## Build
 
 - Node.js >= 4.0
