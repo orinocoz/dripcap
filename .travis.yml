@@ -17,8 +17,8 @@ before_install:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-install.sh ; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source travis/osx-before-install.sh ; fi
 install:
-- npm install -g gulp electron-prebuilt > /dev/null
-- npm install > /dev/null
+- npm install --depth 0 -g gulp electron-prebuilt
+- npm install --depth 0
 before_script:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-script.sh ; fi
 script:

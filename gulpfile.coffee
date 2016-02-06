@@ -46,7 +46,7 @@ gulp.task 'copypkg', ->
 
 gulp.task 'npm', ['copypkg'], ->
   p = new Promise (res) ->
-    npm.load production: true, -> res()
+    npm.load {production: true, depth: 0}, -> res()
 
   p = p.then ->
     new Promise (res) ->
