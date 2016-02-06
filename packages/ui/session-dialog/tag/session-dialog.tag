@@ -4,7 +4,7 @@
     <h2>New session</h2>
     <p>
       <select name="interface">
-        <option each={ parent.interfaceList } value={ name }>{ name }</option>
+        <option each={ parent.interfaceList } if={ link === 1 } value={ name }>{ name }</option>
       </select>
     </p>
     <p>
