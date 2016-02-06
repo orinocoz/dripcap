@@ -6,7 +6,7 @@ test "show session-dialog", (assert) ->
 
 test "interface list", (assert) ->
   list = $('[riot-tag=session-dialog] [name=interface] > option').map -> $(@).text()
-  assert.deepEqual list.get(), [ 'eth0', 'nflog', 'nfqueue', 'any', 'lo' ], 'okay'
+  assert.deepEqual list.get(), [ 'eth0', 'lo' ], 'okay'
 
 test "cancel dialog", (assert) ->
   assert.click '[riot-tag=session-dialog] .modal'
