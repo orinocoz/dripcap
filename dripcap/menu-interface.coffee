@@ -16,8 +16,10 @@ class MenuInterface extends EventEmitter
       keys.sort (a, b) => (@_mainPriorities[b] ? 0) - (@_mainPriorities[a] ? 0)
       for k in keys
         menu = new Menu()
-        for h in @_mainHadlers[k]
+        for h, i in @_mainHadlers[k]
           menu = h.handler.call(@, menu)
+          if i < @_mainHadlers[k].length - 1
+            menu.append(new MenuItem(type: 'separator'))
         item = label: k, submenu: menu, type: 'submenu'
         switch k
           when 'Help' then item.role = 'help'
