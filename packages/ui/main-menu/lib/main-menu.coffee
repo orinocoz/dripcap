@@ -21,8 +21,9 @@ class MainMenu
       @fileMenu = (menu, e) ->
         menu.append new MenuItem label: 'New Window', accelerator: dripcap.keybind.get('!menu', 'core:new-window'), click: action 'core:new-window'
         menu.append new MenuItem label: 'Close Window', accelerator: dripcap.keybind.get('!menu', 'core:close-window'), click: action 'core:close-window'
-        menu.append new MenuItem type: 'separator'
-        menu.append new MenuItem label: 'Quit', accelerator: dripcap.keybind.get('!menu', 'core:quit'), click: action 'core:quit'
+        unless process.platform == 'darwin'
+          menu.append new MenuItem type: 'separator'
+          menu.append new MenuItem label: 'Quit', accelerator: dripcap.keybind.get('!menu', 'core:quit'), click: action 'core:quit'
         menu
 
       @editMenu = (menu, e) ->
@@ -37,8 +38,9 @@ class MainMenu
           menu.append new MenuItem label: 'Copy', accelerator: 'Ctrl+C', click: -> contents.copy()
           menu.append new MenuItem label: 'Paste', accelerator: 'Ctrl+V', click: -> contents.paste()
           menu.append new MenuItem label: 'Select All', accelerator: 'Ctrl+A', click: -> contents.selectAll()
-        menu.append new MenuItem type: 'separator'
-        menu.append new MenuItem label: 'Preferences', accelerator: dripcap.keybind.get('!menu', 'core:preferences'), click: action 'core:preferences'
+        unless process.platform == 'darwin'
+          menu.append new MenuItem type: 'separator'
+          menu.append new MenuItem label: 'Preferences', accelerator: dripcap.keybind.get('!menu', 'core:preferences'), click: action 'core:preferences'
         menu
 
       @devMenu = (menu, e) ->
@@ -58,19 +60,31 @@ class MainMenu
         menu.append new MenuItem label: 'Visit Website', click: action 'core:open-website'
         menu.append new MenuItem label: 'Visit Wiki', click: action 'core:open-wiki'
         menu.append new MenuItem label: 'Show License', click: action 'core:show-license'
-        menu.append new MenuItem type: 'separator'
-        menu.append new MenuItem label: 'Version ' + dripcap.config.version, enabled: false
+        unless process.platform == 'darwin'
+          menu.append new MenuItem type: 'separator'
+          menu.append new MenuItem label: 'Version ' + dripcap.config.version, enabled: false
         menu
 
       if process.platform == 'darwin'
-        @appMenu = (menu, e) -> menu
+        @appMenu = (menu, e) ->
+          menu.append new MenuItem label: 'Version ' + dripcap.config.version, enabled: false
+          menu.append new MenuItem type: 'separator'
+          menu.append new MenuItem label: 'Preferences', accelerator: dripcap.keybind.get('!menu', 'core:preferences'), click: action 'core:preferences'
+          menu
+        @quitMenu = (menu, e) ->
+          menu.append new MenuItem label: 'Quit', accelerator: dripcap.keybind.get('!menu', 'core:quit'), click: action 'core:quit'
+          menu
         name = app.getName()
         dripcap.menu.registerMain name, @appMenu
+        dripcap.menu.registerMain name, @devMenu
+        dripcap.menu.registerMain name, @quitMenu
         dripcap.menu.setMainPriority name, 999
+
+      unless process.platform == 'darwin'
+        dripcap.menu.registerMain 'Developer', @devMenu
 
       dripcap.menu.registerMain 'File', @fileMenu
       dripcap.menu.registerMain 'Edit', @editMenu
-      dripcap.menu.registerMain 'Developer', @devMenu
       dripcap.menu.registerMain 'Window', @windowMenu
       dripcap.menu.registerMain 'Help', @helpMenu
       dripcap.menu.setMainPriority 'Help', -999
@@ -93,10 +107,15 @@ class MainMenu
     dripcap.keybind.unbind 'command+alt+ctrl+i', '!menu', 'core:window-zoom'
 
     if process.platform == 'darwin'
-      dripcap.menu.unregisterMain app.getName(), @appMenu
+      name = app.getName()
+      dripcap.menu.unregisterMain name, @appMenu
+      dripcap.menu.registerMain name, @devMenu
+      dripcap.menu.registerMain name, @quitMenu
+    else
+      dripcap.menu.unregisterMain 'Developer', @devMenu
+
     dripcap.menu.unregisterMain 'File', @fileMenu
     dripcap.menu.unregisterMain 'Edit', @editMenu
-    dripcap.menu.unregisterMain 'Developer', @devMenu
     dripcap.menu.unregisterMain 'Window', @windowMenu
     dripcap.menu.unregisterMain 'Help', @helpMenu
 
