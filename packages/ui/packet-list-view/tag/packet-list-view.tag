@@ -5,7 +5,7 @@
   <div class="slider"></div>
   <div class="container"><i>Destination</i></div>
   <div class="slider"></div>
-  <div class="container"><i>Legnth</i></div>
+  <div class="container"><i>Length</i></div>
   <div class="hover-slider"></div>
 
   <style type="text/less">
@@ -61,7 +61,7 @@
 
   <script type="coffee">
   $ = require('jquery')
-  
+
   @on 'mount', =>
     hover = $(@root).find('.hover-slider')
     $(@root).find('.slider').on 'mousedown', ->
