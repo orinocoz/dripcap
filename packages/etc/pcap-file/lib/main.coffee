@@ -104,8 +104,6 @@ class PcapFile
         label: 'Import Pcap File...'
         accelerator: dripcap.keybind.get('!menu', 'pcap-file:open')
         click: -> dripcap.action.emit 'pcap-file:open'
-
-      menu.append new MenuItem type: 'separator'
       menu
 
     dripcap.menu.registerMain 'File', @fileMenu, 5
