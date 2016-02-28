@@ -4,6 +4,7 @@ Architecture: amd64
 Maintainer: h2so5 <mail@h2so5.net>
 Section: net
 Priority: optional
+Installed-Size: 153280
 Vcs-Git: git://github.com/dripcap/dripcap.git
 Vcs-browser: http://github.com/dripcap/dripcap
 Homepage: http://github.com/dripcap/dripcap
