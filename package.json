@@ -14,7 +14,7 @@
     "dpkg": "chmod -R g-w debian && gulp debian && cd .debian && fakeroot dpkg-deb --build . ../dripcap-linux-amd64.deb"
   },
   "engines": {
-    "electron": "0.36.9"
+    "electron": "0.36.10"
   },
   "author": "h2so5",
   "license": "MIT",
