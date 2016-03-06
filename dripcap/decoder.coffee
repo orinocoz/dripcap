@@ -48,8 +48,6 @@ class Session
           packet = data.body
           @_decoderMap.analyze(packet, packet.layers).then () =>
             @_conn.write msgpack.encode(packet)
-        when 'script'
-          new Function(data.body)()
 
   capture: (option) ->
     @_captures.push option

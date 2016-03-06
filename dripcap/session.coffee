@@ -63,7 +63,8 @@ class Session extends EventEmitter
 
   _execute: (js) ->
     @_exec = @_exec.then =>
-      @_msgenc.encode type: 'script', body: js
+      new Promise (res) =>
+        @_window.webContents.executeJavaScript js, res
 
   close: ->
     @_loaded.then =>
