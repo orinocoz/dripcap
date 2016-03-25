@@ -28,7 +28,7 @@ app.on 'ready', ->
             res()
 
           mainWindow.webContents.loadURL 'file://' + __dirname + '/../render.html'
-          mainWindow.webContents.once 'did-finish-load', ->
+          mainWindow.webContents.once 'dom-ready', ->
             mainWindow.webContents.executeJavaScript "require(require('path').join('#{__dirname}', '../js/uitest-init'))('#{t}');"
 
   p.then ->
