@@ -6,7 +6,7 @@ $.fn.extend
     y = @.clone().css(position: 'absolute', visibility: 'hidden', display: 'block').appendTo $('body')
     height = y.height()
     y.remove()
-    height
+    Math.max(height, @.height())
 
 html = '
   <div class="panel root">
