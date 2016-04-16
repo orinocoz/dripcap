@@ -108,7 +108,7 @@ class PcapFile
 
     dripcap.menu.registerMain 'File', @fileMenu, 5
 
-    dripcap.action.on 'pcap-file:open', ->
+    dripcap.action.on 'pcap-file:open', =>
       path = dialog.showOpenDialog remote.getCurrentWindow(),
       filters: [
         name: 'PCAP File'
@@ -133,6 +133,7 @@ class PcapFile
     pcap = new Pcap path
     sess = dripcap.session.create()
     dripcap.session.emit('created', sess)
+    sess.start()
 
     count = 0
 
