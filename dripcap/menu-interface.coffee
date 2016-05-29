@@ -1,8 +1,8 @@
 {EventEmitter} = require('events')
 _ = require('underscore')
-remote = require('remote')
-Menu = remote.require('menu')
-MenuItem = remote.require('menu-item')
+remote = require('electron').remote
+Menu = remote.Menu
+MenuItem = remote.MenuItem
 
 class MenuInterface extends EventEmitter
   constructor: (@parent) ->

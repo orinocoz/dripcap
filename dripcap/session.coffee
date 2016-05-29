@@ -4,8 +4,8 @@ Packet = require('dripcap/packet')
 net = require('net')
 temp = require('temp')
 msgpack = require('msgcap')
-remote = require('remote')
-BrowserWindow = remote.require('browser-window')
+remote = require('electron').remote
+BrowserWindow = remote.BrowserWindow
 
 class Session extends EventEmitter
   constructor: (@_filterPath) ->

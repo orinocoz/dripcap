@@ -4,11 +4,11 @@ riot = require('riot')
 fs = require('fs')
 Component = require('dripcap/component')
 Filter = require('dripcap/filter')
-remote = require('remote')
-Menu = remote.require('menu')
-MenuItem = remote.require('menu-item')
-dialog = remote.require('dialog')
-clipboard = require('clipboard')
+remote = require('electron').remote
+Menu = remote.Menu
+MenuItem = remote.MenuItem
+dialog = remote.dialog
+clipboard = require('electron').clipboard
 notifier = require('node-notifier')
 
 class PacketTable

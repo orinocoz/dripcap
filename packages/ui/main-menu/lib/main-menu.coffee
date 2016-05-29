@@ -1,9 +1,9 @@
 $ = require('jquery')
 fs = require('fs')
-remote = require('remote')
-app = remote.require('app')
-Menu = remote.require('menu')
-MenuItem = remote.require('menu-item')
+remote = require('electron').remote
+app = remote.app
+Menu = remote.menu
+MenuItem = remote.MenuItem
 
 class MainMenu
   activate: ->

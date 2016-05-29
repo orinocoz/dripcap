@@ -1,5 +1,5 @@
-app = require('app')
-BrowserWindow = require('browser-window')
+app = require('electron').app
+BrowserWindow = require('electron').BrowserWindow
 glob = require('glob')
 path = require('path')
 fs = require('fs')
