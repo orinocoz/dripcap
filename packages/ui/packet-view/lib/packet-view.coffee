@@ -1,11 +1,11 @@
 $ = require('jquery')
 riot = require('riot')
 Component = require('dripcap/component')
-remote = require('remote')
-MenuItem = remote.require('menu-item')
-dialog = remote.require('dialog')
+remote = require('electron').remote
+MenuItem = remote.MenuItem
+dialog = remote.dialog
 fs = require('fs')
-clipboard = require('clipboard')
+clipboard = require('electron').clipboard
 notifier = require('node-notifier')
 
 class PacketListView

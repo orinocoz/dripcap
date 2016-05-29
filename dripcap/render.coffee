@@ -1,13 +1,13 @@
 require('coffee-script/register')
 config = require('dripcap/config')
-shell = require('shell')
+shell = require('electron').shell
 $ = require('jquery')
 
 Profile = require('dripcap/profile')
 prof = new Profile config.profilePath + '/default'
 require('dripcap')(prof)
 
-remote = require('remote')
+remote = require('electron').remote
 
 dripcap.package.sub 'core:package-loaded', ->
   process.nextTick -> $('#splash').fadeOut()
@@ -37,7 +37,7 @@ dripcap.action.on 'core:show-license', ->
   shell.openExternal 'https://github.com/dripcap/dripcap/blob/master/LICENSE'
 
 dripcap.action.on 'core:quit', ->
-  remote.require('app').quit()
+  remote.app.quit()
 
 dripcap.pubsub.sub 'core:capturing-status', (data) ->
   if (data)
@@ -56,7 +56,7 @@ dripcap.action.on 'core:start-sessions', ->
   else
     dripcap.action.emit 'core:new-session'
 
-remote.require('power-monitor').on 'suspend', ->
+remote.powerMonitor.on 'suspend', ->
   dripcap.action.emit 'core:stop-sessions'
 
 document.ondragover = document.ondrop = (e) ->
