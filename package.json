@@ -14,7 +14,7 @@
     "dpkg": "chmod -R g-w debian && gulp debian && cd .debian && fakeroot dpkg-deb --build . ../dripcap-linux-amd64.deb"
   },
   "engines": {
-    "electron": "0.36.3"
+    "electron": "1.2.0"
   },
   "author": "h2so5",
   "license": "MIT",
@@ -55,7 +55,7 @@
     "gulp-coffeelint": "^0.6.0",
     "gulp-jasmine": "^2.3.0",
     "gulp-replace": "^0.5.4",
-    "gulp-run-electron": "^1.2.2",
+    "gulp-run-electron": "^2.0.0",
     "gulp-sequence": "^0.4.5",
     "gulp-symdest": "^1.0.0",
     "gulp-vinyl-zip": "^1.1.2"
