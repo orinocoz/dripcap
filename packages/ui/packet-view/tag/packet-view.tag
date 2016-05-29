@@ -18,7 +18,7 @@
   <i if={ base == 10 } oncontextmenu={ context }>{ opts.value.toString(10) }</i>
   <i if={ base == 16 } oncontextmenu={ context }><i class="base">0x</i>{ opts.value.toString(16) }</i>
   <script type="coffee">
-    remote = require('remote')
+    remote = require('electron').remote
     @base = 10
 
     @context = (e) =>
@@ -57,7 +57,7 @@
   </li>
 
   <script type="coffee">
-    remote = require('remote')
+    remote = require('electron').remote
     @show = false
 
     @toggle = (e) =>
@@ -122,7 +122,7 @@
   <packet-view-layer each={ ns in rootKeys } layer={ rootLayers[ns] }></packet-view-layer>
 
   <script type="coffee">
-    remote = require('remote')
+    remote = require('electron').remote
     @visible = true
 
     @on 'update', =>
@@ -172,7 +172,7 @@
   </div>
 
   <script type="coffee">
-    remote = require('remote')
+    remote = require('electron').remote
 
     @set = (pkt) =>
       @packet = pkt

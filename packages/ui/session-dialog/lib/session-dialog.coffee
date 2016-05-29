@@ -1,8 +1,8 @@
 $ = require('jquery')
 riot = require('riot')
 Component = require('dripcap/component')
-remote = require('remote')
-MenuItem = remote.require('menu-item')
+remote = require('electron').remote
+MenuItem = remote.MenuItem
 
 class SessionDialog
   activate: ->

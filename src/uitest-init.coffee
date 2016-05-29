@@ -1,6 +1,6 @@
 $ = require('jquery')
 _ = require('underscore')
-remote = require('remote')
+remote = require('electron').remote
 
 hadlers = []
 

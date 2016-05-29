@@ -1,8 +1,8 @@
 $ = require('jquery')
 fs = require('fs')
-remote = require('remote')
-MenuItem = remote.require('menu-item')
-dialog = remote.require('dialog')
+remote = require('electron').remote
+MenuItem = remote.MenuItem
+dialog = remote.dialog
 Layer = require('dripcap/layer')
 Session = require('dripcap/session')
 {linkid2name} = require('dripcap/enum')

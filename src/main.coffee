@@ -1,12 +1,10 @@
 require('coffee-script/register')
-app = require('app')
+app = require('electron').app
 updater = require('./updater')
 dialog = require('electron').dialog
-BrowserWindow = require('browser-window')
-electronDetach = require('electron-detach')
+BrowserWindow = require('electron').BrowserWindow
 mkpath = require('mkpath')
 config = require('dripcap/config')
-require('crash-reporter').start(config.crashReporter)
 
 mkpath.sync(config.userPackagePath)
 mkpath.sync(config.profilePath)
@@ -43,7 +41,7 @@ class Dripcap
       width: 1200
       height: 800
       show: false
-      'title-bar-style': 'hidden-inset'
+      titleBarStyle: 'hidden-inset'
 
     mainWindow = new BrowserWindow options
     mainWindow.loadURL 'file://' + __dirname + '/../render.html'
@@ -78,7 +76,7 @@ global.dripcap = new Dripcap
 
 if process.env['DRIPCAP_UI_TEST']?
   require './uitest'
-else if process.env['DRIPCAP_ATTACH']? || electronDetach(requireCmdlineArg: false)
+else if process.env['DRIPCAP_ATTACH']?
   app.on 'window-all-closed', ->
     app.quit()
 
