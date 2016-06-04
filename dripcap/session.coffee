@@ -3,13 +3,19 @@ require('dripcap/type')
 Packet = require('dripcap/packet')
 net = require('net')
 temp = require('temp')
+path = require('path')
 msgpack = require('msgcap')
 remote = require('electron').remote
 BrowserWindow = remote.BrowserWindow
 
 class Session extends EventEmitter
   constructor: (@_filterPath) ->
-    sock = temp.path(suffix: '.sock')
+
+    sock =
+      if process.platform == 'win32'
+        path.join('\\\\?\\pipe', process.cwd(), 'myctl')
+      else
+        temp.path(suffix: '.sock')
 
     @_window = new BrowserWindow(show: false)
     @_window.loadURL 'file://' + __dirname + '/session.html'

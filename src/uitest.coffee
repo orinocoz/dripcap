@@ -29,12 +29,16 @@ app.on 'ready', ->
 
           mainWindow.webContents.loadURL 'file://' + __dirname + '/../render.html'
           mainWindow.webContents.once 'dom-ready', ->
-            mainWindow.webContents.executeJavaScript "require(require('path').join('#{__dirname}', '../js/uitest-init'))('#{t}');"
+            mainWindow.webContents.executeJavaScript """
+              var path = require('path');
+              var init = path.join('#{__dirname.split(path.sep).join('/')}', '../js/uitest-init');
+              require(init)('#{t}');
+            """
 
   p.then ->
     console.log ''
     console.log '------------------------------------------------------'
     console.log '[Summary]', 'Total: ', total, ' Failed: ', failed, ' Passed: ', passed
     console.log '------------------------------------------------------'
-    fs.writeFileSync '/tmp/dripcap.test.result', "#{failed}"
+    fs.writeFileSync 'dripcap.test.result', "#{+failed}"
     app.quit()
