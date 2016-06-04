@@ -20,6 +20,9 @@ class PaperFilter extends EventEmitter
   constructor: ->
     @exec = __dirname + '/bin/paperfilter'
 
+    if process.platform == 'win32'
+      @exec += '.exe'
+
     if process.platform == 'darwin'
       pf = helperPfPath
       try
@@ -29,7 +32,7 @@ class PaperFilter extends EventEmitter
         console.warn e
 
     @path =
-      if testdata?
+      if testdata? || process.platform == 'win32'
         @exec
       else if process.platform == 'darwin'
         '/usr/local/lib/paperfilter'
