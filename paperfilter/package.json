@@ -5,7 +5,7 @@
   "main": "paperfilter.coffee",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "go get -v . && go build -o bin/paperfilter"
+    "postinstall": "go get -v . && go build"
   },
   "author": "h2so5",
   "license": "MIT",
