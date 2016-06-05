@@ -5,6 +5,7 @@ net = require('net')
 temp = require('temp')
 path = require('path')
 msgpack = require('msgcap')
+uuid = require('node-uuid')
 remote = require('electron').remote
 BrowserWindow = remote.BrowserWindow
 
@@ -13,7 +14,7 @@ class Session extends EventEmitter
 
     sock =
       if process.platform == 'win32'
-        path.join('\\\\?\\pipe', process.cwd(), 'myctl')
+        path.join('\\\\?\\pipe', uuid.v4())
       else
         temp.path(suffix: '.sock')
 
