@@ -40,5 +40,5 @@ app.on 'ready', ->
     console.log '------------------------------------------------------'
     console.log '[Summary]', 'Total: ', total, ' Failed: ', failed, ' Passed: ', passed
     console.log '------------------------------------------------------'
-    fs.writeFileSync '/tmp/dripcap.test.result', "#{failed}"
+    fs.writeFileSync 'dripcap.test.result', "#{+failed}"
     app.quit()
