@@ -18,7 +18,7 @@ helperAppPath = path.join helperPath, "/Contents/MacOS/Dripcap Helper Installer"
 
 class PaperFilter extends EventEmitter
   constructor: ->
-    @exec = __dirname + '/paperfilter'
+    @exec = __dirname + '/bin/paperfilter'
 
     if process.platform == 'win32'
       @exec += '.exe'
