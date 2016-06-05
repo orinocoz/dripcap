@@ -6,7 +6,7 @@ Function::property = (prop, desc) ->
 class ThemeInterface extends PubSub
   constructor: (@parent) ->
     super()
-    @registory = {}
+    @registry = {}
 
     @_defaultScheme =
       name: 'Default'
@@ -16,15 +16,15 @@ class ThemeInterface extends PubSub
     @id = 'default'
 
   register: (id, scheme) ->
-    @registory[id] = scheme
-    @pub 'registoryUpdated', null, 1
+    @registry[id] = scheme
+    @pub 'registryUpdated', null, 1
     if @_id == id
-      @scheme = @registory[id]
+      @scheme = @registry[id]
       @pub 'update', @scheme, 1
 
   unregister: (id) ->
-    delete @registory[id]
-    @pub 'registoryUpdated', null, 1
+    delete @registry[id]
+    @pub 'registryUpdated', null, 1
 
   @property 'id',
     get: -> @_id
@@ -32,8 +32,8 @@ class ThemeInterface extends PubSub
       if id != @_id
         @_id = id
         @parent.profile.setConfig 'theme', id
-        if @registory[id]?
-          @scheme = @registory[id]
+        if @registry[id]?
+          @scheme = @registry[id]
           @pub 'update', @scheme, 1
 
 module.exports = ThemeInterface

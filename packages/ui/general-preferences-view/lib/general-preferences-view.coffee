@@ -12,8 +12,8 @@ class GeneralPreferencesView
           @_view = riot.mount(m[0], 'general-preferences-view')[0]
           pkg.root.panel.center('general', m, $('<i class="fa fa-cog"> General</i>'))
 
-          dripcap.theme.sub 'registoryUpdated', =>
-            @_view.setThemeList(dripcap.theme.registory)
+          dripcap.theme.sub 'registryUpdated', =>
+            @_view.setThemeList(dripcap.theme.registry)
             @_view.update()
 
           dripcap.profile.watchConfig 'theme', (id) =>
