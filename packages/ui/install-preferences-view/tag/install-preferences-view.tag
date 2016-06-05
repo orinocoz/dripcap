@@ -2,7 +2,7 @@
 
   <ul>
     <li>
-      <label>Package Registry: </label> { dripcap.profile.getConfig('package-registory') }
+      <label>Package Registry: </label> { dripcap.profile.getConfig('package-registry') }
     </li>
     <li>
       <label for="name">Package Name</label>

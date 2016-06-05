@@ -89,7 +89,7 @@ class MainMenu
       dripcap.menu.registerMain 'Help', @helpMenu
       dripcap.menu.setMainPriority 'Help', -999
 
-      dripcap.theme.sub 'registoryUpdated', ->
+      dripcap.theme.sub 'registryUpdated', ->
         dripcap.menu.updateMainMenu()
 
       dripcap.keybind.on 'update', ->

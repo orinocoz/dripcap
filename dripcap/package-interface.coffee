@@ -77,7 +77,7 @@ class PackageInterface extends PubSub
 
     p = Promise.resolve().then ->
       new Promise (res, rej) ->
-        npm.load {production: true, registry: config['package-registory']}, ->
+        npm.load {production: true, registry: config['package-registry']}, ->
           npm.commands.view [name], (e, data) ->
             try
               throw e if e?
