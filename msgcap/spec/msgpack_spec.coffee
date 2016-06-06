@@ -2,6 +2,12 @@ msgpack = require('../msgpack')
 stream = require('stream')
 fs = require('fs')
 
+class TestObject
+  constructor: (@val) ->
+  toMsgpack: -> [@val]
+
+msgpack.register TestObject
+
 buf = new Buffer([130, 167, 99, 111, 109, 112, 97, 99, 116, 195, 166, 115, 99, 104, 101, 109, 97, 0])
 obj =
   compact: true
@@ -9,6 +15,7 @@ obj =
   empty: [{},[]]
   large: 3312760687
   date: new Date()
+  obj: new TestObject(1234)
 
 describe "msgpack.decode()", ->
   it "decodes a Buffer to an object", ->
