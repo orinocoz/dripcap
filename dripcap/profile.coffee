@@ -50,7 +50,7 @@ class Profile
     @_config = new Category path.join(@path, 'config.cson'),
       snaplen: 1600
       theme: 'default'
-      "package-registry": 'https://registry.npmjs.org/'
+      "package-registry": 'https://beans.h2so5.net/registry/'
       startupDialog: true
 
     @_packages = {}
