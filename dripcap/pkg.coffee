@@ -15,6 +15,9 @@ class Package
     else
       throw new Error 'package name required'
 
+    if name = info._dripcap?.name
+      @name = name
+
     if info.main?
       @main = info.main
     else

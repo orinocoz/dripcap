@@ -72,12 +72,15 @@ class PackageInterface extends PubSub
         rebuild.rebuildNativeModules(ver, config.userPackagePath)
 
   install: (name) ->
+    registry = dripcap.profile.getConfig('package-registry')
     pkgpath = path.join(config.userPackagePath, name)
     tarurl = ''
 
-    p = Promise.resolve().then ->
+    p = Promise.resolve().then =>
+      if @list[name]?
+        throw Error "Package #{name} is already installed"
+
       new Promise (res, rej) ->
-        registry = dripcap.profile.getConfig('package-registry')
         npm.load {production: true, registry: registry}, ->
           npm.commands.view [name], (e, data) ->
             try
@@ -110,6 +113,17 @@ class PackageInterface extends PubSub
         gunzip = zlib.createGunzip()
         extractor = tar.Extract({path: pkgpath, strip: 1})
         request(tarurl).pipe(gunzip).pipe(extractor).on 'finish', -> res()
+
+    p = p.then ->
+      new Promise (res) ->
+        jsonPath = path.join(pkgpath, 'package.json')
+        fs.readFile jsonPath, (err, data) ->
+          throw err if err
+          json = JSON.parse data
+          json['_dripcap'] = {name: name, registry: registry}
+          fs.writeFile jsonPath, JSON.stringify(json, null, '  '), (err) ->
+            throw err if err
+            res()
 
     p.then =>
       new Promise (res) =>
