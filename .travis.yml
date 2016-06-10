@@ -1,8 +1,8 @@
 sudo: false
 language: cpp
 os:
-  - linux
-  - osx
+- linux
+- osx
 addons:
   apt:
     sources:
@@ -14,46 +14,51 @@ addons:
     - lintian
     - alien
 before_install:
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-install.sh ; fi
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source travis/osx-before-install.sh ; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-install.sh
+  ; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source travis/osx-before-install.sh ;
+  fi
 install:
 - npm install --depth 0 -g gulp electron-prebuilt
 - npm install --depth 0
 before_script:
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-script.sh ; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-script.sh
+  ; fi
 script:
 - npm test
 notifications:
+  email: false
   slack:
-    secure: lD8KoxYN3DBs9D6C8XvpX2Jc+myv2tprVqcV5bbK8Ea7gcduiy29vM4i4Vx4eXeeEbXMW0BSnpe1sJ5QO/1vHvFOm8FbPzL5nsxuNCSE/2uL3MufOtJgAzgb/7RQHKSfploG8ajMSBlRpQl9qtMZb8LhoCAZh/czWsIZQwji7r2gdafaRcwh2sgMbO1G/C1W4/IoytrIhe8doi4KBRkC/bt0BarptstlkjMvZTbIKjY0YrB8VZyWqOMO3U6d1+4nKcoL2wsIZeB1UD1RgLkqvFd+4IBDh3fkrKTIftjBfh/manEf+ECzq9e4DkTLoBcGas5MniOILJgzC7R5TOeehYIVui4KHUZx2tbMFaYz+FANsdMtTUCLI46N3QeJpo17noQJ4A1ztecnQ+Q4d+cyROTnhTILv2hQn1LLVe3GLN8fkH0Oj2X4FkY3RPrWDKDeTItlMCGWrSvHM7q+hN6GhbDzDdyzE/OH3HtTr/nacXy3WEsdYIwaoJQOvuDx5/a8JawheEDJIfXE2IAKWn7LfHojKghEEAt4kyhsIMBSpsVkxmV3Tc4wyKSDp6h7/EFNoLP3J2cOClFJZCLeV3VTq5SaRfURTkB8p262m+KokxzLeAzO3xHY95gdbyxHMEQnI1qt19FMtJ1h9ZWALObN64NhevnJpkprgzfZdh6Z42s=
+    secure: Dr/J/sDCBmN2iu6fHJjKcypeR+TYojw9oGLRvoxiOaGsrbD5idpePYVEnrMVcuA/3NfzZiLVDue7T5NmufbhVpNacxVv1IwxC1f+T3C/gy2JgqIrynGEzmKGyQTNP+fEzPYRlXPdFWtl5WpZOHsLCQMZDe290Y/8yRG3VKasNxPl2iwUxU0yDnvp11tOnPjvkW5/GYa3qojSLK+oBywq/JJ7DriKnMW18k5deuN8rqVsC5iMwSJXvUuBr3RUwjTVyi3MLwoUW2xlIaMQTHJkgSLeZEuFeumJZeKUlYjLlnT4V0idZG00IC3r28P3l/IA1F4o8heWHN4wBN1lbj4pGQpheC25D9DnibgmZtqED2UNjFa7W5Xfg0/mkRC+0PQYvc7psvBgnIbFmAL9NU2iDabXj9o5rEMzE3XFDQjtkDdrFqAREQAgXh3jgCPeutEZXsXZiRDRIL+4q9e3mSx7akyPLHZhETGB6Gd2s6DMk+TAw3bK40TRzP8D7L057byDwZ+kfUswsghEpDkdK+my0PjIl3rRoLyKaGoH5qqCC3eTbLxZh+CLzXJ0uI4iKzHu+lawZ1NUBOQOQwPqveP40Ze9W3RoTQIuyoJJMGwLCx0ie4L7Z5MOfE6+3m+jDg6INCUkhEKk6Z8hqsn+Fe+X6Hcc+JOG1iphp/XSHQUGx6M=
 before_deploy:
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-deploy.sh ; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-deploy.sh
+  ; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source travis/osx-before-deploy.sh ; fi
 deploy:
-  - provider: releases
-    api_key:
-      secure: RZynYJOGSBraBPp18CKTJ5XAefzu/9QgaIzF157BHRJVkIUsGDy8gVtR1W4AyjPP9hmLrpgZF55/lic2P/pY8hHvVCtHDYEeQNuwigs3EY+ZZiCotCQYDXF0mEoPI+6nWtyGo34dhDzIukTofsOEUBsDuLhJyWxc6gmhxfp8N/GhMp6GRkwOPIg56BbqEuZJngiA1xN1DgUbK+U0sKVbEGqUMpGciM8bO9YhkBNEGd1bcYOFiq/ke6EdH+VcG3dvyG2DGI3ZELuy/lboxYhhffvqotrYL0/eyIaZBx817F7kjsNg/Q8R64c/AxBv9L4AoHdOFV+l7Eey8ThA8ysmu7kauEAYvTlOS5wI9N5oQ4E4vEz+nPnfA1+/riOazOcCuDkssaCcHWZunAhGzfEP7HViXNVKbvYhWPv8058/c6JxybBxE7D+goDo9lKYsgW61gHe6Uu39/q1cZh27JoruRJv4k5SXio+fnbkrqtRsEkEbwrwbSnz1r9Gic0ybB5NJVTGMDDzUdUvrIErky+PzRgz2gvk+UUKOdgDkWxCj0nB8Ntgs7TpBlfNLicaq2J7uExDjvqCtllZr5vB3yxnqekT5b+vFyOASLvFjxYt8htdBzLzO675TGJWe9O5eFtMRJ9pwkO7GNt2KlIl7Zn9GvxyGpG8C/0xHqu/7HBwXXU=
-    file:
-    - dripcap-linux-amd64.deb
-    - dripcap-linux-amd64.rpm
-    - paperfilter-linux-amd64.zip
-    skip_cleanup: true
-    on:
-      tags: true
-      condition: $TRAVIS_OS_NAME = linux
-  - provider: releases
-    api_key:
-      secure: RZynYJOGSBraBPp18CKTJ5XAefzu/9QgaIzF157BHRJVkIUsGDy8gVtR1W4AyjPP9hmLrpgZF55/lic2P/pY8hHvVCtHDYEeQNuwigs3EY+ZZiCotCQYDXF0mEoPI+6nWtyGo34dhDzIukTofsOEUBsDuLhJyWxc6gmhxfp8N/GhMp6GRkwOPIg56BbqEuZJngiA1xN1DgUbK+U0sKVbEGqUMpGciM8bO9YhkBNEGd1bcYOFiq/ke6EdH+VcG3dvyG2DGI3ZELuy/lboxYhhffvqotrYL0/eyIaZBx817F7kjsNg/Q8R64c/AxBv9L4AoHdOFV+l7Eey8ThA8ysmu7kauEAYvTlOS5wI9N5oQ4E4vEz+nPnfA1+/riOazOcCuDkssaCcHWZunAhGzfEP7HViXNVKbvYhWPv8058/c6JxybBxE7D+goDo9lKYsgW61gHe6Uu39/q1cZh27JoruRJv4k5SXio+fnbkrqtRsEkEbwrwbSnz1r9Gic0ybB5NJVTGMDDzUdUvrIErky+PzRgz2gvk+UUKOdgDkWxCj0nB8Ntgs7TpBlfNLicaq2J7uExDjvqCtllZr5vB3yxnqekT5b+vFyOASLvFjxYt8htdBzLzO675TGJWe9O5eFtMRJ9pwkO7GNt2KlIl7Zn9GvxyGpG8C/0xHqu/7HBwXXU=
-    file:
-    - dripcap-darwin-amd64.dmg
-    - dripcap-darwin-amd64.zip
-    - paperfilter-darwin-amd64.zip
-    skip_cleanup: true
-    on:
-      tags: true
-      condition: $TRAVIS_OS_NAME = osx
+- provider: releases
+  api_key:
+    secure: RZynYJOGSBraBPp18CKTJ5XAefzu/9QgaIzF157BHRJVkIUsGDy8gVtR1W4AyjPP9hmLrpgZF55/lic2P/pY8hHvVCtHDYEeQNuwigs3EY+ZZiCotCQYDXF0mEoPI+6nWtyGo34dhDzIukTofsOEUBsDuLhJyWxc6gmhxfp8N/GhMp6GRkwOPIg56BbqEuZJngiA1xN1DgUbK+U0sKVbEGqUMpGciM8bO9YhkBNEGd1bcYOFiq/ke6EdH+VcG3dvyG2DGI3ZELuy/lboxYhhffvqotrYL0/eyIaZBx817F7kjsNg/Q8R64c/AxBv9L4AoHdOFV+l7Eey8ThA8ysmu7kauEAYvTlOS5wI9N5oQ4E4vEz+nPnfA1+/riOazOcCuDkssaCcHWZunAhGzfEP7HViXNVKbvYhWPv8058/c6JxybBxE7D+goDo9lKYsgW61gHe6Uu39/q1cZh27JoruRJv4k5SXio+fnbkrqtRsEkEbwrwbSnz1r9Gic0ybB5NJVTGMDDzUdUvrIErky+PzRgz2gvk+UUKOdgDkWxCj0nB8Ntgs7TpBlfNLicaq2J7uExDjvqCtllZr5vB3yxnqekT5b+vFyOASLvFjxYt8htdBzLzO675TGJWe9O5eFtMRJ9pwkO7GNt2KlIl7Zn9GvxyGpG8C/0xHqu/7HBwXXU=
+  file:
+  - dripcap-linux-amd64.deb
+  - dripcap-linux-amd64.rpm
+  - paperfilter-linux-amd64.zip
+  skip_cleanup: true
+  on:
+    tags: true
+    condition: $TRAVIS_OS_NAME = linux
+- provider: releases
+  api_key:
+    secure: RZynYJOGSBraBPp18CKTJ5XAefzu/9QgaIzF157BHRJVkIUsGDy8gVtR1W4AyjPP9hmLrpgZF55/lic2P/pY8hHvVCtHDYEeQNuwigs3EY+ZZiCotCQYDXF0mEoPI+6nWtyGo34dhDzIukTofsOEUBsDuLhJyWxc6gmhxfp8N/GhMp6GRkwOPIg56BbqEuZJngiA1xN1DgUbK+U0sKVbEGqUMpGciM8bO9YhkBNEGd1bcYOFiq/ke6EdH+VcG3dvyG2DGI3ZELuy/lboxYhhffvqotrYL0/eyIaZBx817F7kjsNg/Q8R64c/AxBv9L4AoHdOFV+l7Eey8ThA8ysmu7kauEAYvTlOS5wI9N5oQ4E4vEz+nPnfA1+/riOazOcCuDkssaCcHWZunAhGzfEP7HViXNVKbvYhWPv8058/c6JxybBxE7D+goDo9lKYsgW61gHe6Uu39/q1cZh27JoruRJv4k5SXio+fnbkrqtRsEkEbwrwbSnz1r9Gic0ybB5NJVTGMDDzUdUvrIErky+PzRgz2gvk+UUKOdgDkWxCj0nB8Ntgs7TpBlfNLicaq2J7uExDjvqCtllZr5vB3yxnqekT5b+vFyOASLvFjxYt8htdBzLzO675TGJWe9O5eFtMRJ9pwkO7GNt2KlIl7Zn9GvxyGpG8C/0xHqu/7HBwXXU=
+  file:
+  - dripcap-darwin-amd64.dmg
+  - dripcap-darwin-amd64.zip
+  - paperfilter-darwin-amd64.zip
+  skip_cleanup: true
+  on:
+    tags: true
+    condition: $TRAVIS_OS_NAME = osx
 env:
   global:
-    - NODE_VERSION: 4.0
-    - secure: PDTa8agVefW++LH9YNWkSsP/sr4/xWiAylXB+WXIEclLU7WeoyDyIxVXON8mHIt/fKyGGKw5QYC1e1IVAbnARZy+H7IJopeWsbsT9CMIVZuXiSOPFUN2svk1YtXpFbo20QlBbCQPB1mcbdGVShWJOTe4FpYNX3Nav0q66Nes3j8fiiNZa2m7tLfR4aXlwNv0wUtTzzdWC5jzMT73//ZTjuPWV1tIPJUu/a5wxkEhCYXM1why3cH6BMRYRZYGlg++TFacA+Efkjc1FHPs24nahqia4PQ6dkNWb1VxdFKuX+73HX2FaV1IWROung4RbK/+k3x6zBdKXpQJXtZA3F88P8fbRerUczt06CNgZLf85cG9OucoJ/cK16XJbMYzC3B8WKdHlBQTP98Kv59WhrI4+NoGaiNGgpczLfei54Gqqwgp40q6OQalgA/NoYXdxVzBNXT+Gtd/obESqx3z5k5iGhZicShwnMP8ySudjv+oms+PoWtdqKg6rtndsAHbhsi+wQPUK6YmLznUlARVTf2TK5g7CSW2cGjCgUXEwSc1ohFNSOi5iWm/jsgwk3yUxk27TizsiRv9LOLFQLP20ghGh5+DiF5hHJtM+CK9qysAGFXK6IHUdkDjBkjpGOJEWGmSGYSLFid+TKzVCAnQA5OYhml7AMW0bngNcUlDdysvE1s=
-    - secure: a0iEtTFTWqH4Jug5CqVrPw6GaVlMmJ6ObLFnqYBRMEo6yJk6dXIzVpaKzEdTmF4/UDTeITMgfsG0tsXWKLXBFgDH5RafhIOfslHxthUZERjfFxa6aThVUnTotmz4msqww6evDoBBato09hidj4TINVRbA0CGx4p5l4dvo6/KTSRyLGhbozoF4uMKU7fV7YhqjSLix5eP3ICRsZGb3TrnWwRQrn2BD5GAVd419filA/97gFAs6Rptu37YPRyX0VMkC6TMsHq+oSqKTtavgPHJrtdX0TgPP99tfi0XaFekXv6tLwj4SmUfpC/x3MxyxuWHVmC0NdmJcnhKH1XcEC2POq68dzsXui2CUyyfkC2WlaBS7TNNCrZ+jliwXlRjQcWi4BcbaI2oWa8iW2yLyJTNJQfAVEV3OAkK5s79Gmi4HHjs1nf7cTORgjbP3uQ35z6vMMizFFv3V6fbjxUmlJc4YUeGzrrcMaSKBJ4O0HlLUYd9tWPeCX1DsEBP6LWQxKceUjfT5N2ww7Hw+VzoSA0+Xv0hTosJjX3CquNGoKR3So0t725j32oXpC0hgdaTM5JlEMkiSwlJBJR2Ukk37h3vw08tRs8FBuGMSCFBcnYTsFqkJ1q9PgrgP//4FOC4qNjeHkPAzeU97Bq3aub6Ios5a0ZrCLB7HNkpRKhVWdtUfMA=
+  - NODE_VERSION: 4.0
+  - secure: PDTa8agVefW++LH9YNWkSsP/sr4/xWiAylXB+WXIEclLU7WeoyDyIxVXON8mHIt/fKyGGKw5QYC1e1IVAbnARZy+H7IJopeWsbsT9CMIVZuXiSOPFUN2svk1YtXpFbo20QlBbCQPB1mcbdGVShWJOTe4FpYNX3Nav0q66Nes3j8fiiNZa2m7tLfR4aXlwNv0wUtTzzdWC5jzMT73//ZTjuPWV1tIPJUu/a5wxkEhCYXM1why3cH6BMRYRZYGlg++TFacA+Efkjc1FHPs24nahqia4PQ6dkNWb1VxdFKuX+73HX2FaV1IWROung4RbK/+k3x6zBdKXpQJXtZA3F88P8fbRerUczt06CNgZLf85cG9OucoJ/cK16XJbMYzC3B8WKdHlBQTP98Kv59WhrI4+NoGaiNGgpczLfei54Gqqwgp40q6OQalgA/NoYXdxVzBNXT+Gtd/obESqx3z5k5iGhZicShwnMP8ySudjv+oms+PoWtdqKg6rtndsAHbhsi+wQPUK6YmLznUlARVTf2TK5g7CSW2cGjCgUXEwSc1ohFNSOi5iWm/jsgwk3yUxk27TizsiRv9LOLFQLP20ghGh5+DiF5hHJtM+CK9qysAGFXK6IHUdkDjBkjpGOJEWGmSGYSLFid+TKzVCAnQA5OYhml7AMW0bngNcUlDdysvE1s=
+  - secure: a0iEtTFTWqH4Jug5CqVrPw6GaVlMmJ6ObLFnqYBRMEo6yJk6dXIzVpaKzEdTmF4/UDTeITMgfsG0tsXWKLXBFgDH5RafhIOfslHxthUZERjfFxa6aThVUnTotmz4msqww6evDoBBato09hidj4TINVRbA0CGx4p5l4dvo6/KTSRyLGhbozoF4uMKU7fV7YhqjSLix5eP3ICRsZGb3TrnWwRQrn2BD5GAVd419filA/97gFAs6Rptu37YPRyX0VMkC6TMsHq+oSqKTtavgPHJrtdX0TgPP99tfi0XaFekXv6tLwj4SmUfpC/x3MxyxuWHVmC0NdmJcnhKH1XcEC2POq68dzsXui2CUyyfkC2WlaBS7TNNCrZ+jliwXlRjQcWi4BcbaI2oWa8iW2yLyJTNJQfAVEV3OAkK5s79Gmi4HHjs1nf7cTORgjbP3uQ35z6vMMizFFv3V6fbjxUmlJc4YUeGzrrcMaSKBJ4O0HlLUYd9tWPeCX1DsEBP6LWQxKceUjfT5N2ww7Hw+VzoSA0+Xv0hTosJjX3CquNGoKR3So0t725j32oXpC0hgdaTM5JlEMkiSwlJBJR2Ukk37h3vw08tRs8FBuGMSCFBcnYTsFqkJ1q9PgrgP//4FOC4qNjeHkPAzeU97Bq3aub6Ios5a0ZrCLB7HNkpRKhVWdtUfMA=
