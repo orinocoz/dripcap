@@ -15,16 +15,18 @@
 
     [riot-tag=status-view] {
       border-bottom: 1px solid @splitter;
+      -webkit-app-region: drag;
 
       .status {
         width: 100%;
-        padding: 12px 10px;
+        padding: 10px;
         color: @label;
         cursor: default;
       }
 
       span {
         padding: 6px 10px;
+        -webkit-app-region: no-drag;
       }
 
       .disabled {
