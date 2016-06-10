@@ -24,12 +24,12 @@ class PaperFilter extends EventEmitter
       @exec += '.exe'
 
     if process.platform == 'darwin'
-      pf = helperPfPath
       try
-        fs.accessSync pf
-        @exec = pf
+        fs.accessSync helperPfPath
+        @exec = helperPfPath
       catch e
-        console.warn e
+        unless process.env['DRIPCAP_UI_TEST']?
+          console.warn e
 
     @path =
       if testdata? || process.platform == 'win32'
