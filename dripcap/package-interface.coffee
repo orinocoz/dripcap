@@ -36,9 +36,12 @@ class PackageInterface extends PubSub
     paths = glob.sync(config.packagePath + '/**/package.json')
     paths = paths.concat glob.sync(config.userPackagePath + '/**/package.json')
 
+    loadedPackages = {}
+
     for p in paths
       try
         pkg = new Package(p)
+        loadedPackages[pkg.name] = true
 
         if (loaded = @list[pkg.name])?
           if loaded.path != pkg.path
@@ -48,12 +51,15 @@ class PackageInterface extends PubSub
             continue
           else
             loaded.deactivate()
+
         @list[pkg.name] = pkg
       catch e
         console.warn "failed to load #{pkg.name}/package.json : #{e}"
 
     for k, pkg of @list
-      if pkg.config.get('enabled')
+      if !loadedPackages[pkg.name]
+        delete @list[k]
+      else if pkg.config.get('enabled')
         pkg.activate()
         pkg.load().then =>
           process.nextTick => @triggerlLoaded()
@@ -131,10 +137,11 @@ class PackageInterface extends PubSub
           res()
           @updatePackageList()
 
-  uninstall: (name) ->
+  uninstall: (name) =>
     pkgpath = path.join(config.userPackagePath, name)
-    new Promise (res) ->
-      rmdir pkgpath, (err) ->
+    new Promise (res) =>
+      rmdir pkgpath, (err) =>
+        @updatePackageList()
         throw err if err?
         res()
 
