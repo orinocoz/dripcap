@@ -29,10 +29,6 @@
           font-style: normal;
           width: 23px;
       }
-
-      i.selected {
-        background-color: @highlight;
-      }
     }
   </style>
 
