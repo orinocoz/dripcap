@@ -268,6 +268,12 @@
       }
     }
 
+    [riot-tag=binary-view] {
+      i.selected {
+        background-color: @highlight;
+      }
+    }
+
   </style>
 
 </packet-view>
