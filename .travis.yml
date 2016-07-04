@@ -43,7 +43,6 @@ deploy:
   file:
   - dripcap-linux-amd64.deb
   - dripcap-linux-amd64.rpm
-  - paperfilter-linux-amd64.zip
   skip_cleanup: true
   on:
     tags: true
@@ -54,7 +53,6 @@ deploy:
   file:
   - dripcap-darwin-amd64.dmg
   - dripcap-darwin-amd64.zip
-  - paperfilter-darwin-amd64.zip
   skip_cleanup: true
   on:
     tags: true
