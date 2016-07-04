@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 language: cpp
 os:
 - linux
@@ -8,11 +8,13 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - gcc-4.8
-    - g++-4.8
+    - gcc-4.9
+    - g++-4.9
     - xvfb
     - lintian
     - alien
+    - libcap-dev
+    - jq
 before_install:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-install.sh
   ; fi
