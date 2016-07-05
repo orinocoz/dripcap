@@ -2,10 +2,10 @@
   "name": "goldfilter",
   "version": "0.0.18",
   "description": "Dripcap goldfilter",
-  "main": "index.es",
+  "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "postinstall": "node build.js"
+    "postinstall": "node build.js && babel --presets es2015 -o index.js index.es"
   },
   "author": "h2so5",
   "license": "MIT",
