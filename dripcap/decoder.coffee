@@ -1,9 +1,4 @@
 require('coffee-script/register')
-require("babel-register")({
-    presets : [ "es2015" ],
-    extensions : [ ".es" ]
-});
-
 require('dripcap/type')
 _ = require('underscore')
 net = require('net')

@@ -1,9 +1,4 @@
 require('coffee-script/register')
-require("babel-register")({
-    presets : [ "es2015" ],
-    extensions : [ ".es" ]
-})
-
 config = require('dripcap/config')
 shell = require('electron').shell
 $ = require('jquery')
