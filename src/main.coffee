@@ -5,9 +5,13 @@ dialog = require('electron').dialog
 BrowserWindow = require('electron').BrowserWindow
 mkpath = require('mkpath')
 config = require('dripcap/config')
+GoldFilter = require('goldfilter').default
 
 mkpath.sync(config.userPackagePath)
 mkpath.sync(config.profilePath)
+
+unless GoldFilter.testPerm()
+  GoldFilter.setPerm()
 
 class Dripcap
   constructor: ->

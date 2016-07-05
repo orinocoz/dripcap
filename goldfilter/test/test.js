@@ -98,6 +98,7 @@ describe('GoldFilter', function() {
                 .and.also.have.property('ts_nsec', 237003)
                 .and.also.have.property('len', 100)
                 .and.also.have.deep.property('payload.length', 100)
+                .and.also.have.deep.property('layers.::<Ethernet>.payload.length')
                 .and.also.have.deep.property('layers.::<Ethernet>.layers.::Ethernet::<IPv4>.layers.::Ethernet::IPv4');
 
             after(() => {

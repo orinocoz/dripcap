@@ -7,9 +7,20 @@ path = require('path')
 msgpack = require('msgcap')
 remote = require('electron').remote
 BrowserWindow = remote.BrowserWindow
+GoldFilter = require('goldfilter').default;
 
 class Session extends EventEmitter
   constructor: (@_filterPath) ->
+    @_pktId = 1
+
+    @_gold = new GoldFilter()
+    @_gold.on 'status', (stat) =>
+      if stat.packets >= @_pktId
+        @_gold.requestPackets(@_pktId, stat.packets)
+        @_pktId = stat.packets + 1
+
+    @_gold.on 'packet', (pkt) =>
+      console.log(pkt)
 
     sock =
       if process.platform == 'win32'
@@ -41,6 +52,7 @@ class Session extends EventEmitter
     @_exec = @_loaded
 
   addCapture: (iface, options = {}) ->
+    @_settings = {iface: iface, options: options}
     settings = {iface: iface, options: options}
     arg = JSON.stringify settings
     @_execute("session.capture(#{arg})").then ->
@@ -55,6 +67,9 @@ class Session extends EventEmitter
       @_msgenc.encode type: 'packet', body: packet
 
   start: ->
+    @_gold.stop().then =>
+        @_gold.start(@_settings.iface, @_settings.options)
+
     @stop().then =>
       @_event.on 'packet', (packet) =>
         @emit 'packet', new Packet packet
@@ -63,6 +78,8 @@ class Session extends EventEmitter
       dripcap.pubsub.pub 'core:capturing-status', true
 
   stop: ->
+    @_gold.stop()
+
     @_event.removeAllListeners()
     @_execute('session.stop()').then ->
       dripcap.pubsub.pub 'core:capturing-status', false
@@ -73,6 +90,8 @@ class Session extends EventEmitter
         @_window.webContents.executeJavaScript js, res
 
   close: ->
+    @_gold.close()
+
     @_loaded.then =>
       @_server.close()
       @_window.close()
