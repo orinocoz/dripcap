@@ -1,6 +1,6 @@
 config = require('./config')
 $ = require('jquery')
-PaperFilter = require('paperfilter')
+GoldFilter = require('goldfilter').default;
 {EventEmitter} = require('events')
 
 PubSub = require('./pubsub')
@@ -19,10 +19,10 @@ class EventInterface extends EventEmitter
 class Dripcap extends EventEmitter
 
   getInterfaceList: ->
-    filter = new PaperFilter
-    filter.list()
+    @_gold.devices()
 
   constructor: (@profile) ->
+    @_gold = new GoldFilter();
     global.dripcap = @
 
   _init: ->
@@ -36,9 +36,6 @@ class Dripcap extends EventEmitter
     @event = new EventInterface @
     @menu = new MenuInterface @
     @pubsub = new PubSub
-
-    filter = new PaperFilter
-    filter.setup(config.filterPackPath)
 
     @theme.sub 'update', (scheme) =>
       @package.updateTheme scheme
