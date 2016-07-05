@@ -1,2 +1,2 @@
 #!/bin/sh
-/usr/bin/paperfilter setcap
+/usr/bin/goldfilter --set-perm

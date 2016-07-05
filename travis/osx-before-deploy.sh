@@ -16,8 +16,8 @@ export DRIPCAP_DARWIN_SIGN=C0AC25D3DB05BDAF758A4E0A002F25F63F2FC93A
 gulp darwin-sign
 cd .builtapp
 
-git clone https://github.com/dripcap/dripcap-helper.git
-cp ./dripcap-darwin/dripcap.app/Contents/Resources/app/node_modules/paperfilter/bin/paperfilter dripcap-helper/paperfilter
+git clone https://github.com/dripcap/dripcap-helper-gold.git dripcap-helper
+cp ./dripcap-darwin/dripcap.app/Contents/Resources/app/node_modules/goldfilter/build/goldfilter dripcap-helper/goldfilter
 plutil -replace 'CFBundleVersion' -string `node -p "require('../package.json').version"` dripcap-helper/DripcapHelper/Info.plist
 cd dripcap-helper
 xcodebuild -configuration Release

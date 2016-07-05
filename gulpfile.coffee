@@ -86,6 +86,10 @@ gulp.task 'debian-paperfilter', (cb) ->
   gulp.src('./.build/node_modules/paperfilter/bin/paperfilter')
     .pipe gulp.dest('./.debian/usr/bin/')
 
+gulp.task 'debian-goldfilter', (cb) ->
+  gulp.src('./.build/node_modules/goldfilter/build/goldfilter')
+    .pipe gulp.dest('./.debian/usr/bin/')
+
 gulp.task 'debian-bin', ['copy', 'coffee', 'copypkg', 'npm'], (cb) ->
   gulp.src('./.build/**')
     .pipe(electron(
@@ -98,7 +102,8 @@ gulp.task 'debian-bin', ['copy', 'coffee', 'copypkg', 'npm'], (cb) ->
 gulp.task 'debian', sequence(
   'debian-bin',
   'debian-pkg',
-  'debian-paperfilter'
+  'debian-paperfilter',
+  'debian-goldfilter'
 )
 
 gulp.task 'darwin', ['build'], (cb) ->
