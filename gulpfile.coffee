@@ -139,7 +139,7 @@ gulp.task 'jasmine', ->
     ])
     .pipe(jasmine())
 
-gulp.task 'test', sequence('build', 'jasmine', 'uitest')
+gulp.task 'test', sequence('build', 'jasmine')
 
 gulp.task 'uitest', ->
   gulp.src(".build").pipe(runElectron([], env: Object.assign({
