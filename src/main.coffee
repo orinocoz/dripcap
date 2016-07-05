@@ -1,4 +1,9 @@
 require('coffee-script/register')
+require("babel-register")({
+    presets : [ "es2015" ],
+    extensions : [ ".es" ]
+})
+
 app = require('electron').app
 updater = require('./updater')
 dialog = require('electron').dialog
