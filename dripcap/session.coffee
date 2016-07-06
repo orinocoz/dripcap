@@ -62,6 +62,9 @@ class Session extends EventEmitter
     arg = JSON.stringify decoder
     @_execute("session.load(#{arg})")
 
+  addDissector: (namespaces, path) ->
+    @_gold.addDissector(namespaces, path)
+
   decode: (packet) ->
     @_execute('').then =>
       @_msgenc.encode type: 'packet', body: packet
