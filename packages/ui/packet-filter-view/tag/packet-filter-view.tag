@@ -13,13 +13,11 @@
 
   <script type="coffee">
     $ = require('jquery')
-    parse = require('dripcap/filter-parse')
 
     @change = (e) =>
       try
         $(@filter).toggleClass('error', false)
         @filterText = $(e.target).val().trim()
-        parse(@filterText)
       catch error
         $(@filter).toggleClass('error', true)
         @filterText = null

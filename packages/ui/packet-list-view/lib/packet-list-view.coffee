@@ -3,7 +3,6 @@ _ = require('underscore')
 riot = require('riot')
 fs = require('fs')
 Component = require('dripcap/component')
-Filter = require('dripcap/filter')
 remote = require('electron').remote
 Menu = remote.Menu
 MenuItem = remote.MenuItem
@@ -132,34 +131,11 @@ class PacketListView
             @header.calculate()
 
             dripcap.pubsub.sub 'packet-filter-view:filter', (f) =>
-              if @_filterInterval?
-                clearInterval @_filterInterval
-                @_filterInterval = null
-
-              if @_filter?
-                @_filter.terminate()
-                @_filter = null
-
-              if f.length > 0
-                @_filter = new Filter(f)
-                @_filter.on 'filtered', (pkt) ->
-                  subTable.append pkt
-
-                subTable.clear()
-                for pkt in packets
-                  @_filter.process pkt
-
-                sub.show()
-                main.hide()
-              else
-                sub.hide()
-                main.show()
-            , 400
+              ;
 
             session.on 'packet', (pkt) =>
               packets.push pkt
               mainTable.append pkt
-              @_filter.process pkt if @_filter?
               mainTable.autoScroll()
               subTable.autoScroll()
 
