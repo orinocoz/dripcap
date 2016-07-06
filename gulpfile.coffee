@@ -39,7 +39,6 @@ gulp.task 'copypkg', ->
   gulp.src([
     './packages/**/*'
     './dripcap/**/*'
-    './paperfilter/**/*'
     './goldfilter/**/*'
     './msgcap/**/*'
   ], base: './')
@@ -82,10 +81,6 @@ gulp.task 'debian-pkg', (cb) ->
     .pipe(replace('{{DRIPCAP_VERSION}}', pkg.version, skipBinary: true))
     .pipe gulp.dest('./.debian/')
 
-gulp.task 'debian-paperfilter', (cb) ->
-  gulp.src('./.build/node_modules/paperfilter/bin/paperfilter')
-    .pipe gulp.dest('./.debian/usr/bin/')
-
 gulp.task 'debian-goldfilter', (cb) ->
   gulp.src('./.build/node_modules/goldfilter/build/goldfilter')
     .pipe gulp.dest('./.debian/usr/bin/')
@@ -102,7 +97,6 @@ gulp.task 'debian-bin', ['copy', 'coffee', 'copypkg', 'npm'], (cb) ->
 gulp.task 'debian', sequence(
   'debian-bin',
   'debian-pkg',
-  'debian-paperfilter',
   'debian-goldfilter'
 )
 
