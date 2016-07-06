@@ -197,9 +197,14 @@ export default class GoldFilter extends EventEmitter {
       for (let pkt of packets) {
         let codec = msgpack.createCodec();
         codec.addExtUnpacker(0x1B, Buffer);
+        codec.addExtUnpacker(0x20, (buffer) => {
+          const args = msgpack.decode(buffer, {codec: codec});
+          console.log(args);
+          return buffer;
+        });
         codec.addExtUnpacker(0x1F, ((pkt) => {
           return (buffer) => {
-            const range = msgpack.decode(buffer);
+            const range = msgpack.decode(buffer, {codec: codec});
             return pkt.payload.slice(range[0], range[1]);
           };
         })(pkt))

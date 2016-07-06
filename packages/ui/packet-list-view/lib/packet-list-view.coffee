@@ -64,10 +64,10 @@ class PacketTable
   append: (pkt) ->
     self = @
     len =
-      if pkt.caplen < pkt.length
-        "<td>#{ pkt.length } <i class=\"fa fa-exclamation-circle\"></i></td>"
+      if pkt.payload.length < pkt.len
+        "<td>#{ pkt.payload.length } <i class=\"fa fa-exclamation-circle\"></i></td>"
       else
-        "<td>#{ pkt.length }</td>"
+        "<td>#{ pkt.payload.length }</td>"
 
     tr = $('<tr>')
       .append("<td>#{ pkt.name }</td>")

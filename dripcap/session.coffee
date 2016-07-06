@@ -20,7 +20,7 @@ class Session extends EventEmitter
         @_pktId = stat.packets + 1
 
     @_gold.on 'packet', (pkt) =>
-      console.log(pkt)
+      @emit 'packet', new Packet(pkt)
 
     sock =
       if process.platform == 'win32'
