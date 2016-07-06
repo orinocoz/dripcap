@@ -65,6 +65,9 @@ class Session extends EventEmitter
   addDissector: (namespaces, path) ->
     @_gold.addDissector(namespaces, path)
 
+  addClass: (path) ->
+    @_gold.addClass(path)
+
   decode: (packet) ->
     @_execute('').then =>
       @_msgenc.encode type: 'packet', body: packet

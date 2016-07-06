@@ -13,6 +13,10 @@ const exeEnv = {
   env : {'GOLDFILTER_LOG' : 'error'}
 };
 
+class Payload extends Buffer {
+
+};
+
 export default class GoldFilter extends EventEmitter {
   constructor() {
     super();
@@ -38,6 +42,7 @@ export default class GoldFilter extends EventEmitter {
     this.callbacks = [];
     this.callid = 0;
 
+    this.msgpackClasses = {};
     this.filterClasses = {};
     this.filterSource = fs.readFileSync(path.join(__dirname, './filter.es'));
 
@@ -131,9 +136,23 @@ export default class GoldFilter extends EventEmitter {
     })
   }
 
-  addFilterClass(name, path) {
+  addClass(path) {
     return this._build(path).then((source) => {
-      this.filterClasses[name] = source;
+      let func = new Function('require', source);
+      func((name) => {
+        if (name === 'dripcap') {
+          return Object.assign({
+            Buffer: Buffer,
+            Msgpack: {
+              register: (name, cls) => {
+                this.msgpackClasses[name] = cls;
+                this.filterClasses[name] = source;
+              }
+            }
+          }, this.msgpackClasses);
+        }
+        return require(name);
+      });
       return Promise.resolve();
     });
   }
@@ -199,13 +218,19 @@ export default class GoldFilter extends EventEmitter {
         codec.addExtUnpacker(0x1B, Buffer);
         codec.addExtUnpacker(0x20, (buffer) => {
           const args = msgpack.decode(buffer, {codec: codec});
-          console.log(args);
+          const cls = this.msgpackClasses[args[0]];
+          if (cls != null) {
+            return new (Function.prototype.bind.apply(cls, [null].concat(args.slice(1))));
+          }
           return buffer;
         });
         codec.addExtUnpacker(0x1F, ((pkt) => {
           return (buffer) => {
             const range = msgpack.decode(buffer, {codec: codec});
-            return pkt.payload.slice(range[0], range[1]);
+            let slice = pkt.payload.slice(range[0], range[1]);
+            slice.start = range[0];
+            slice.end = range[1];
+            return slice;
           };
         })(pkt))
         pkt.layers = msgpack.decode(pkt.layers.buffer, {codec: codec});

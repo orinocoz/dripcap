@@ -7,6 +7,7 @@ class SessionInterface extends EventEmitter
     @list = []
     @_decoders = {}
     @_dissectors = []
+    @_classes = []
 
   registerDecoder: (dec) ->
     @_decoders[dec] = null
@@ -17,6 +18,9 @@ class SessionInterface extends EventEmitter
   registerDissector: (namespaces, path) ->
     @_dissectors.push({namespaces: namespaces, path: path})
 
+  registerClass: (path) ->
+    @_classes.push(path)
+
   create: (ifs, options={}) ->
     sess = new Session(config.filterPath)
     sess.addCapture(ifs, options) if ifs?
@@ -24,6 +28,8 @@ class SessionInterface extends EventEmitter
       sess.addDecoder dec
     for dec in @_dissectors
       sess.addDissector dec.namespaces, dec.path
+    for cls in @_classes
+      sess.addClass cls
     sess
 
 module.exports = SessionInterface

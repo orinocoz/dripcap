@@ -78,7 +78,7 @@ export default class EthrenetDissector
         layer.fields.push({
             name : 'Payload',
             value : layer.payload,
-            range : layer.payload
+            data : layer.payload
         });
 
         layer.summary = (layer.attrs.etherType) ? `[${layer.attrs.etherType.name}] ${layer.attrs.src} -> ${layer.attrs.dst}`

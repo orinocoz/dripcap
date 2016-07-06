@@ -39,4 +39,7 @@ class Packet
     getAttrs @layers
     attrs
 
+  @property 'timestamp', get: ->
+    new Date(@ts_sec * 1000)
+
 module.exports = Packet
