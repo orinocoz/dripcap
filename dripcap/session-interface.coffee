@@ -15,8 +15,8 @@ class SessionInterface extends EventEmitter
   registerDissector: (namespaces, path) ->
     @_dissectors.push({namespaces: namespaces, path: path})
 
-  registerClass: (path) ->
-    @_classes.push(path)
+  registerClass: (name, path) ->
+    @_classes.push({name: name, path: path})
 
   create: (ifs, options={}) ->
     sess = new Session(config.filterPath)
@@ -24,7 +24,7 @@ class SessionInterface extends EventEmitter
     for dec in @_dissectors
       sess.addDissector dec.namespaces, dec.path
     for cls in @_classes
-      sess.addClass cls
+      sess.addClass cls.name, cls.path
     sess
 
 module.exports = SessionInterface

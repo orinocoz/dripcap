@@ -29,7 +29,7 @@ export default class MACAddress
 
     toMsgpack()
     {
-        return [ 'MACAddress', this.data ];
+        return [ 'dripcap/mac', this.data ];
     }
 
     equals(value)
@@ -37,4 +37,4 @@ export default class MACAddress
         return this.data.equals(value.data);
     }
 }
-Msgpack.register('MACAddress', MACAddress);
+Msgpack.register('dripcap/mac', MACAddress);

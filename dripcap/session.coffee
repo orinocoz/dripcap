@@ -21,8 +21,8 @@ class Session extends EventEmitter
   addDissector: (namespaces, path) ->
     @_gold.addDissector(namespaces, path)
 
-  addClass: (path) ->
-    @_gold.addClass(path)
+  addClass: (name, path) ->
+    @_gold.addClass(name, path)
 
   start: ->
     @_gold.stop().then =>

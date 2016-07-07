@@ -136,12 +136,12 @@ export default class GoldFilter extends EventEmitter {
     })
   }
 
-  addClass(path) {
+  addClass(name, path) {
     return this._build(path).then((source) => {
       let func = new Function('require', source);
       func((name) => {
         if (name === 'dripcap') {
-          return Object.assign({
+          return {
             Buffer: Buffer,
             Msgpack: {
               register: (name, cls) => {
@@ -149,7 +149,10 @@ export default class GoldFilter extends EventEmitter {
                 this.filterClasses[name] = source;
               }
             }
-          }, this.msgpackClasses);
+          };
+        }
+        if (this.msgpackClasses[name] != null) {
+          return this.msgpackClasses[name];
         }
         return require(name);
       });

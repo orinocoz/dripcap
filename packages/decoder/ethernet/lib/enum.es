@@ -39,7 +39,7 @@ export default class Enum
         if (this.known) {
             table[this.value] = this.table[this.value];
         }
-        return [ 'Enum', table, this.value ];
+        return [ 'dripcap/enum', table, this.value ];
     }
 
     equals(val)
@@ -47,4 +47,4 @@ export default class Enum
         return val.toString() === this.toString();
     }
 }
-Msgpack.register('Enum', Enum);
+Msgpack.register('dripcap/enum', Enum);
