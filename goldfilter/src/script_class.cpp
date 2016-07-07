@@ -80,7 +80,7 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
                         if (name->IsString()) {
                             Local<Context> ctx = isolate->GetCurrentContext();
                             Local<Value> registerd = ctx->GetEmbedderData(0);
-                            if (registerd->IsObject()) {
+                            if (!registerd.IsEmpty() && registerd->IsObject()) {
                                 Local<Value> func = registerd.As<Object>()->Get(name.As<String>());
                                 if (func->IsFunction()) {
                                     std::vector<Handle<Value>> args;
@@ -570,11 +570,14 @@ ScriptClass::Private::Private(const msgpack::object &options)
         if (name == "dripcap") {
             args.GetReturnValue().Set(obj);
         } else {
-            Local<Object> internal = obj->GetHiddenValue(v8pp::to_v8(isolate, "exports")).As<Object>();
-            Local<Value> module = internal->Get(v8pp::to_v8(isolate, name));
-            if (!module.IsEmpty()) {
-                args.GetReturnValue().Set(module);
-                return;
+            Local<Context> ctx = isolate->GetCurrentContext();
+            Local<Value> internal = ctx->GetEmbedderData(0);
+            if (!internal.IsEmpty() && internal->IsObject()) {
+                Local<Value> module = internal.As<Object>()->Get(v8pp::to_v8(isolate, name));
+                if (!module.IsEmpty()) {
+                    args.GetReturnValue().Set(module);
+                    return;
+                }
             }
             std::string err("Cannot find module '");
             args.GetReturnValue().Set(v8pp::throw_ex(isolate, (err + name + "'").c_str()));
@@ -615,18 +618,8 @@ ScriptClass::Private::Private(const msgpack::object &options)
             }
 
             Local<Value> exports = module->Get(v8pp::to_v8(isolate, "exports"));
-            Local<Object> internal = dripcap->GetHiddenValue(v8pp::to_v8(isolate, "exports")).As<Object>();
-            if (internal.IsEmpty()) {
-                internal = Object::New(isolate);
-            }
-
-            internal->Set(
-                v8pp::to_v8(isolate, pair.first), exports);
-
-            dripcap->SetHiddenValue(v8pp::to_v8(isolate, "exports"), internal);
-
             Local<Value> registerd = context->GetEmbedderData(0);
-            if (!registerd->IsObject()) {
+            if (registerd.IsEmpty() || !registerd->IsObject()) {
                 registerd = Object::New(isolate);
             }
             registerd.As<Object>()->Set(v8pp::to_v8(isolate, pair.first), exports);
