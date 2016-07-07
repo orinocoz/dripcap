@@ -1,5 +1,4 @@
-import {Buffer,
-        Msgpack} from 'dripcap';
+import {Buffer} from 'dripcap';
 
 export default class Enum
 {

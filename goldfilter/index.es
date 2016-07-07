@@ -130,7 +130,7 @@ export default class GoldFilter extends EventEmitter {
         source: source,
         options : {
           namespaces : namespaces || [],
-          modules : {}
+          modules : this.filterClasses
         }
       })
     })
@@ -147,6 +147,7 @@ export default class GoldFilter extends EventEmitter {
           };
         }
         if (this.msgpackClasses[name] != null) {
+          console.log(name, this.msgpackClasses[name])
           return this.msgpackClasses[name];
         }
         return require(name);

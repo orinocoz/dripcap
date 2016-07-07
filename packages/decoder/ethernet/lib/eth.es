@@ -1,6 +1,5 @@
 import {Layer,
-        Buffer,
-        Msgpack} from 'dripcap';
+        Buffer} from 'dripcap';
 import MACAddress from './mac.es';
 import Enum from './enum.es';
 

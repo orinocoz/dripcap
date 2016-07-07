@@ -571,9 +571,14 @@ ScriptClass::Private::Private(const msgpack::object &options)
             args.GetReturnValue().Set(obj);
         } else {
             Local<Context> ctx = isolate->GetCurrentContext();
-            Local<Value> internal = ctx->GetEmbedderData(0);
+            //Local<Value> internal = obj->GetHiddenValue(v8pp::to_v8(isolate, "0"));
+            Local<Value> internal = ctx->Global()->Get(
+                v8pp::to_v8(isolate, "__module"));
             if (!internal.IsEmpty() && internal->IsObject()) {
                 Local<Value> module = internal.As<Object>()->Get(v8pp::to_v8(isolate, name));
+                    auto spd = spdlog::get("console");
+                        String::Utf8Value ex(module);
+                spd->error("mod_registerc: {} {}", name, *ex);
                 if (!module.IsEmpty()) {
                     args.GetReturnValue().Set(module);
                     return;
@@ -622,8 +627,13 @@ ScriptClass::Private::Private(const msgpack::object &options)
             if (registerd.IsEmpty() || !registerd->IsObject()) {
                 registerd = Object::New(isolate);
             }
+                String::Utf8Value ex(exports);
+            spd->error("mod_registerr: {} {}", pair.first, *ex);
             registerd.As<Object>()->Set(v8pp::to_v8(isolate, pair.first), exports);
             context->SetEmbedderData(0, registerd);
+            //dripcap->SetHiddenValue(v8pp::to_v8(isolate, "0"), registerd);
+            context->Global()->Set(
+                v8pp::to_v8(isolate, "__module"), registerd);
         }
     } catch (const std::bad_cast &err) {
         spd->error("modules: {}", err.what());
@@ -653,6 +663,7 @@ bool ScriptClass::loadSource(const std::string &src, std::string *error)
     HandleScope handle_scope(d->isolate);
     Local<Context> context = Local<Context>::New(d->isolate, d->context);
     Context::Scope context_scope(context);
+    auto spd = spdlog::get("console");
 
     Local<String> source = v8pp::to_v8(d->isolate, src);
 
@@ -662,6 +673,7 @@ bool ScriptClass::loadSource(const std::string &src, std::string *error)
         String::Utf8Value err(try_catch.Exception());
         if (error)
             error->assign(*err);
+        spd->error("load: {}", *err);
         return false;
     }
 
@@ -674,6 +686,7 @@ bool ScriptClass::loadSource(const std::string &src, std::string *error)
         String::Utf8Value err(try_catch.Exception());
         if (error)
             error->assign(*err);
+        spd->error("load: {}", *err);
         return false;
     }
 
