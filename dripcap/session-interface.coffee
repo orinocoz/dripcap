@@ -8,10 +8,6 @@ class SessionInterface extends EventEmitter
     @_dissectors = []
     @_classes = []
 
-  registerDecoder: (dec) ->
-
-  unregisterDecoder: (dec) ->
-
   registerDissector: (namespaces, path) ->
     @_dissectors.push({namespaces: namespaces, path: path})
 
