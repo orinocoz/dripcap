@@ -37,4 +37,3 @@ export default class MACAddress
         return this.data.equals(value.data);
     }
 }
-Msgpack.register('dripcap/mac', MACAddress);

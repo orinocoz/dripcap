@@ -47,4 +47,3 @@ export default class Enum
         return val.toString() === this.toString();
     }
 }
-Msgpack.register('dripcap/enum', Enum);

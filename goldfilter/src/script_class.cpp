@@ -452,26 +452,6 @@ Local<Object> PacketWrapper::findLayer(const LayerPtr &layer) const
     return Local<Object>();
 }
 
-class Msgpack
-{
-  public:
-    Msgpack();
-    ~Msgpack();
-    void registerClass(const std::string &name, Local<Function> func);
-};
-
-Msgpack::Msgpack()
-{
-}
-
-Msgpack::~Msgpack()
-{
-}
-
-void Msgpack::registerClass(const std::string &name, Local<Function> func)
-{
-}
-
 class ArrayBufferAllocator : public ArrayBuffer::Allocator
 {
   public:
@@ -567,10 +547,6 @@ ScriptClass::Private::Private(const msgpack::object &options)
 
     layer.class_function_template()->SetClassName(v8pp::to_v8(isolate, "Layer"));
 
-    v8pp::class_<Msgpack> msg(isolate);
-    msg
-        .set("register", &Msgpack::registerClass);
-
     v8pp::module dripcapModule(isolate);
     dripcapModule.set("Buffer", buffer);
 
@@ -584,8 +560,6 @@ ScriptClass::Private::Private(const msgpack::object &options)
         args.GetReturnValue().Set(obj);
     }, layer.js_function_template()->GetFunction());
     dripcapModule.set("Layer", layerFunc);
-
-    dripcapModule.set_const("Msgpack", v8pp::class_<Msgpack>::create_object(isolate));
 
     Local<Object> dripcap = dripcapModule.new_instance();
     Local<FunctionTemplate> f = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {

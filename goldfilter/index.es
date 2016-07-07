@@ -138,24 +138,21 @@ export default class GoldFilter extends EventEmitter {
 
   addClass(name, path) {
     return this._build(path).then((source) => {
-      let func = new Function('require', source);
+      let func = new Function('require', 'module', source);
+      let mod = {};
       func((name) => {
         if (name === 'dripcap') {
           return {
-            Buffer: Buffer,
-            Msgpack: {
-              register: (name, cls) => {
-                this.msgpackClasses[name] = cls;
-                this.filterClasses[name] = source;
-              }
-            }
+            Buffer: Buffer
           };
         }
         if (this.msgpackClasses[name] != null) {
           return this.msgpackClasses[name];
         }
         return require(name);
-      });
+      }, mod);
+      this.msgpackClasses[name] = mod.exports;
+      this.filterClasses[name] = source;
       return Promise.resolve();
     });
   }
