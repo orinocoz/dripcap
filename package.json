@@ -37,7 +37,6 @@
     "less": "^2.7.1",
     "mkpath": "^1.0.0",
     "mousetrap": "^1.6.0",
-    "msgcap": "file:./msgcap",
     "msgpack-lite": "^0.1.20",
     "node-notifier": "^4.6.0",
     "npm": "^3.9.5",

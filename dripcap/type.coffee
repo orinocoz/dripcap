@@ -183,13 +183,3 @@ exports.IPv4Address = IPv4Address
 exports.IPv6Address = IPv6Address
 exports.IPv4Host = IPv4Host
 exports.IPv6Host = IPv6Host
-
-msgpack = require('msgcap')
-msgpack.register PayloadSlice
-msgpack.register Enum
-msgpack.register Flags
-msgpack.register MACAddress
-msgpack.register IPv4Address
-msgpack.register IPv6Address
-msgpack.register IPv4Host
-msgpack.register IPv6Host

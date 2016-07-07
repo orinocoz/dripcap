@@ -40,7 +40,6 @@ gulp.task 'copypkg', ->
     './packages/**/*'
     './dripcap/**/*'
     './goldfilter/**/*'
-    './msgcap/**/*'
   ], base: './')
     .pipe gulp.dest('./.build/')
 
@@ -51,7 +50,7 @@ gulp.task 'npm', ['copypkg'], ->
   p = p.then ->
     new Promise (res) ->
       npm.prefix = './.build/'
-      npm.commands.uninstall ['dripcap', 'msgcap'], res
+      npm.commands.uninstall ['dripcap', 'goldfilter'], res
 
   p = p.then ->
     new Promise (res) ->
