@@ -470,14 +470,6 @@ Msgpack::~Msgpack()
 
 void Msgpack::registerClass(const std::string &name, Local<Function> func)
 {
-    Isolate *isolate = Isolate::GetCurrent();
-    Local<Context> ctx = isolate->GetCurrentContext();
-    Local<Value> registerd = ctx->GetEmbedderData(0);
-    if (!registerd->IsObject()) {
-        registerd = Object::New(isolate);
-    }
-    registerd.As<Object>()->Set(v8pp::to_v8(isolate, name), func);
-    ctx->SetEmbedderData(0, registerd);
 }
 
 class ArrayBufferAllocator : public ArrayBuffer::Allocator
@@ -658,6 +650,13 @@ ScriptClass::Private::Private(const msgpack::object &options)
                 v8pp::to_v8(isolate, pair.first), exports);
 
             dripcap->SetHiddenValue(v8pp::to_v8(isolate, "exports"), internal);
+
+            Local<Value> registerd = context->GetEmbedderData(0);
+            if (!registerd->IsObject()) {
+                registerd = Object::New(isolate);
+            }
+            registerd.As<Object>()->Set(v8pp::to_v8(isolate, pair.first), exports);
+            context->SetEmbedderData(0, registerd);
         }
     } catch (const std::bad_cast &err) {
         spd->error("modules: {}", err.what());
