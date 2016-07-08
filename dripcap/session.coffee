@@ -11,6 +11,7 @@ class Session extends EventEmitter
       if stat.packets >= @_pktId
         @_gold.requestPackets(@_pktId, stat.packets)
         @_pktId = stat.packets + 1
+        dripcap.pubsub.pub 'core:capturing-status', stat.capturing
 
     @_gold.on 'packet', (pkt) =>
       @emit 'packet', new Packet(pkt)
