@@ -131,7 +131,8 @@ class PacketListView
             @header.calculate()
 
             dripcap.pubsub.sub 'packet-filter-view:filter', (f) =>
-              ;
+              for s in dripcap.session.list
+                s.setFilter(f)
 
             session.on 'packet', (pkt) =>
               packets.push pkt

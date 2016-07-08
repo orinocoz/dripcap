@@ -12,6 +12,7 @@ class Session extends EventEmitter
         @_gold.requestPackets(@_pktId, stat.packets)
         @_pktId = stat.packets + 1
         dripcap.pubsub.pub 'core:capturing-status', stat.capturing
+        console.log(stat)
 
     @_gold.on 'packet', (pkt) =>
       @emit 'packet', new Packet(pkt)
@@ -24,6 +25,9 @@ class Session extends EventEmitter
 
   addClass: (name, path) ->
     @_gold.addClass(name, path)
+
+  setFilter: (exp) ->
+    @_gold.setFilter('main', exp)
 
   start: ->
     @_gold.stop().then =>
