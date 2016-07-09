@@ -1,7 +1,8 @@
 import {Layer,
         Buffer} from 'dripcap';
-import MACAddress from './mac.es';
-import Enum from './enum.es';
+import MACAddress from 'dripcap/mac';
+import Enum from 'dripcap/enum';
+import EthEnum from 'dripcap/eth/type';
 
 export default class EthrenetDissector
 {
@@ -58,7 +59,7 @@ export default class EthrenetDissector
                 0x86DD : 'IPv6'
             };
 
-            let etherType = new Enum(table, parentLayer.payload.readUInt16BE(12, true));
+            let etherType = new EthEnum(parentLayer.payload.readUInt16BE(12, true));
 
             layer.fields.push({
                 name : 'EtherType',

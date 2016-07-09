@@ -19,8 +19,10 @@ class ScriptClass final
     bool analyze(Packet *packet, const LayerPtr &parentLayer, std::string *error = nullptr) const;
     bool filter(Packet *packet) const;
 
-  private:
     class Private;
+
+  private:
+    class CreateParams;
     Private *d;
 };
 

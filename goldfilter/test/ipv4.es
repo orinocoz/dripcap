@@ -26,7 +26,7 @@ export default class IPv4Dissector
 
         layer.fields.push({
             name : 'Payload',
-            value : layer.payload,
+            value : parentLayer.attrs.dst.toString(),
             range : layer.payload
         });
 

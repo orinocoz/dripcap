@@ -13,6 +13,41 @@
 
 using namespace v8;
 
+class ArrayBufferAllocator : public ArrayBuffer::Allocator
+{
+  public:
+    virtual void *Allocate(size_t length)
+    {
+        void *data = AllocateUninitialized(length);
+        return data == NULL ? data : memset(data, 0, length);
+    }
+    virtual void *AllocateUninitialized(size_t length)
+    {
+        return malloc(length);
+    }
+    virtual void Free(void *data, size_t)
+    {
+        free(data);
+    }
+};
+
+class ScriptClass::Private
+{
+  public:
+    Private(const msgpack::object &options);
+    ~Private();
+
+  public:
+    ArrayBufferAllocator allocator;
+    Isolate *isolate;
+    UniquePersistent<Context> context;
+    UniquePersistent<Function> ctor;
+    UniquePersistent<Object> dripcap;
+    UniquePersistent<FunctionTemplate> require;
+    std::unordered_map<std::string, UniquePersistent<UnboundScript>> modules;
+    msgpack::object options;
+};
+
 namespace
 {
 
@@ -79,20 +114,51 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
                         Local<Value> name = array->Get(0);
                         if (name->IsString()) {
                             Local<Context> ctx = isolate->GetCurrentContext();
-                            Local<Value> registerd = ctx->GetEmbedderData(0);
-                            if (!registerd.IsEmpty() && registerd->IsObject()) {
-                                Local<Value> func = registerd.As<Object>()->Get(name.As<String>());
-                                if (func->IsFunction()) {
+
+                            Local<External> external = ctx->GetEmbedderData(1).As<External>();
+
+                            const ScriptClass::Private *d = static_cast<ScriptClass::Private *>(external->Value());
+                            const auto &modules = d->modules;
+                            const auto &it = modules.find(v8pp::from_v8<std::string>(isolate, name, ""));
+
+                            if (it != modules.end()) {
+                                auto spd = spdlog::get("console");
+
+                                Local<Context> context = Context::New(isolate);
+                                context->SetSecurityToken(isolate->GetCurrentContext()->GetSecurityToken());
+
+                                Local<Value> exports;
+                                {
+                                    Context::Scope context_scope(context);
+                                    Local<Script> script = Local<UnboundScript>::New(isolate, it->second)->BindToCurrentContext();
+
+                                    TryCatch try_catch;
+                                    Local<Object> module = Object::New(isolate);
+                                    context->Global()->Set(
+                                        v8pp::to_v8(isolate, "require"), Local<FunctionTemplate>::New(isolate, d->require)->GetFunction());
+                                    context->Global()->Set(
+                                        v8pp::to_v8(isolate, "module"), module);
+
+                                    MaybeLocal<Value> maybeResult = script->Run(context);
+                                    if (maybeResult.IsEmpty()) {
+                                        String::Utf8Value err(try_catch.Exception());
+                                        spd->error("modules: {}", *err);
+                                    } else {
+                                        exports = module->Get(v8pp::to_v8(isolate, "exports"));
+                                    }
+                                }
+
+                                if (!exports.IsEmpty() && exports->IsFunction()) {
                                     std::vector<Handle<Value>> args;
                                     for (size_t i = 1; i < array->Length(); ++i) {
                                         args.push_back(array->Get(i));
                                     }
                                     TryCatch try_catch;
-                                    Local<Object> obj = func.As<Function>()->NewInstance(args.size(), args.data());
+                                    Local<Object> obj = exports.As<Function>()->NewInstance(args.size(), args.data());
                                     if (obj.IsEmpty()) {
                                         String::Utf8Value err(try_catch.Exception());
                                         auto spd = spdlog::get("console");
-                                        spd->error("{}", *err);
+                                        spd->error("r {}", *err);
                                     } else {
                                         return obj;
                                     }
@@ -452,45 +518,19 @@ Local<Object> PacketWrapper::findLayer(const LayerPtr &layer) const
     return Local<Object>();
 }
 
-class ArrayBufferAllocator : public ArrayBuffer::Allocator
+class ScriptClass::CreateParams : public Isolate::CreateParams
 {
   public:
-    virtual void *Allocate(size_t length)
+    CreateParams(ScriptClass::Private *d)
     {
-        void *data = AllocateUninitialized(length);
-        return data == NULL ? data : memset(data, 0, length);
+        array_buffer_allocator = &d->allocator;
     }
-    virtual void *AllocateUninitialized(size_t length)
-    {
-        return malloc(length);
-    }
-    virtual void Free(void *data, size_t)
-    {
-        free(data);
-    }
-};
-
-class ScriptClass::Private
-{
-  public:
-    Private(const msgpack::object &options);
-    ~Private();
-
-  public:
-    ArrayBufferAllocator allocator;
-    Isolate *isolate;
-    UniquePersistent<Context> context;
-    UniquePersistent<Function> ctor;
-    msgpack::object options;
 };
 
 ScriptClass::Private::Private(const msgpack::object &options)
-    : options(options)
+    : isolate(Isolate::New(CreateParams(this))),
+      options(options)
 {
-    Isolate::CreateParams create_params;
-    create_params.array_buffer_allocator = &allocator;
-    isolate = Isolate::New(create_params);
-
     Isolate::Scope isolate_scope(isolate);
     HandleScope handle_scope(isolate);
     context = UniquePersistent<Context>(isolate, Context::New(isolate));
@@ -561,79 +601,81 @@ ScriptClass::Private::Private(const msgpack::object &options)
     }, layer.js_function_template()->GetFunction());
     dripcapModule.set("Layer", layerFunc);
 
-    Local<Object> dripcap = dripcapModule.new_instance();
+    dripcap = UniquePersistent<Object>(isolate, dripcapModule.new_instance());
+
     Local<FunctionTemplate> f = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
         Isolate *isolate = Isolate::GetCurrent();
+        EscapableHandleScope scope(isolate);
+        ScriptClass::Private *d = static_cast<ScriptClass::Private *>(args.Data().As<External>()->Value());
+
         const std::string &name = v8pp::from_v8<std::string>(isolate, args[0], "");
-        Local<Object> obj = args.Data().As<Object>();
 
         if (name == "dripcap") {
-            args.GetReturnValue().Set(obj);
+            args.GetReturnValue().Set(Local<Object>::New(isolate, d->dripcap));
         } else {
-            Local<Context> ctx = isolate->GetCurrentContext();
-            //Local<Value> internal = obj->GetHiddenValue(v8pp::to_v8(isolate, "0"));
-            Local<Value> internal = ctx->Global()->Get(
-                v8pp::to_v8(isolate, "__module"));
-            if (!internal.IsEmpty() && internal->IsObject()) {
-                Local<Value> module = internal.As<Object>()->Get(v8pp::to_v8(isolate, name));
-                    auto spd = spdlog::get("console");
-                        String::Utf8Value ex(module);
-                spd->error("mod_registerc: {} {}", name, *ex);
-                if (!module.IsEmpty()) {
-                    args.GetReturnValue().Set(module);
+            const auto &it = d->modules.find(name);
+            if (it != d->modules.end()) {
+                auto spd = spdlog::get("console");
+
+                Local<Context> context = Context::New(isolate);
+                context->SetSecurityToken(isolate->GetCurrentContext()->GetSecurityToken());
+
+                Local<Value> exports;
+                {
+                    Context::Scope context_scope(context);
+                    Local<Script> script = Local<UnboundScript>::New(isolate, it->second)->BindToCurrentContext();
+
+                    TryCatch try_catch;
+                    Local<Object> module = Object::New(isolate);
+                    context->Global()->Set(
+                        v8pp::to_v8(isolate, "require"), Local<FunctionTemplate>::New(isolate, d->require)->GetFunction());
+                    context->Global()->Set(
+                        v8pp::to_v8(isolate, "module"), module);
+
+                    MaybeLocal<Value> maybeResult = script->Run(context);
+                    if (maybeResult.IsEmpty()) {
+                        String::Utf8Value err(try_catch.Exception());
+                        spd->error("modules: {}", *err);
+                    } else {
+                        exports = module->Get(v8pp::to_v8(isolate, "exports"));
+                    }
+                }
+
+                if (!exports.IsEmpty() && exports->IsObject()) {
+                    exports.As<Object>()->Set(v8pp::to_v8(isolate, "__esModule"), Boolean::New(isolate, true));
+                    args.GetReturnValue().Set(exports);
                     return;
                 }
             }
+
             std::string err("Cannot find module '");
             args.GetReturnValue().Set(v8pp::throw_ex(isolate, (err + name + "'").c_str()));
         }
-    }, dripcap);
+    }, External::New(isolate, this));
+    require = UniquePersistent<FunctionTemplate>(isolate, f);
 
     isolate->GetCurrentContext()->Global()->Set(
         v8pp::to_v8(isolate, "require"), f->GetFunction());
 
+    isolate->GetCurrentContext()->SetEmbedderData(1, External::New(isolate, this));
+
     auto spd = spdlog::get("console");
     try {
         const auto &map = options.as<std::unordered_map<std::string, msgpack::object>>();
-        const auto &modules = map.at("modules").as<std::unordered_map<std::string, std::string>>();
+        const auto &mods = map.at("modules").as<std::unordered_map<std::string, std::string>>();
 
-        for (const auto &pair : modules) {
-            Local<String> source = v8pp::to_v8(isolate, pair.second);
-            Local<Context> context = Context::New(isolate);
-            Context::Scope context_scope(context);
-            TryCatch try_catch;
-            MaybeLocal<Script> script = Script::Compile(context, source);
-            if (script.IsEmpty()) {
-                String::Utf8Value err(try_catch.Exception());
-                spd->error("modules: {}", *err);
-                continue;
+        for (const auto &pair : mods) {
+            {
+                TryCatch try_catch;
+                ScriptCompiler::Source source(v8pp::to_v8(isolate, pair.second));
+                MaybeLocal<UnboundScript> script = ScriptCompiler::CompileUnboundScript(isolate, &source);
+                if (script.IsEmpty()) {
+                    String::Utf8Value err(try_catch.Exception());
+                    spd->error("modules local: {}", *err);
+                    continue;
+                }
+                modules[pair.first] = UniquePersistent<UnboundScript>(isolate, script.ToLocalChecked());
             }
-
-            Local<Object> module = Object::New(isolate);
-            context->Global()->Set(
-                v8pp::to_v8(isolate, "require"), f->GetFunction());
-            context->Global()->Set(
-                v8pp::to_v8(isolate, "module"), module);
-
-            MaybeLocal<Value> maybeResult = script.ToLocalChecked()->Run(context);
-            if (maybeResult.IsEmpty()) {
-                String::Utf8Value err(try_catch.Exception());
-                spd->error("modules: {}", *err);
-                continue;
-            }
-
-            Local<Value> exports = module->Get(v8pp::to_v8(isolate, "exports"));
-            Local<Value> registerd = context->GetEmbedderData(0);
-            if (registerd.IsEmpty() || !registerd->IsObject()) {
-                registerd = Object::New(isolate);
-            }
-                String::Utf8Value ex(exports);
-            spd->error("mod_registerr: {} {}", pair.first, *ex);
-            registerd.As<Object>()->Set(v8pp::to_v8(isolate, pair.first), exports);
-            context->SetEmbedderData(0, registerd);
-            //dripcap->SetHiddenValue(v8pp::to_v8(isolate, "0"), registerd);
-            context->Global()->Set(
-                v8pp::to_v8(isolate, "__module"), registerd);
         }
     } catch (const std::bad_cast &err) {
         spd->error("modules: {}", err.what());
@@ -642,6 +684,11 @@ ScriptClass::Private::Private(const msgpack::object &options)
 
 ScriptClass::Private::~Private()
 {
+    require.Reset();
+    for (auto &pair : modules) {
+        pair.second.Reset();
+    }
+    dripcap.Reset();
     ctor.Reset();
     context.Reset();
     isolate->Dispose();
@@ -794,7 +841,7 @@ bool ScriptClass::filter(Packet *packet) const
     if (maybeRes.IsEmpty()) {
         String::Utf8Value err(try_catch.Exception());
         auto spd = spdlog::get("console");
-        spd->error("error {}", *err);
+        spd->error("errorx {}", *err);
         return false;
     }
 

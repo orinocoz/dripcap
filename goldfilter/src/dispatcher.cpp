@@ -80,7 +80,7 @@ Dispatcher::FilterWorker::FilterWorker(const std::string &source, const msgpack:
         std::string err;
         if (!script->loadSource(source, &err)) {
             auto spd = spdlog::get("console");
-            spd->error("error {}", err);
+            spd->error("errort {}", err);
             return false;
         }
 
@@ -182,7 +182,7 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                             std::string err;
                             if (!dissector->analyze(pkt, parentLayer, &err)) {
                                 auto spd = spdlog::get("console");
-                                spd->error("error {}", err);
+                                spd->error("errord {}", err);
                             }
                         }
                     }

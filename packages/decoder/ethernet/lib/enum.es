@@ -4,7 +4,7 @@ export default class Enum
 {
     constructor(table, value)
     {
-        if (!(table instanceof Object)) {
+        if (typeof table !== 'object') {
             throw new TypeError('expected Object');
         }
         this.table = table;

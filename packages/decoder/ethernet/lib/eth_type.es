@@ -12,4 +12,9 @@ export default class EthTypeEnum extends Enum {
     };
     super(table, value);
   }
+
+  toMsgpack()
+  {
+      return [ 'dripcap/eth/type', this.value ];
+  }
 }

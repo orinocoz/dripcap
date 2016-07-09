@@ -1,7 +1,7 @@
 import {Layer,
         Buffer,
         Msgpack} from 'dripcap';
-import MACAddress from './mac.es';
+import MACAddress from 'dripcap/mac';
 
 class Enum
 {
@@ -41,7 +41,7 @@ class Enum
         if (this.known) {
             table[this.value] = this.table[this.value];
         }
-        return [ 'Enum', table, this.value ];
+        return [ 'dripcap/enum', table, this.value ];
     }
 
     equals(val)
@@ -49,7 +49,6 @@ class Enum
         return val.toString() === this.toString();
     }
 }
-Msgpack.register('Enum', Enum);
 
 export default class EthrenetDissector
 {
