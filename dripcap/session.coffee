@@ -17,6 +17,11 @@ class Session extends EventEmitter
     @_gold.on 'packet', (pkt) =>
       @emit 'packet', new Packet(pkt)
 
+    @_builtin = Promise.all([
+      @addClass('dripcap/mac', "#{__dirname}/builtin/mac.es"),
+      @addClass('dripcap/enum', "#{__dirname}/builtin/enum.es")
+    ])
+
   addCapture: (iface, options = {}) ->
     @_settings = {iface: iface, options: options}
 
@@ -31,6 +36,7 @@ class Session extends EventEmitter
 
   start: ->
     @_gold.stop().then =>
+      @_builtin.then =>
         @_gold.start(@_settings.iface, @_settings.options)
 
   stop: ->
