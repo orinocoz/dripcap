@@ -38,7 +38,7 @@ export default class Enum
         if (this.known) {
             table[this.value] = this.table[this.value];
         }
-        return [ 'dripcap/enum', table, this.value ];
+        return [ table, this.value ];
     }
 
     equals(val)

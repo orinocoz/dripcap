@@ -149,6 +149,7 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
                                 }
 
                                 if (!exports.IsEmpty() && exports->IsFunction()) {
+                                    exports.As<Function>()->Set(v8pp::to_v8(isolate, "__msgpackClass"), name);
                                     std::vector<Handle<Value>> args;
                                     for (size_t i = 1; i < array->Length(); ++i) {
                                         args.push_back(array->Get(i));
@@ -377,13 +378,24 @@ msgpack::object LayerWrapper::v8ToMsgpack(Local<Value> v)
 
         if (v->IsObject()) {
             Local<Object> obj = v.As<Object>();
-            Local<Value> f = obj->Get(v8pp::to_v8(isolate, std::string("toMsgpack")));
-            if (f->IsFunction()) {
-                const msgpack::object &obj = v8ToMsgpack(f.As<Function>()->Call(v, 0, nullptr));
-                std::stringstream buffer;
-                msgpack::pack(buffer, obj);
-                const std::string &str = buffer.str();
-                return msgpack::object(msgpack::type::ext(0x20, str.data(), str.size()), layer->zone);
+            Local<Value> args = obj->Get(v8pp::to_v8(isolate, std::string("toMsgpack")));
+            Local<Value> ctor = obj->Get(v8pp::to_v8(isolate, std::string("constructor")));
+            Local<Value> name = ctor.As<Object>()->Get(v8pp::to_v8(isolate, std::string("__msgpackClass")));
+
+            if (args->IsFunction() && name->IsString()) {
+                Local<Value> ret = args.As<Function>()->Call(v, 0, nullptr);
+                if (ret->IsArray()) {
+                    Local<Array> array = ret.As<Array>();
+                    for (int i = array->Length() - 1; i >= 0; --i) {
+                        array->Set(i + 1, array->Get(i));
+                    }
+                    array->Set(0, name);
+                    const msgpack::object &obj = v8ToMsgpack(array);
+                    std::stringstream buffer;
+                    msgpack::pack(buffer, obj);
+                    const std::string &str = buffer.str();
+                    return msgpack::object(msgpack::type::ext(0x20, str.data(), str.size()), layer->zone);
+                }
             }
 
             std::unordered_map<std::string, msgpack::object> map;
@@ -643,6 +655,7 @@ ScriptClass::Private::Private(const msgpack::object &options)
 
                 if (!exports.IsEmpty() && exports->IsObject()) {
                     exports.As<Object>()->Set(v8pp::to_v8(isolate, "__esModule"), Boolean::New(isolate, true));
+                    exports.As<Object>()->Set(v8pp::to_v8(isolate, "__msgpackClass"), v8pp::to_v8(isolate, it->first));
                     args.GetReturnValue().Set(exports);
                     return;
                 }

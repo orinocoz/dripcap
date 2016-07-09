@@ -28,7 +28,7 @@ export default class MACAddress
 
     toMsgpack()
     {
-        return [ 'dripcap/mac', this.data ];
+        return [ this.data ];
     }
 
     equals(value)

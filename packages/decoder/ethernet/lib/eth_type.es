@@ -15,6 +15,6 @@ export default class EthTypeEnum extends Enum {
 
   toMsgpack()
   {
-      return [ 'dripcap/eth/type', this.value ];
+      return [ this.value ];
   }
 }

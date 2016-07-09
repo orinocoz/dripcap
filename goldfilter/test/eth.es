@@ -3,6 +3,7 @@ import {Layer,
         Msgpack} from 'dripcap';
 import MACAddress from 'dripcap/mac';
 
+
 class Enum
 {
     constructor(table, value)
