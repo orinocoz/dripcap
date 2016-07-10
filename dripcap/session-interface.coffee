@@ -17,10 +17,14 @@ class SessionInterface extends EventEmitter
   create: (ifs, options={}) ->
     sess = new Session(config.filterPath)
     sess.addCapture(ifs, options) if ifs?
-    for dec in @_dissectors
-      sess.addDissector dec.namespaces, dec.path
+
+    prom = Promise.resolve();
     for cls in @_classes
-      sess.addClass cls.name, cls.path
+      prom = prom.then ->
+        sess.addClass cls.name, cls.path
+    for dec in @_dissectors
+      prom = prom.then ->
+        sess.addDissector dec.namespaces, dec.path
     sess
 
 module.exports = SessionInterface
