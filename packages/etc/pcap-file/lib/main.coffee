@@ -6,7 +6,6 @@ dialog = remote.dialog
 Layer = require('dripcap/layer')
 Session = require('dripcap/session')
 {linkid2name} = require('dripcap/enum')
-{PayloadSlice} = require('dripcap/type')
 
 class Pcap
   constructor: (path) ->

@@ -18,8 +18,13 @@ class Session extends EventEmitter
       @emit 'packet', new Packet(pkt)
 
     @_builtin = Promise.all([
-      @addClass('dripcap/mac', "#{__dirname}/builtin/mac.es"),
+      @addClass('dripcap/mac', "#{__dirname}/builtin/mac.es")
       @addClass('dripcap/enum', "#{__dirname}/builtin/enum.es")
+      @addClass('dripcap/flags', "#{__dirname}/builtin/flags.es")
+      @addClass('dripcap/ipv4/addr', "#{__dirname}/builtin/ipv4/addr.es")
+      @addClass('dripcap/ipv4/host', "#{__dirname}/builtin/ipv4/host.es")
+      @addClass('dripcap/ipv6/addr', "#{__dirname}/builtin/ipv6/addr.es")
+      @addClass('dripcap/ipv6/host', "#{__dirname}/builtin/ipv6/host.es")
     ])
 
   addCapture: (iface, options = {}) ->
