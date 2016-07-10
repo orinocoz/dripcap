@@ -13,7 +13,7 @@ export default class Flags
     if (typeof table !== 'object') {
       throw new TypeError('expected Object');
     }
-    if (!Number.isInteger(this.value)) {
+    if (!Number.isInteger(value)) {
       throw new TypeError('expects Integer');
     }
     this.table = table;
@@ -21,14 +21,14 @@ export default class Flags
 
     this.attrs = {}
     for (let k in this.table) {
-      this.attrs[underscore(k)] = this.get(k)
+      this.attrs[underscore(k)] = this.get(k);
     }
   }
 
   get(key)
   {
     if (this.table[key] != null) {
-      return !!(this.value & this.table[key])
+      return !!(this.value & this.table[key]);
     } else {
       return false;
     }
@@ -41,10 +41,10 @@ export default class Flags
 
   toString()
   {
-    let values = []
-    for (k in this.table) {
+    let values = [];
+    for (let k in this.table) {
       if (this.get(k)) {
-        values.push(k)
+        values.push(k);
       }
     }
 

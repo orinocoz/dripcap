@@ -549,6 +549,13 @@ ScriptClass::Private::Private(const msgpack::object &options)
 
     Context::Scope context_scope(Local<Context>::New(isolate, context));
 
+    auto indexOperator = [](uint32_t index, const PropertyCallbackInfo<Value> &info) {
+        Buffer *buffer = v8pp::class_<Buffer>::unwrap_object(Isolate::GetCurrent(), info.This());
+        if (buffer) {
+            buffer->get(index, info);
+        }
+    };
+
     v8pp::class_<Buffer> buffer(isolate);
     buffer
         .ctor<const FunctionCallbackInfo<Value> &>()
@@ -566,11 +573,13 @@ ScriptClass::Private::Private(const msgpack::object &options)
         .set("toString", &Buffer::toString)
         .set("valueOf", &Buffer::valueOf);
 
+    buffer.class_function_template()->PrototypeTemplate()->SetIndexedPropertyHandler(indexOperator);
+
     v8pp::class_<CustomValue>(isolate)
         .inherit<Buffer>();
 
-    v8pp::class_<Payload>(isolate)
-        .inherit<Buffer>()
+    v8pp::class_<Payload> payload(isolate);
+    payload.inherit<Buffer>()
         .set("length", v8pp::property(&Buffer::length))
         .set("readInt8", &Buffer::readInt8)
         .set("readInt16BE", &Buffer::readInt16BE)
@@ -582,6 +591,8 @@ ScriptClass::Private::Private(const msgpack::object &options)
         .set("equals", &Buffer::equals)
         .set("toString", &Buffer::toString)
         .set("valueOf", &Payload::valueOf);
+
+    payload.class_function_template()->PrototypeTemplate()->SetIndexedPropertyHandler(indexOperator);
 
     v8pp::class_<PacketWrapper>(isolate)
         .set("id", v8pp::property(&PacketWrapper::id))
