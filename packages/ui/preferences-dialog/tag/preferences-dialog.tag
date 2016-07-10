@@ -24,10 +24,10 @@
     promisc = $(@tags['modal-dialog'].promisc).prop('checked')
 
     @tags['modal-dialog'].hide()
-    sess = dripcap.session.create ifs, filter: filter, promisc: promisc
-    dripcap.session.list = [sess]
-    dripcap.session.emit('created', sess)
-    sess.start()
+    dripcap.session.create(ifs, filter: filter, promisc: promisc).then (sess) =>
+      dripcap.session.list = [sess]
+      dripcap.session.emit('created', sess)
+      sess.start()
 
   </script>
 

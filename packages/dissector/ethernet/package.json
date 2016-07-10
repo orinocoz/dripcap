@@ -2,7 +2,7 @@
   "name": "ethernet",
   "main": "./lib/main",
   "license": "MIT",
-  "description": "Dripcap Ethernet decoder",
+  "description": "Dripcap Ethernet Dissector",
   "repository": {
     "type" : "git",
     "url" : "https://github.com/dripcap/dripcap.git"

@@ -20,11 +20,14 @@ class SessionInterface extends EventEmitter
 
     prom = Promise.resolve();
     for cls in @_classes
-      prom = prom.then ->
-        sess.addClass cls.name, cls.path
+      do (cls=cls) ->
+        prom = prom.then ->
+          sess.addClass cls.name, cls.path
     for dec in @_dissectors
-      prom = prom.then ->
-        sess.addDissector dec.namespaces, dec.path
-    sess
+      do (dec=dec) ->
+        prom = prom.then ->
+          sess.addDissector dec.namespaces, dec.path
+    prom.then ->
+      sess
 
 module.exports = SessionInterface
