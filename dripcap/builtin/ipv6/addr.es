@@ -22,7 +22,7 @@ export default class IPv6Address
       str += ':';
     }
     str = str.substr(0, str.length - 1);
-    seq = str.match(/:0:(?:0:)+/g);
+    let seq = str.match(/:0:(?:0:)+/g);
     if (seq != null) {
       seq.sort((a, b) => {b.length - a.length});
       str = str.replace(seq[0], '::');
