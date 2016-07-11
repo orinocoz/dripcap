@@ -3,7 +3,6 @@ import MACAddress from 'dripcap/mac';
 import HardwareEnum from 'dripcap/arp/hardware';
 import ProtocolEnum from 'dripcap/arp/protocol';
 import OperationEnum from 'dripcap/arp/operation';
-import IPv6Address from 'dripcap/arp/addr';
 
 export default class ARPDissector
 {
