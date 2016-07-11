@@ -1,5 +1,6 @@
 import {Layer, Buffer} from 'dripcap';
 import MACAddress from 'dripcap/mac';
+import IPv4Address from 'dripcap/ipv4/addr';
 import HardwareEnum from 'dripcap/arp/hardware';
 import ProtocolEnum from 'dripcap/arp/protocol';
 import OperationEnum from 'dripcap/arp/operation';

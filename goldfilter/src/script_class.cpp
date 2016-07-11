@@ -314,8 +314,14 @@ Local<Object> LayerWrapper::findLayer(const LayerPtr &finding) const
     for (size_t i = 0; i < layerKeys->Length(); ++i) {
         Local<Value> layer = array->Get(layerKeys->Get(i));
         LayerWrapper *wrapper = v8pp::class_<LayerWrapper>::unwrap_object(isolate, layer);
-        if (wrapper && wrapper->layer == finding) {
-            return layer.As<Object>();
+        if (wrapper) {
+            if (wrapper->layer == finding) {
+                return layer.As<Object>();
+            }
+            Local<Object> child = wrapper->findLayer(finding);
+            if (!child.IsEmpty()) {
+                return child;
+            }
         }
     }
     return Local<Object>();
