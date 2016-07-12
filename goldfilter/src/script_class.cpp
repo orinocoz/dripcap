@@ -115,25 +115,19 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
                         Local<Value> name = array->Get(0);
                         if (name->IsString()) {
                             Local<Context> ctx = isolate->GetCurrentContext();
-
                             Local<External> external = ctx->GetEmbedderData(1).As<External>();
-
                             ScriptClass::Private *d = static_cast<ScriptClass::Private *>(external->Value());
+                            const std::string &nameStr = v8pp::from_v8<std::string>(isolate, name, "");
 
                             Local<Value> exports;
-                            {
-                                const auto &it = d->moduleChache.find(v8pp::from_v8<std::string>(isolate, name, ""));
-                                if (it != d->moduleChache.end()) {
-                                    exports = Local<Function>::New(isolate, it->second);
-                                }
-                            }
 
-                            if (exports.IsEmpty()) {
+                            const auto &cache = d->moduleChache.find(nameStr);
+                            if (cache != d->moduleChache.end()) {
+                                exports = Local<Function>::New(isolate, cache->second);
+                            } else {
                                 const auto &modules = d->modules;
-                                const auto &it = modules.find(v8pp::from_v8<std::string>(isolate, name, ""));
+                                const auto &it = modules.find(nameStr);
                                 if (it != modules.end()) {
-                                    auto spd = spdlog::get("console");
-
                                     Local<Context> context = Context::New(isolate);
                                     context->SetSecurityToken(isolate->GetCurrentContext()->GetSecurityToken());
 
@@ -143,14 +137,14 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
 
                                         TryCatch try_catch;
                                         Local<Object> module = Object::New(isolate);
-                                        context->Global()->Set(
-                                            v8pp::to_v8(isolate, "require"), Local<FunctionTemplate>::New(isolate, d->require)->GetFunction());
-                                        context->Global()->Set(
-                                            v8pp::to_v8(isolate, "module"), module);
+                                        Local<Object> global = context->Global();
+                                        global->Set(v8pp::to_v8(isolate, "require"), Local<FunctionTemplate>::New(isolate, d->require)->GetFunction());
+                                        global->Set(v8pp::to_v8(isolate, "module"), module);
 
                                         MaybeLocal<Value> maybeResult = script->Run(context);
                                         if (maybeResult.IsEmpty()) {
                                             String::Utf8Value err(try_catch.Exception());
+                                            auto spd = spdlog::get("console");
                                             spd->error("modules: {}", *err);
                                         } else {
                                             exports = module->Get(v8pp::to_v8(isolate, "exports"));
@@ -658,13 +652,12 @@ ScriptClass::Private::Private(const msgpack::object &options)
         if (name == "dripcap") {
             args.GetReturnValue().Set(Local<Object>::New(isolate, d->dripcap));
         } else {
-            {
-                const auto &it = d->moduleChache.find(name);
-                if (it != d->moduleChache.end()) {
-                    args.GetReturnValue().Set(Local<Function>::New(isolate, it->second));
-                    return;
-                }
+            const auto &cache = d->moduleChache.find(name);
+            if (cache != d->moduleChache.end()) {
+                args.GetReturnValue().Set(Local<Function>::New(isolate, cache->second));
+                return;
             }
+
             const auto &it = d->modules.find(name);
             if (it != d->modules.end()) {
                 auto spd = spdlog::get("console");
@@ -679,10 +672,9 @@ ScriptClass::Private::Private(const msgpack::object &options)
 
                     TryCatch try_catch;
                     Local<Object> module = Object::New(isolate);
-                    context->Global()->Set(
-                        v8pp::to_v8(isolate, "require"), Local<FunctionTemplate>::New(isolate, d->require)->GetFunction());
-                    context->Global()->Set(
-                        v8pp::to_v8(isolate, "module"), module);
+                    Local<Object> global = context->Global();
+                    global->Set(v8pp::to_v8(isolate, "require"), Local<FunctionTemplate>::New(isolate, d->require)->GetFunction());
+                    global->Set(v8pp::to_v8(isolate, "module"), module);
 
                     MaybeLocal<Value> maybeResult = script->Run(context);
                     if (maybeResult.IsEmpty()) {
@@ -697,12 +689,9 @@ ScriptClass::Private::Private(const msgpack::object &options)
                         func->Set(v8pp::to_v8(isolate, "__msgpackClass"), v8pp::to_v8(isolate, name));
                         func->Set(v8pp::to_v8(isolate, "__esModule"), Boolean::New(isolate, true));
                         d->moduleChache[it->first] = UniquePersistent<Function>(isolate, func);
+                        args.GetReturnValue().Set(exports);
+                        return;
                     }
-                }
-
-                if (!exports.IsEmpty() && exports->IsObject()) {
-                    args.GetReturnValue().Set(exports);
-                    return;
                 }
             }
 
