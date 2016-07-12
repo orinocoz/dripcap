@@ -146,12 +146,12 @@ export default class DNSDissector
       });
 
       layer.summary = `[${opcode.name}] [${rcode.name}] qd:${qdCount} an:${anCount} ns:${nsCount} ar:${arCount}`;
+      parentLayer.layers[layer.namespace] = layer;
 
     } catch (err) {
       layer.error = err.message;
     }
 
-    parentLayer.layers[layer.namespace] = layer;
     return true;
   }
 }
