@@ -1,6 +1,7 @@
 import path from 'path';
 import net from 'net';
 import fs from 'fs';
+import os from 'os';
 import crypto from 'crypto';
 import childProcess from 'child_process';
 import EventEmitter from 'events';
@@ -21,7 +22,7 @@ export default class GoldFilter extends EventEmitter {
   constructor() {
     super();
 
-    const prefix = (process.platform === 'win32') ? '\\\\?\\pipe' : '/tmp';
+    const prefix = (process.platform === 'win32') ? '\\\\?\\pipe' : os.tmpdir();
     this.sockPath = path.join(prefix, uuid.v4() + '.sock');
     this.sock = new net.Socket();
 
@@ -94,20 +95,37 @@ export default class GoldFilter extends EventEmitter {
   _build(jsPath)
   {
     return new Promise((res, rej) => {
-      rollup({ entry : jsPath, onwarn: () => {} }).then((bundle) => {
-        const result = bundle.generate({ format : 'es' });
-        const js = path.join('/tmp', uuid.v4() + '.js');
-        return new Promise((res, rej) => {
-          fs.writeFile(js, result.code, (err) => {
-            if (err) throw err;
-            rollup({ entry : js, onwarn: () => {} }).then(res, rej);
+      let hash = crypto.createHash('sha256');
+      fs.createReadStream(jsPath).pipe(hash);
+
+      hash.on('readable', () => {
+        let data = hash.read();
+        if (data != null) {
+          let cachePath = path.join(os.tmpdir(), data.toString('hex') + '.dripcap.es');
+          fs.readFile(cachePath, 'utf8', (err, data) => {
+            if (err == null) {
+              res(data);
+            } else {
+              rollup({ entry : jsPath, onwarn: () => {} }).then((bundle) => {
+                const result = bundle.generate({ format : 'es' });
+                const js = path.join(os.tmpdir(), uuid.v4() + '.dripcap.es');
+                return new Promise((res, rej) => {
+                  fs.writeFile(js, result.code, (err) => {
+                    if (err) throw err;
+                    rollup({ entry : js, onwarn: () => {} }).then(res, rej);
+                  });
+                });
+              }).then((bundle) => {
+                const result = bundle.generate({ format : 'cjs' });
+                fs.writeFile(cachePath, result.code, () => {
+                  res(result.code);
+                });
+              }).catch((e) => {
+                rej(e);
+              });
+            }
           });
-        });
-      }).then((bundle) => {
-        const result = bundle.generate({ format : 'cjs' });
-        res(result.code);
-      }).catch((e) => {
-        rej(e);
+        }
       });
     });
   }
