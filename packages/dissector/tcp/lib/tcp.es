@@ -171,97 +171,94 @@ export default class TCPDissector
         }
       }
 
-      try {
-        while (optionData.length > optionOffset) {
-          switch (optionData[optionOffset]) {
-            case 0:
-              optionOffset = optionData.length;
-              break;
+      while (optionData.length > optionOffset) {
+        switch (optionData[optionOffset]) {
+          case 0:
+            optionOffset = optionData.length;
+            break;
 
-            case 1:
-              option.fields.push({
-                name: 'NOP',
-                value: '',
-                data: parentLayer.payload.slice(optionOffset, optionOffset + 1)
-              });
-              optionOffset++;
-              break;
+          case 1:
+            option.fields.push({
+              name: 'NOP',
+              value: '',
+              data: parentLayer.payload.slice(optionOffset, optionOffset + 1)
+            });
+            optionOffset++;
+            break;
 
-            case 2:
-              checkLength(optionData, optionOffset, 4);
-              optionItems.push('Maximum segment size');
-              option.fields.push({
-                name: 'Maximum segment size',
-                value: parentLayer.payload.readUInt16BE(optionOffset + 2, true),
-                data: parentLayer.payload.slice(optionOffset, optionOffset+4)
-              });
-              optionOffset += 4;
-              break;
+          case 2:
+            checkLength(optionData, optionOffset, 4);
+            optionItems.push('Maximum segment size');
+            option.fields.push({
+              name: 'Maximum segment size',
+              value: parentLayer.payload.readUInt16BE(optionOffset + 2, true),
+              data: parentLayer.payload.slice(optionOffset, optionOffset+4)
+            });
+            optionOffset += 4;
+            break;
 
-            case 3:
-              checkLength(optionData, optionOffset, 3);
-              optionItems.push('Window scale');
-              option.fields.push({
-                name: 'Window scale',
-                value: parentLayer.payload.readUInt8(optionOffset + 2, true),
-                data: parentLayer.payload.slice(optionOffset, optionOffset+3)
-              });
-              optionOffset += 3;
-              break;
+          case 3:
+            checkLength(optionData, optionOffset, 3);
+            optionItems.push('Window scale');
+            option.fields.push({
+              name: 'Window scale',
+              value: parentLayer.payload.readUInt8(optionOffset + 2, true),
+              data: parentLayer.payload.slice(optionOffset, optionOffset+3)
+            });
+            optionOffset += 3;
+            break;
 
-            case 4:
-              checkLength(optionData, optionOffset, 2);
-              optionItems.push('Selective ACK permitted');
-              option.fields.push({
-                name: 'Selective ACK permitted',
-                value: '',
-                data: parentLayer.payload.slice(optionOffset, optionOffset+2)
-              });
-              optionOffset += 2;
-              break;
+          case 4:
+            checkLength(optionData, optionOffset, 2);
+            optionItems.push('Selective ACK permitted');
+            option.fields.push({
+              name: 'Selective ACK permitted',
+              value: '',
+              data: parentLayer.payload.slice(optionOffset, optionOffset+2)
+            });
+            optionOffset += 2;
+            break;
 
-            // TODO: https://tools.ietf.org/html/rfc2018
-            case 5:
-              checkLength(optionData, optionOffset, 2)
-              let length = payload.readUInt8(optionOffset + 1, true);
-              checkLength(optionData.length, optionOffset, length);
-              optionItems.push('Selective ACK');
-              option.fields.push({
-                name: 'Selective ACK',
-                value: parentLayer.payload.slice(optionOffset + 2, optionOffset + length),
-                data: parentLayer.payload.slice(optionOffset, optionOffset+length)
-              });
+          // TODO: https://tools.ietf.org/html/rfc2018
+          case 5:
+            checkLength(optionData, optionOffset, 2)
+            let length = parentLayer.payload.readUInt8(optionOffset + 1, true);
+            checkLength(optionData.length, optionOffset, length);
+            optionItems.push('Selective ACK');
+            option.fields.push({
+              name: 'Selective ACK',
+              value: parentLayer.payload.slice(optionOffset + 2, optionOffset + length),
+              data: parentLayer.payload.slice(optionOffset, optionOffset+length)
+            });
 
-              optionOffset += length;
-              break;
+            optionOffset += length;
+            break;
 
-            case 8:
-              checkLength(optionData, optionOffset, 10);
-              let mt = payload.readUInt32BE(optionOffset + 2, true);
-              let et = payload.readUInt32BE(optionOffset + 2, true);
-              optionItems.push('Timestamps');
-              option.fields.push({
-                name: 'Timestamps',
-                value: `${mt} - ${et}`,
-                data: parentLayer.payload.slice(optionOffset, optionOffset+10),
-                fields: [{
-                  name: 'My timestamp',
-                  value: mt,
-                  data: parentLayer.payload.slice(optionOffset+2, optionOffset+6)
-                }, {
-                  name: 'Echo reply timestamp',
-                  value: et,
-                  data: parentLayer.payload.slice(optionOffset+6, optionOffset+10)
-                }]
-              });
-              optionOffset += 10;
-
-            default:
-              throw new Error('unknown option');
-          }
+          case 8:
+            checkLength(optionData, optionOffset, 10);
+            let mt = parentLayer.payload.readUInt32BE(optionOffset + 2, true);
+            let et = parentLayer.payload.readUInt32BE(optionOffset + 2, true);
+            optionItems.push('Timestamps');
+            option.fields.push({
+              name: 'Timestamps',
+              value: `${mt} - ${et}`,
+              data: parentLayer.payload.slice(optionOffset, optionOffset+10),
+              fields: [{
+                name: 'My timestamp',
+                value: mt,
+                data: parentLayer.payload.slice(optionOffset+2, optionOffset+6)
+              }, {
+                name: 'Echo reply timestamp',
+                value: et,
+                data: parentLayer.payload.slice(optionOffset+6, optionOffset+10)
+              }]
+            });
+            optionOffset += 10;
+            break;
+            
+          default:
+            throw new Error('unknown option');
         }
-      } catch (err) {
-
       }
 
       option.value = optionItems.join(',');

@@ -45,6 +45,7 @@ class ScriptClass::Private
     UniquePersistent<Object> dripcap;
     UniquePersistent<FunctionTemplate> require;
     std::unordered_map<std::string, UniquePersistent<UnboundScript>> modules;
+    std::unordered_map<std::string, UniquePersistent<Function>> moduleChache;
     msgpack::object options;
 };
 
@@ -117,52 +118,67 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
 
                             Local<External> external = ctx->GetEmbedderData(1).As<External>();
 
-                            const ScriptClass::Private *d = static_cast<ScriptClass::Private *>(external->Value());
-                            const auto &modules = d->modules;
-                            const auto &it = modules.find(v8pp::from_v8<std::string>(isolate, name, ""));
+                            ScriptClass::Private *d = static_cast<ScriptClass::Private *>(external->Value());
 
-                            if (it != modules.end()) {
-                                auto spd = spdlog::get("console");
+                            Local<Value> exports;
+                            {
+                                const auto &it = d->moduleChache.find(v8pp::from_v8<std::string>(isolate, name, ""));
+                                if (it != d->moduleChache.end()) {
+                                    exports = Local<Function>::New(isolate, it->second);
+                                }
+                            }
 
-                                Local<Context> context = Context::New(isolate);
-                                context->SetSecurityToken(isolate->GetCurrentContext()->GetSecurityToken());
+                            if (exports.IsEmpty()) {
+                                const auto &modules = d->modules;
+                                const auto &it = modules.find(v8pp::from_v8<std::string>(isolate, name, ""));
+                                if (it != modules.end()) {
+                                    auto spd = spdlog::get("console");
 
-                                Local<Value> exports;
-                                {
-                                    Context::Scope context_scope(context);
-                                    Local<Script> script = Local<UnboundScript>::New(isolate, it->second)->BindToCurrentContext();
+                                    Local<Context> context = Context::New(isolate);
+                                    context->SetSecurityToken(isolate->GetCurrentContext()->GetSecurityToken());
 
-                                    TryCatch try_catch;
-                                    Local<Object> module = Object::New(isolate);
-                                    context->Global()->Set(
-                                        v8pp::to_v8(isolate, "require"), Local<FunctionTemplate>::New(isolate, d->require)->GetFunction());
-                                    context->Global()->Set(
-                                        v8pp::to_v8(isolate, "module"), module);
+                                    {
+                                        Context::Scope context_scope(context);
+                                        Local<Script> script = Local<UnboundScript>::New(isolate, it->second)->BindToCurrentContext();
 
-                                    MaybeLocal<Value> maybeResult = script->Run(context);
-                                    if (maybeResult.IsEmpty()) {
-                                        String::Utf8Value err(try_catch.Exception());
-                                        spd->error("modules: {}", *err);
-                                    } else {
-                                        exports = module->Get(v8pp::to_v8(isolate, "exports"));
+                                        TryCatch try_catch;
+                                        Local<Object> module = Object::New(isolate);
+                                        context->Global()->Set(
+                                            v8pp::to_v8(isolate, "require"), Local<FunctionTemplate>::New(isolate, d->require)->GetFunction());
+                                        context->Global()->Set(
+                                            v8pp::to_v8(isolate, "module"), module);
+
+                                        MaybeLocal<Value> maybeResult = script->Run(context);
+                                        if (maybeResult.IsEmpty()) {
+                                            String::Utf8Value err(try_catch.Exception());
+                                            spd->error("modules: {}", *err);
+                                        } else {
+                                            exports = module->Get(v8pp::to_v8(isolate, "exports"));
+                                        }
+
+                                        if (!exports.IsEmpty() && exports->IsFunction()) {
+                                            Local<Function> func = exports.As<Function>();
+                                            func->Set(v8pp::to_v8(isolate, "__msgpackClass"), name);
+                                            func->Set(v8pp::to_v8(isolate, "__esModule"), Boolean::New(isolate, true));
+                                            d->moduleChache[it->first] = UniquePersistent<Function>(isolate, func);
+                                        }
                                     }
                                 }
+                            }
 
-                                if (!exports.IsEmpty() && exports->IsFunction()) {
-                                    exports.As<Function>()->Set(v8pp::to_v8(isolate, "__msgpackClass"), name);
-                                    std::vector<Handle<Value>> args;
-                                    for (size_t i = 1; i < array->Length(); ++i) {
-                                        args.push_back(array->Get(i));
-                                    }
-                                    TryCatch try_catch;
-                                    Local<Object> obj = exports.As<Function>()->NewInstance(args.size(), args.data());
-                                    if (obj.IsEmpty()) {
-                                        String::Utf8Value err(try_catch.Exception());
-                                        auto spd = spdlog::get("console");
-                                        spd->error("r {}", *err);
-                                    } else {
-                                        return obj;
-                                    }
+                            if (!exports.IsEmpty() && exports->IsFunction()) {
+                                std::vector<Handle<Value>> args;
+                                for (size_t i = 1; i < array->Length(); ++i) {
+                                    args.push_back(array->Get(i));
+                                }
+                                TryCatch try_catch;
+                                Local<Object> obj = exports.As<Function>()->NewInstance(args.size(), args.data());
+                                if (obj.IsEmpty()) {
+                                    String::Utf8Value err(try_catch.Exception());
+                                    auto spd = spdlog::get("console");
+                                    spd->error("r {}", *err);
+                                } else {
+                                    return obj;
                                 }
                             }
                         }
@@ -642,6 +658,13 @@ ScriptClass::Private::Private(const msgpack::object &options)
         if (name == "dripcap") {
             args.GetReturnValue().Set(Local<Object>::New(isolate, d->dripcap));
         } else {
+            {
+                const auto &it = d->moduleChache.find(name);
+                if (it != d->moduleChache.end()) {
+                    args.GetReturnValue().Set(Local<Function>::New(isolate, it->second));
+                    return;
+                }
+            }
             const auto &it = d->modules.find(name);
             if (it != d->modules.end()) {
                 auto spd = spdlog::get("console");
@@ -668,11 +691,16 @@ ScriptClass::Private::Private(const msgpack::object &options)
                     } else {
                         exports = module->Get(v8pp::to_v8(isolate, "exports"));
                     }
+
+                    if (!exports.IsEmpty() && exports->IsFunction()) {
+                        Local<Function> func = exports.As<Function>();
+                        func->Set(v8pp::to_v8(isolate, "__msgpackClass"), v8pp::to_v8(isolate, name));
+                        func->Set(v8pp::to_v8(isolate, "__esModule"), Boolean::New(isolate, true));
+                        d->moduleChache[it->first] = UniquePersistent<Function>(isolate, func);
+                    }
                 }
 
                 if (!exports.IsEmpty() && exports->IsObject()) {
-                    exports.As<Object>()->Set(v8pp::to_v8(isolate, "__esModule"), Boolean::New(isolate, true));
-                    exports.As<Object>()->Set(v8pp::to_v8(isolate, "__msgpackClass"), v8pp::to_v8(isolate, it->first));
                     args.GetReturnValue().Set(exports);
                     return;
                 }
@@ -716,6 +744,9 @@ ScriptClass::Private::~Private()
 {
     require.Reset();
     for (auto &pair : modules) {
+        pair.second.Reset();
+    }
+    for (auto &pair : moduleChache) {
         pair.second.Reset();
     }
     dripcap.Reset();
