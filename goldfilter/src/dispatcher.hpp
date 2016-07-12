@@ -14,6 +14,7 @@ class Dispatcher final
     virtual ~Dispatcher();
     bool loadDissector(const std::string &source, const msgpack::object &options, std::string *error);
     bool setFilter(const std::string &name, const std::string &source, const msgpack::object &options);
+    bool loadModule(const std::string &name, const std::string &source, std::string *error);
 
     void insert(Packet *pkt);
     std::vector<const Packet *> get(uint64_t start, uint64_t end) const;

@@ -163,6 +163,24 @@ Server::Server(const std::string &path)
         reply(result);
     });
 
+    d->server.handle("load_module", [this](const msgpack::object &arg, ReplyInterface &reply) {
+        const auto &map = arg.as<std::unordered_map<std::string, msgpack::object>>();
+        std::unordered_map<std::string, std::string> result;
+        const auto &name = map.find("name");
+        const auto &source = map.find("source");
+
+        if (name != map.end() && source != map.end()) {
+            std::string error;
+            if (!d->packets.loadModule(name->second.as<std::string>(), source->second.as<std::string>(), &error)) {
+                result["error"] = error;
+            }
+        } else {
+            result["error"] = "module path not specified";
+        }
+
+        reply(result);
+    });
+
     d->server.handle("get_status", [this](const msgpack::object &arg, ReplyInterface &reply) {
         d->status.queuedPackets = d->packets.queuedSize();
         d->status.packets = d->packets.size();

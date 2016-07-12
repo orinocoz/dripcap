@@ -21,6 +21,7 @@ class Dispatcher::Private
     std::vector<DissectorWorker *> workers;
     std::unordered_map<std::string, std::vector<FilterWorker *>> filterWorkers;
     std::unordered_map<std::string, std::shared_ptr<std::vector<uint64_t>>> filterdPackets;
+    std::unordered_map<std::string, std::string> modules;
 
     bool exiting = false;
     uint64_t maxID = 0;
@@ -77,7 +78,19 @@ Dispatcher::FilterWorker::FilterWorker(const std::string &source, const msgpack:
     thread = std::thread([this, source, opt, ctx]() {
 
         ScriptClassPtr script = std::make_shared<ScriptClass>(opt);
+
         std::string err;
+
+        {
+            std::unique_lock<std::mutex> lock(d->mutex);
+            for (const auto &pair : d->modules) {
+                if (!script->loadModule(pair.first, pair.second, &err)) {
+                    auto spd = spdlog::get("console");
+                    spd->error("errord {}", err);
+                }
+            }
+        }
+
         if (!script->loadSource(source, &err)) {
             auto spd = spdlog::get("console");
             spd->error("errort {}", err);
@@ -132,11 +145,13 @@ class Dispatcher::DissectorWorker
     DissectorWorker(Dispatcher::Private *parent);
     ~DissectorWorker();
     bool loadDissector(const std::string &source, const msgpack::object &options, std::string *error);
+    bool loadModule(const std::string &name, const std::string &source, std::string *error);
 
   public:
     Dispatcher::Private *d;
     std::thread thread;
     std::queue<std::pair<std::string, msgpack::object>> sources;
+    std::vector<std::pair<std::string, std::string>> modules;
     std::unordered_map<std::string, std::vector<ScriptClassPtr>> dissectors;
     msgpack::zone zone;
 };
@@ -157,13 +172,21 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                 const auto &pair = sources.front();
 
                 ScriptClassPtr script = std::make_shared<ScriptClass>(pair.second);
-                if (!script->loadSource(pair.first, nullptr))
-                    continue;
 
-                const auto &map = pair.second.as<std::unordered_map<std::string, msgpack::object>>();
-                const msgpack::object &array = map.at("namespaces");
-                for (const std::string &ns : array.as<std::vector<std::string>>()) {
-                    dissectors[ns].push_back(script);
+                for (const auto &pair : modules) {
+                    std::string err;
+                    if (!script->loadModule(pair.first, pair.second, &err)) {
+                        auto spd = spdlog::get("console");
+                        spd->error("errord {}", err);
+                    }
+                }
+
+                if (script->loadSource(pair.first, nullptr)) {
+                    const auto &map = pair.second.as<std::unordered_map<std::string, msgpack::object>>();
+                    const msgpack::object &array = map.at("namespaces");
+                    for (const std::string &ns : array.as<std::vector<std::string>>()) {
+                        dissectors[ns].push_back(script);
+                    }
                 }
 
                 sources.pop();
@@ -218,16 +241,19 @@ Dispatcher::DissectorWorker::~DissectorWorker()
 
 bool Dispatcher::DissectorWorker::loadDissector(const std::string &source, const msgpack::object &options, std::string *error)
 {
-    ScriptClassPtr script = std::make_shared<ScriptClass>(options);
-    if (!script->loadSource(source, error))
-        return false;
-
     {
         std::lock_guard<std::mutex> lock(d->mutex);
         sources.push(std::make_pair(source, msgpack::object(options, zone)));
     }
 
     d->cond.notify_all();
+    return true;
+}
+
+bool Dispatcher::DissectorWorker::loadModule(const std::string &name, const std::string &source, std::string *error)
+{
+    std::lock_guard<std::mutex> lock(d->mutex);
+    modules.push_back(std::make_pair(name, source));
     return true;
 }
 
@@ -312,6 +338,17 @@ bool Dispatcher::setFilter(const std::string &name, const std::string &source, c
 
         d->filterWorkers[name] = workers;
         d->filterdPackets[name] = filtered;
+    }
+    return true;
+}
+
+bool Dispatcher::loadModule(const std::string &name, const std::string &source, std::string *error)
+{
+    for (DissectorWorker *worker : d->workers) {
+        bool result = worker->loadModule(name, source, error);
+        if (!result)
+            return false;
+        d->modules[name] = source;
     }
     return true;
 }

@@ -2,6 +2,7 @@
 #define SCRIPT_CLASS_HPP
 
 #include <string>
+#include <unordered_map>
 #include <msgpack.hpp>
 
 struct Packet;
@@ -16,6 +17,7 @@ class ScriptClass final
     ~ScriptClass();
     bool loadFile(const std::string &path, std::string *error = nullptr);
     bool loadSource(const std::string &source, std::string *error = nullptr);
+    bool loadModule(const std::string &name, const std::string &source, std::string *error = nullptr);
     bool analyze(Packet *packet, const LayerPtr &parentLayer, std::string *error = nullptr) const;
     bool filter(Packet *packet) const;
 

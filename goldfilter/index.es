@@ -147,8 +147,7 @@ export default class GoldFilter extends EventEmitter {
       return this._call('load_dissector', {
         source: source,
         options : {
-          namespaces : namespaces || [],
-          modules : this.filterClasses
+          namespaces : namespaces || []
         }
       })
     })
@@ -171,7 +170,10 @@ export default class GoldFilter extends EventEmitter {
       }, mod);
       this.msgpackClasses[name] = mod.exports;
       this.filterClasses[name] = source;
-      return Promise.resolve();
+      return this._call('load_module', {
+        name: name,
+        source: source
+      });
     });
   }
 
@@ -200,9 +202,7 @@ export default class GoldFilter extends EventEmitter {
     return this._call('set_filter', {
       source : body,
       name : name,
-      options : {
-        modules : this.filterClasses
-      }
+      options : {}
     });
   }
 

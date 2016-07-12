@@ -705,28 +705,6 @@ ScriptClass::Private::Private(const msgpack::object &options)
         v8pp::to_v8(isolate, "require"), f->GetFunction());
 
     isolate->GetCurrentContext()->SetEmbedderData(1, External::New(isolate, this));
-
-    auto spd = spdlog::get("console");
-    try {
-        const auto &map = options.as<std::unordered_map<std::string, msgpack::object>>();
-        const auto &mods = map.at("modules").as<std::unordered_map<std::string, std::string>>();
-
-        for (const auto &pair : mods) {
-            {
-                TryCatch try_catch;
-                ScriptCompiler::Source source(v8pp::to_v8(isolate, pair.second));
-                MaybeLocal<UnboundScript> script = ScriptCompiler::CompileUnboundScript(isolate, &source);
-                if (script.IsEmpty()) {
-                    String::Utf8Value err(try_catch.Exception());
-                    spd->error("modules local: {}", *err);
-                    continue;
-                }
-                modules[pair.first] = UniquePersistent<UnboundScript>(isolate, script.ToLocalChecked());
-            }
-        }
-    } catch (const std::bad_cast &err) {
-        spd->error("modules: {}", err.what());
-    }
 }
 
 ScriptClass::Private::~Private()
@@ -811,6 +789,26 @@ bool ScriptClass::loadFile(const std::string &path, std::string *error)
     }
 
     return loadSource(sstream.str(), error);
+}
+
+bool ScriptClass::loadModule(const std::string &name, const std::string &source, std::string *error)
+{
+    Isolate::Scope isolate_scope(d->isolate);
+    HandleScope handle_scope(d->isolate);
+    Local<Context> context = Local<Context>::New(d->isolate, d->context);
+    Context::Scope context_scope(context);
+
+    TryCatch try_catch;
+    ScriptCompiler::Source src(v8pp::to_v8(d->isolate, source));
+    MaybeLocal<UnboundScript> script = ScriptCompiler::CompileUnboundScript(d->isolate, &src);
+    if (script.IsEmpty()) {
+        String::Utf8Value err(try_catch.Exception());
+        if (error)
+            error->assign(*err);
+        return false;
+    }
+    d->modules[name] = UniquePersistent<UnboundScript>(d->isolate, script.ToLocalChecked());
+    return true;
 }
 
 bool ScriptClass::analyze(Packet *packet, const LayerPtr &parentLayer, std::string *error) const
