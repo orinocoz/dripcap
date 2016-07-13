@@ -156,30 +156,19 @@
   font-family: 'FontAwesome', 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, 'Droid Sans Fallback', sans-serif;
 }
 
-[riot-tag=graph-view] {
-  .container {
+[riot-tag=packet-list-view] {
+  div.main {
+    align-self: stretch;
+    border-spacing: 0px;
+    table-layout: fixed;
     width: 100%;
-    height: 100%;
-  }
 
-  .graph {
-    width: 100%;
-    height: 100%;
-
-    svg {
+    div.packet {
       width: 100%;
-      height: 100%;
+      height: 32px;
+      background-color: rgba(255, 255, 255, 0.2);
+      position: absolute;
     }
-  }
-
-  .node {
-    font: 8px 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, 'Droid Sans Fallback', sans-serif;
-  }
-
-  .link {
-    stroke: @error;
-    stroke-opacity: .4;
-    fill: none;
   }
 }
 

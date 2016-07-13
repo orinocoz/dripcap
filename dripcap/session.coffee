@@ -4,15 +4,10 @@ GoldFilter = require('goldfilter').default;
 
 class Session extends EventEmitter
   constructor: (@_filterPath) ->
-    @_pktId = 1
-
     @_gold = new GoldFilter()
     @_gold.on 'status', (stat) =>
-      if stat.packets >= @_pktId
-        @_gold.requestPackets(@_pktId, stat.packets)
-        @_pktId = stat.packets + 1
-        dripcap.pubsub.pub 'core:capturing-status', stat.capturing
-        console.log(stat)
+      dripcap.pubsub.pub 'core:capturing-status', stat.capturing
+      dripcap.pubsub.pub 'core:captured-packets', stat.packets
 
     @_gold.on 'packet', (pkt) =>
       @emit 'packet', new Packet(pkt)
@@ -26,6 +21,9 @@ class Session extends EventEmitter
       @addClass('dripcap/ipv6/addr', "#{__dirname}/builtin/ipv6/addr.es")
       @addClass('dripcap/ipv6/host', "#{__dirname}/builtin/ipv6/host.es")
     ])
+
+  requestPackets: (start, end) ->
+    @_gold.requestPackets(start, end)
 
   addCapture: (iface, options = {}) ->
     @_settings = {iface: iface, options: options}

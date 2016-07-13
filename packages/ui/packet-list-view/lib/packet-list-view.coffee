@@ -7,98 +7,6 @@ remote = require('electron').remote
 Menu = remote.Menu
 MenuItem = remote.MenuItem
 dialog = remote.dialog
-clipboard = require('electron').clipboard
-notifier = require('node-notifier')
-
-class PacketTable
-  constructor: (@container, @table) ->
-    @sectionSize = 1000
-    @sections = []
-    @currentSection = null
-    @updateSection = _.debounce @update, 100
-    @container.scroll => @updateSection()
-
-  clear: ->
-    @sections = []
-    @currentSection = null
-    @table.find('tr:has(td)').remove()
-
-  autoScroll: ->
-    scroll = @container.scrollTop() + @container.height()
-    height = @container[0].scrollHeight
-    if height - scroll < 64
-      @container.scrollTop(height)
-
-  update: ->
-    top = @container.scrollTop()
-    bottom = @container.height() + top
-    begin = Math.floor(top / (16 * @sectionSize))
-    end = Math.ceil(bottom / (16 * @sectionSize))
-
-    topPad = 0
-    bottomPad = 0
-
-    for s, i in @sections
-      if i < begin
-        topPad += 16 * s.children().length
-        topPad += 16 * s.data('tr').length
-        s.hide()
-      else if i > end
-        bottomPad += 16 * s.children().length
-        bottomPad += 16 * s.data('tr').length
-        s.hide()
-      else
-        tr = s.data('tr')
-        if tr.length > 0
-          for t in tr
-            s.append(t)
-          s.data('tr', [])
-        s.show()
-
-    topPad = Math.max(10, topPad)
-    bottomPad = Math.max(10, bottomPad)
-    @table.css('padding-top', "#{topPad}px")
-    @table.css('padding-bottom', "#{bottomPad}px")
-
-  append: (pkt) ->
-    self = @
-    len =
-      if pkt.payload.length < pkt.len
-        "<td>#{ pkt.payload.length } <i class=\"fa fa-exclamation-circle\"></i></td>"
-      else
-        "<td>#{ pkt.payload.length }</td>"
-
-    tr = $('<tr>')
-      .append("<td>#{ pkt.name }</td>")
-      .append("<td>#{ pkt.attrs.src }</td>")
-      .append("<td>#{ pkt.attrs.dst }</td>")
-      .append(len)
-      .attr('data-filter-rev', '0')
-      .data('packet', pkt)
-      .on 'click', ->
-        self.selectedLine.removeClass('selected') if self.selectedLine?
-        self.selectedLine = $(@)
-        self.selectedLine.addClass('selected')
-      .on 'click', ->
-        dripcap.pubsub.pub 'packet-list-view:select', $(@).data('packet')
-      .on 'contextmenu', (e) =>
-        @selctedPacket = $(e.currentTarget).data('packet')
-        dripcap.menu.popup('packet-list-view:packet-menu', @, remote.getCurrentWindow())
-        e.stopPropagation()
-
-    if !@currentSection? || @currentSection.children().length + @currentSection.data('tr').length >= @sectionSize
-      @currentSection = $('<tbody>').hide()
-      @currentSection.data('tr', [])
-      @sections.push @currentSection
-      @table.append @currentSection
-      @update()
-
-    @updateSection()
-
-    if @currentSection.is(':visible')
-      @currentSection.append tr
-    else
-      @currentSection.data('tr').push tr
 
 class PacketListView
   activate: ->
@@ -112,63 +20,61 @@ class PacketListView
           n = $('<div class="wrapper" />').attr('tabIndex', '0').appendTo m
           @list = riot.mount(n[0], 'packet-list-view', items: [])[0]
 
-          h = $('<div class="wrapper noscroll" />').css('bottom', 'auto').appendTo m
-          @header = riot.mount(h[0], 'packet-list-view-header')[0]
+          @packets = 0
+          @prevStart = -1
+          @prevEnd = -1
+
+          @view = $('[riot-tag=packet-list-view]')
+          @view.scroll _.debounce((=> @update()), 200)
 
           dripcap.session.on 'created', (session) =>
-            container = n
-            packets = []
+            session.on 'packet', (pkt) => console.log(pkt)
+            @session = session
 
-            main = $('[riot-tag=packet-list-view] table.main')
-            sub = $('[riot-tag=packet-list-view] table.sub').hide()
+          @main = $('[riot-tag=packet-list-view] div.main')
+          for i in [0..50]
+            @main.append($('<div class="packet">'))
+          @cells = @main.children('div.packet')
+          @cells.hide()
 
-            mhead = main.find('tr.head').detach()
-            shead = sub.find('tr.head').detach()
-            main.empty().append(mhead)
-            sub.empty().append(shead)
-            mainTable = new PacketTable container, main
-            subTable = new PacketTable container, sub
-            @header.calculate()
+          dripcap.pubsub.sub 'core:captured-packets', (n) =>
+            @packets = n
+            @update()
 
-            dripcap.pubsub.sub 'packet-filter-view:filter', (f) =>
-              for s in dripcap.session.list
-                s.setFilter(f)
+  update: () ->
+    @main.css('height', (32 * @packets) + 'px')
+    start = Math.max(1, Math.floor(@view.scrollTop() / 32 - 5))
+    end = Math.min(@packets, Math.floor((@view.scrollTop() + @view.height()) / 32 + 5))
 
-            session.on 'packet', (pkt) =>
-              packets.push pkt
-              mainTable.append pkt
-              mainTable.autoScroll()
-              subTable.autoScroll()
+    @main.children('div.packet:visible').each (i, ele) =>
+      pos = parseInt($(ele).css('top'))
+      margin = 120
+      if pos + $(ele).height() + margin < @view.scrollTop() || pos - margin > @view.scrollTop() + @view.height()
+        $(ele).hide()
 
-          res()
+    if @prevStart != start || @prevEnd != end
+      @prevStart = start
+      @prevEnd = end
+      if @session? && start <= end
+        packets = []
+        for i in [start..end]
+          unless @cells.is("[data-packet=#{i}]:visible")
+            packets.push(i)
 
-      @packetMenu = (menu, e) ->
-        exportRawData = =>
-          filename = "#{@selctedPacket.interface}-#{@selctedPacket.timestamp.toISOString()}.bin"
-          path = dialog.showSaveDialog(remote.getCurrentWindow(), {defaultPath: filename})
-          if path?
-            fs.writeFileSync path, @selctedPacket.payload
+        @session.requestPackets(packets)
+        @main.children('div.packet:not(:visible)').each (i, ele) =>
+          return if (packets.length == 0)
+          id = packets.shift()
+          $(ele).attr('data-packet', id).text('#' + id).css('top', (32 * (id - 1)) + 'px').show()
 
-        copyAsJSON = =>
-          json = JSON.stringify(@selctedPacket, null, ' ')
-          clipboard.writeText json
-          notifier.notify title: 'Copied', message: json, icon: '/Users/Ron/dripcap/images/dripcap.icns'
-
-        menu.append(new MenuItem(label: 'Export raw data', click: exportRawData))
-        menu.append(new MenuItem(label: 'Copy Packet as JSON', click: copyAsJSON))
-        menu
-
-      dripcap.menu.register 'packet-list-view:packet-menu', @packetMenu
 
   updateTheme: (theme) ->
     @comp.updateTheme theme
 
   deactivate: ->
-    dripcap.menu.unregister 'packet-list-view:packet-menu', @packetMenu
     dripcap.package.load('main-view').then (pkg) =>
       pkg.root.panel.left('packet-list-view')
       @list.unmount()
-      @header.unmount()
       @comp.destroy()
 
 module.exports = PacketListView
