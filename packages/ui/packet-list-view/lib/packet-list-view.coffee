@@ -28,7 +28,8 @@ class PacketListView
           @view.scroll _.debounce((=> @update()), 200)
 
           dripcap.session.on 'created', (session) =>
-            session.on 'packet', (pkt) => console.log(pkt)
+            session.on 'packet', (pkt) =>
+              @cells.filter("[data-packet=#{pkt.id}]:visible").text("#{pkt.name} #{pkt.len}")
             @session = session
 
           @main = $('[riot-tag=packet-list-view] div.main')
@@ -36,6 +37,12 @@ class PacketListView
             @main.append($('<div class="packet">'))
           @cells = @main.children('div.packet')
           @cells.hide()
+
+          canvas = $("<canvas width='64' height='64'>")[0]
+          ctx = canvas.getContext("2d")
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'
+          ctx.fillRect(0, 0, 64, 32)
+          @main.css('background-image', "url(#{canvas.toDataURL('image/png')})")
 
           dripcap.pubsub.sub 'core:captured-packets', (n) =>
             @packets = n
@@ -61,11 +68,12 @@ class PacketListView
           unless @cells.is("[data-packet=#{i}]:visible")
             packets.push(i)
 
-        @session.requestPackets(packets)
         @main.children('div.packet:not(:visible)').each (i, ele) =>
-          return if (packets.length == 0)
-          id = packets.shift()
+          return if (i >= packets.length)
+          id = packets[i]
           $(ele).attr('data-packet', id).text('#' + id).css('top', (32 * (id - 1)) + 'px').show()
+
+        @session.requestPackets(packets)
 
 
   updateTheme: (theme) ->
