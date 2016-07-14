@@ -29,7 +29,8 @@ class PacketListView
 
           dripcap.session.on 'created', (session) =>
             session.on 'packet', (pkt) =>
-              @cells.filter("[data-packet=#{pkt.id}]:visible").text("#{pkt.name} #{pkt.len}")
+              process.nextTick =>
+                @cells.filter("[data-packet=#{pkt.id}]:visible").text("#{pkt.name} #{pkt.len}")
             @session = session
 
           @main = $('[riot-tag=packet-list-view] div.main')
@@ -37,6 +38,8 @@ class PacketListView
             @main.append($('<div class="packet">'))
           @cells = @main.children('div.packet')
           @cells.hide()
+          @cells.click ->
+            $(this).addClass('selected')
 
           canvas = $("<canvas width='64' height='64'>")[0]
           ctx = canvas.getContext("2d")
