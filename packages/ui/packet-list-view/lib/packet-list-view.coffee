@@ -23,12 +23,15 @@ class PacketListView
           @packets = 0
           @prevStart = -1
           @prevEnd = -1
+          @selectedId = -1
 
           @view = $('[riot-tag=packet-list-view]')
-          @view.scroll _.debounce((=> @update()), 200)
+          @view.scroll _.debounce((=> @update()), 500)
 
           dripcap.session.on 'created', (session) =>
             session.on 'packet', (pkt) =>
+              if pkt.id == @selectedId
+                dripcap.pubsub.pub 'packet-list-view:select', pkt
               process.nextTick =>
                 @cells.filter("[data-packet=#{pkt.id}]:visible").text("#{pkt.name} #{pkt.len}")
             @session = session
@@ -38,8 +41,13 @@ class PacketListView
             @main.append($('<div class="packet">'))
           @cells = @main.children('div.packet')
           @cells.hide()
+
+          self = @
           @cells.click ->
+            $(this).siblings('.selected').removeClass('selected')
             $(this).addClass('selected')
+            self.selectedId = parseInt $(this).attr('data-packet')
+            self.session.requestPackets([self.selectedId])
 
           canvas = $("<canvas width='64' height='64'>")[0]
           ctx = canvas.getContext("2d")
@@ -74,7 +82,7 @@ class PacketListView
         @main.children('div.packet:not(:visible)').each (i, ele) =>
           return if (i >= packets.length)
           id = packets[i]
-          $(ele).attr('data-packet', id).text('#' + id).css('top', (32 * (id - 1)) + 'px').show()
+          $(ele).attr('data-packet', id).toggleClass('selected', @selectedId == id).text('#' + id).css('top', (32 * (id - 1)) + 'px').show()
 
         @session.requestPackets(packets)
 
