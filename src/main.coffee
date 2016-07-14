@@ -53,29 +53,6 @@ class Dripcap
       mainWindow.webContents.on 'did-finish-load', ->
         mainWindow.show()
 
-  pushIndicator: ->
-    @_indicator++
-    if @_indicator == 1
-      if process.platform == 'darwin'
-        @_indicatorInterval = setInterval =>
-          switch @_indicator
-            when 0
-              app.dock.setBadge(" ● ○ ○ ")
-            when 1
-              app.dock.setBadge(" ○ ● ○ ")
-            when 2
-              app.dock.setBadge(" ○ ○ ● ")
-          @_indicator = (@_indicator + 1) % 3
-        , 500
-
-  popIndicator: ->
-    if @_indicator > 0
-      @_indicator--
-    if @_indicator <= 0
-      if process.platform == 'darwin'
-        clearInterval @_indicatorInterval
-        app.dock.setBadge("")
-
 global.dripcap = new Dripcap
 
 if process.env['DRIPCAP_UI_TEST']?
