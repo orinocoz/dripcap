@@ -8,6 +8,7 @@ class Session extends EventEmitter
     @_gold.on 'status', (stat) =>
       dripcap.pubsub.pub 'core:capturing-status', stat.capturing
       dripcap.pubsub.pub 'core:captured-packets', stat.packets
+      dripcap.pubsub.pub 'core:filtered-packets', stat.filtered
 
     @_gold.on 'packet', (pkt) =>
       @emit 'packet', new Packet(pkt)
@@ -34,8 +35,11 @@ class Session extends EventEmitter
   addClass: (name, path) ->
     @_gold.addClass(name, path)
 
-  setFilter: (exp) ->
-    @_gold.setFilter('main', exp)
+  setFilter: (name, exp) ->
+    @_gold.setFilter(name, exp)
+
+  getFiltered: (name, start, end) ->
+    @_gold.getFiltered(name, start, end)
 
   start: ->
     @_gold.stop().then =>

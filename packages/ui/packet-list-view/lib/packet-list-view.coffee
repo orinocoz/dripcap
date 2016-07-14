@@ -24,6 +24,7 @@ class PacketListView
           @prevStart = -1
           @prevEnd = -1
           @selectedId = -1
+          @filter = ''
 
           @view = $('[riot-tag=packet-list-view]')
           @view.scroll _.debounce((=> @update()), 500)
@@ -37,7 +38,7 @@ class PacketListView
             @session = session
 
           @main = $('[riot-tag=packet-list-view] div.main')
-          for i in [0..50]
+          for i in [0..100]
             @main.append($('<div class="packet">'))
           @cells = @main.children('div.packet')
           @cells.hide()
@@ -47,11 +48,11 @@ class PacketListView
             $(this).siblings('.selected').removeClass('selected')
             $(this).addClass('selected')
             self.selectedId = parseInt $(this).attr('data-packet')
-            self.session.requestPackets([self.selectedId])
+            process.nextTick -> self.session.requestPackets([self.selectedId])
 
           canvas = $("<canvas width='64' height='64'>")[0]
           ctx = canvas.getContext("2d")
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'
           ctx.fillRect(0, 0, 64, 32)
           @main.css('background-image', "url(#{canvas.toDataURL('image/png')})")
 
@@ -59,14 +60,30 @@ class PacketListView
             @packets = n
             @update()
 
+          dripcap.pubsub.sub 'core:filtered-packets', (n) =>
+            @filtered = n.main
+            @update()
+
+          dripcap.pubsub.sub 'packet-filter-view:filter', (filter) =>
+            @filter = filter
+            @session.setFilter 'main', filter
+            @main.children('div.packet').hide()
+            @prevStart = -1
+            @prevEnd = -1
+            @update()
+
   update: () ->
-    @main.css('height', (32 * @packets) + 'px')
-    start = Math.max(1, Math.floor(@view.scrollTop() / 32 - 5))
-    end = Math.min(@packets, Math.floor((@view.scrollTop() + @view.height()) / 32 + 5))
+    if @filter == ''
+      @main.css('height', (32 * @packets) + 'px')
+    else
+      @main.css('height', (32 * @filtered) + 'px')
+
+    start = Math.max(1, Math.floor(@view.scrollTop() / 32 - 20))
+    end = Math.min(@packets, Math.floor((@view.scrollTop() + @view.height()) / 32 + 20))
 
     @main.children('div.packet:visible').each (i, ele) =>
       pos = parseInt($(ele).css('top'))
-      margin = 120
+      margin = 32 * 20
       if pos + $(ele).height() + margin < @view.scrollTop() || pos - margin > @view.scrollTop() + @view.height()
         $(ele).hide()
 
@@ -75,16 +92,25 @@ class PacketListView
       @prevEnd = end
       if @session? && start <= end
         packets = []
-        for i in [start..end]
-          unless @cells.is("[data-packet=#{i}]:visible")
-            packets.push(i)
+        if @filter == ''
+          for i in [start..end]
+            unless @cells.is("[data-packet=#{i}]:visible")
+              packets.push(i)
+          @main.children('div.packet:not(:visible)').each (i, ele) =>
+            return if (i >= packets.length)
+            id = packets[i]
+            $(ele).attr('data-packet', id).toggleClass('selected', @selectedId == id).text('').css('top', (32 * (id - 1)) + 'px').show()
 
-        @main.children('div.packet:not(:visible)').each (i, ele) =>
-          return if (i >= packets.length)
-          id = packets[i]
-          $(ele).attr('data-packet', id).toggleClass('selected', @selectedId == id).text('#' + id).css('top', (32 * (id - 1)) + 'px').show()
+          @session.requestPackets(packets)
+        else
+          @session.getFiltered('main', start, end).then (list) =>
+            packets = list
+            @main.children('div.packet:not(:visible)').each (i, ele) =>
+              return if (i >= packets.length)
+              id = packets[i]
+              $(ele).attr('data-packet', id).toggleClass('selected', @selectedId == id).text('').css('top', (32 * (start + i - 1)) + 'px').show()
 
-        @session.requestPackets(packets)
+            @session.requestPackets(packets)
 
 
   updateTheme: (theme) ->
