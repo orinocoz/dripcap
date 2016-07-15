@@ -9,6 +9,9 @@ export default class ARP {
 
   deactivate()
   {
-
+    dripcap.session.unregisterClass(`${__dirname}/protocol.es`);
+    dripcap.session.unregisterClass(`${__dirname}/hardware.es`);
+    dripcap.session.unregisterClass(`${__dirname}/operation.es`);
+    dripcap.session.unregisterDissector(`${__dirname}/arp.es`);
   }
 }
