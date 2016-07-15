@@ -7,6 +7,7 @@ export default class TCP {
 
   deactivate()
   {
-
+      dripcap.session.unregisterClass(`${__dirname}/flags.es`);
+      dripcap.session.unregisterDissector(`${__dirname}/tcp.es`);
   }
 }

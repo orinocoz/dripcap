@@ -8,6 +8,8 @@ export default class ARP {
 
   deactivate()
   {
-
+    dripcap.session.unregisterClass(`${__dirname}/record.es`);
+    dripcap.session.unregisterClass(`${__dirname}/operation.es`);
+    dripcap.session.unregisterDissector(`${__dirname}/dns.es`);
   }
 }

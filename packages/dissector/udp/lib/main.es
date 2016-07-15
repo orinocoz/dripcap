@@ -6,6 +6,6 @@ export default class UDP {
 
   deactivate()
   {
-
+    dripcap.session.unregisterDissector(`${__dirname}/udp.es`);
   }
 }

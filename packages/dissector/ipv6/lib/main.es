@@ -7,6 +7,7 @@ export default class IPv6 {
 
   deactivate()
   {
-
+    dripcap.session.unregisterClass(`${__dirname}/protocol.es`);
+    dripcap.session.unregisterDissector(`${__dirname}/ipv6.es`);
   }
 }

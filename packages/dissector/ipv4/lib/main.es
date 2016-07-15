@@ -8,6 +8,8 @@ export default class IPv4 {
 
   deactivate()
   {
-
+    dripcap.session.unregisterClass(`${__dirname}/protocol.es`);
+    dripcap.session.unregisterClass(`${__dirname}/fields.es`);
+    dripcap.session.unregisterDissector(`${__dirname}/ipv4.es`);
   }
 }

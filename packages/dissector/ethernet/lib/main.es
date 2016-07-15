@@ -7,6 +7,7 @@ export default class Ethernet {
 
   deactivate()
   {
-
+    dripcap.session.unregisterClass(`${__dirname}/eth_type.es`);
+    dripcap.session.unregisterDissector(`${__dirname}/eth.es`);
   }
 }
