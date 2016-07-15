@@ -1,5 +1,4 @@
 {EventEmitter} = require('events')
-Packet = require('dripcap/packet')
 GoldFilter = require('goldfilter').default;
 
 class Session extends EventEmitter
@@ -11,7 +10,7 @@ class Session extends EventEmitter
       dripcap.pubsub.pub 'core:filtered-packets', stat.filtered
 
     @_gold.on 'packet', (pkt) =>
-      @emit 'packet', new Packet(pkt)
+      @emit 'packet', pkt
 
     @_builtin = Promise.all([
       @addClass('dripcap/mac', "#{__dirname}/builtin/mac.es")

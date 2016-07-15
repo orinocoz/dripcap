@@ -18,6 +18,103 @@ class Payload extends Buffer {
 
 };
 
+class Layer {
+  constructor(namespace, params)
+  {
+    this.namespace = namespace;
+    this.name = params.name || this.namespace;
+    this.aliases = params.aliases || [];
+    this.payloadOffset = params.payloadOffset || 0;
+    this.fields = params.fields || [];
+    this.attrs = params.attrs || {};
+    this.data = params.data || {};
+
+    if (params.summary != null) {
+      this.summary = params.summary;
+    }
+    if (params.error != null) {
+      this.error = params.error;
+    }
+    if (params.payload != null) {
+      this.payload = params.payload;
+    }
+
+    function makeAttrs(fields) {
+      for (let f of fields) {
+        if (f.attr != null) {
+          this.attrs[f.attr] = f.value;
+        }
+        if (f.fields != null) {
+          makeAttrs(f.fields);
+        }
+      }
+    }
+  }
+}
+
+function leafLayer(layer) {
+  if (layer.layers != null) {
+    let ns = Object.keys(layer.layers);
+    if (ns.length > 0) {
+      return leafLayer(layer.layers[ns[0]]);
+    }
+  }
+  return layer;
+}
+
+class Packet {
+  constructor(data)
+  {
+    for (let k in data) {
+      this[k] = data[k];
+    }
+  }
+
+  get namespace()
+  {
+    if (Object.keys(this.layers).length === 0) {
+      throw new Error('empty packet');
+    }
+    let layer = leafLayer(this.layers[Object.keys(this.layers)[0]]);
+    return layer.namespace || '';
+  }
+
+  get name()
+  {
+    if (Object.keys(this.layers).length === 0) {
+      throw new Error('empty packet');
+    }
+    let layer = leafLayer(this.layers[Object.keys(this.layers)[0]]);
+    return layer.name || '';
+  }
+
+  get attrs()
+  {
+    if (Object.keys(this.layers).length === 0) {
+      throw new Error('empty packet');
+    }
+    let attrs = {};
+    function getAttrs(layers) {
+      for (let ns in layers) {
+        let layer = layers[ns];
+        if (layer.attrs != null) {
+          for (k in layer.attrs) {
+            attrs[k] = layer.attrs[k]
+          }
+        }
+        if (layer.layers != null) {
+          getAttrs(layer.layers);
+        }
+      }
+    }
+  }
+
+  get timestamp()
+  {
+    return new Date(this.ts_sec * 1000);
+  }
+}
+
 export default class GoldFilter extends EventEmitter {
   constructor() {
     super();
@@ -252,7 +349,7 @@ export default class GoldFilter extends EventEmitter {
           };
         })(pkt))
         pkt.layers = msgpack.decode(pkt.layers.buffer, {codec: codec});
-        this.packetCache[pkt.id] = pkt;
+        this.packetCache[pkt.id] = new Packet(pkt);
         this.emit('packet', pkt);
       }
       return Promise.resolve();
