@@ -349,8 +349,10 @@ export default class GoldFilter extends EventEmitter {
           };
         })(pkt))
         pkt.layers = msgpack.decode(pkt.layers.buffer, {codec: codec});
-        this.packetCache[pkt.id] = new Packet(pkt);
-        this.emit('packet', pkt);
+
+        let packet = new Packet(pkt);
+        this.packetCache[pkt.id] = packet;
+        this.emit('packet', packet);
       }
       return Promise.resolve();
     });
