@@ -2,7 +2,6 @@
 #include "packet.hpp"
 #include "layer.hpp"
 #include "script_class.hpp"
-#include "channel.hpp"
 #include <spdlog/spdlog.h>
 #include <queue>
 #include <vector>
@@ -17,6 +16,7 @@ class Dispatcher::Private
     static LayerPtr firstLayer(Packet *pkt);
 
   public:
+    std::queue<Packet *> waitingPackets;
     std::vector<Packet *> packets;
     std::vector<DissectorWorker *> workers;
     std::unordered_map<std::string, std::vector<FilterWorker *>> filterWorkers;
@@ -25,10 +25,9 @@ class Dispatcher::Private
 
     bool exiting = false;
     uint64_t maxID = 0;
+    std::condition_variable cond;
     std::condition_variable filterCond;
     std::mutex mutex;
-
-    Channel<Packet *> packetChan;
 };
 
 LayerPtr Dispatcher::Private::firstLayer(Packet *pkt)
@@ -155,23 +154,23 @@ class Dispatcher::DissectorWorker
     std::vector<std::pair<std::string, std::string>> modules;
     std::unordered_map<std::string, std::vector<ScriptClassPtr>> dissectors;
     msgpack::zone zone;
-
-    Channel<std::pair<std::string, msgpack::object>> sourceChan;
 };
 
 Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
     : d(parent)
 {
     thread = std::thread([this]() {
-        auto spd = spdlog::get("console");
-
         while (true) {
-            switch (ChannelBase::select({&sourceChan, &d->packetChan})) {
-            case 0: {
-                const auto &pair = sourceChan.recv();
-                if (pair.first.empty()) {
-                    return false;
-                }
+            std::unique_lock<std::mutex> lock(d->mutex);
+            d->cond.wait(lock, [this] {
+                return !d->waitingPackets.empty() || !sources.empty() || d->exiting;
+            });
+            if (d->exiting)
+                return false;
+
+            while (!sources.empty()) {
+                const auto &pair = sources.front();
+
                 ScriptClassPtr script = std::make_shared<ScriptClass>(pair.second);
 
                 for (const auto &pair : modules) {
@@ -189,12 +188,14 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                         dissectors[ns].push_back(script);
                     }
                 }
-            } break;
-            case 1: {
-                Packet *pkt = d->packetChan.recv();
-                if (!pkt) {
-                    return false;
-                }
+
+                sources.pop();
+            }
+
+            while (!d->waitingPackets.empty()) {
+                Packet *pkt = d->waitingPackets.front();
+                d->waitingPackets.pop();
+                lock.unlock();
 
                 LayerPtr parentLayer = d->firstLayer(pkt);
                 while (parentLayer) {
@@ -211,25 +212,22 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                     parentLayer = d->firstLayer(pkt);
                 }
 
-                {
-                    std::unique_lock<std::mutex> lock(d->mutex);
-                    if (d->packets.size() < pkt->id)
-                        d->packets.resize(pkt->id);
-                    d->packets[pkt->id - 1] = pkt;
+                lock.lock();
+                if (d->packets.size() < pkt->id)
+                    d->packets.resize(pkt->id);
+                d->packets[pkt->id - 1] = pkt;
 
-                    if (d->maxID == 0) {
-                        if (d->packets.at(0)) {
-                            d->maxID = 1;
-                        } else {
-                            continue;
-                        }
+                if (d->maxID == 0) {
+                    if (d->packets.at(0)) {
+                        d->maxID = 1;
+                    } else {
+                        continue;
                     }
-                    while (d->maxID < d->packets.size() && d->packets.at(d->maxID))
-                        d->maxID++;
-
-                    d->filterCond.notify_all();
                 }
-            } break;
+                while (d->maxID < d->packets.size() && d->packets.at(d->maxID))
+                    d->maxID++;
+
+                d->filterCond.notify_all();
             }
         }
     });
@@ -243,7 +241,12 @@ Dispatcher::DissectorWorker::~DissectorWorker()
 
 bool Dispatcher::DissectorWorker::loadDissector(const std::string &source, const msgpack::object &options, std::string *error)
 {
-    sourceChan.send(std::make_pair(source, msgpack::object(options, zone)));
+    {
+        std::lock_guard<std::mutex> lock(d->mutex);
+        sources.push(std::make_pair(source, msgpack::object(options, zone)));
+    }
+
+    d->cond.notify_all();
     return true;
 }
 
@@ -265,15 +268,14 @@ Dispatcher::Dispatcher()
 
 Dispatcher::~Dispatcher()
 {
-    d->packetChan.close();
     {
         std::lock_guard<std::mutex> lock(d->mutex);
         d->exiting = true;
     }
+    d->cond.notify_all();
     d->filterCond.notify_all();
 
     for (DissectorWorker *worker : d->workers) {
-        worker->sourceChan.close();
         delete worker;
     }
     d->workers.clear();
@@ -284,6 +286,11 @@ Dispatcher::~Dispatcher()
         }
     }
     d->filterWorkers.clear();
+
+    while (!d->waitingPackets.empty()) {
+        delete d->waitingPackets.front();
+        d->waitingPackets.pop();
+    }
 
     for (const Packet *pkt : d->packets)
         delete pkt;
@@ -361,7 +368,11 @@ void Dispatcher::insert(Packet *pkt)
     layer->payload = msgpack::object(msgpack::type::ext(0x1f, str.data(), str.size()), layer->zone);
     pkt->layers[layer->ns] = layer;
 
-    d->packetChan.send(pkt);
+    {
+        std::lock_guard<std::mutex> lock(d->mutex);
+        d->waitingPackets.push(pkt);
+    }
+    d->cond.notify_all();
 }
 
 std::vector<const Packet *> Dispatcher::get(uint64_t start, uint64_t end) const
@@ -423,7 +434,8 @@ std::vector<uint64_t> Dispatcher::getFiltered(const std::string &name, uint64_t 
 
 uint64_t Dispatcher::queuedSize() const
 {
-    return d->packetChan.size();
+    std::lock_guard<std::mutex> lock(d->mutex);
+    return d->waitingPackets.size();
 }
 
 uint64_t Dispatcher::size() const

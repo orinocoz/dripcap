@@ -65,7 +65,7 @@ class ChannelBase
     virtual bool ready() const = 0;
 
   protected:
-    mutable std::mutex mutex;
+    std::mutex mutex;
     std::set<std::condition_variable *> selectConds;
     bool closed;
 };
@@ -88,7 +88,6 @@ class Channel final : public ChannelBase
     void send(const T &val);
     T recv();
     void close();
-    size_t size() const;
 
   private:
     bool ready() const override;
@@ -151,13 +150,6 @@ void Channel<T>::close()
     for (std::condition_variable *c : selectConds) {
         c->notify_all();
     }
-}
-
-template <class T>
-size_t Channel<T>::size() const
-{
-    std::unique_lock<std::mutex> lock(mutex);
-    return queue.size();
 }
 
 template <class T>
