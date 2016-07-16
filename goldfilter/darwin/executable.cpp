@@ -56,3 +56,13 @@ bool Executable::grantPermission()
         return false;
     return true;
 }
+
+bool Executable::startup() const
+{
+    return true;
+}
+
+bool Executable::asRoot() const
+{
+    return (geteuid() == 0);
+}

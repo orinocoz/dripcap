@@ -15,6 +15,15 @@ int main(int argc, char *argv[])
 
     auto spd = spdlog::stdout_logger_mt("console", true);
 
+    Executable exec;
+    if (exec.asRoot()) {
+        spd->error("DO NOT RUN THIS AS ROOT!");
+    }
+
+    if (!exec.startup()) {
+        spd->error("startup() failed");
+    }
+
     std::string command;
     if (argc == 2)
         command.assign(argv[1]);
@@ -24,11 +33,11 @@ int main(int argc, char *argv[])
     if (command.empty()) {
         return EXIT_FAILURE;
     } else if (command == "--test-perm") {
-        bool result = Executable().testPermission();
+        bool result = exec.testPermission();
         spd->info("--test-perm: {}", result);
         return result ? EXIT_SUCCESS : EXIT_FAILURE;
     } else if (command == "--set-perm") {
-        bool result = Executable().grantPermission();
+        bool result = exec.grantPermission();
         spd->info("--set-perm: {}", result);
         return result ? EXIT_SUCCESS : EXIT_FAILURE;
     } else if (command.find("-") == 0) {

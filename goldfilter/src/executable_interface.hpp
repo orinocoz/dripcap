@@ -9,6 +9,8 @@ class ExecutableInterface
     virtual std::string path() const = 0;
     virtual bool testPermission() const = 0;
     virtual bool grantPermission() = 0;
+    virtual bool startup() const = 0;
+    virtual bool asRoot() const = 0;
 };
 
 #endif

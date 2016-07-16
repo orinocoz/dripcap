@@ -69,3 +69,13 @@ end:
     cap_free(cap);
     return ok;
 }
+
+bool Executable::startup() const
+{
+    return true;
+}
+
+bool Executable::asRoot() const
+{
+    return (geteuid() == 0);
+}
