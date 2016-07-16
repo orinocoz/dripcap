@@ -17,7 +17,6 @@ class Dispatcher::Private
     static LayerPtr firstLayer(Packet *pkt);
 
   public:
-    std::queue<Packet *> waitingPackets;
     std::vector<Packet *> packets;
     std::vector<DissectorWorker *> workers;
     std::unordered_map<std::string, std::vector<FilterWorker *>> filterWorkers;
@@ -26,7 +25,6 @@ class Dispatcher::Private
 
     bool exiting = false;
     uint64_t maxID = 0;
-    std::condition_variable cond;
     std::condition_variable filterCond;
     std::mutex mutex;
 
@@ -176,8 +174,6 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                 }
                 ScriptClassPtr script = std::make_shared<ScriptClass>(pair.second);
 
-                auto spd = spdlog::get("console");
-                spd->error("modules count {}", modules.size());
                 for (const auto &pair : modules) {
                     std::string err;
                     if (!script->loadModule(pair.first, pair.second, &err)) {
@@ -248,12 +244,6 @@ Dispatcher::DissectorWorker::~DissectorWorker()
 bool Dispatcher::DissectorWorker::loadDissector(const std::string &source, const msgpack::object &options, std::string *error)
 {
     sourceChan.send(std::make_pair(source, msgpack::object(options, zone)));
-    {
-        std::lock_guard<std::mutex> lock(d->mutex);
-        sources.push(std::make_pair(source, msgpack::object(options, zone)));
-    }
-
-    d->cond.notify_all();
     return true;
 }
 
@@ -275,14 +265,15 @@ Dispatcher::Dispatcher()
 
 Dispatcher::~Dispatcher()
 {
+    d->packetChan.close();
     {
         std::lock_guard<std::mutex> lock(d->mutex);
         d->exiting = true;
     }
-    d->cond.notify_all();
     d->filterCond.notify_all();
 
     for (DissectorWorker *worker : d->workers) {
+        worker->sourceChan.close();
         delete worker;
     }
     d->workers.clear();
@@ -293,11 +284,6 @@ Dispatcher::~Dispatcher()
         }
     }
     d->filterWorkers.clear();
-
-    while (!d->waitingPackets.empty()) {
-        delete d->waitingPackets.front();
-        d->waitingPackets.pop();
-    }
 
     for (const Packet *pkt : d->packets)
         delete pkt;
@@ -375,12 +361,7 @@ void Dispatcher::insert(Packet *pkt)
     layer->payload = msgpack::object(msgpack::type::ext(0x1f, str.data(), str.size()), layer->zone);
     pkt->layers[layer->ns] = layer;
 
-    {
-        std::lock_guard<std::mutex> lock(d->mutex);
-        d->waitingPackets.push(pkt);
-        d->packetChan.send(pkt);
-    }
-    d->cond.notify_all();
+    d->packetChan.send(pkt);
 }
 
 std::vector<const Packet *> Dispatcher::get(uint64_t start, uint64_t end) const
@@ -442,8 +423,7 @@ std::vector<uint64_t> Dispatcher::getFiltered(const std::string &name, uint64_t 
 
 uint64_t Dispatcher::queuedSize() const
 {
-    std::lock_guard<std::mutex> lock(d->mutex);
-    return d->waitingPackets.size();
+    return d->packetChan.size();
 }
 
 uint64_t Dispatcher::size() const
