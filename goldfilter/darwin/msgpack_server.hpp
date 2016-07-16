@@ -12,6 +12,10 @@ class MsgpackServer final : public MsgpackServerInterface
     bool start() override;
     bool stop() override;
 
+  public:
+    MsgpackServer(MsgpackServer const &) = delete;
+    MsgpackServer &operator=(MsgpackServer const &) = delete;
+
   private:
     class Private;
     Private *d;

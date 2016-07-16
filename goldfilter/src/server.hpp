@@ -10,6 +10,10 @@ class Server final
     virtual ~Server();
     bool start();
 
+  public:
+    Server(Server const &) = delete;
+    Server &operator=(Server const &) = delete;
+
   private:
     class Private;
     Private *d;

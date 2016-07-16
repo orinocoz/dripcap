@@ -22,6 +22,10 @@ class Pcap : public PcapInterface
 
     bool setBPF(const std::string &filter, std::string *error) override;
 
+  public:
+    Pcap(Pcap const &) = delete;
+    Pcap &operator=(Pcap const &) = delete;
+
   private:
     class Private;
     Private *d;

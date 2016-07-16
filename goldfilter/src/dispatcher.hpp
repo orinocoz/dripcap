@@ -24,6 +24,10 @@ class Dispatcher final
     uint64_t size() const;
     std::unordered_map<std::string, uint64_t> filtered() const;
 
+  public:
+    Dispatcher(Dispatcher const &) = delete;
+    Dispatcher &operator=(Dispatcher const &) = delete;
+
   private:
     class Private;
     class DissectorWorker;

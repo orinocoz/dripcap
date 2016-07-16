@@ -40,6 +40,10 @@ class Buffer
     static void from(const v8::FunctionCallbackInfo<v8::Value> &args);
     static bool isBuffer(const v8::Local<v8::Value> &value);
 
+  public:
+    Buffer(Buffer const &) = delete;
+    Buffer &operator=(Buffer const &) = delete;
+
   protected:
     std::pair<size_t, size_t> sliceRange(size_t start, size_t end) const;
 
