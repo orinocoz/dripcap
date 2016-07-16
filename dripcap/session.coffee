@@ -3,12 +3,8 @@ GoldFilter = require('goldfilter').default;
 
 class Session extends EventEmitter
   constructor: (@_filterPath) ->
+    @_timer = 0
     @_gold = new GoldFilter()
-    @_gold.on 'status', (stat) =>
-      dripcap.pubsub.pub 'core:capturing-status', stat.capturing
-      dripcap.pubsub.pub 'core:captured-packets', stat.packets
-      dripcap.pubsub.pub 'core:filtered-packets', stat.filtered
-
     @_gold.on 'packet', (pkt) =>
       @emit 'packet', pkt
 
@@ -43,7 +39,15 @@ class Session extends EventEmitter
   start: ->
     @_gold.stop().then =>
       @_builtin.then =>
-        @_gold.start(@_settings.iface, @_settings.options)
+        @_gold.start(@_settings.iface, @_settings.options).then =>
+          @_timer = setInterval =>
+            @_gold.status().then (stat) =>
+              dripcap.pubsub.pub 'core:capturing-status', stat.capturing
+              dripcap.pubsub.pub 'core:captured-packets', stat.packets
+              dripcap.pubsub.pub 'core:filtered-packets', stat.filtered
+              unless stat.capturing
+                clearInterval @_timer
+          , 500
 
   stop: ->
     @_gold.stop()

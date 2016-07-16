@@ -170,12 +170,6 @@ export default class GoldFilter extends EventEmitter {
         });
         res();
       })
-
-      this.timer = setInterval(() => {
-        this._call('get_status').then((s) => {
-          this.emit('status', s);
-        });
-      }, 500);
     })
   }
 
@@ -275,9 +269,13 @@ export default class GoldFilter extends EventEmitter {
   }
 
   start(ifs, options={}) {
-    this._call('set_opt', Object.assign({}, {interface : ifs}, options)).then(() => {
+    return this._call('set_opt', Object.assign({}, {interface : ifs}, options)).then(() => {
       return this._call('start');
     });
+  }
+
+  status() {
+    return this._call('get_status');
   }
 
   setFilter(name, filter="") {
