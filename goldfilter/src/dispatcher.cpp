@@ -2,6 +2,7 @@
 #include "packet.hpp"
 #include "layer.hpp"
 #include "script_class.hpp"
+#include "channel.hpp"
 #include <spdlog/spdlog.h>
 #include <queue>
 #include <vector>
@@ -28,6 +29,8 @@ class Dispatcher::Private
     std::condition_variable cond;
     std::condition_variable filterCond;
     std::mutex mutex;
+
+    Channel<Packet *> packetChan;
 };
 
 LayerPtr Dispatcher::Private::firstLayer(Packet *pkt)
@@ -154,25 +157,27 @@ class Dispatcher::DissectorWorker
     std::vector<std::pair<std::string, std::string>> modules;
     std::unordered_map<std::string, std::vector<ScriptClassPtr>> dissectors;
     msgpack::zone zone;
+
+    Channel<std::pair<std::string, msgpack::object>> sourceChan;
 };
 
 Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
     : d(parent)
 {
     thread = std::thread([this]() {
+        auto spd = spdlog::get("console");
+
         while (true) {
-            std::unique_lock<std::mutex> lock(d->mutex);
-            d->cond.wait(lock, [this] {
-                return !d->waitingPackets.empty() || !sources.empty() || d->exiting;
-            });
-            if (d->exiting)
-                return false;
-
-            while (!sources.empty()) {
-                const auto &pair = sources.front();
-
+            switch (ChannelBase::select({&sourceChan, &d->packetChan})) {
+            case 0: {
+                const auto &pair = sourceChan.recv();
+                if (pair.first.empty()) {
+                    return false;
+                }
                 ScriptClassPtr script = std::make_shared<ScriptClass>(pair.second);
 
+                auto spd = spdlog::get("console");
+                spd->error("modules count {}", modules.size());
                 for (const auto &pair : modules) {
                     std::string err;
                     if (!script->loadModule(pair.first, pair.second, &err)) {
@@ -188,14 +193,12 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                         dissectors[ns].push_back(script);
                     }
                 }
-
-                sources.pop();
-            }
-
-            while (!d->waitingPackets.empty()) {
-                Packet *pkt = d->waitingPackets.front();
-                d->waitingPackets.pop();
-                lock.unlock();
+            } break;
+            case 1: {
+                Packet *pkt = d->packetChan.recv();
+                if (!pkt) {
+                    return false;
+                }
 
                 LayerPtr parentLayer = d->firstLayer(pkt);
                 while (parentLayer) {
@@ -212,22 +215,25 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                     parentLayer = d->firstLayer(pkt);
                 }
 
-                lock.lock();
-                if (d->packets.size() < pkt->id)
-                    d->packets.resize(pkt->id);
-                d->packets[pkt->id - 1] = pkt;
+                {
+                    std::unique_lock<std::mutex> lock(d->mutex);
+                    if (d->packets.size() < pkt->id)
+                        d->packets.resize(pkt->id);
+                    d->packets[pkt->id - 1] = pkt;
 
-                if (d->maxID == 0) {
-                    if (d->packets.at(0)) {
-                        d->maxID = 1;
-                    } else {
-                        continue;
+                    if (d->maxID == 0) {
+                        if (d->packets.at(0)) {
+                            d->maxID = 1;
+                        } else {
+                            continue;
+                        }
                     }
-                }
-                while (d->maxID < d->packets.size() && d->packets.at(d->maxID))
-                    d->maxID++;
+                    while (d->maxID < d->packets.size() && d->packets.at(d->maxID))
+                        d->maxID++;
 
-                d->filterCond.notify_all();
+                    d->filterCond.notify_all();
+                }
+            } break;
             }
         }
     });
@@ -241,6 +247,7 @@ Dispatcher::DissectorWorker::~DissectorWorker()
 
 bool Dispatcher::DissectorWorker::loadDissector(const std::string &source, const msgpack::object &options, std::string *error)
 {
+    sourceChan.send(std::make_pair(source, msgpack::object(options, zone)));
     {
         std::lock_guard<std::mutex> lock(d->mutex);
         sources.push(std::make_pair(source, msgpack::object(options, zone)));
@@ -371,6 +378,7 @@ void Dispatcher::insert(Packet *pkt)
     {
         std::lock_guard<std::mutex> lock(d->mutex);
         d->waitingPackets.push(pkt);
+        d->packetChan.send(pkt);
     }
     d->cond.notify_all();
 }

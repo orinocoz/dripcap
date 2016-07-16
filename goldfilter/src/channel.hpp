@@ -116,6 +116,9 @@ void Channel<T>::send(const T &val)
         queue.push(val);
     }
     cond.notify_all();
+    for (std::condition_variable *c : selectConds) {
+        c->notify_all();
+    }
 }
 
 template <class T>
