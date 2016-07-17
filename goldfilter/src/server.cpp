@@ -45,6 +45,7 @@ class Server::Private
   public:
     Private(const std::string &path);
     ~Private();
+    bool capturing;
     Status status;
     MsgpackServer server;
     Dispatcher packets;
@@ -53,10 +54,8 @@ class Server::Private
 };
 
 Server::Private::Private(const std::string &path)
-    : server(path)
+    : capturing(false), server(path)
 {
-    status.capturing = false;
-    status.packets = 0;
 }
 
 Server::Private::~Private()
@@ -81,14 +80,14 @@ Server::Server(const std::string &path)
     });
 
     d->server.handle("start", [this](const msgpack::object &arg, ReplyInterface &reply) {
-        d->status.capturing = d->pcap->start();
-        reply(d->status);
+        d->capturing = d->pcap->start();
+        reply();
     });
 
     d->server.handle("stop", [this](const msgpack::object &arg, ReplyInterface &reply) {
         d->pcap->stop();
-        d->status.capturing = false;
-        reply(d->status);
+        d->capturing = false;
+        reply();
     });
 
     d->server.handle("set_opt", [this](const msgpack::object &arg, ReplyInterface &reply) {
@@ -182,10 +181,17 @@ Server::Server(const std::string &path)
     });
 
     d->server.handle("get_status", [this](const msgpack::object &arg, ReplyInterface &reply) {
-        d->status.queuedPackets = d->packets.queuedSize();
-        d->status.packets = d->packets.size();
-        d->status.filtered = d->packets.filtered();
-        reply(d->status);
+        Status stat;
+        stat.capturing = d->capturing;
+        stat.queuedPackets = d->packets.queuedSize();
+        stat.packets = d->packets.size();
+        stat.filtered = d->packets.filtered();
+        if (stat != d->status) {
+            d->status = stat;
+            reply(d->status);
+        } else {
+            reply();
+        }
     });
 
     d->server.handle("get_packets", [this](const msgpack::object &arg, ReplyInterface &reply) {

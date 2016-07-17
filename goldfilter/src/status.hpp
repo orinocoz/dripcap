@@ -4,11 +4,33 @@
 #include <msgpack.hpp>
 
 struct Status {
+    Status();
     bool capturing;
     uint64_t queuedPackets;
     uint64_t packets;
     std::unordered_map<std::string, uint64_t> filtered;
+    bool operator!=(const Status &stat) const;
 };
+
+Status::Status()
+    : capturing(false),
+      queuedPackets(0),
+      packets(0)
+{
+}
+
+bool Status::operator!=(const Status &stat) const
+{
+    if (capturing != stat.capturing || packets != stat.packets || filtered.size() != stat.filtered.size()) {
+        return true;
+    }
+    for (const auto &pair : filtered) {
+        if (stat.filtered.at(pair.first) != pair.second) {
+            return true;
+        }
+    }
+    return false;
+}
 
 namespace msgpack
 {

@@ -42,14 +42,13 @@ class Session extends EventEmitter
         @_gold.start(@_settings.iface, @_settings.options).then =>
           @_timer = setInterval =>
             @_gold.status().then (stat) =>
-              dripcap.pubsub.pub 'core:capturing-status', stat.capturing
-              dripcap.pubsub.pub 'core:captured-packets', stat.packets
-              dripcap.pubsub.pub 'core:filtered-packets', stat.filtered
-              unless stat.capturing
-                clearInterval @_timer
-          , 500
+              if stat?
+                dripcap.pubsub.pub 'core:capturing-status', stat.capturing
+                @emit 'status', stat
+          , 100
 
   stop: ->
+    clearInterval @_timer
     @_gold.stop()
 
   close: ->

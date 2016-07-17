@@ -24,6 +24,10 @@ class PacketListView
           @view.scroll _.debounce((=> @update()), 100)
 
           dripcap.session.on 'created', (session) =>
+            session.on 'status', (n) =>
+              @packets = n.packets
+              @update()
+
             session.on 'packet', (pkt) =>
               if pkt.id == @selectedId
                 dripcap.pubsub.pub 'packet-list-view:select', pkt
@@ -52,10 +56,6 @@ class PacketListView
           ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'
           ctx.fillRect(0, 0, 64, 32)
           @main.css('background-image', "url(#{canvas.toDataURL('image/png')})")
-
-          dripcap.pubsub.sub 'core:captured-packets', (n) =>
-            @packets = n
-            @update()
 
   update: () ->
     margin = 5

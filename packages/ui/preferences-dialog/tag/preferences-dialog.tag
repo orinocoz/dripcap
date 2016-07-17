@@ -18,17 +18,6 @@
   @show = =>
     @tags['modal-dialog'].show()
 
-  @start = =>
-    ifs = $(@tags['modal-dialog'].interface).val()
-    filter = $(@tags['modal-dialog'].filter).val()
-    promisc = $(@tags['modal-dialog'].promisc).prop('checked')
-
-    @tags['modal-dialog'].hide()
-    dripcap.session.create(ifs, filter: filter, promisc: promisc).then (sess) =>
-      dripcap.session.list = [sess]
-      dripcap.session.emit('created', sess)
-      sess.start()
-
   </script>
 
 </preferences-dialog>
