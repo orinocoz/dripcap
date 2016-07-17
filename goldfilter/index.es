@@ -339,10 +339,14 @@ export default class GoldFilter extends EventEmitter {
         });
         codec.addExtUnpacker(0x1F, ((pkt) => {
           return (buffer) => {
-            const range = msgpack.decode(buffer, {codec: codec});
-            let slice = pkt.payload.slice(range[0], range[1]);
-            slice.start = range[0];
-            slice.end = range[1];
+            const tuple = msgpack.decode(buffer, {codec: codec});
+            if (tuple[0] !== pkt.id) {
+              return new Buffer();
+            }
+            let slice = pkt.payload.slice(tuple[1], tuple[2]);
+            slice.packet = tuple[0];
+            slice.start = tuple[1];
+            slice.end = tuple[2];
             return slice;
           };
         })(pkt))

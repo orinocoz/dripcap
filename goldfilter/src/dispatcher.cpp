@@ -363,7 +363,7 @@ void Dispatcher::insert(Packet *pkt)
     layer->ns = "::<Ethernet>";
 
     std::stringstream buffer;
-    msgpack::pack(buffer, std::pair<size_t, size_t>(0, pkt->payload.size()));
+    msgpack::pack(buffer, std::tuple<uint64_t, size_t, size_t>(pkt->id, 0, pkt->payload.size()));
     const std::string &str = buffer.str();
     layer->payload = msgpack::object(msgpack::type::ext(0x1f, str.data(), str.size()), layer->zone);
     pkt->layers[layer->ns] = layer;

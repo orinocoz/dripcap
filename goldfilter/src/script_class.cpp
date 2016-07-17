@@ -100,8 +100,10 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
                     msgpack::object_handle result;
                     msgpack::unpack(result, ext.data(), ext.size());
                     msgpack::object obj(result.get());
-                    const auto &pair = obj.as<std::pair<size_t, size_t>>();
-                    return v8pp::class_<Payload>::create_object(isolate, &packet->payload, pair.first, pair.second);
+                    const auto &tuple = obj.as<std::tuple<uint64_t, size_t, size_t>>();
+                    if (std::get<0>(tuple) == packet->id) {
+                        return v8pp::class_<Payload>::create_object(isolate, &packet->payload, std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
+                    }
                 }
             }
             case 0x20: {
@@ -349,7 +351,8 @@ msgpack::object LayerWrapper::v8ToMsgpack(Local<Value> v)
         Payload *payload;
         if ((payload = v8pp::class_<Payload>::unwrap_object(isolate, v))) {
             std::stringstream buffer;
-            msgpack::pack(buffer, payload->range());
+            const auto &pair = payload->range();
+            msgpack::pack(buffer, std::tuple<uint64_t, size_t, size_t>(layer->packet->id, pair.first, pair.second));
             const std::string &str = buffer.str();
             return msgpack::object(msgpack::type::ext(0x1f, str.data(), str.size()), layer->zone);
         }
@@ -487,7 +490,7 @@ Local<Value> PacketWrapper::ts() const
 
 Local<Value> PacketWrapper::payload() const
 {
-    return v8pp::class_<Payload>::create_object(Isolate::GetCurrent(), &packet->payload, 0, packet->payload.size());
+    return v8pp::class_<Payload>::create_object(Isolate::GetCurrent(), &packet->payload, packet->id, 0, packet->payload.size());
 }
 
 void PacketWrapper::syncToScript()

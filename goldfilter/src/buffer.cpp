@@ -248,8 +248,8 @@ CustomValue::~CustomValue()
 {
 }
 
-Payload::Payload(Data *data, size_t start, size_t end)
-    : Buffer(data, start, end)
+Payload::Payload(Data *data, uint64_t packet, size_t start, size_t end)
+    : Buffer(data, start, end), pkt(packet)
 {
 }
 
@@ -260,6 +260,11 @@ Payload::~Payload()
 std::pair<size_t, size_t> Payload::range() const
 {
     return std::make_pair(start, end);
+}
+
+uint64_t Payload::packet() const
+{
+    return pkt;
 }
 
 std::string Payload::valueOf() const
@@ -282,6 +287,6 @@ void Payload::slice(v8::FunctionCallbackInfo<v8::Value> const &args) const
     size_t s = v8pp::from_v8<size_t>(isolate, args[0], 0);
     size_t e = std::min(v8pp::from_v8<size_t>(isolate, args[1], length()), length());
     const auto &pair = sliceRange(s, e);
-    Local<Object> obj = v8pp::class_<Payload>::create_object(isolate, vec, pair.first, pair.second);
+    Local<Object> obj = v8pp::class_<Payload>::create_object(isolate, vec, pkt, pair.first, pair.second);
     args.GetReturnValue().Set(obj);
 }
