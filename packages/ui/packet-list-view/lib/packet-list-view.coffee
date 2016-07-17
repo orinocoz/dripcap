@@ -28,7 +28,13 @@ class PacketListView
               if pkt.id == @selectedId
                 dripcap.pubsub.pub 'packet-list-view:select', pkt
               process.nextTick =>
-                @cells.filter("[data-packet=#{pkt.id}]:visible").text("#{pkt.name} #{pkt.len}")
+                @cells.filter("[data-packet=#{pkt.id}]:visible")
+                  .empty()
+                  .append($('<a>').text(pkt.name))
+                  .append($('<a>').text(pkt.attrs.src))
+                  .append($('<a>').append($('<i class="fa fa-angle-double-right">')))
+                  .append($('<a>').text(pkt.attrs.dst))
+                  .append($('<a>').text(pkt.len))
             @packets = 0
             @prevStart = -1
             @prevEnd = -1
@@ -88,7 +94,7 @@ class PacketListView
         @cells.filter(':not(:visible)').each (i, ele) =>
           return if (i >= packets.length)
           id = packets[i]
-          $(ele).attr('data-packet', id).toggleClass('selected', @selectedId == id).text('').css('top', (32 * (id - 1)) + 'px').show()
+          $(ele).attr('data-packet', id).toggleClass('selected', @selectedId == id).empty().css('top', (32 * (id - 1)) + 'px').show()
 
         @session.requestPackets(packets)
 

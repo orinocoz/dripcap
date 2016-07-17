@@ -98,7 +98,7 @@ class Packet {
       for (let ns in layers) {
         let layer = layers[ns];
         if (layer.attrs != null) {
-          for (k in layer.attrs) {
+          for (let k in layer.attrs) {
             attrs[k] = layer.attrs[k]
           }
         }
@@ -107,6 +107,8 @@ class Packet {
         }
       }
     }
+    getAttrs(this.layers);
+    return attrs;
   }
 
   get timestamp()
