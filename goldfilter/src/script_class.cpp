@@ -201,6 +201,98 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
     }
     return Local<Value>();
 }
+
+msgpack::object v8ToMsgpack(Local<Value> v, msgpack::zone *zone)
+{
+    Isolate *isolate = Isolate::GetCurrent();
+    if (!v.IsEmpty()) {
+        Payload *payload;
+        if ((payload = v8pp::class_<Payload>::unwrap_object(isolate, v))) {
+            std::stringstream buffer;
+            const auto &pair = payload->range();
+            msgpack::pack(buffer, std::tuple<uint64_t, size_t, size_t>(payload->pkt, pair.first, pair.second));
+            const std::string &str = buffer.str();
+            return msgpack::object(msgpack::type::ext(0x1f, str.data(), str.size()), *zone);
+        }
+
+        CustomValue *custom;
+        if ((custom = v8pp::class_<CustomValue>::unwrap_object(isolate, v))) {
+            return msgpack::object(msgpack::type::ext(0x20, reinterpret_cast<const char *>(custom->data()), custom->length()), *zone);
+        }
+
+        Buffer *buffer;
+        if ((buffer = v8pp::class_<Buffer>::unwrap_object(isolate, v))) {
+            Buffer::Data buf;
+            buf.assign(buffer->data(), buffer->data() + buffer->length());
+            return msgpack::object(buf, *zone);
+        }
+
+        Stream *stream;
+        if ((stream = v8pp::class_<Stream>::unwrap_object(isolate, v))) {
+            std::stringstream buffer;
+            msgpack::pack(buffer, *stream);
+            const std::string &str = buffer.str();
+            return msgpack::object(msgpack::type::ext(0x21, str.data(), str.size()), *zone);
+        }
+
+        if (v->IsString()) {
+            Local<String> strObj = v.As<String>();
+            std::string str;
+            str.resize(strObj->Utf8Length() + 1);
+            strObj->WriteUtf8(&str[0]);
+            str.resize(str.size() - 1);
+            return msgpack::object(str, *zone);
+        }
+
+        if (v->IsArray()) {
+            std::vector<msgpack::object> list;
+            Local<Array> array = v.As<Array>();
+            for (size_t i = 0; i < array->Length(); ++i) {
+                list.push_back(v8ToMsgpack(array->Get(i), zone));
+            }
+            return msgpack::object(list, *zone);
+        }
+
+        if (v->IsBoolean()) {
+            return msgpack::object(v.As<Boolean>()->Value());
+        }
+
+        if (v->IsNumber()) {
+            return msgpack::object(v.As<Number>()->Value());
+        }
+
+        if (v->IsObject()) {
+            Local<Object> obj = v.As<Object>();
+            Local<Value> args = obj->Get(v8pp::to_v8(isolate, std::string("toMsgpack")));
+            Local<Value> ctor = obj->Get(v8pp::to_v8(isolate, std::string("constructor")));
+            Local<Value> name = ctor.As<Object>()->Get(v8pp::to_v8(isolate, std::string("__msgpackClass")));
+
+            if (args->IsFunction() && name->IsString()) {
+                Local<Value> ret = args.As<Function>()->Call(v, 0, nullptr);
+                if (ret->IsArray()) {
+                    Local<Array> array = ret.As<Array>();
+                    for (int i = array->Length() - 1; i >= 0; --i) {
+                        array->Set(i + 1, array->Get(i));
+                    }
+                    array->Set(0, name);
+                    const msgpack::object &obj = v8ToMsgpack(array, zone);
+                    std::stringstream buffer;
+                    msgpack::pack(buffer, obj);
+                    const std::string &str = buffer.str();
+                    return msgpack::object(msgpack::type::ext(0x20, str.data(), str.size()), *zone);
+                }
+            }
+
+            std::unordered_map<std::string, msgpack::object> map;
+            Local<Array> keys = obj->GetOwnPropertyNames();
+            for (size_t i = 0; i < keys->Length(); ++i) {
+                map[v8pp::from_v8<std::string>(isolate, keys->Get(i), "")] = v8ToMsgpack(obj->Get(keys->Get(i)), zone);
+            }
+            return msgpack::object(map, *zone);
+        }
+    }
+    return msgpack::object(msgpack::type::nil_t());
+}
 }
 
 class LayerWrapper
@@ -353,94 +445,7 @@ LayerPtr LayerWrapper::getLayer() const
 
 msgpack::object LayerWrapper::v8ToMsgpack(Local<Value> v)
 {
-    Isolate *isolate = Isolate::GetCurrent();
-    if (!v.IsEmpty()) {
-        Payload *payload;
-        if ((payload = v8pp::class_<Payload>::unwrap_object(isolate, v))) {
-            std::stringstream buffer;
-            const auto &pair = payload->range();
-            msgpack::pack(buffer, std::tuple<uint64_t, size_t, size_t>(layer->packet->id, pair.first, pair.second));
-            const std::string &str = buffer.str();
-            return msgpack::object(msgpack::type::ext(0x1f, str.data(), str.size()), layer->zone);
-        }
-
-        CustomValue *custom;
-        if ((custom = v8pp::class_<CustomValue>::unwrap_object(isolate, v))) {
-            return msgpack::object(msgpack::type::ext(0x20, reinterpret_cast<const char *>(custom->data()), custom->length()), layer->zone);
-        }
-
-        Buffer *buffer;
-        if ((buffer = v8pp::class_<Buffer>::unwrap_object(isolate, v))) {
-            Buffer::Data buf;
-            buf.assign(buffer->data(), buffer->data() + buffer->length());
-            return msgpack::object(buf, layer->zone);
-        }
-
-        Stream *stream;
-        if ((stream = v8pp::class_<Stream>::unwrap_object(isolate, v))) {
-            std::stringstream buffer;
-            msgpack::pack(buffer, *stream);
-            const std::string &str = buffer.str();
-            return msgpack::object(msgpack::type::ext(0x21, str.data(), str.size()), layer->zone);
-        }
-
-        if (v->IsString()) {
-            Local<String> strObj = v.As<String>();
-            std::string str;
-            str.resize(strObj->Utf8Length() + 1);
-            strObj->WriteUtf8(&str[0]);
-            str.resize(str.size() - 1);
-            return msgpack::object(str, layer->zone);
-        }
-
-        if (v->IsArray()) {
-            std::vector<msgpack::object> list;
-            Local<Array> array = v.As<Array>();
-            for (size_t i = 0; i < array->Length(); ++i) {
-                list.push_back(v8ToMsgpack(array->Get(i)));
-            }
-            return msgpack::object(list, layer->zone);
-        }
-
-        if (v->IsBoolean()) {
-            return msgpack::object(v.As<Boolean>()->Value());
-        }
-
-        if (v->IsNumber()) {
-            return msgpack::object(v.As<Number>()->Value());
-        }
-
-        if (v->IsObject()) {
-            Local<Object> obj = v.As<Object>();
-            Local<Value> args = obj->Get(v8pp::to_v8(isolate, std::string("toMsgpack")));
-            Local<Value> ctor = obj->Get(v8pp::to_v8(isolate, std::string("constructor")));
-            Local<Value> name = ctor.As<Object>()->Get(v8pp::to_v8(isolate, std::string("__msgpackClass")));
-
-            if (args->IsFunction() && name->IsString()) {
-                Local<Value> ret = args.As<Function>()->Call(v, 0, nullptr);
-                if (ret->IsArray()) {
-                    Local<Array> array = ret.As<Array>();
-                    for (int i = array->Length() - 1; i >= 0; --i) {
-                        array->Set(i + 1, array->Get(i));
-                    }
-                    array->Set(0, name);
-                    const msgpack::object &obj = v8ToMsgpack(array);
-                    std::stringstream buffer;
-                    msgpack::pack(buffer, obj);
-                    const std::string &str = buffer.str();
-                    return msgpack::object(msgpack::type::ext(0x20, str.data(), str.size()), layer->zone);
-                }
-            }
-
-            std::unordered_map<std::string, msgpack::object> map;
-            Local<Array> keys = obj->GetOwnPropertyNames();
-            for (size_t i = 0; i < keys->Length(); ++i) {
-                map[v8pp::from_v8<std::string>(isolate, keys->Get(i), "")] = v8ToMsgpack(obj->Get(keys->Get(i)));
-            }
-            return msgpack::object(map, layer->zone);
-        }
-    }
-    return msgpack::object(msgpack::type::nil_t());
+    return ::v8ToMsgpack(v, &layer->zone);
 }
 
 Local<Value> LayerWrapper::msgpackToV8(const msgpack::object &o)

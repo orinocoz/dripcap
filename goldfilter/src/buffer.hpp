@@ -71,7 +71,7 @@ class Payload : public Buffer
     uint64_t packet() const;
     std::string valueOf() const;
 
-  private:
+  public:
     uint64_t pkt;
 };
 
