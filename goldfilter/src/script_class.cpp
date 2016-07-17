@@ -1,9 +1,10 @@
 #include "script_class.hpp"
 #include "buffer.hpp"
+#include "packet.hpp"
+#include "stream.hpp"
 #include <fstream>
 #include <sstream>
 #include <spdlog/spdlog.h>
-#include "packet.hpp"
 #include "include/libplatform/libplatform.h"
 #include "include/v8.h"
 #include <v8pp/class.hpp>
@@ -94,7 +95,7 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
                 auto vec = std::make_shared<Buffer::Data>();
                 vec->assign(ext.data(), ext.data() + ext.size());
                 return v8pp::class_<Buffer>::create_object(isolate, vec);
-            }
+            } break;
             case 0x1f: {
                 if (packet) {
                     msgpack::object_handle result;
@@ -105,7 +106,7 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
                         return v8pp::class_<Payload>::create_object(isolate, &packet->payload, std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
                     }
                 }
-            }
+            } break;
             case 0x20: {
                 msgpack::object_handle result;
                 msgpack::unpack(result, ext.data(), ext.size());
@@ -180,7 +181,13 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
                         }
                     }
                 }
-            }
+            } break;
+            case 0x21: {
+                msgpack::object_handle result;
+                msgpack::unpack(result, ext.data(), ext.size());
+                msgpack::object obj(result.get());
+                return v8pp::class_<Stream>::create_object(isolate, obj.as<Stream>());
+            } break;
             default:;
             }
             auto vec = std::make_shared<Buffer::Data>();
@@ -369,6 +376,14 @@ msgpack::object LayerWrapper::v8ToMsgpack(Local<Value> v)
             return msgpack::object(buf, layer->zone);
         }
 
+        Stream *stream;
+        if ((stream = v8pp::class_<Stream>::unwrap_object(isolate, v))) {
+            std::stringstream buffer;
+            msgpack::pack(buffer, *stream);
+            const std::string &str = buffer.str();
+            return msgpack::object(msgpack::type::ext(0x21, str.data(), str.size()), layer->zone);
+        }
+
         if (v->IsString()) {
             Local<String> strObj = v.As<String>();
             std::string str;
@@ -503,6 +518,7 @@ void PacketWrapper::syncToScript()
         obj->ForceSet(v8pp::to_v8(isolate, "layers"), Object::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
         obj->ForceSet(v8pp::to_v8(isolate, "fields"), Array::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
         obj->ForceSet(v8pp::to_v8(isolate, "attrs"), Object::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
+        obj->ForceSet(v8pp::to_v8(isolate, "streams"), Array::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
         LayerWrapper *wrapper = v8pp::class_<LayerWrapper>::unwrap_object(isolate, obj);
         wrapper->syncToScript();
         list[pair.first] = obj;
@@ -629,8 +645,13 @@ ScriptClass::Private::Private(const msgpack::object &options)
 
     layer.class_function_template()->SetClassName(v8pp::to_v8(isolate, "Layer"));
 
+    v8pp::class_<Stream> stream(isolate);
+    stream
+        .ctor<const std::string &, const std::string &, const std::string &>();
+
     v8pp::module dripcapModule(isolate);
     dripcapModule.set("Buffer", buffer);
+    dripcapModule.set("Stream", stream);
 
     Local<FunctionTemplate> layerFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
         Isolate *isolate = Isolate::GetCurrent();
@@ -638,6 +659,7 @@ ScriptClass::Private::Private(const msgpack::object &options)
         obj->ForceSet(v8pp::to_v8(isolate, "layers"), Object::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
         obj->ForceSet(v8pp::to_v8(isolate, "fields"), Array::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
         obj->ForceSet(v8pp::to_v8(isolate, "attrs"), Object::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
+        obj->ForceSet(v8pp::to_v8(isolate, "streams"), Array::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
 
         args.GetReturnValue().Set(obj);
     }, layer.js_function_template()->GetFunction());

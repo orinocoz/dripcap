@@ -1,4 +1,4 @@
-import {Layer, Buffer} from 'dripcap';
+import {Layer, Buffer, Stream} from 'dripcap';
 import IPv4Host from 'dripcap/ipv4/host';
 import IPv6Host from 'dripcap/ipv6/host';
 import TCPFlags from 'dripcap/tcp/flags';
@@ -255,7 +255,7 @@ export default class TCPDissector
             });
             optionOffset += 10;
             break;
-            
+
           default:
             throw new Error('unknown option');
         }
@@ -271,6 +271,9 @@ export default class TCPDissector
         value: layer.payload,
         data: layer.payload
       });
+
+      let stream = new Stream('TCP Stream', layer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
+      layer.streams.push(stream);
 
       layer.summary = `${layer.attrs.src} -> ${layer.attrs.dst} seq:${seq} ack:${ack}`;
 
