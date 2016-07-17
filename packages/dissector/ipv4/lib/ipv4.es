@@ -69,7 +69,7 @@ export default class IPv4Dissector
       layer.fields.push({
         name: 'Flags',
         attr: 'flags',
-        range: parentLayer.payload.slice(6, 7),
+        data: parentLayer.payload.slice(6, 7),
         fields: [{
           name: 'Reserved',
           value: flags.get('Reserved'),
@@ -137,7 +137,7 @@ export default class IPv4Dissector
       layer.fields.push({
         name: 'Destination IP Address',
         attr: 'dst',
-        range: parentLayer.payload.slice(16, 20),
+        data: parentLayer.payload.slice(16, 20),
       });
       layer.attrs.dst = destination;
 

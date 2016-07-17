@@ -103,7 +103,7 @@ export default class ARPDissector
       layer.fields.push({
         name: 'Target protocol address',
         attr: 'spa',
-        range: parentLayer.payload.slice(24, 28)
+        data: parentLayer.payload.slice(24, 28)
       });
       layer.attrs.tpa = tpa;
 

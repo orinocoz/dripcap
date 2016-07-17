@@ -27,5 +27,9 @@
         dripcap.pubsub.pub 'packet-filter-view:filter', @filterText
       true
 
+    dripcap.session.on 'created', (session) =>
+      dripcap.pubsub.sub 'packet-filter-view:filter', (filter) ->
+        session.setFilter 'main', filter
+
   </script>
 </packet-filter-view>
