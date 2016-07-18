@@ -343,7 +343,7 @@ export default class GoldFilter extends EventEmitter {
           return (buffer) => {
             const tuple = msgpack.decode(buffer, {codec: codec});
             if (tuple[0] !== pkt.id) {
-              return new Buffer();
+              return new Buffer([]);
             }
             let slice = pkt.payload.slice(tuple[1], tuple[2]);
             slice.packet = tuple[0];
