@@ -403,11 +403,11 @@ export default class GoldFilter extends EventEmitter {
       exe = '/usr/bin/goldfilter';
     }
 
-    return {bundle: bundle, exe: exe};
+    return {bundle: bundle, exe: exe, helperAppPath: helperAppPath};
   }
 
   static setPerm() {
-    const {bundle, exe} = GoldFilter._getPath();
+    const {bundle, exe, helperAppPath} = GoldFilter._getPath();
 
     if (process.platform === 'linux') {
       try {
@@ -430,7 +430,7 @@ export default class GoldFilter extends EventEmitter {
         childProcess.execFileSync(helperAppPath)
       } catch (err) {
         try {
-          const script = `mkdir /usr/local/lib ; cp ${bundle} ${exe} && ${exe} --set-perm`;
+          const script = `mkdir /usr/local/lib ; cp ${bundle} ${exe}`;
           childProcess.execFileSync('osascript', ['-e', `do shell script \"${script}\" with administrator privileges`]);
         } catch (err) {
           if (err.status === -1) {
@@ -451,7 +451,7 @@ export default class GoldFilter extends EventEmitter {
       if (crypto.createHash('sha1').update(fs.readFileSync(exe)).digest('hex') != digest) {
         return false;
       }
-      childProcess.execFileSync(path, ['testcap']);
+      childProcess.execFileSync(exe, ['--test-perm']);
     } catch (err) {
       // console.warn(err);
       return false
