@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     Executable exec;
     if (exec.asRoot()) {
         spd->error("DO NOT RUN THIS AS ROOT!");
+        return EXIT_FAILURE;
     }
 
     if (!exec.startup()) {
