@@ -10,8 +10,8 @@ GoldFilter = require('goldfilter').default
 mkpath.sync(config.userPackagePath)
 mkpath.sync(config.profilePath)
 
-#unless GoldFilter.testPerm()
-#  GoldFilter.setPerm()
+unless GoldFilter.testPerm()
+  GoldFilter.setPerm()
 
 class Dripcap
   constructor: ->

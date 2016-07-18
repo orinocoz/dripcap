@@ -48,8 +48,8 @@ bool Executable::testPermission() const
 bool Executable::grantPermission()
 {
     system(R"###(
-      chgrp access_bpf /dev/bpf*
-      chmod g+rw /dev/bpf*
+      sudo chgrp access_bpf /dev/bpf*
+      sudo chmod g+rw /dev/bpf*
     )###");
     return true;
 }

@@ -17,7 +17,7 @@ gulp darwin-sign
 cd .builtapp
 
 git clone https://github.com/dripcap/dripcap-helper-gold.git dripcap-helper
-cp ./dripcap-darwin/dripcap.app/Contents/Resources/app/node_modules/goldfilter/build/goldfilter dripcap-helper/goldfilter
+cp ./dripcap-darwin/dripcap.app/Contents/Resources/app/node_modules/goldfilter/build/gold* dripcap-helper/
 plutil -replace 'CFBundleVersion' -string `node -p "require('../package.json').version"` dripcap-helper/DripcapHelper/Info.plist
 cd dripcap-helper
 xcodebuild -configuration Release
