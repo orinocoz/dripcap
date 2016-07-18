@@ -9,6 +9,7 @@ import msgpack from 'msgpack-lite';
 import uuid from 'node-uuid';
 import {rollup} from 'rollup';
 import esprima from 'esprima';
+import LRU from 'lru-cache';
 
 const exeEnv = {
   env : {'GOLDFILTER_LOG' : 'error'}
@@ -146,7 +147,7 @@ export default class GoldFilter extends EventEmitter {
     this.filterClasses = {};
     this.filterSource = fs.readFileSync(path.join(__dirname, './filter.es'));
 
-    this.packetCache = {};
+    this.packetCache = LRU(5000);
 
     this.connected = new Promise((res) => {
       this.sock.on('error', (err) => {
@@ -307,7 +308,7 @@ export default class GoldFilter extends EventEmitter {
     let requests = [];
     if (Array.isArray(start)) {
       for (let id of start) {
-        let pkt = this.packetCache[id];
+        let pkt = this.packetCache.get(id);
         if (pkt == null) {
           requests.push(id);
         } else {
@@ -316,7 +317,7 @@ export default class GoldFilter extends EventEmitter {
       }
     } else {
       for (let id = start; id <= end; ++id) {
-        let pkt = this.packetCache[id];
+        let pkt = this.packetCache.get(id);
         if (pkt == null) {
           requests.push(id);
         } else {
@@ -355,7 +356,7 @@ export default class GoldFilter extends EventEmitter {
         pkt.layers = msgpack.decode(pkt.layers.buffer, {codec: codec});
 
         let packet = new Packet(pkt);
-        this.packetCache[pkt.id] = packet;
+        this.packetCache.set(pkt.id, packet);
         this.emit('packet', packet);
       }
       return Promise.resolve();
