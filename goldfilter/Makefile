@@ -23,7 +23,7 @@ CXXFLAGS := -Wall -std=c++11 $(INCLUDES)
 PCH := stdafx.pch
 
 ifdef NODEBUG
-	CXXFLAGS += -O3 -march=native
+	CXXFLAGS += -O3 -mtune=native
 else
 	CXXFLAGS += -g -ggdb
 endif
