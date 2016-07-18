@@ -1,6 +1,7 @@
 #include "executable.hpp"
 #include <sys/capability.h>
 #include <unistd.h>
+#include <libgen.h>
 #include <iostream>
 
 std::string Executable::path() const
@@ -48,7 +49,10 @@ end:
 
 bool Executable::grantPermission()
 {
-    const std::string &execPath = path();
+    const size_t length = 256;
+    char buf[length] = {0};
+    path().copy(buf, length - 1);
+    const std::string &execPath = std::string(dirname(buf)) + "/goldfilter";
     cap_t cap = cap_get_file(execPath.c_str());
     if (!cap)
         cap = cap_init();

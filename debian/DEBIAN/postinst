@@ -1,2 +1,2 @@
 #!/bin/sh
-/usr/bin/goldfilter --set-perm
+/usr/bin/goldmod
