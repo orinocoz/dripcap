@@ -8,8 +8,6 @@ class Executable final : public ExecutableInterface
   public:
     std::string path() const override;
     bool testPermission() const override;
-    bool grantPermission() override;
-    bool startup() const override;
     bool asRoot() const override;
 };
 

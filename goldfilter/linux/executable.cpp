@@ -1,7 +1,6 @@
 #include "executable.hpp"
 #include <sys/capability.h>
 #include <unistd.h>
-#include <libgen.h>
 #include <iostream>
 
 std::string Executable::path() const
@@ -45,38 +44,6 @@ bool Executable::testPermission() const
 end:
     cap_free(cap);
     return ok;
-}
-
-bool Executable::grantPermission()
-{
-    const size_t length = 256;
-    char buf[length] = {0};
-    path().copy(buf, length - 1);
-    const std::string &execPath = std::string(dirname(buf)) + "/goldfilter";
-    cap_t cap = cap_get_file(execPath.c_str());
-    if (!cap)
-        cap = cap_init();
-
-    bool ok = false;
-    cap_value_t caps[] = {CAP_NET_ADMIN, CAP_NET_RAW};
-    if (cap_set_flag(cap, CAP_EFFECTIVE, 2, caps, CAP_SET) < 0)
-        goto end;
-    if (cap_set_flag(cap, CAP_PERMITTED, 2, caps, CAP_SET) < 0)
-        goto end;
-    if (cap_set_flag(cap, CAP_INHERITABLE, 2, caps, CAP_SET) < 0)
-        goto end;
-    if (cap_set_file(execPath.c_str(), cap) < 0)
-        goto end;
-    ok = true;
-
-end:
-    cap_free(cap);
-    return ok;
-}
-
-bool Executable::startup() const
-{
-    return true;
 }
 
 bool Executable::asRoot() const

@@ -83,7 +83,7 @@ gulp.task 'debian-pkg', (cb) ->
     .pipe gulp.dest('./.debian/')
 
 gulp.task 'debian-goldfilter', (cb) ->
-  gulp.src('./.build/node_modules/goldfilter/build/gold*')
+  gulp.src('./.build/node_modules/goldfilter/build/goldfilter')
     .pipe gulp.dest('./.debian/usr/bin/')
 
 gulp.task 'debian-bin', ['copy', 'coffee', 'copypkg', 'npm'], (cb) ->

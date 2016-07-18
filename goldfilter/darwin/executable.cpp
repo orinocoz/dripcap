@@ -45,21 +45,6 @@ bool Executable::testPermission() const
     return ok;
 }
 
-bool Executable::grantPermission()
-{
-    system(R"###(
-      sudo chgrp access_bpf /dev/bpf*
-      sudo chmod g+rw /dev/bpf*
-    )###");
-    return true;
-}
-
-bool Executable::startup() const
-{
-    system("/usr/local/lib/goldmod");
-    return true;
-}
-
 bool Executable::asRoot() const
 {
     return (geteuid() == 0);
