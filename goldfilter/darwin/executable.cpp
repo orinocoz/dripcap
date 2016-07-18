@@ -1,12 +1,9 @@
 #include "executable.hpp"
 #include <cstdlib>
-#include <unistd.h>
-#include <fcntl.h>
 #include <dirent.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/sysctl.h>
 #include <sys/stat.h>
+#include <sys/sysctl.h>
+#include <unistd.h>
 
 std::string Executable::path() const
 {
@@ -29,14 +26,10 @@ bool Executable::testPermission() const
     while ((ep = readdir(dp))) {
         std::string name(ep->d_name);
         if (name.find("bpf") == 0) {
-            int fd;
-            if ((fd = open(("/dev/" + name).c_str(), O_RDONLY)) < 0) {
-                if (errno == EACCES) {
-                    ok = false;
-                    break;
-                }
-            } else {
-                close(fd);
+            struct stat buf;
+            if (stat(("/dev/" + name).c_str(), &buf) < 0 || !(buf.st_mode & S_IRGRP)) {
+                ok = false;
+                break;
             }
         }
     }
