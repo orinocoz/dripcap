@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <msgpack.hpp>
+#include "net_stream.hpp"
 
 struct Layer;
 typedef std::shared_ptr<Layer> LayerPtr;
@@ -17,6 +18,7 @@ struct Layer {
     msgpack::object payload;
     std::unordered_map<std::string, msgpack::object> ext;
     LayerList layers;
+    NetStreamList streams;
     msgpack::zone zone;
 };
 
@@ -45,6 +47,8 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
             o.pack(v->payload);
             o.pack("layers");
             o.pack(v->layers);
+            o.pack("streams");
+            o.pack(v->streams);
             return o;
         }
     };

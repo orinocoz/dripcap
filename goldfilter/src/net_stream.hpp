@@ -1,6 +1,7 @@
 #ifndef STREAM_HPP
 #define STREAM_HPP
 
+#include <memory>
 #include <msgpack.hpp>
 
 enum StreamFlag {
@@ -28,5 +29,29 @@ class NetStream
 
     MSGPACK_DEFINE_MAP(name, ns, id, data, flag);
 };
+
+typedef std::shared_ptr<NetStream> NetStreamPtr;
+typedef std::vector<NetStreamPtr> NetStreamList;
+
+namespace msgpack
+{
+MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
+{
+    namespace adaptor
+    {
+
+    template <>
+    struct pack<NetStreamPtr> {
+        template <typename Stream>
+        msgpack::packer<Stream> &operator()(msgpack::packer<Stream> &o, NetStreamPtr const &v) const
+        {
+            o.pack(*v);
+            return o;
+        }
+    };
+
+    } // namespace adaptor
+} // MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
+} // namespace msgpack
 
 #endif
