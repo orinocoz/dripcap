@@ -11,3 +11,13 @@ NetStream::NetStream(const std::string &name, const std::string &ns, const std::
 NetStream::~NetStream()
 {
 }
+
+void NetStream::start()
+{
+    flag = STREAM_START;
+}
+
+void NetStream::end()
+{
+    flag = STREAM_END;
+}

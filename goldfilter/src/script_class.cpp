@@ -182,12 +182,6 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
                     }
                 }
             } break;
-            case 0x21: {
-                msgpack::object_handle result;
-                msgpack::unpack(result, ext.data(), ext.size());
-                msgpack::object obj(result.get());
-                return v8pp::class_<NetStream>::create_object(isolate, obj.as<NetStream>());
-            } break;
             default:;
             }
             auto vec = std::make_shared<Buffer::Data>();
@@ -225,14 +219,6 @@ msgpack::object v8ToMsgpack(Local<Value> v, msgpack::zone *zone)
             Buffer::Data buf;
             buf.assign(buffer->data(), buffer->data() + buffer->length());
             return msgpack::object(buf, *zone);
-        }
-
-        NetStream *stream;
-        if ((stream = v8pp::class_<NetStream>::unwrap_object(isolate, v))) {
-            std::stringstream buffer;
-            msgpack::pack(buffer, *stream);
-            const std::string &str = buffer.str();
-            return msgpack::object(msgpack::type::ext(0x21, str.data(), str.size()), *zone);
         }
 
         if (v->IsString()) {
@@ -403,7 +389,7 @@ void LayerWrapper::syncFromScript()
     layer->payload = v8ToMsgpack(payload);
 
     static const std::unordered_set<std::string> reserved = {
-        "ns", "name", "layers", "payload"};
+        "ns", "name", "layers", "payload", "streams"};
     Local<Array> extKeys = obj->GetOwnPropertyNames();
     for (size_t i = 0; i < extKeys->Length(); ++i) {
         const std::string &name = v8pp::from_v8<std::string>(isolate, extKeys->Get(i), "");
@@ -652,7 +638,13 @@ ScriptClass::Private::Private(const msgpack::object &options)
 
     v8pp::class_<NetStream> stream(isolate);
     stream
-        .ctor<const std::string &, const std::string &, const std::string &>();
+        .ctor<const std::string &, const std::string &, const std::string &>()
+        .set("insert", [](FunctionCallbackInfo<Value> const &args) {})
+        .set("start", &NetStream::start)
+        .set("end", &NetStream::end)
+        .set("name", &NetStream::name)
+        .set("namespace", &NetStream::ns)
+        .set("id", &NetStream::id);
 
     v8pp::module dripcapModule(isolate);
     dripcapModule.set("Buffer", buffer);
