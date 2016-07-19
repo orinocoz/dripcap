@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <msgpack.hpp>
+#include "include/v8.h"
 
 enum StreamFlag {
     STREAM_NOOP,
@@ -22,6 +23,7 @@ class NetStream
 
     void start();
     void end();
+    void insert(v8::FunctionCallbackInfo<v8::Value> const &args);
 
   public:
     std::string name;

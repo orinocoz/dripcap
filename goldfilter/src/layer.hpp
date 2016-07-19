@@ -34,7 +34,7 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
         template <typename Stream>
         msgpack::packer<Stream> &operator()(msgpack::packer<Stream> &o, LayerPtr const &v) const
         {
-            o.pack_map(4 + v->ext.size());
+            o.pack_map(5 + v->ext.size());
             for (const auto &pair : v->ext) {
                 o.pack(pair.first);
                 o.pack(pair.second);
