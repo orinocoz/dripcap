@@ -1,7 +1,7 @@
 #include "script_class.hpp"
 #include "buffer.hpp"
 #include "packet.hpp"
-#include "stream.hpp"
+#include "net_stream.hpp"
 #include <fstream>
 #include <sstream>
 #include <spdlog/spdlog.h>
@@ -186,7 +186,7 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
                 msgpack::object_handle result;
                 msgpack::unpack(result, ext.data(), ext.size());
                 msgpack::object obj(result.get());
-                return v8pp::class_<Stream>::create_object(isolate, obj.as<Stream>());
+                return v8pp::class_<NetStream>::create_object(isolate, obj.as<NetStream>());
             } break;
             default:;
             }
@@ -227,8 +227,8 @@ msgpack::object v8ToMsgpack(Local<Value> v, msgpack::zone *zone)
             return msgpack::object(buf, *zone);
         }
 
-        Stream *stream;
-        if ((stream = v8pp::class_<Stream>::unwrap_object(isolate, v))) {
+        NetStream *stream;
+        if ((stream = v8pp::class_<NetStream>::unwrap_object(isolate, v))) {
             std::stringstream buffer;
             msgpack::pack(buffer, *stream);
             const std::string &str = buffer.str();
@@ -650,13 +650,13 @@ ScriptClass::Private::Private(const msgpack::object &options)
 
     layer.class_function_template()->SetClassName(v8pp::to_v8(isolate, "Layer"));
 
-    v8pp::class_<Stream> stream(isolate);
+    v8pp::class_<NetStream> stream(isolate);
     stream
         .ctor<const std::string &, const std::string &, const std::string &>();
 
     v8pp::module dripcapModule(isolate);
     dripcapModule.set("Buffer", buffer);
-    dripcapModule.set("Stream", stream);
+    dripcapModule.set("NetStream", stream);
 
     Local<FunctionTemplate> layerFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
         Isolate *isolate = Isolate::GetCurrent();

@@ -1,4 +1,4 @@
-import {Layer, Buffer, Stream} from 'dripcap';
+import {Layer, Buffer, NetStream} from 'dripcap';
 import IPv4Host from 'dripcap/ipv4/host';
 import IPv6Host from 'dripcap/ipv6/host';
 import TCPFlags from 'dripcap/tcp/flags';
@@ -272,7 +272,7 @@ export default class TCPDissector
         data: layer.payload
       });
 
-      let stream = new Stream('TCP Stream', layer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
+      let stream = new NetStream('TCP Stream', layer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
       layer.streams.push(stream);
 
       layer.summary = `${layer.attrs.src} -> ${layer.attrs.dst} seq:${seq} ack:${ack}`;

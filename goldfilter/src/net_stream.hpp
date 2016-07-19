@@ -11,13 +11,13 @@ enum StreamFlag {
 
 MSGPACK_ADD_ENUM(StreamFlag);
 
-class Stream
+class NetStream
 {
   public:
-    Stream() = default;
-    Stream(const Stream &) = default;
-    Stream(const std::string &name, const std::string &ns, const std::string &id);
-    ~Stream();
+    NetStream() = default;
+    NetStream(const NetStream &) = default;
+    NetStream(const std::string &name, const std::string &ns, const std::string &id);
+    ~NetStream();
 
   public:
     std::string name;
