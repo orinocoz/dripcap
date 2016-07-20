@@ -1,6 +1,7 @@
 #include "dispatcher.hpp"
 #include "packet.hpp"
 #include "layer.hpp"
+#include "net_stream.hpp"
 #include "script_class.hpp"
 #include <spdlog/spdlog.h>
 #include <queue>
@@ -24,6 +25,7 @@ class Dispatcher::Private
     std::unordered_map<std::string, std::string> modules;
 
     bool exiting = false;
+    uint64_t count = 0;
     uint64_t maxID = 0;
     std::condition_variable cond;
     std::condition_variable filterCond;
@@ -357,6 +359,11 @@ void Dispatcher::insert(Packet *pkt)
 {
     if (!pkt || pkt->id == 0)
         return;
+
+    {
+        std::lock_guard<std::mutex> lock(d->mutex);
+        pkt->id = ++d->count;
+    }
 
     LayerPtr layer = std::make_shared<Layer>();
     layer->name = "Raw Layer";
