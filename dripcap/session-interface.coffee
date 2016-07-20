@@ -26,9 +26,9 @@ class SessionInterface extends EventEmitter
     if index?
       @_classes.splice(index, 1)
 
-  create: (ifs, options={}) ->
+  create: (iface, options={}) ->
     sess = new Session(config.filterPath)
-    sess.addCapture(ifs, options) if ifs?
+    sess.addCapture(iface, options) if iface?
 
     tasks = []
     for cls in @_classes
@@ -38,6 +38,7 @@ class SessionInterface extends EventEmitter
       do (dec=dec) ->
         tasks.push(sess.addDissector(dec.namespaces, dec.path))
     Promise.all(tasks).then ->
+      dripcap.pubsub.pub 'core:capturing-settings', {iface: iface, options: options}
       sess
 
 module.exports = SessionInterface
