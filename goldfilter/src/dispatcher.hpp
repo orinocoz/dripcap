@@ -33,6 +33,7 @@ class Dispatcher final
     class DissectorWorker;
     class FilterWorker;
     struct FilterContext;
+    struct Stream;
     Private *d;
 };
 

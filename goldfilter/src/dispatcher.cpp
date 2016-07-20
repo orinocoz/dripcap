@@ -29,7 +29,9 @@ class Dispatcher::Private
     uint64_t maxID = 0;
     std::condition_variable cond;
     std::condition_variable filterCond;
+    std::condition_variable streamCond;
     std::mutex mutex;
+    std::thread streamThread;
 };
 
 LayerPtr Dispatcher::Private::firstLayer(Packet *pkt)
@@ -230,6 +232,7 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                     d->maxID++;
 
                 d->filterCond.notify_all();
+                d->streamCond.notify_all();
             }
         }
     });
@@ -259,6 +262,11 @@ bool Dispatcher::DissectorWorker::loadModule(const std::string &name, const std:
     return true;
 }
 
+struct Dispatcher::Stream {
+    ScriptClassPtr dissector;
+    bool started = false;
+};
+
 Dispatcher::Dispatcher()
     : d(new Private())
 {
@@ -266,6 +274,60 @@ Dispatcher::Dispatcher()
     for (int i = 0; i < numcore; ++i) {
         d->workers.push_back(new DissectorWorker(d));
     }
+
+    d->streamThread = std::thread([this]() {
+        uint64_t maxID = 0;
+
+        std::unordered_map<std::string, std::unordered_map<std::string, Stream>> streams;
+
+        while (true) {
+            std::unique_lock<std::mutex> lock(d->mutex);
+            d->streamCond.wait(lock, [this, &maxID] {
+                return d->maxID > maxID || d->exiting;
+            });
+            if (d->exiting)
+                return false;
+
+            ++maxID;
+            const Packet *pkt = d->packets.at(maxID - 1);
+
+            lock.unlock();
+
+            std::function<NetStreamList(const LayerList &)> findStreams = [&findStreams](const LayerList &layers) {
+                NetStreamList list;
+                for (const auto &pair : layers) {
+                    list.insert(list.end(), pair.second->streams.begin(), pair.second->streams.end());
+                    const NetStreamList &child = findStreams(pair.second->layers);
+                    list.insert(list.end(), child.begin(), child.end());
+                }
+                return list;
+            };
+
+            auto spd = spdlog::get("console");
+
+            for (const NetStreamPtr &net : findStreams(pkt->layers)) {
+                auto &stream = streams[net->ns][net->id];
+                if (net->flag == STREAM_START) {
+                    stream.started = true;
+                    spd->error("stream!s {} {}", pkt->id, net->id);
+                } else if (net->flag == STREAM_END) {
+                    if (stream.started) {
+                        spd->error("stream!e {} {}", pkt->id, net->id);
+                    }
+                    streams[net->ns].erase(net->id);
+                    if (streams[net->ns].empty()) {
+                        streams.erase(net->ns);
+                    }
+                } else {
+                    if (stream.started) {
+                        spd->error("stream! {} {}", pkt->id, net->id);
+                    }
+                }
+            }
+
+            lock.lock();
+        }
+    });
 }
 
 Dispatcher::~Dispatcher()
@@ -276,6 +338,7 @@ Dispatcher::~Dispatcher()
     }
     d->cond.notify_all();
     d->filterCond.notify_all();
+    d->streamCond.notify_all();
 
     for (DissectorWorker *worker : d->workers) {
         delete worker;
@@ -296,6 +359,9 @@ Dispatcher::~Dispatcher()
 
     for (const Packet *pkt : d->packets)
         delete pkt;
+
+    if (d->streamThread.joinable())
+        d->streamThread.join();
 
     delete d;
 }
