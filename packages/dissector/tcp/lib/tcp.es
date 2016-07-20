@@ -287,6 +287,5 @@ export default class TCPDissector
     }
 
     parentLayer.layers[layer.namespace] = layer;
-    return true;
   }
 }

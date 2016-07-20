@@ -88,6 +88,5 @@ export default class UDPDissector
     }
 
     parentLayer.layers[layer.namespace] = layer;
-    return true;
   }
 }

@@ -160,6 +160,5 @@ export default class IPv4Dissector
     }
 
     parentLayer.layers[layer.namespace] = layer;
-    return true;
   }
 }

@@ -83,6 +83,5 @@ export default class EthrenetDissector
     : `${layer.attrs.src} -> ${layer.attrs.dst}`;
 
     parentLayer.layers[layer.namespace] = layer;
-    return true;
   }
 }

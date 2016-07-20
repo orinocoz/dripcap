@@ -123,6 +123,5 @@ export default class ARPDissector
     }
 
     parentLayer.layers[layer.namespace] = layer;
-    return true;
   }
 }

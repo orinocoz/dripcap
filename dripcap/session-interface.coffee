@@ -6,10 +6,14 @@ class SessionInterface extends EventEmitter
   constructor: (@parent) ->
     @list = []
     @_dissectors = []
+    @_streamDissectors = []
     @_classes = []
 
   registerDissector: (namespaces, path) ->
     @_dissectors.push({namespaces: namespaces, path: path})
+
+  registerStreamDissector: (namespaces, path) ->
+    @_streamDissectors.push({namespaces: namespaces, path: path})
 
   registerClass: (name, path) ->
     @_classes.push({name: name, path: path})
@@ -19,6 +23,12 @@ class SessionInterface extends EventEmitter
       e.path == path
     if index?
       @_dissectors.splice(index, 1)
+
+  unregisterStreamDissector: (path) ->
+    index = @_streamDissectors.find (e) ->
+      e.path == path
+    if index?
+      @_streamDissectors.splice(index, 1)
 
   unregisterClass: (path) ->
     index = @_classes.find (e) ->
@@ -37,6 +47,9 @@ class SessionInterface extends EventEmitter
     for dec in @_dissectors
       do (dec=dec) ->
         tasks.push(sess.addDissector(dec.namespaces, dec.path))
+    for dec in @_streamDissectors
+      do (dec=dec) ->
+        tasks.push(sess.addStreamDissector(dec.namespaces, dec.path))
     Promise.all(tasks).then ->
       dripcap.pubsub.pub 'core:capturing-settings', {iface: iface, options: options}
       sess

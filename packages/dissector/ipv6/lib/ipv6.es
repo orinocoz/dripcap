@@ -179,6 +179,5 @@ export default class IPv6Dissector
     }
 
     parentLayer.layers[layer.namespace] = layer;
-    return true;
   }
 }

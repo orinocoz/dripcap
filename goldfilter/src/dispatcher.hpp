@@ -13,6 +13,7 @@ class Dispatcher final
     Dispatcher();
     virtual ~Dispatcher();
     bool loadDissector(const std::string &source, const msgpack::object &options, std::string *error);
+    bool loadStreamDissector(const std::string &source, const msgpack::object &options, std::string *error);
     bool setFilter(const std::string &name, const std::string &source, const msgpack::object &options);
     bool loadModule(const std::string &name, const std::string &source, std::string *error);
 

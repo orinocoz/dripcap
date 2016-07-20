@@ -151,7 +151,5 @@ export default class DNSDissector
     } catch (err) {
       layer.error = err.message;
     }
-
-    return true;
   }
 }

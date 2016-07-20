@@ -23,6 +23,7 @@ class Dispatcher::Private
     std::unordered_map<std::string, std::vector<FilterWorker *>> filterWorkers;
     std::unordered_map<std::string, std::shared_ptr<std::vector<uint64_t>>> filterdPackets;
     std::unordered_map<std::string, std::string> modules;
+    std::unordered_map<std::string, std::vector<std::pair<std::string, msgpack::object>>> streamDissectors;
 
     bool exiting = false;
     uint64_t count = 0;
@@ -263,7 +264,7 @@ bool Dispatcher::DissectorWorker::loadModule(const std::string &name, const std:
 }
 
 struct Dispatcher::Stream {
-    ScriptClassPtr dissector;
+    std::vector<ScriptClassPtr> dissectors;
     bool started = false;
 };
 
@@ -308,8 +309,16 @@ Dispatcher::Dispatcher()
             for (const NetStreamPtr &net : findStreams(pkt->layers)) {
                 auto &stream = streams[net->ns][net->id];
                 if (net->flag == STREAM_START) {
-                    stream.started = true;
-                    spd->error("stream!s {} {}", pkt->id, net->id);
+                    if (!stream.started) {
+                        stream.started = true;
+                        lock.lock();
+                        for (const auto &pair : d->streamDissectors[net->ns]) {
+                            ScriptClassPtr script = std::make_shared<ScriptClass>(pair.second);
+                            stream.dissectors.push_back(script);
+                            spd->error("stream!s {} {}", pair.first, net->id);
+                        }
+                        lock.unlock();
+                    }
                 } else if (net->flag == STREAM_END) {
                     if (stream.started) {
                         spd->error("stream!e {} {}", pkt->id, net->id);
@@ -320,7 +329,7 @@ Dispatcher::Dispatcher()
                     }
                 } else {
                     if (stream.started) {
-                        spd->error("stream! {} {}", pkt->id, net->id);
+                        //spd->error("stream! {} {}", pkt->id, net->id);
                     }
                 }
             }
@@ -373,6 +382,19 @@ bool Dispatcher::loadDissector(const std::string &path, const msgpack::object &o
         if (!result)
             return false;
     }
+    return true;
+}
+
+bool Dispatcher::loadStreamDissector(const std::string &source, const msgpack::object &options, std::string *error)
+{
+    std::lock_guard<std::mutex> lock(d->mutex);
+
+    const auto &map = options.as<std::unordered_map<std::string, msgpack::object>>();
+    const msgpack::object &array = map.at("namespaces");
+    for (const std::string &ns : array.as<std::vector<std::string>>()) {
+        d->streamDissectors[ns].push_back(std::make_pair(source, options));
+    }
+
     return true;
 }
 

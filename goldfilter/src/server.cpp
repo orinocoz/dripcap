@@ -48,7 +48,7 @@ class Server::Private
     bool capturing;
     Status status;
     MsgpackServer server;
-    Dispatcher packets;
+    Dispatcher dispatcher;
     std::unique_ptr<PcapInterface> pcap;
     v8::Platform *platform;
 };
@@ -140,7 +140,7 @@ Server::Server(const std::string &path)
         const auto &source = map.find("source");
         const auto &name = map.find("name");
         const auto &options = map.find("options");
-        d->packets.setFilter(name->second.as<std::string>(), source->second.as<std::string>(), options->second);
+        d->dispatcher.setFilter(name->second.as<std::string>(), source->second.as<std::string>(), options->second);
         reply(result);
     });
 
@@ -152,7 +152,25 @@ Server::Server(const std::string &path)
 
         if (source != map.end()) {
             std::string error;
-            if (!d->packets.loadDissector(source->second.as<std::string>(), options->second, &error)) {
+            if (!d->dispatcher.loadDissector(source->second.as<std::string>(), options->second, &error)) {
+                result["error"] = error;
+            }
+        } else {
+            result["error"] = "module path not specified";
+        }
+
+        reply(result);
+    });
+
+    d->server.handle("load_stream_dissector", [this](const msgpack::object &arg, ReplyInterface &reply) {
+        const auto &map = arg.as<std::unordered_map<std::string, msgpack::object>>();
+        std::unordered_map<std::string, std::string> result;
+        const auto &source = map.find("source");
+        const auto &options = map.find("options");
+
+        if (source != map.end()) {
+            std::string error;
+            if (!d->dispatcher.loadStreamDissector(source->second.as<std::string>(), options->second, &error)) {
                 result["error"] = error;
             }
         } else {
@@ -170,7 +188,7 @@ Server::Server(const std::string &path)
 
         if (name != map.end() && source != map.end()) {
             std::string error;
-            if (!d->packets.loadModule(name->second.as<std::string>(), source->second.as<std::string>(), &error)) {
+            if (!d->dispatcher.loadModule(name->second.as<std::string>(), source->second.as<std::string>(), &error)) {
                 result["error"] = error;
             }
         } else {
@@ -183,9 +201,9 @@ Server::Server(const std::string &path)
     d->server.handle("get_status", [this](const msgpack::object &arg, ReplyInterface &reply) {
         Status stat;
         stat.capturing = d->capturing;
-        stat.queuedPackets = d->packets.queuedSize();
-        stat.packets = d->packets.size();
-        stat.filtered = d->packets.filtered();
+        stat.queuedPackets = d->dispatcher.queuedSize();
+        stat.packets = d->dispatcher.size();
+        stat.filtered = d->dispatcher.filtered();
         if (stat != d->status) {
             d->status = stat;
             reply(d->status);
@@ -200,11 +218,11 @@ Server::Server(const std::string &path)
         const auto &r = map.find("range");
         if (l != map.end()) {
             const auto &list = l->second.as<std::vector<uint64_t>>();
-            const PacketList &packets = d->packets.get(list);
+            const PacketList &packets = d->dispatcher.get(list);
             reply(packets);
         } else if (r != map.end()) {
             const auto &range = r->second.as<std::pair<uint64_t, uint64_t>>();
-            const PacketList &packets = d->packets.get(range.first, range.second);
+            const PacketList &packets = d->dispatcher.get(range.first, range.second);
             reply(packets);
         } else {
             reply(PacketList());
@@ -217,7 +235,7 @@ Server::Server(const std::string &path)
         const auto &range = map.find("range");
         if (name != map.end() && range != map.end()) {
             const auto &pair = range->second.as<std::pair<uint64_t, uint64_t>>();
-            const auto &packets = d->packets.getFiltered(name->second.as<std::string>(), pair.first, pair.second);
+            const auto &packets = d->dispatcher.getFiltered(name->second.as<std::string>(), pair.first, pair.second);
             reply(packets);
         } else {
             reply(PacketList());
@@ -231,14 +249,14 @@ Server::Server(const std::string &path)
     d->server.handle("set_testdata", [this](const msgpack::object &arg, ReplyInterface &reply) {
         d->pcap.reset(new PcapDummy(arg));
         d->pcap->handle([this](Packet *p) {
-            d->packets.insert(p);
+            d->dispatcher.insert(p);
         });
         reply();
     });
 
     // pcap thread
     d->pcap->handle([this](Packet *p) {
-        d->packets.insert(p);
+        d->dispatcher.insert(p);
     });
 }
 
