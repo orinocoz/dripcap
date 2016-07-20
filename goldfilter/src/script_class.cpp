@@ -368,12 +368,8 @@ void LayerWrapper::syncToScript()
     Local<Array> streams = Array::New(isolate);
     for (size_t i = 0; i < layer->streams.size(); ++i) {
         const NetStream &st = *layer->streams.at(i);
-        Local<Object> obj = v8pp::class_<NetStream>::create_object(isolate, st);
-        Local<Object> data = Object::New(isolate);
-        for (const auto &pair : st.data) {
-            data->Set(pair.first, msgpackToV8(pair.second));
-        }
-        obj->Set(v8pp::to_v8(isolate, "_data"), data);
+        Local<Value> data = msgpackToV8(st.data);
+        obj->Set(v8pp::to_v8(isolate, "data"), data);
         streams->Set(i, obj);
     }
     obj->ForceSet(v8pp::to_v8(isolate, "streams"), streams, PropertyAttribute(ReadOnly | DontDelete));
@@ -417,11 +413,8 @@ void LayerWrapper::syncFromScript()
         Local<Object> stream = streams->Get(i).As<Object>();
         NetStream *ns = v8pp::class_<NetStream>::unwrap_object(isolate, stream);
         if (ns) {
-            Local<Object> data = stream->Get(v8pp::to_v8(isolate, std::string("_data"))).As<Object>();
-            Local<Array> keys = data->GetOwnPropertyNames();
-            for (size_t j = 0; j < keys->Length(); ++j) {
-                ns->data[v8pp::from_v8<uint64_t>(isolate, keys->Get(j), 0)] = v8ToMsgpack(data->Get(keys->Get(j)));
-            }
+            Local<Value> data = stream->Get(v8pp::to_v8(isolate, std::string("data")));
+            ns->data = v8ToMsgpack(data);
             layer->streams.push_back(std::make_shared<NetStream>(*ns));
         }
     }
@@ -667,7 +660,6 @@ ScriptClass::Private::Private(const msgpack::object &options)
     v8pp::class_<NetStream> stream(isolate);
     stream
         .ctor<const std::string &, const std::string &, const std::string &>()
-        .set("insert", &NetStream::insert)
         .set("start", &NetStream::start)
         .set("end", &NetStream::end)
         .set("name", &NetStream::name)

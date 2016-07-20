@@ -23,13 +23,12 @@ class NetStream
 
     void start();
     void end();
-    void insert(v8::FunctionCallbackInfo<v8::Value> const &args);
 
   public:
     std::string name;
     std::string ns;
     std::string id;
-    std::map<uint64_t, msgpack::object> data;
+    msgpack::object data;
     StreamFlag flag;
 };
 

@@ -272,8 +272,7 @@ export default class TCPDissector
         data: layer.payload
       });
 
-      let stream = new NetStream('TCP Stream', layer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
-      stream.insert(seq, layer.payload);
+      let stream = new NetStream('TCP Stream', parentLayer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
       layer.streams.push(stream);
 
       layer.summary = `${layer.attrs.src} -> ${layer.attrs.dst} seq:${seq} ack:${ack}`;
