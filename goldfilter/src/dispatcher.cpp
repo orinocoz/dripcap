@@ -306,6 +306,16 @@ Dispatcher::Dispatcher()
 
             auto spd = spdlog::get("console");
 
+            auto packetCallback = [this, &lock](uint64_t id) -> Packet * {
+                Packet *pkt = nullptr;
+                lock.lock();
+                if (id > 0 && id <= d->packets.size()) {
+                    pkt = d->packets.at(id - 1);
+                }
+                lock.unlock();
+                return pkt;
+            };
+
             for (const NetStreamPtr &net : findStreams(pkt->layers)) {
                 auto &stream = streams[net->ns][net->id];
                 if (net->flag == STREAM_START) {
@@ -324,12 +334,12 @@ Dispatcher::Dispatcher()
                         lock.unlock();
                     }
                     for (const ScriptClassPtr &script : stream.dissectors) {
-                        script->analyzeStream(net->data);
+                        script->analyzeStream(net->data, packetCallback);
                     }
                 } else if (net->flag == STREAM_END) {
                     if (stream.started) {
                         for (const ScriptClassPtr &script : stream.dissectors) {
-                            script->analyzeStream(net->data);
+                            script->analyzeStream(net->data, packetCallback);
                         }
                     }
                     streams[net->ns].erase(net->id);
@@ -339,7 +349,7 @@ Dispatcher::Dispatcher()
                 } else {
                     if (stream.started) {
                         for (const ScriptClassPtr &script : stream.dissectors) {
-                            script->analyzeStream(net->data);
+                            script->analyzeStream(net->data, packetCallback);
                         }
                     }
                 }

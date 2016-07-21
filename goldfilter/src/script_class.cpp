@@ -53,7 +53,7 @@ class ScriptClass::Private
 namespace
 {
 
-Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
+Local<Value> MsgpackToV8(const msgpack::object &o, const ScriptClass::PacketCallback &func = ScriptClass::PacketCallback())
 {
     Isolate *isolate = Isolate::GetCurrent();
     switch (o.type) {
@@ -75,7 +75,7 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
         Local<Array> array = Array::New(isolate);
         const auto &objs = o.as<std::vector<msgpack::object>>();
         for (size_t i = 0; i < objs.size(); ++i) {
-            array->Set(i, MsgpackToV8(objs[i], packet));
+            array->Set(i, MsgpackToV8(objs[i], func));
         }
         return array;
     }
@@ -83,7 +83,7 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
         Local<Object> obj = Object::New(isolate);
         const auto &map = o.as<std::unordered_map<std::string, msgpack::object>>();
         for (const auto &pair : map) {
-            obj->Set(v8pp::to_v8(isolate, pair.first), MsgpackToV8(pair.second, packet));
+            obj->Set(v8pp::to_v8(isolate, pair.first), MsgpackToV8(pair.second, func));
         }
         return obj;
     }
@@ -97,13 +97,14 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
                 return v8pp::class_<Buffer>::create_object(isolate, vec);
             } break;
             case 0x1f: {
-                if (packet) {
+                if (func) {
                     msgpack::object_handle result;
                     msgpack::unpack(result, ext.data(), ext.size());
                     msgpack::object obj(result.get());
                     const auto &tuple = obj.as<std::tuple<uint64_t, size_t, size_t>>();
-                    if (std::get<0>(tuple) == packet->id) {
-                        return v8pp::class_<Payload>::create_object(isolate, &packet->payload, std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
+                    Packet *pkt;
+                    if ((pkt = func(std::get<0>(tuple)))) {
+                        return v8pp::class_<Payload>::create_object(isolate, &pkt->payload, std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
                     }
                 }
             } break;
@@ -111,7 +112,7 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *packet = nullptr)
                 msgpack::object_handle result;
                 msgpack::unpack(result, ext.data(), ext.size());
                 msgpack::object obj(result.get());
-                Local<Value> v = MsgpackToV8(obj, packet);
+                Local<Value> v = MsgpackToV8(obj, func);
                 if (!v.IsEmpty() && v->IsArray()) {
                     Local<Array> array = v.As<Array>();
                     if (array->Length() > 0) {
@@ -457,7 +458,12 @@ msgpack::object LayerWrapper::v8ToMsgpack(Local<Value> v)
 
 Local<Value> LayerWrapper::msgpackToV8(const msgpack::object &o)
 {
-    return MsgpackToV8(o, layer->packet);
+    return MsgpackToV8(o, [this](uint64_t id) -> Packet * {
+        if (id == layer->packet->id) {
+            return layer->packet;
+        }
+        return nullptr;
+    });
 }
 
 class PacketWrapper
@@ -924,7 +930,7 @@ bool ScriptClass::analyze(Packet *packet, const LayerPtr &parentLayer, std::stri
     return true;
 }
 
-bool ScriptClass::analyzeStream(const msgpack::object &data, std::string *error) const
+bool ScriptClass::analyzeStream(const msgpack::object &data, const PacketCallback &func, std::string *error) const
 {
     Isolate::Scope isolate_scope(d->isolate);
     HandleScope handle_scope(d->isolate);
@@ -960,7 +966,7 @@ bool ScriptClass::analyzeStream(const msgpack::object &data, std::string *error)
 
     Local<Function> analyze_func = maybeFunc.As<Function>();
     {
-        Local<Value> args[1] = {MsgpackToV8(data)};
+        Local<Value> args[1] = {MsgpackToV8(data, func)};
         MaybeLocal<Value> maybeRes = analyze_func->Call(obj, 1, args);
         if (maybeRes.IsEmpty()) {
             String::Utf8Value err(try_catch.Exception());

@@ -7,6 +7,6 @@ export default class TCPStreamDissector
 
   analyze(data, output)
   {
-    console.error(data)
+    console.error(data.length)
   }
 }
