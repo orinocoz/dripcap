@@ -313,15 +313,24 @@ Dispatcher::Dispatcher()
                         stream.started = true;
                         lock.lock();
                         for (const auto &pair : d->streamDissectors[net->ns]) {
+                            std::string err;
                             ScriptClassPtr script = std::make_shared<ScriptClass>(pair.second);
+                            if (!script->loadSource(pair.first, &err)) {
+                                spd->error("errort {}", err);
+                                continue;
+                            }
                             stream.dissectors.push_back(script);
-                            spd->error("stream!s {} {}", pair.first, net->id);
                         }
                         lock.unlock();
                     }
+                    for (const ScriptClassPtr &script : stream.dissectors) {
+                        script->analyzeStream(net->data);
+                    }
                 } else if (net->flag == STREAM_END) {
                     if (stream.started) {
-                        spd->error("stream!e {} {}", pkt->id, net->id);
+                        for (const ScriptClassPtr &script : stream.dissectors) {
+                            script->analyzeStream(net->data);
+                        }
                     }
                     streams[net->ns].erase(net->id);
                     if (streams[net->ns].empty()) {
@@ -329,7 +338,9 @@ Dispatcher::Dispatcher()
                     }
                 } else {
                     if (stream.started) {
-                        //spd->error("stream! {} {}", pkt->id, net->id);
+                        for (const ScriptClassPtr &script : stream.dissectors) {
+                            script->analyzeStream(net->data);
+                        }
                     }
                 }
             }

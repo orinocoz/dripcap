@@ -1,10 +1,12 @@
 export default class TCPStreamDissector
 {
-  constructor(namespace, id, options)
+  constructor(options)
   {
+    console.error(options)
   }
 
-  analyze(packet, data, output)
+  analyze(data, output)
   {
+    console.error(data)
   }
 }

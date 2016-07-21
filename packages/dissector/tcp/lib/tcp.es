@@ -278,6 +278,7 @@ export default class TCPDissector
       } else if (flags.get('FIN') && flags.get('ACK')) {
         stream.end();
       }
+      stream.data = layer.payload;
       layer.streams.push(stream);
 
       layer.summary = `${layer.attrs.src} -> ${layer.attrs.dst} seq:${seq} ack:${ack}`;

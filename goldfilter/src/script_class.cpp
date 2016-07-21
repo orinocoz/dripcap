@@ -746,6 +746,17 @@ ScriptClass::Private::Private(const msgpack::object &options)
     isolate->GetCurrentContext()->Global()->Set(
         v8pp::to_v8(isolate, "require"), f->GetFunction());
 
+    v8pp::module console(isolate);
+    console.set("error", [](FunctionCallbackInfo<Value> const &args) {
+        auto spd = spdlog::get("console");
+        for (size_t i = 0; i < args.Length(); ++i) {
+            String::Utf8Value data(args[i]);
+            spd->error("{}", *data);
+        }
+    });
+    isolate->GetCurrentContext()->Global()->Set(
+        v8::String::NewFromUtf8(isolate, "console"), console.new_instance());
+
     isolate->GetCurrentContext()->SetEmbedderData(1, External::New(isolate, this));
 }
 
@@ -908,6 +919,55 @@ bool ScriptClass::analyze(Packet *packet, const LayerPtr &parentLayer, std::stri
             return false;
         }
         v8pp::class_<PacketWrapper>::unwrap_object(d->isolate, pkt)->syncFromScript();
+    }
+
+    return true;
+}
+
+bool ScriptClass::analyzeStream(const msgpack::object &data, std::string *error) const
+{
+    Isolate::Scope isolate_scope(d->isolate);
+    HandleScope handle_scope(d->isolate);
+    Local<Context> context = Local<Context>::New(d->isolate, d->context);
+    Context::Scope context_scope(context);
+    Local<Function> ctor = Local<Function>::New(d->isolate, d->ctor);
+
+    TryCatch try_catch;
+    MaybeLocal<Object> maybeObject;
+    {
+        Local<Value> args[1] = {Object::New(d->isolate)};
+        if (args[0].IsEmpty()) {
+            args[0] = Object::New(d->isolate);
+        }
+        maybeObject = ctor->NewInstance(context, 1, args);
+        if (maybeObject.IsEmpty()) {
+            String::Utf8Value err(try_catch.Exception());
+            if (error)
+                error->assign(*err);
+            return false;
+        }
+    }
+
+    Local<Object> obj = maybeObject.ToLocalChecked();
+    Local<String> key = v8pp::to_v8(d->isolate, "analyze");
+
+    Local<Value> maybeFunc = obj->Get(key);
+    if (!maybeFunc->IsFunction()) {
+        if (error)
+            error->assign("analyze function needed");
+        return false;
+    }
+
+    Local<Function> analyze_func = maybeFunc.As<Function>();
+    {
+        Local<Value> args[1] = {MsgpackToV8(data)};
+        MaybeLocal<Value> maybeRes = analyze_func->Call(obj, 1, args);
+        if (maybeRes.IsEmpty()) {
+            String::Utf8Value err(try_catch.Exception());
+            if (error)
+                error->assign(*err);
+            return false;
+        }
     }
 
     return true;
