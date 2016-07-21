@@ -2,11 +2,12 @@ export default class TCPStreamDissector
 {
   constructor(options)
   {
-    console.error(options)
+    this.count = 0;
   }
 
-  analyze(data, output)
+  analyze(packet, layer, data, output)
   {
-    console.error(data.length)
+    this.count++;
+    console.error(packet.id, layer.name, data.length, this.count)
   }
 }

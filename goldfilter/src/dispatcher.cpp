@@ -290,16 +290,18 @@ Dispatcher::Dispatcher()
                 return false;
 
             ++maxID;
-            const Packet *pkt = d->packets.at(maxID - 1);
+            Packet *pkt = d->packets.at(maxID - 1);
 
             lock.unlock();
 
-            std::function<NetStreamList(const LayerList &)> findStreams = [&findStreams](const LayerList &layers) {
-                NetStreamList list;
+            typedef std::unordered_map<LayerPtr, NetStreamList> StreamList;
+            std::function<StreamList(const LayerList &)> findStreams = [&findStreams](const LayerList &layers) {
+                StreamList list;
                 for (const auto &pair : layers) {
-                    list.insert(list.end(), pair.second->streams.begin(), pair.second->streams.end());
-                    const NetStreamList &child = findStreams(pair.second->layers);
-                    list.insert(list.end(), child.begin(), child.end());
+                    list[pair.second] = pair.second->streams;
+                    for (const auto &pair2 : findStreams(pair.second->layers)) {
+                        list[pair2.first] = pair2.second;
+                    }
                 }
                 return list;
             };
@@ -316,40 +318,36 @@ Dispatcher::Dispatcher()
                 return pkt;
             };
 
-            for (const NetStreamPtr &net : findStreams(pkt->layers)) {
-                auto &stream = streams[net->ns][net->id];
-                if (net->flag == STREAM_START) {
-                    if (!stream.started) {
-                        stream.started = true;
-                        lock.lock();
-                        for (const auto &pair : d->streamDissectors[net->ns]) {
-                            std::string err;
-                            ScriptClassPtr script = std::make_shared<ScriptClass>(pair.second);
-                            if (!script->loadSource(pair.first, &err)) {
-                                spd->error("errort {}", err);
-                                continue;
+            for (const auto &pair : findStreams(pkt->layers)) {
+                for (const NetStreamPtr &net : pair.second) {
+                    auto &stream = streams[net->ns][net->id];
+                    if (net->flag == STREAM_END) {
+                        if (stream.started) {
+                            for (const ScriptClassPtr &script : stream.dissectors) {
+                                script->analyzeStream(pkt, pair.first, net->data, packetCallback);
                             }
-                            stream.dissectors.push_back(script);
                         }
-                        lock.unlock();
-                    }
-                    for (const ScriptClassPtr &script : stream.dissectors) {
-                        script->analyzeStream(net->data, packetCallback);
-                    }
-                } else if (net->flag == STREAM_END) {
-                    if (stream.started) {
-                        for (const ScriptClassPtr &script : stream.dissectors) {
-                            script->analyzeStream(net->data, packetCallback);
+                        streams[net->ns].erase(net->id);
+                        if (streams[net->ns].empty()) {
+                            streams.erase(net->ns);
                         }
-                    }
-                    streams[net->ns].erase(net->id);
-                    if (streams[net->ns].empty()) {
-                        streams.erase(net->ns);
-                    }
-                } else {
-                    if (stream.started) {
+                    } else {
+                        if (!stream.started) {
+                            stream.started = true;
+                            lock.lock();
+                            for (const auto &pair : d->streamDissectors[net->ns]) {
+                                std::string err;
+                                ScriptClassPtr script = std::make_shared<ScriptClass>(pair.second);
+                                if (!script->loadSource(pair.first, &err)) {
+                                    spd->error("errort {}", err);
+                                    continue;
+                                }
+                                stream.dissectors.push_back(script);
+                            }
+                            lock.unlock();
+                        }
                         for (const ScriptClassPtr &script : stream.dissectors) {
-                            script->analyzeStream(net->data, packetCallback);
+                            script->analyzeStream(pkt, pair.first, net->data, packetCallback);
                         }
                     }
                 }

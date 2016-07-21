@@ -22,7 +22,7 @@ class ScriptClass final
     bool loadSource(const std::string &source, std::string *error = nullptr);
     bool loadModule(const std::string &name, const std::string &source, std::string *error = nullptr);
     bool analyze(Packet *packet, const LayerPtr &parentLayer, std::string *error = nullptr) const;
-    bool analyzeStream(const msgpack::object &data, const PacketCallback &func, std::string *error = nullptr) const;
+    bool analyzeStream(Packet *packet, const LayerPtr &parentLayer, const msgpack::object &data, const PacketCallback &func, std::string *error = nullptr) const;
     bool filter(Packet *packet) const;
 
   public:
