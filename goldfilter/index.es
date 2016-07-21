@@ -247,6 +247,17 @@ export default class GoldFilter extends EventEmitter {
     })
   }
 
+  addStreamDissector(namespaces, path) {
+    return this._build(path).then((source) => {
+      return this._call('load_stream_dissector', {
+        source: source,
+        options : {
+          namespaces : namespaces || []
+        }
+      })
+    })
+  }
+
   addClass(name, path) {
     return this._build(path).then((source) => {
       let func = new Function('require', 'module', source);
