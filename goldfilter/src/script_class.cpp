@@ -982,6 +982,16 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
                 error->assign(*err);
             return false;
         }
+
+        for (size_t i = 0; array->Length(); ++i) {
+            Local<Object> stream = array->Get(i).As<Object>();
+            NetStream *ns = v8pp::class_<NetStream>::unwrap_object(d->isolate, stream);
+            if (ns) {
+                Local<Value> data = stream->Get(v8pp::to_v8(d->isolate, std::string("data")));
+                ns->data = v8ToMsgpack(data, &parentLayer->zone);
+            }
+        }
+
         v8pp::class_<PacketWrapper>::unwrap_object(d->isolate, pkt)->syncFromScript();
     }
 
