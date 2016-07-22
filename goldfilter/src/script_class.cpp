@@ -972,9 +972,10 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
         PacketWrapper *wrapper = v8pp::class_<PacketWrapper>::unwrap_object(d->isolate, pkt);
         wrapper->syncToScript();
         Local<Object> layer = wrapper->findLayer(parentLayer);
+        Local<Array> array = Array::New(d->isolate);
 
-        Local<Value> args[3] = {pkt, layer, MsgpackToV8(data, func)};
-        MaybeLocal<Value> maybeRes = analyze_func->Call(obj, 3, args);
+        Local<Value> args[4] = {pkt, layer, MsgpackToV8(data, func), array};
+        MaybeLocal<Value> maybeRes = analyze_func->Call(obj, 4, args);
         if (maybeRes.IsEmpty()) {
             String::Utf8Value err(try_catch.Exception());
             if (error)

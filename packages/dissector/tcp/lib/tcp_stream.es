@@ -1,3 +1,5 @@
+import {NetStream} from 'dripcap';
+
 export default class TCPStreamDissector
 {
   constructor(options)
@@ -21,6 +23,8 @@ export default class TCPStreamDissector
       }
       this.seq = layer.attrs.seq;
     }
-    console.error(layer.name, this.seq, this.length)
+    let stream = new NetStream('TCP Stream', layer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
+    output.push(stream);
+    //console.error(layer.name, this.seq, this.length)
   }
 }
