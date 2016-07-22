@@ -15,11 +15,6 @@ NetStream::~NetStream()
 {
 }
 
-void NetStream::start()
-{
-    flag = STREAM_START;
-}
-
 void NetStream::end()
 {
     flag = STREAM_END;

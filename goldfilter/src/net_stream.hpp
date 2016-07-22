@@ -7,7 +7,6 @@
 
 enum StreamFlag {
     STREAM_NOOP,
-    STREAM_START,
     STREAM_END,
 };
 
@@ -20,8 +19,6 @@ class NetStream
     NetStream(const NetStream &) = default;
     NetStream(const std::string &name, const std::string &ns, const std::string &id);
     ~NetStream();
-
-    void start();
     void end();
 
   public:

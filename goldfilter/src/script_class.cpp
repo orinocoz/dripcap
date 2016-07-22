@@ -667,7 +667,6 @@ ScriptClass::Private::Private(const msgpack::object &options)
     v8pp::class_<NetStream> stream(isolate);
     stream
         .ctor<const std::string &, const std::string &, const std::string &>()
-        .set("start", &NetStream::start)
         .set("end", &NetStream::end)
         .set("name", &NetStream::name)
         .set("namespace", &NetStream::ns)
