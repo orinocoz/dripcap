@@ -7,6 +7,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 #include <signal.h>
+#include <execinfo.h>
 
 class Reply : public ReplyInterface
 {
@@ -62,6 +63,14 @@ MsgpackServer::Private::~Private()
 MsgpackServer::MsgpackServer(const std::string &path)
     : d(new Private())
 {
+    signal(SIGSEGV, [](int sig) {
+        void *array[256];
+        size_t size = backtrace(array, 256);
+        auto spd = spdlog::get("console");
+        spd->error("Error: signal {}", sig);
+        backtrace_symbols_fd(array, size, STDERR_FILENO);
+        exit(1);
+    });
     d->path = path;
 }
 
