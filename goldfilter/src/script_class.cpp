@@ -986,9 +986,7 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
             return false;
         }
 
-        return true;
-
-        for (size_t i = 0; array->Length(); ++i) {
+        for (size_t i = 0; i < array->Length(); ++i) {
 
             Local<Object> stream = array->Get(i).As<Object>();
             NetStream *ns = v8pp::class_<NetStream>::unwrap_object(d->isolate, stream);
@@ -1001,7 +999,6 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
         v8pp::class_<PacketWrapper>::unwrap_object(d->isolate, pkt)->syncFromScript();
     }
 
-    d->analyzerObject.Reset();
     return true;
 }
 
