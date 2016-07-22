@@ -1,12 +1,12 @@
 #ifndef BUFFER_HPP
 #define BUFFER_HPP
 
-#include <memory>
-#include <vector>
-#include <string>
-#include <sstream>
-#include <iomanip>
 #include "include/v8.h"
+#include <iomanip>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
 
 class Buffer
 {

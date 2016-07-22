@@ -1,15 +1,15 @@
 #include "dispatcher.hpp"
-#include "packet.hpp"
 #include "layer.hpp"
 #include "net_stream.hpp"
+#include "packet.hpp"
 #include "script_class.hpp"
-#include <spdlog/spdlog.h>
-#include <queue>
-#include <vector>
-#include <thread>
-#include <sstream>
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
+#include <queue>
+#include <spdlog/spdlog.h>
+#include <sstream>
+#include <thread>
+#include <vector>
 
 class Dispatcher::Private
 {

@@ -1,9 +1,9 @@
 #ifndef LAYER_HPP
 #define LAYER_HPP
 
+#include "net_stream.hpp"
 #include <memory>
 #include <msgpack.hpp>
-#include "net_stream.hpp"
 
 struct Layer;
 typedef std::shared_ptr<Layer> LayerPtr;

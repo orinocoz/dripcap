@@ -1,16 +1,16 @@
 #include "script_class.hpp"
 #include "buffer.hpp"
-#include "packet.hpp"
-#include "net_stream.hpp"
-#include <fstream>
-#include <sstream>
-#include <spdlog/spdlog.h>
 #include "include/libplatform/libplatform.h"
 #include "include/v8.h"
+#include "net_stream.hpp"
+#include "packet.hpp"
+#include <fstream>
+#include <spdlog/spdlog.h>
+#include <sstream>
 #include <v8pp/class.hpp>
-#include <v8pp/object.hpp>
-#include <v8pp/module.hpp>
 #include <v8pp/function.hpp>
+#include <v8pp/module.hpp>
+#include <v8pp/object.hpp>
 
 using namespace v8;
 
@@ -685,7 +685,8 @@ ScriptClass::Private::Private(const msgpack::object &options)
         obj->ForceSet(v8pp::to_v8(isolate, "streams"), Array::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
 
         args.GetReturnValue().Set(obj);
-    }, layer.js_function_template()->GetFunction());
+    },
+                                                              layer.js_function_template()->GetFunction());
     dripcapModule.set("Layer", layerFunc);
 
     dripcap = UniquePersistent<Object>(isolate, dripcapModule.new_instance());
@@ -746,7 +747,8 @@ ScriptClass::Private::Private(const msgpack::object &options)
             std::string err("Cannot find module '");
             args.GetReturnValue().Set(v8pp::throw_ex(isolate, (err + name + "'").c_str()));
         }
-    }, External::New(isolate, this));
+    },
+                                                      External::New(isolate, this));
     require = UniquePersistent<FunctionTemplate>(isolate, f);
 
     isolate->GetCurrentContext()->Global()->Set(
@@ -778,6 +780,7 @@ ScriptClass::Private::~Private()
     dripcap.Reset();
     ctor.Reset();
     context.Reset();
+    analyzerObject.Reset();
     isolate->Dispose();
 }
 
@@ -983,7 +986,10 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
             return false;
         }
 
+        return true;
+
         for (size_t i = 0; array->Length(); ++i) {
+
             Local<Object> stream = array->Get(i).As<Object>();
             NetStream *ns = v8pp::class_<NetStream>::unwrap_object(d->isolate, stream);
             if (ns) {
@@ -995,6 +1001,7 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
         v8pp::class_<PacketWrapper>::unwrap_object(d->isolate, pkt)->syncFromScript();
     }
 
+    d->analyzerObject.Reset();
     return true;
 }
 

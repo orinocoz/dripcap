@@ -1,9 +1,9 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-#include <thread>
 #include <queue>
 #include <set>
+#include <thread>
 
 class ChannelBase
 {

@@ -1,9 +1,9 @@
 #ifndef STREAM_HPP
 #define STREAM_HPP
 
+#include "include/v8.h"
 #include <memory>
 #include <msgpack.hpp>
-#include "include/v8.h"
 
 enum StreamFlag {
     STREAM_NOOP,

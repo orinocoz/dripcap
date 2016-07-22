@@ -1,9 +1,9 @@
 #ifndef DISPATCHER_HPP
 #define DISPATCHER_HPP
 
+#include <msgpack.hpp>
 #include <string>
 #include <vector>
-#include <msgpack.hpp>
 
 struct Packet;
 

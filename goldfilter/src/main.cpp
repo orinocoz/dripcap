@@ -1,6 +1,6 @@
+#include <spdlog/spdlog.h>
 #include <sstream>
 #include <string>
-#include <spdlog/spdlog.h>
 
 #include "executable.hpp"
 #include "server.hpp"

@@ -1,9 +1,9 @@
 #ifndef SCRIPT_CLASS_HPP
 #define SCRIPT_CLASS_HPP
 
+#include <msgpack.hpp>
 #include <string>
 #include <unordered_map>
-#include <msgpack.hpp>
 
 struct Packet;
 

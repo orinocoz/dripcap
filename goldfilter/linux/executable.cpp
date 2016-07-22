@@ -1,7 +1,7 @@
 #include "executable.hpp"
+#include <iostream>
 #include <sys/capability.h>
 #include <unistd.h>
-#include <iostream>
 
 std::string Executable::path() const
 {

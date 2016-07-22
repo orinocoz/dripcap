@@ -1,10 +1,10 @@
 #ifndef PACKET_HPP
 #define PACKET_HPP
 
-#include <msgpack.hpp>
-#include <vector>
-#include <sstream>
 #include "layer.hpp"
+#include <msgpack.hpp>
+#include <sstream>
+#include <vector>
 
 struct Packet {
     Packet();

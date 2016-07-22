@@ -1,11 +1,11 @@
 #include "pcap_dummy.hpp"
-#include <thread>
-#include <mutex>
+#include "device.hpp"
+#include "packet.hpp"
 #include <chrono>
+#include <mutex>
 #include <pcap.h>
 #include <spdlog/spdlog.h>
-#include "packet.hpp"
-#include "device.hpp"
+#include <thread>
 
 class PcapDummy::Private
 {

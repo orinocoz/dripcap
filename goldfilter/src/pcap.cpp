@@ -1,10 +1,10 @@
 #include "pcap.hpp"
-#include <thread>
+#include "device.hpp"
+#include "packet.hpp"
 #include <mutex>
 #include <pcap.h>
 #include <spdlog/spdlog.h>
-#include "packet.hpp"
-#include "device.hpp"
+#include <thread>
 
 #ifndef PCAP_NETMASK_UNKNOWN
 #define PCAP_NETMASK_UNKNOWN 0xffffffff
