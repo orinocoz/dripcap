@@ -291,3 +291,9 @@ void Payload::slice(v8::FunctionCallbackInfo<v8::Value> const &args) const
     Local<Object> obj = v8pp::class_<Payload>::create_object(isolate, vec, pkt, pair.first, pair.second);
     args.GetReturnValue().Set(obj);
 }
+
+size_t Payload::copy(Data *buf) const
+{
+    buf->assign(data() + start, data() + (end - start));
+    return length();
+}

@@ -268,7 +268,7 @@ struct Dispatcher::Stream {
     std::vector<ScriptClassPtr> dissectors;
     bool started = false;
 };
-
+#include <iostream>
 Dispatcher::Dispatcher()
     : d(new Private())
 {

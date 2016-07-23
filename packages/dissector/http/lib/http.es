@@ -1,34 +1,40 @@
-import {NetStream, Packet, Layer} from 'dripcap';
+import {Layer, Buffer} from 'dripcap';
 
-export default class TCPStreamDissector
+export default class HTTPDissector
 {
   constructor(options)
   {
-
   }
 
-  analyze(packet, parentLayer, data, output)
+  analyze(packet, parentLayer)
   {
-    let body = data.toString('utf8');
-    let re = /(GET|POST) (\S+) HTTP\/(0\.9|1\.0|1\.1)\r\n/;
-    let m = body.match(re);
-    if (m != null) {
-      let pkt = new Packet;
+    parentLayer.payload = packet.payload;
 
-      let layer = new Layer();
-      layer.name = 'HTTP';
-      layer.namespace = layer.namespace + '::HTTP';
-      layer.attrs.src = parentLayer.attrs.src;
-      layer.attrs.dst = parentLayer.attrs.dst;
+    let method = parentLayer.attrs.method;
+    parentLayer.fields.push({
+      name : 'Method',
+      attr : 'method',
+      data : parentLayer.payload.slice(0, method.length)
+    });
 
-      layer.fields.push({
-        name: 'Method',
-        value: m[1]
-      });
-      layer.attrs.mathod = m[1];
+    let path = parentLayer.attrs.path;
+    parentLayer.fields.push({
+      name : 'Path',
+      attr : 'path',
+      data : parentLayer.payload.slice(method.length + 1, method.length + 1 + path.length)
+    });
 
-      pkt.layers[layer.namespace] = layer;
-      output.push(pkt);
-    }
+    let version = parentLayer.attrs.version;
+    parentLayer.fields.push({
+      name : 'Version',
+      attr : 'version',
+      data : parentLayer.payload.slice(method.length + 1 + path.length + 1, method.length + 1 + path.length + 1 + version.length)
+    });
+
+    parentLayer.fields.push({
+      name : 'Payload',
+      value : parentLayer.payload,
+      data : parentLayer.payload
+    });
   }
 }

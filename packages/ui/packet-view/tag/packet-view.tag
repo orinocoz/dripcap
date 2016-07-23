@@ -182,7 +182,7 @@
     @set = (pkt) =>
       @packet = pkt
       if pkt?
-        @rootLayers = @packet.layers[Object.keys(@packet.layers)[0]].layers
+        @rootLayers = @packet.layers
         @rootKeys = Object.keys @rootLayers
 
     @fieldRange = (e) =>

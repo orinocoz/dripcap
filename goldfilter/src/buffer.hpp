@@ -70,6 +70,7 @@ class Payload : public Buffer
     std::pair<size_t, size_t> range() const;
     uint64_t packet() const;
     std::string valueOf() const;
+    size_t copy(Data *buf) const;
 
   public:
     uint64_t pkt;

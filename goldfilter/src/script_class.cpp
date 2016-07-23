@@ -4,7 +4,7 @@
 #include "include/v8.h"
 #include "net_stream.hpp"
 #include "packet.hpp"
-#include "virtual_packet.hpp"
+#include "stream_layer.hpp"
 #include <fstream>
 #include <spdlog/spdlog.h>
 #include <sstream>
@@ -199,12 +199,17 @@ Local<Value> MsgpackToV8(const msgpack::object &o, const ScriptClass::PacketCall
     return Local<Value>();
 }
 
-msgpack::object v8ToMsgpack(Local<Value> v, msgpack::zone *zone)
+msgpack::object v8ToMsgpack(Local<Value> v, msgpack::zone *zone, bool copy = false)
 {
     Isolate *isolate = Isolate::GetCurrent();
     if (!v.IsEmpty()) {
         Payload *payload;
         if ((payload = v8pp::class_<Payload>::unwrap_object(isolate, v))) {
+            if (copy) {
+                Buffer::Data buf;
+                payload->copy(&buf);
+                return msgpack::object(buf, *zone);
+            }
             std::stringstream buffer;
             const auto &pair = payload->range();
             msgpack::pack(buffer, std::tuple<uint64_t, size_t, size_t>(payload->pkt, pair.first, pair.second));
@@ -461,10 +466,7 @@ msgpack::object LayerWrapper::v8ToMsgpack(Local<Value> v)
 Local<Value> LayerWrapper::msgpackToV8(const msgpack::object &o)
 {
     return MsgpackToV8(o, [this](uint64_t id) -> Packet * {
-        if (id == layer->packet->id) {
-            return layer->packet;
-        }
-        return nullptr;
+        return layer->packet;
     });
 }
 
@@ -535,10 +537,7 @@ void PacketWrapper::syncToScript()
     for (const auto &pair : packet->layers) {
         pair.second->packet = packet;
         Local<Object> obj = v8pp::class_<LayerWrapper>::create_object(isolate, pair.second);
-        obj->ForceSet(v8pp::to_v8(isolate, "layers"), Object::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
         obj->ForceSet(v8pp::to_v8(isolate, "fields"), Array::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
-        obj->ForceSet(v8pp::to_v8(isolate, "attrs"), Object::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
-        obj->ForceSet(v8pp::to_v8(isolate, "streams"), Array::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
         LayerWrapper *wrapper = v8pp::class_<LayerWrapper>::unwrap_object(isolate, obj);
         wrapper->syncToScript();
         list[pair.first] = obj;
@@ -657,13 +656,9 @@ ScriptClass::Private::Private(const msgpack::object &options)
         .set("ts", v8pp::property(&PacketWrapper::ts))
         .set("payload", v8pp::property(&PacketWrapper::payload));
 
-    v8pp::class_<VirtualPacket> vpacket(isolate);
-    vpacket
-        .ctor<>()
-        .set("len", v8pp::property(&PacketWrapper::len))
-        .set("ts_sec", v8pp::property(&PacketWrapper::ts_sec))
-        .set("ts_nsec", v8pp::property(&PacketWrapper::ts_nsec))
-        .set("ts", v8pp::property(&PacketWrapper::ts));
+    v8pp::class_<StreamLayer> slayer(isolate);
+    slayer
+        .ctor<>();
 
     v8pp::class_<LayerWrapper> layer(isolate);
     layer
@@ -685,13 +680,32 @@ ScriptClass::Private::Private(const msgpack::object &options)
     dripcapModule.set("Buffer", buffer);
     dripcapModule.set("NetStream", stream);
 
-    Local<FunctionTemplate> vpacketFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
+    Local<FunctionTemplate> slayerFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
         Isolate *isolate = Isolate::GetCurrent();
         Local<Object> obj = args.Data().As<Function>()->NewInstance();
-        obj->ForceSet(v8pp::to_v8(isolate, "layers"), Object::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
+        StreamLayer *sl = v8pp::class_<StreamLayer>::unwrap_object(isolate, obj);
+        LayerPtr layer = std::make_shared<Layer>();
+        sl->layer = layer;
+
+        Packet *pkt = new Packet();
+        layer->packet = pkt;
+        layer->name = v8pp::from_v8<std::string>(isolate, args[0], "");
+        layer->ns = v8pp::from_v8<std::string>(isolate, args[1], "");
+        layer->ext["attrs"] = v8ToMsgpack(args[2], &layer->zone, true);
+
+        Payload *payload;
+        Buffer *buffer;
+        if ((payload = v8pp::class_<Payload>::unwrap_object(isolate, args[3]))) {
+            payload->copy(&pkt->payload);
+        } else if ((buffer = v8pp::class_<Buffer>::unwrap_object(isolate, args[3]))) {
+            pkt->payload.assign(buffer->data(), buffer->data() + buffer->length());
+        }
+        pkt->len = pkt->payload.size();
+        pkt->layers[layer->ns] = layer;
+
         args.GetReturnValue().Set(obj);
-    }, vpacket.js_function_template()->GetFunction());
-    dripcapModule.set("Packet", vpacketFunc);
+    }, slayer.js_function_template()->GetFunction());
+    dripcapModule.set("StreamLayer", slayerFunc);
 
     Local<FunctionTemplate> layerFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
         Isolate *isolate = Isolate::GetCurrent();
@@ -927,6 +941,7 @@ bool ScriptClass::analyze(Packet *packet, const LayerPtr &parentLayer, std::stri
         Local<Object> pkt = v8pp::class_<PacketWrapper>::create_object(d->isolate, packet);
         PacketWrapper *wrapper = v8pp::class_<PacketWrapper>::unwrap_object(d->isolate, pkt);
         wrapper->syncToScript();
+
         Local<Object> layer = wrapper->findLayer(parentLayer);
 
         Local<Value> args[2] = {pkt, layer};
@@ -1011,22 +1026,9 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
                 straems->push_back(std::make_shared<NetStream>(*ns));
             }
 
-            VirtualPacket *vp = v8pp::class_<VirtualPacket>::unwrap_object(d->isolate, obj);
-            if (vp) {
-                Packet *pkt = new Packet();
-                Local<Object> array = obj->Get(v8pp::to_v8(d->isolate, std::string("layers"))).As<Object>();
-                Local<Array> layerKeys = array->GetOwnPropertyNames();
-                for (size_t i = 0; i < layerKeys->Length(); ++i) {
-                    LayerWrapper *wrapper = v8pp::class_<LayerWrapper>::unwrap_object(d->isolate, array->Get(layerKeys->Get(i)));
-                    const std::string &name = v8pp::from_v8<std::string>(d->isolate, layerKeys->Get(i), "");
-                    if (wrapper) {
-                        wrapper->getLayer()->packet = pkt;
-                        wrapper->syncFromScript();
-                        pkt->layers[name] = wrapper->getLayer();
-                    }
-                }
-                auto spd = spdlog::get("console");
-                packets->push_back(pkt);
+            StreamLayer *sl = v8pp::class_<StreamLayer>::unwrap_object(d->isolate, obj);
+            if (sl) {
+                packets->push_back(sl->layer->packet);
             }
         }
 
