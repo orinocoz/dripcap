@@ -11,6 +11,9 @@ export default class TCPStreamDissector
   analyze(packet, layer, data, output)
   {
     if (layer.payload.length > 0) {
+      if (layer.payload.toString('hex').startsWith('4745')) {
+        console.error(layer.attrs.dst, layer.payload.toString('utf8'))
+      }
       if (this.seq < 0) {
         this.length += layer.payload.length;
       } else {

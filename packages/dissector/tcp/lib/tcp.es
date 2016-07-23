@@ -273,9 +273,7 @@ export default class TCPDissector
       });
 
       let stream = new NetStream('TCP Stream', parentLayer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
-      if (flags.get('SYN') && flags.get('ACK')) {
-        stream.start();
-      } else if (flags.get('FIN') && flags.get('ACK')) {
+      if (flags.get('FIN') && flags.get('ACK')) {
         stream.end();
       }
       stream.data = layer.payload;

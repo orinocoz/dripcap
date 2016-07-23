@@ -325,7 +325,10 @@ Dispatcher::Dispatcher()
                     if (net->flag == STREAM_END) {
                         if (stream.started) {
                             for (const ScriptClassPtr &script : stream.dissectors) {
-                                script->analyzeStream(pkt, pair.first, net->data, packetCallback);
+                                std::string err;
+                                if (!script->analyzeStream(pkt, pair.first, net->data, packetCallback)) {
+                                    spd->error("errord {}", err);
+                                }
                             }
                         }
                         streams[net->ns].erase(net->id);
@@ -343,12 +346,21 @@ Dispatcher::Dispatcher()
                                     spd->error("errort {}", err);
                                     continue;
                                 }
+                                for (const auto &pair : d->modules) {
+                                    if (!script->loadModule(pair.first, pair.second, &err)) {
+                                        auto spd = spdlog::get("console");
+                                        spd->error("errord {}", err);
+                                    }
+                                }
                                 stream.dissectors.push_back(script);
                             }
                             lock.unlock();
                         }
                         for (const ScriptClassPtr &script : stream.dissectors) {
-                            script->analyzeStream(pkt, pair.first, net->data, packetCallback);
+                            std::string err;
+                            if (!script->analyzeStream(pkt, pair.first, net->data, packetCallback)) {
+                                spd->error("errord {}", err);
+                            }
                         }
                     }
                 }

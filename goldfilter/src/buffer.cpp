@@ -199,7 +199,8 @@ void Buffer::toString(const v8::FunctionCallbackInfo<v8::Value> &args) const
     const std::string &type = v8pp::from_v8<std::string>(isolate, args[0], "utf8");
 
     if (type == "utf8") {
-        args.GetReturnValue().Set(v8pp::to_v8(isolate, std::string(reinterpret_cast<const char *>(vec->data()), vec->size())));
+        const char *s = reinterpret_cast<const char *>(vec->data()) + start;
+        args.GetReturnValue().Set(v8pp::to_v8(isolate, std::string(s, end - start)));
     } else if (type == "hex") {
         std::string hex;
         for (size_t i = start; i < end; ++i) {
