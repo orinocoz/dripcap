@@ -685,8 +685,7 @@ ScriptClass::Private::Private(const msgpack::object &options)
         obj->ForceSet(v8pp::to_v8(isolate, "streams"), Array::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
 
         args.GetReturnValue().Set(obj);
-    },
-                                                              layer.js_function_template()->GetFunction());
+    }, layer.js_function_template()->GetFunction());
     dripcapModule.set("Layer", layerFunc);
 
     dripcap = UniquePersistent<Object>(isolate, dripcapModule.new_instance());
@@ -747,8 +746,7 @@ ScriptClass::Private::Private(const msgpack::object &options)
             std::string err("Cannot find module '");
             args.GetReturnValue().Set(v8pp::throw_ex(isolate, (err + name + "'").c_str()));
         }
-    },
-                                                      External::New(isolate, this));
+    }, External::New(isolate, this));
     require = UniquePersistent<FunctionTemplate>(isolate, f);
 
     isolate->GetCurrentContext()->Global()->Set(

@@ -28,6 +28,7 @@ class Dispatcher::Private
     bool exiting = false;
     uint64_t count = 0;
     uint64_t maxID = 0;
+    uint64_t streamMaxID = 0;
     std::condition_variable cond;
     std::condition_variable filterCond;
     std::condition_variable streamCond;
@@ -105,7 +106,7 @@ Dispatcher::FilterWorker::FilterWorker(const std::string &source, const msgpack:
         while (true) {
             std::unique_lock<std::mutex> lock(d->mutex);
             d->filterCond.wait(lock, [this, ctx] {
-                return d->exiting || exiting || d->maxID > ctx->fetchedMaxID;
+                return d->exiting || exiting || d->streamMaxID > ctx->fetchedMaxID;
             });
             if (d->exiting || exiting)
                 return false;
@@ -354,6 +355,7 @@ Dispatcher::Dispatcher()
             }
 
             lock.lock();
+            d->streamMaxID = maxID;
         }
     });
 }
@@ -499,7 +501,7 @@ std::vector<const Packet *> Dispatcher::get(uint64_t start, uint64_t end) const
     std::lock_guard<std::mutex> lock(d->mutex);
 
     for (uint64_t i = start; i <= end; ++i) {
-        if (i > d->packets.size())
+        if (i > d->streamMaxID)
             break;
         const Packet *pkt = d->packets.at(i - 1);
         if (pkt)
@@ -555,7 +557,7 @@ uint64_t Dispatcher::queuedSize() const
 uint64_t Dispatcher::size() const
 {
     std::lock_guard<std::mutex> lock(d->mutex);
-    return d->maxID;
+    return d->streamMaxID;
 }
 
 std::unordered_map<std::string, uint64_t> Dispatcher::filtered() const
