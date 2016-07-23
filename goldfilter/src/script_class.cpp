@@ -4,6 +4,7 @@
 #include "include/v8.h"
 #include "net_stream.hpp"
 #include "packet.hpp"
+#include "virtual_packet.hpp"
 #include <fstream>
 #include <spdlog/spdlog.h>
 #include <sstream>
@@ -656,6 +657,14 @@ ScriptClass::Private::Private(const msgpack::object &options)
         .set("ts", v8pp::property(&PacketWrapper::ts))
         .set("payload", v8pp::property(&PacketWrapper::payload));
 
+    v8pp::class_<VirtualPacket> vpacket(isolate);
+    vpacket
+        .ctor<>()
+        .set("len", v8pp::property(&PacketWrapper::len))
+        .set("ts_sec", v8pp::property(&PacketWrapper::ts_sec))
+        .set("ts_nsec", v8pp::property(&PacketWrapper::ts_nsec))
+        .set("ts", v8pp::property(&PacketWrapper::ts));
+
     v8pp::class_<LayerWrapper> layer(isolate);
     layer
         .ctor<>()
@@ -675,6 +684,14 @@ ScriptClass::Private::Private(const msgpack::object &options)
     v8pp::module dripcapModule(isolate);
     dripcapModule.set("Buffer", buffer);
     dripcapModule.set("NetStream", stream);
+
+    Local<FunctionTemplate> vpacketFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
+        Isolate *isolate = Isolate::GetCurrent();
+        Local<Object> obj = args.Data().As<Function>()->NewInstance();
+        obj->ForceSet(v8pp::to_v8(isolate, "layers"), Object::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
+        args.GetReturnValue().Set(obj);
+    }, vpacket.js_function_template()->GetFunction());
+    dripcapModule.set("Packet", vpacketFunc);
 
     Local<FunctionTemplate> layerFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
         Isolate *isolate = Isolate::GetCurrent();
@@ -932,7 +949,7 @@ bool ScriptClass::analyze(Packet *packet, const LayerPtr &parentLayer, std::stri
 }
 
 bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, const msgpack::object &data,
-                                const PacketCallback &func, NetStreamList *straems, std::string *error) const
+                                const PacketCallback &func, NetStreamList *straems, PacketList *packets, std::string *error) const
 {
     Isolate::Scope isolate_scope(d->isolate);
     HandleScope handle_scope(d->isolate);
@@ -986,13 +1003,30 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
         }
 
         for (size_t i = 0; i < array->Length(); ++i) {
-
-            Local<Object> stream = array->Get(i).As<Object>();
-            NetStream *ns = v8pp::class_<NetStream>::unwrap_object(d->isolate, stream);
+            Local<Object> obj = array->Get(i).As<Object>();
+            NetStream *ns = v8pp::class_<NetStream>::unwrap_object(d->isolate, obj);
             if (ns) {
-                Local<Value> data = stream->Get(v8pp::to_v8(d->isolate, std::string("data")));
+                Local<Value> data = obj->Get(v8pp::to_v8(d->isolate, std::string("data")));
                 ns->data = v8ToMsgpack(data, &parentLayer->zone);
                 straems->push_back(std::make_shared<NetStream>(*ns));
+            }
+
+            VirtualPacket *vp = v8pp::class_<VirtualPacket>::unwrap_object(d->isolate, obj);
+            if (vp) {
+                Packet *pkt = new Packet();
+                Local<Object> array = obj->Get(v8pp::to_v8(d->isolate, std::string("layers"))).As<Object>();
+                Local<Array> layerKeys = array->GetOwnPropertyNames();
+                for (size_t i = 0; i < layerKeys->Length(); ++i) {
+                    LayerWrapper *wrapper = v8pp::class_<LayerWrapper>::unwrap_object(d->isolate, array->Get(layerKeys->Get(i)));
+                    const std::string &name = v8pp::from_v8<std::string>(d->isolate, layerKeys->Get(i), "");
+                    if (wrapper) {
+                        wrapper->getLayer()->packet = pkt;
+                        wrapper->syncFromScript();
+                        pkt->layers[name] = wrapper->getLayer();
+                    }
+                }
+                auto spd = spdlog::get("console");
+                packets->push_back(pkt);
             }
         }
 

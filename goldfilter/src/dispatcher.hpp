@@ -18,8 +18,8 @@ class Dispatcher final
     bool loadModule(const std::string &name, const std::string &source, std::string *error);
 
     void insert(Packet *pkt);
-    std::vector<const Packet *> get(uint64_t start, uint64_t end) const;
-    std::vector<const Packet *> get(const std::vector<uint64_t> &list) const;
+    std::vector<Packet *> get(uint64_t start, uint64_t end) const;
+    std::vector<Packet *> get(const std::vector<uint64_t> &list) const;
     std::vector<uint64_t> getFiltered(const std::string &name, uint64_t start, uint64_t end) const;
     uint64_t queuedSize() const;
     uint64_t size() const;

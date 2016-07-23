@@ -332,10 +332,14 @@ Dispatcher::Dispatcher()
                                 for (const ScriptClassPtr &script : stream.dissectors) {
                                     std::string err;
                                     NetStreamList streams;
-                                    if (!script->analyzeStream(pkt, pair.first, net->data, packetCallback, &streams, &err)) {
+                                    PacketList packets;
+                                    if (!script->analyzeStream(pkt, pair.first, net->data, packetCallback, &streams, &packets, &err)) {
                                         spd->error("errord {}", err);
                                     }
                                     streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());
+                                    for (Packet *pkt : packets) {
+                                        insert(pkt);
+                                    }
                                 }
                             }
                             streams[net->ns].erase(net->id);
@@ -366,10 +370,14 @@ Dispatcher::Dispatcher()
                             for (const ScriptClassPtr &script : stream.dissectors) {
                                 std::string err;
                                 NetStreamList streams;
-                                if (!script->analyzeStream(pkt, pair.first, net->data, packetCallback, &streams, &err)) {
+                                PacketList packets;
+                                if (!script->analyzeStream(pkt, pair.first, net->data, packetCallback, &streams, &packets, &err)) {
                                     spd->error("errord {}", err);
                                 }
                                 streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());
+                                for (Packet *pkt : packets) {
+                                    insert(pkt);
+                                }
                             }
                         }
                     }
@@ -488,7 +496,7 @@ bool Dispatcher::loadModule(const std::string &name, const std::string &source, 
 
 void Dispatcher::insert(Packet *pkt)
 {
-    if (!pkt || pkt->id == 0)
+    if (!pkt)
         return;
 
     {
@@ -496,15 +504,17 @@ void Dispatcher::insert(Packet *pkt)
         pkt->id = ++d->count;
     }
 
-    LayerPtr layer = std::make_shared<Layer>();
-    layer->name = "Raw Layer";
-    layer->ns = "::<Ethernet>";
+    if (pkt->layers.empty()) {
+        LayerPtr layer = std::make_shared<Layer>();
+        layer->name = "Raw Layer";
+        layer->ns = "::<Ethernet>";
 
-    std::stringstream buffer;
-    msgpack::pack(buffer, std::tuple<uint64_t, size_t, size_t>(pkt->id, 0, pkt->payload.size()));
-    const std::string &str = buffer.str();
-    layer->payload = msgpack::object(msgpack::type::ext(0x1f, str.data(), str.size()), layer->zone);
-    pkt->layers[layer->ns] = layer;
+        std::stringstream buffer;
+        msgpack::pack(buffer, std::tuple<uint64_t, size_t, size_t>(pkt->id, 0, pkt->payload.size()));
+        const std::string &str = buffer.str();
+        layer->payload = msgpack::object(msgpack::type::ext(0x1f, str.data(), str.size()), layer->zone);
+        pkt->layers[layer->ns] = layer;
+    }
 
     {
         std::lock_guard<std::mutex> lock(d->mutex);
@@ -513,9 +523,9 @@ void Dispatcher::insert(Packet *pkt)
     d->cond.notify_all();
 }
 
-std::vector<const Packet *> Dispatcher::get(uint64_t start, uint64_t end) const
+std::vector<Packet *> Dispatcher::get(uint64_t start, uint64_t end) const
 {
-    std::vector<const Packet *> packets;
+    std::vector<Packet *> packets;
 
     if (start == 0 || end == 0 || start > end)
         return packets;
@@ -525,22 +535,22 @@ std::vector<const Packet *> Dispatcher::get(uint64_t start, uint64_t end) const
     for (uint64_t i = start; i <= end; ++i) {
         if (i > d->streamMaxID)
             break;
-        const Packet *pkt = d->packets.at(i - 1);
+        Packet *pkt = d->packets.at(i - 1);
         if (pkt)
             packets.push_back(pkt);
     }
     return packets;
 }
 
-std::vector<const Packet *> Dispatcher::get(const std::vector<uint64_t> &list) const
+std::vector<Packet *> Dispatcher::get(const std::vector<uint64_t> &list) const
 {
-    std::vector<const Packet *> packets;
+    std::vector<Packet *> packets;
     std::lock_guard<std::mutex> lock(d->mutex);
 
     for (uint64_t i : list) {
         if (i > d->packets.size())
             break;
-        const Packet *pkt = d->packets.at(i - 1);
+        Packet *pkt = d->packets.at(i - 1);
         if (pkt)
             packets.push_back(pkt);
     }

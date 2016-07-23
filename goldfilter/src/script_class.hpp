@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 struct Packet;
+typedef std::vector<Packet *> PacketList;
 
 struct Layer;
 typedef std::shared_ptr<Layer> LayerPtr;
@@ -28,7 +29,7 @@ class ScriptClass final
     bool analyze(Packet *packet, const LayerPtr &parentLayer, std::string *error = nullptr) const;
     bool analyzeStream(Packet *packet, const LayerPtr &parentLayer,
                        const msgpack::object &data, const PacketCallback &func, NetStreamList *straems,
-                       std::string *error = nullptr) const;
+                       PacketList *packets, std::string *error = nullptr) const;
     bool filter(Packet *packet) const;
 
   public:

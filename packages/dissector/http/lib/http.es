@@ -1,4 +1,4 @@
-import {NetStream} from 'dripcap';
+import {NetStream, Packet, Layer} from 'dripcap';
 
 export default class TCPStreamDissector
 {
@@ -7,10 +7,29 @@ export default class TCPStreamDissector
 
   }
 
-  analyze(packet, layer, data, output)
+  analyze(packet, parentLayer, data, output)
   {
-    if (data.toString('hex').startsWith('4745')) {
-      console.error(layer.attrs.dst, layer.payload.toString('utf8'))
+    let body = data.toString('utf8');
+    let re = /(GET|POST) (\S+) HTTP\/(0\.9|1\.0|1\.1)\r\n/;
+    let m = body.match(re);
+    if (m != null) {
+      let pkt = new Packet;
+      console.error(parentLayer.attrs.src);
+
+      let layer = new Layer();
+      layer.name = 'HTTP';
+      layer.namespace = layer.namespace + '::HTTP';
+      //layer.attrs.src = parentLayer.attrs.src;
+      //layer.attrs.dst = parentLayer.attrs.dst;
+
+      layer.fields.push({
+        name: 'Method',
+        value: m[1]
+      });
+      layer.attrs.mathod = m[1];
+
+      pkt.layers[layer.namespace] = layer;
+      output.push(pkt);
     }
   }
 }

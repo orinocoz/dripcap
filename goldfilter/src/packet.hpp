@@ -20,7 +20,7 @@ struct Packet {
     std::unordered_set<std::string> history;
 };
 
-typedef std::vector<const Packet *> PacketList;
+typedef std::vector<Packet *> PacketList;
 
 namespace msgpack
 {
