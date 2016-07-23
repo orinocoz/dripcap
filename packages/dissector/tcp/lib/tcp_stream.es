@@ -11,11 +11,11 @@ export default class TCPStreamDissector
   analyze(packet, layer, data, output)
   {
     if (layer.payload.length > 0) {
-      if (layer.payload.toString('hex').startsWith('4745')) {
-        console.error(layer.attrs.dst, layer.payload.toString('utf8'))
-      }
+      let stream = new NetStream('TCP Stream', layer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
+
       if (this.seq < 0) {
         this.length += layer.payload.length;
+        stream.data = layer.payload;
       } else {
         let start = this.seq + this.length;
         let length = layer.payload.length;
@@ -23,11 +23,10 @@ export default class TCPStreamDissector
           length -= (start - layer.attrs.seq);
         }
         this.length += length;
+        stream.data = layer.payload;
       }
       this.seq = layer.attrs.seq;
+      output.push(stream);
     }
-    let stream = new NetStream('TCP Stream', layer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
-    output.push(stream);
-    //console.error(layer.name, this.seq, this.length)
   }
 }

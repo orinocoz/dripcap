@@ -931,7 +931,8 @@ bool ScriptClass::analyze(Packet *packet, const LayerPtr &parentLayer, std::stri
     return true;
 }
 
-bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, const msgpack::object &data, const PacketCallback &func, std::string *error) const
+bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, const msgpack::object &data,
+                                const PacketCallback &func, NetStreamList *straems, std::string *error) const
 {
     Isolate::Scope isolate_scope(d->isolate);
     HandleScope handle_scope(d->isolate);
@@ -991,6 +992,7 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
             if (ns) {
                 Local<Value> data = stream->Get(v8pp::to_v8(d->isolate, std::string("data")));
                 ns->data = v8ToMsgpack(data, &parentLayer->zone);
+                straems->push_back(std::make_shared<NetStream>(*ns));
             }
         }
 
