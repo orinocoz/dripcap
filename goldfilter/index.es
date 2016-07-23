@@ -342,6 +342,7 @@ export default class GoldFilter extends EventEmitter {
     return this._getPackets(requests).then((packets) => {
       for (let pkt of packets) {
         let codec = msgpack.createCodec();
+        codec.depends = [];
         codec.addExtUnpacker(0x1B, Buffer);
         codec.addExtUnpacker(0x20, (buffer) => {
           const args = msgpack.decode(buffer, {codec: codec});
@@ -354,17 +355,29 @@ export default class GoldFilter extends EventEmitter {
         codec.addExtUnpacker(0x1F, ((pkt) => {
           return (buffer) => {
             const tuple = msgpack.decode(buffer, {codec: codec});
+            let payload = pkt.payload;
             if (tuple[0] !== pkt.id) {
-              return new Buffer([]);
+              let ref = this.packetCache.get(tuple[0]);
+              if (ref != null) {
+                payload = ref.payload;
+              } else {
+                codec.depends.push(tuple[0]);
+                return new Buffer([]);
+              }
             }
-            let slice = pkt.payload.slice(tuple[1], tuple[2]);
+            let slice = payload.slice(tuple[1], tuple[2]);
             slice.packet = tuple[0];
             slice.start = tuple[1];
             slice.end = tuple[2];
             return slice;
           };
         })(pkt))
-        pkt.layers = msgpack.decode(pkt.layers.buffer, {codec: codec});
+
+        try {
+          pkt.layers = msgpack.decode(pkt.layers.buffer, {codec: codec});
+        } catch (err) {
+          console.log(codec.depends);
+        }
 
         let packet = new Packet(pkt);
         this.packetCache.set(pkt.id, packet);

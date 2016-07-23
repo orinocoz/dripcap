@@ -14,13 +14,12 @@ export default class TCPStreamDissector
     let m = body.match(re);
     if (m != null) {
       let pkt = new Packet;
-      console.error(parentLayer.attrs.src);
 
       let layer = new Layer();
       layer.name = 'HTTP';
       layer.namespace = layer.namespace + '::HTTP';
-      //layer.attrs.src = parentLayer.attrs.src;
-      //layer.attrs.dst = parentLayer.attrs.dst;
+      layer.attrs.src = parentLayer.attrs.src;
+      layer.attrs.dst = parentLayer.attrs.dst;
 
       layer.fields.push({
         name: 'Method',
