@@ -309,16 +309,6 @@ Dispatcher::Dispatcher()
 
             auto spd = spdlog::get("console");
 
-            auto packetCallback = [this, &lock](uint64_t id) -> Packet * {
-                Packet *pkt = nullptr;
-                lock.lock();
-                if (id > 0 && id <= d->packets.size()) {
-                    pkt = d->packets.at(id - 1);
-                }
-                lock.unlock();
-                return pkt;
-            };
-
             StreamList streamList = findStreams(pkt->layers);
             while (!streamList.empty()) {
                 StreamList list;
@@ -333,7 +323,7 @@ Dispatcher::Dispatcher()
                                     std::string err;
                                     NetStreamList streams;
                                     PacketList packets;
-                                    if (!script->analyzeStream(pkt, pair.first, net->data, packetCallback, &streams, &packets, &err)) {
+                                    if (!script->analyzeStream(pkt, pair.first, net->data, &streams, &packets, &err)) {
                                         spd->error("errord {}", err);
                                     }
                                     streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());
@@ -371,7 +361,7 @@ Dispatcher::Dispatcher()
                                 std::string err;
                                 NetStreamList streams;
                                 PacketList packets;
-                                if (!script->analyzeStream(pkt, pair.first, net->data, packetCallback, &streams, &packets, &err)) {
+                                if (!script->analyzeStream(pkt, pair.first, net->data, &streams, &packets, &err)) {
                                     spd->error("errord {}", err);
                                 }
                                 streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());
@@ -510,7 +500,7 @@ void Dispatcher::insert(Packet *pkt)
         layer->ns = "::<Ethernet>";
 
         std::stringstream buffer;
-        msgpack::pack(buffer, std::tuple<uint64_t, size_t, size_t>(pkt->id, 0, pkt->payload.size()));
+        msgpack::pack(buffer, std::tuple<size_t, size_t>(0, pkt->payload.size()));
         const std::string &str = buffer.str();
         layer->payload = msgpack::object(msgpack::type::ext(0x1f, str.data(), str.size()), layer->zone);
         pkt->layers[layer->ns] = layer;

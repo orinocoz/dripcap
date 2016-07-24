@@ -55,7 +55,7 @@ class ScriptClass::Private
 namespace
 {
 
-Local<Value> MsgpackToV8(const msgpack::object &o, const ScriptClass::PacketCallback &func = ScriptClass::PacketCallback())
+Local<Value> MsgpackToV8(const msgpack::object &o, Packet *pkt = nullptr)
 {
     Isolate *isolate = Isolate::GetCurrent();
     switch (o.type) {
@@ -77,7 +77,7 @@ Local<Value> MsgpackToV8(const msgpack::object &o, const ScriptClass::PacketCall
         Local<Array> array = Array::New(isolate);
         const auto &objs = o.as<std::vector<msgpack::object>>();
         for (size_t i = 0; i < objs.size(); ++i) {
-            array->Set(i, MsgpackToV8(objs[i], func));
+            array->Set(i, MsgpackToV8(objs[i], pkt));
         }
         return array;
     }
@@ -85,7 +85,7 @@ Local<Value> MsgpackToV8(const msgpack::object &o, const ScriptClass::PacketCall
         Local<Object> obj = Object::New(isolate);
         const auto &map = o.as<std::unordered_map<std::string, msgpack::object>>();
         for (const auto &pair : map) {
-            obj->Set(v8pp::to_v8(isolate, pair.first), MsgpackToV8(pair.second, func));
+            obj->Set(v8pp::to_v8(isolate, pair.first), MsgpackToV8(pair.second, pkt));
         }
         return obj;
     }
@@ -99,22 +99,19 @@ Local<Value> MsgpackToV8(const msgpack::object &o, const ScriptClass::PacketCall
                 return v8pp::class_<Buffer>::create_object(isolate, vec);
             } break;
             case 0x1f: {
-                if (func) {
+                if (pkt) {
                     msgpack::object_handle result;
                     msgpack::unpack(result, ext.data(), ext.size());
                     msgpack::object obj(result.get());
-                    const auto &tuple = obj.as<std::tuple<uint64_t, size_t, size_t>>();
-                    Packet *pkt;
-                    if ((pkt = func(std::get<0>(tuple)))) {
-                        return v8pp::class_<Payload>::create_object(isolate, &pkt->payload, std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
-                    }
+                    const auto &tuple = obj.as<std::tuple<size_t, size_t>>();
+                    return v8pp::class_<Payload>::create_object(isolate, &pkt->payload, std::get<0>(tuple), std::get<1>(tuple));
                 }
             } break;
             case 0x20: {
                 msgpack::object_handle result;
                 msgpack::unpack(result, ext.data(), ext.size());
                 msgpack::object obj(result.get());
-                Local<Value> v = MsgpackToV8(obj, func);
+                Local<Value> v = MsgpackToV8(obj, pkt);
                 if (!v.IsEmpty() && v->IsArray()) {
                     Local<Array> array = v.As<Array>();
                     if (array->Length() > 0) {
@@ -212,7 +209,7 @@ msgpack::object v8ToMsgpack(Local<Value> v, msgpack::zone *zone, bool copy = fal
             }
             std::stringstream buffer;
             const auto &pair = payload->range();
-            msgpack::pack(buffer, std::tuple<uint64_t, size_t, size_t>(payload->pkt, pair.first, pair.second));
+            msgpack::pack(buffer, std::tuple<size_t, size_t>(pair.first, pair.second));
             const std::string &str = buffer.str();
             return msgpack::object(msgpack::type::ext(0x1f, str.data(), str.size()), *zone);
         }
@@ -465,9 +462,7 @@ msgpack::object LayerWrapper::v8ToMsgpack(Local<Value> v)
 
 Local<Value> LayerWrapper::msgpackToV8(const msgpack::object &o)
 {
-    return MsgpackToV8(o, [this](uint64_t id) -> Packet * {
-        return layer->packet;
-    });
+    return MsgpackToV8(o, layer->packet);
 }
 
 class PacketWrapper
@@ -527,7 +522,7 @@ Local<Value> PacketWrapper::ts() const
 
 Local<Value> PacketWrapper::payload() const
 {
-    return v8pp::class_<Payload>::create_object(Isolate::GetCurrent(), &packet->payload, packet->id, 0, packet->payload.size());
+    return v8pp::class_<Payload>::create_object(Isolate::GetCurrent(), &packet->payload, 0, packet->payload.size());
 }
 
 void PacketWrapper::syncToScript()
@@ -964,7 +959,7 @@ bool ScriptClass::analyze(Packet *packet, const LayerPtr &parentLayer, std::stri
 }
 
 bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, const msgpack::object &data,
-                                const PacketCallback &func, NetStreamList *straems, PacketList *packets, std::string *error) const
+                                NetStreamList *straems, PacketList *packets, std::string *error) const
 {
     Isolate::Scope isolate_scope(d->isolate);
     HandleScope handle_scope(d->isolate);
@@ -1008,7 +1003,7 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
         Local<Object> layer = wrapper->findLayer(parentLayer);
         Local<Array> array = Array::New(d->isolate);
 
-        Local<Value> args[4] = {pkt, layer, MsgpackToV8(data, func), array};
+        Local<Value> args[4] = {pkt, layer, MsgpackToV8(data, packet), array};
         MaybeLocal<Value> maybeRes = analyze_func->Call(obj, 4, args);
         if (maybeRes.IsEmpty()) {
             String::Utf8Value err(try_catch.Exception());

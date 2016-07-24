@@ -64,16 +64,12 @@ class CustomValue : public Buffer
 class Payload : public Buffer
 {
   public:
-    Payload(Data *data, uint64_t packet, size_t start, size_t end);
+    Payload(Data *data, size_t start, size_t end);
     ~Payload();
     void slice(v8::FunctionCallbackInfo<v8::Value> const &args) const;
     std::pair<size_t, size_t> range() const;
-    uint64_t packet() const;
     std::string valueOf() const;
     size_t copy(Data *buf) const;
-
-  public:
-    uint64_t pkt;
 };
 
 #endif

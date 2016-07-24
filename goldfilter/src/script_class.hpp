@@ -18,9 +18,6 @@ typedef std::vector<NetStreamPtr> NetStreamList;
 class ScriptClass final
 {
   public:
-    typedef std::function<Packet *(uint64_t)> PacketCallback;
-
-  public:
     ScriptClass(const msgpack::object &options);
     ~ScriptClass();
     bool loadFile(const std::string &path, std::string *error = nullptr);
@@ -28,7 +25,7 @@ class ScriptClass final
     bool loadModule(const std::string &name, const std::string &source, std::string *error = nullptr);
     bool analyze(Packet *packet, const LayerPtr &parentLayer, std::string *error = nullptr) const;
     bool analyzeStream(Packet *packet, const LayerPtr &parentLayer,
-                       const msgpack::object &data, const PacketCallback &func, NetStreamList *straems,
+                       const msgpack::object &data, NetStreamList *straems,
                        PacketList *packets, std::string *error = nullptr) const;
     bool filter(Packet *packet) const;
 

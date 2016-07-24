@@ -355,10 +355,9 @@ export default class GoldFilter extends EventEmitter {
         codec.addExtUnpacker(0x1F, ((pkt) => {
           return (buffer) => {
             const tuple = msgpack.decode(buffer, {codec: codec});
-            let slice = pkt.payload.slice(tuple[1], tuple[2]);
-            slice.packet = tuple[0];
-            slice.start = tuple[1];
-            slice.end = tuple[2];
+            let slice = pkt.payload.slice(tuple[0], tuple[1]);
+            slice.start = tuple[0];
+            slice.end = tuple[1];
             return slice;
           };
         })(pkt))
