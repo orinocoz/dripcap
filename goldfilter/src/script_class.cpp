@@ -239,7 +239,7 @@ msgpack::object v8ToMsgpack(Local<Value> v, msgpack::zone *zone, bool copy = fal
             std::vector<msgpack::object> list;
             Local<Array> array = v.As<Array>();
             for (size_t i = 0; i < array->Length(); ++i) {
-                list.push_back(v8ToMsgpack(array->Get(i), zone));
+                list.push_back(v8ToMsgpack(array->Get(i), zone, copy));
             }
             return msgpack::object(list, *zone);
         }
@@ -266,7 +266,7 @@ msgpack::object v8ToMsgpack(Local<Value> v, msgpack::zone *zone, bool copy = fal
                         array->Set(i + 1, array->Get(i));
                     }
                     array->Set(0, name);
-                    const msgpack::object &obj = v8ToMsgpack(array, zone);
+                    const msgpack::object &obj = v8ToMsgpack(array, zone, copy);
                     std::stringstream buffer;
                     msgpack::pack(buffer, obj);
                     const std::string &str = buffer.str();
@@ -277,7 +277,7 @@ msgpack::object v8ToMsgpack(Local<Value> v, msgpack::zone *zone, bool copy = fal
             std::unordered_map<std::string, msgpack::object> map;
             Local<Array> keys = obj->GetOwnPropertyNames();
             for (size_t i = 0; i < keys->Length(); ++i) {
-                map[v8pp::from_v8<std::string>(isolate, keys->Get(i), "")] = v8ToMsgpack(obj->Get(keys->Get(i)), zone);
+                map[v8pp::from_v8<std::string>(isolate, keys->Get(i), "")] = v8ToMsgpack(obj->Get(keys->Get(i)), zone, copy);
             }
             return msgpack::object(map, *zone);
         }
