@@ -26,7 +26,7 @@ class NetStream
     std::string ns;
     std::string id;
     msgpack::object data;
-    StreamFlag flag;
+    StreamFlag flag = STREAM_NOOP;
 };
 
 typedef std::shared_ptr<NetStream> NetStreamPtr;

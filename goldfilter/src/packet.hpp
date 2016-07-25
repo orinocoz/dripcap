@@ -7,13 +7,13 @@
 #include <vector>
 
 struct Packet {
-    Packet();
+    Packet() = default;
     Packet(const msgpack::object &obj);
 
-    uint64_t id;
-    uint64_t ts_sec;
-    uint32_t ts_nsec;
-    uint32_t len;
+    uint64_t id = 0;
+    uint64_t ts_sec = 0;
+    uint32_t ts_nsec = 0;
+    uint32_t len = 0;
     std::vector<unsigned char> payload;
     LayerList layers;
 

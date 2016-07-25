@@ -1,12 +1,5 @@
 #include "device.hpp"
 
-Device::Device()
-{
-}
-std::string name;
-std::string description;
-int link;
-bool loopback;
 Device::Device(const msgpack::object &obj)
 {
     const auto &map = obj.as<std::unordered_map<std::string, msgpack::object>>();

@@ -4,20 +4,13 @@
 #include <msgpack.hpp>
 
 struct Status {
-    Status();
-    bool capturing;
-    uint64_t queuedPackets;
-    uint64_t packets;
+    Status() = default;
+    bool capturing = false;
+    uint64_t queuedPackets = 0;
+    uint64_t packets = 0;
     std::unordered_map<std::string, uint64_t> filtered;
     bool operator!=(const Status &stat) const;
 };
-
-Status::Status()
-    : capturing(false),
-      queuedPackets(0),
-      packets(0)
-{
-}
 
 bool Status::operator!=(const Status &stat) const
 {

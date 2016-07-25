@@ -4,13 +4,13 @@
 #include <msgpack.hpp>
 
 struct Device {
-    Device();
+    Device() = default;
     Device(const msgpack::object &obj);
 
     std::string name;
     std::string description;
-    int link;
-    bool loopback;
+    int link = 0;
+    bool loopback = false;
 };
 
 namespace msgpack

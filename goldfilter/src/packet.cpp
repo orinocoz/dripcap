@@ -1,13 +1,5 @@
 #include "packet.hpp"
 
-Packet::Packet()
-    : id(0),
-      ts_sec(0),
-      ts_nsec(0),
-      len(0)
-{
-}
-
 Packet::Packet(const msgpack::object &obj)
 {
     const auto &map = obj.as<std::unordered_map<std::string, msgpack::object>>();
