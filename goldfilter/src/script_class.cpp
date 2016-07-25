@@ -696,6 +696,8 @@ ScriptClass::Private::Private(const msgpack::object &options)
             pkt->payload.assign(buffer->data(), buffer->data() + buffer->length());
         }
         pkt->len = pkt->payload.size();
+        pkt->ts_sec = std::chrono::seconds(std::time(NULL)).count();
+        pkt->ts_nsec = 0;
         pkt->layers[layer->ns] = layer;
 
         args.GetReturnValue().Set(obj);
