@@ -48,14 +48,13 @@ class Session extends EventEmitter
               if stat?
                 dripcap.pubsub.pub 'core:capturing-status', stat.capturing
                 @emit 'status', stat
-                unless stat.capturing
-                  clearInterval @_timer
           , 100
 
   stop: ->
     @_gold.stop()
 
   close: ->
+    clearInterval @_timer
     @_gold.close()
 
 module.exports = Session
