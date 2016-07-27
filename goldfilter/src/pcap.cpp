@@ -118,13 +118,19 @@ bool Pcap::start()
 
 bool Pcap::stop()
 {
-    std::lock_guard<std::mutex> lock(d->mutex);
-    if (!d->active) {
-        return false;
-    } else {
-        d->active = false;
-        return true;
+    {
+        std::lock_guard<std::mutex> lock(d->mutex);
+        if (!d->active) {
+            return false;
+        } else {
+            d->active = false;
+        }
     }
+
+    if (d->thread.joinable())
+        d->thread.join();
+
+    return true;
 }
 
 std::vector<Device> Pcap::getAllDevs() const

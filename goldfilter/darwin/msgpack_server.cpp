@@ -145,6 +145,9 @@ bool MsgpackServer::start()
         unp.reserve_buffer(try_read_size);
         ssize_t actual_read_size = read(d->csock, unp.buffer(), try_read_size);
         if (actual_read_size <= 0) {
+            if (errno == EINTR) {
+                continue;
+            }
             spd->error("read() failed");
             break;
         }
