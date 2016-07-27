@@ -44,14 +44,17 @@ class SessionInterface extends EventEmitter
     for cls in @_classes
       do (cls=cls) ->
         tasks.push(sess.addClass(cls.name, cls.path))
-    for dec in @_dissectors
-      do (dec=dec) ->
-        tasks.push(sess.addDissector(dec.namespaces, dec.path))
-    for dec in @_streamDissectors
-      do (dec=dec) ->
-        tasks.push(sess.addStreamDissector(dec.namespaces, dec.path))
-    Promise.all(tasks).then ->
-      dripcap.pubsub.pub 'core:capturing-settings', {iface: iface, options: options}
-      sess
+
+    Promise.all(tasks).then =>
+      for dec in @_dissectors
+        do (dec=dec) ->
+          tasks.push(sess.addDissector(dec.namespaces, dec.path))
+      for dec in @_streamDissectors
+        do (dec=dec) ->
+          tasks.push(sess.addStreamDissector(dec.namespaces, dec.path))
+          
+      Promise.all(tasks).then ->
+        dripcap.pubsub.pub 'core:capturing-settings', {iface: iface, options: options}
+        sess
 
 module.exports = SessionInterface

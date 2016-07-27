@@ -45,7 +45,7 @@
     dripcap.session.create(ifs, filter: filter, promisc: promisc).then (sess) =>
       if dripcap.session.list?
         for s in dripcap.session.list
-          s.stop()
+          s.close()
       dripcap.session.list = [sess]
       dripcap.session.emit('created', sess)
       sess.start()
