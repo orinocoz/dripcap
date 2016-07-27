@@ -3,6 +3,11 @@ path = require('path')
 _ = require('underscore')
 config = require('dripcap/config')
 
+require("babel-register")({
+    presets : [ "es2015" ],
+    extensions : [ ".es" ]
+})
+
 class Package
   constructor: (jsonPath) ->
     @path = path.dirname(jsonPath)
@@ -38,6 +43,7 @@ class Package
           res = null
           try
             klass = require(req)
+            klass = klass.default if klass.__esModule
             @root = new klass(@)
             res = @root.activate()
             @updateTheme(dripcap.theme.scheme)

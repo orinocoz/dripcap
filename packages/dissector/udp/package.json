@@ -1,0 +1,11 @@
+{
+  "name": "udp",
+  "main": "./lib/main",
+  "license": "MIT",
+  "description": "Dripcap UDP Dissector",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/dripcap/dripcap.git"
+  },
+  "readme": "see README.md"
+}

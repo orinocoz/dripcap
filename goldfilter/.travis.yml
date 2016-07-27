@@ -1,0 +1,30 @@
+sudo: true
+language: node_js
+node_js:
+- "6"
+os:
+- osx
+- linux
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-4.9
+    - g++-4.9
+    - libcap-dev
+    - libpcap-dev
+    - jq
+before_install:
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update && brew install v8 ;
+  fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./v8-linux.sh && export CXX="g++-4.9" ;
+  fi
+
+install:
+- npm install
+- npm install -g mocha
+script:
+- npm test
+notifications:
+  email: false

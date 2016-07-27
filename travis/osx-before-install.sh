@@ -1,5 +1,5 @@
 brew update
-brew install nvm gpg
+brew install nvm gpg v8
 
 mkdir ~/.nvm
 export NVM_DIR=~/.nvm

@@ -39,8 +39,7 @@ gulp.task 'copypkg', ->
   gulp.src([
     './packages/**/*'
     './dripcap/**/*'
-    './paperfilter/**/*'
-    './msgcap/**/*'
+    './goldfilter/**/*'
   ], base: './')
     .pipe gulp.dest('./.build/')
 
@@ -48,10 +47,12 @@ gulp.task 'npm', ['copypkg'], ->
   p = new Promise (res) ->
     npm.load {production: true, depth: 0}, -> res()
 
+
   p = p.then ->
     new Promise (res) ->
       npm.prefix = './.build/'
-      npm.commands.uninstall ['dripcap', 'msgcap'], res
+      npm.commands.uninstall ['dripcap', 'goldfilter'], res
+
 
   p = p.then ->
     new Promise (res) ->
@@ -81,8 +82,8 @@ gulp.task 'debian-pkg', (cb) ->
     .pipe(replace('{{DRIPCAP_VERSION}}', pkg.version, skipBinary: true))
     .pipe gulp.dest('./.debian/')
 
-gulp.task 'debian-paperfilter', (cb) ->
-  gulp.src('./.build/node_modules/paperfilter/bin/paperfilter')
+gulp.task 'debian-goldfilter', (cb) ->
+  gulp.src('./.build/node_modules/goldfilter/build/goldfilter')
     .pipe gulp.dest('./.debian/usr/bin/')
 
 gulp.task 'debian-bin', ['copy', 'coffee', 'copypkg', 'npm'], (cb) ->
@@ -97,7 +98,7 @@ gulp.task 'debian-bin', ['copy', 'coffee', 'copypkg', 'npm'], (cb) ->
 gulp.task 'debian', sequence(
   'debian-bin',
   'debian-pkg',
-  'debian-paperfilter'
+  'debian-goldfilter'
 )
 
 gulp.task 'darwin', ['build'], (cb) ->
@@ -133,7 +134,7 @@ gulp.task 'jasmine', ->
     ])
     .pipe(jasmine())
 
-gulp.task 'test', sequence('build', 'jasmine', 'uitest')
+gulp.task 'test', sequence('build', 'jasmine')
 
 gulp.task 'uitest', ->
   gulp.src(".build").pipe(runElectron([], env: Object.assign({

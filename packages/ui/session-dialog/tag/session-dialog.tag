@@ -42,10 +42,13 @@
     snaplen = dripcap.profile.getConfig 'snaplen'
 
     @tags['modal-dialog'].hide()
-    sess = dripcap.session.create ifs, filter: filter, promisc: promisc, snaplen: snaplen
-    dripcap.session.list = [sess]
-    dripcap.session.emit('created', sess)
-    sess.start()
+    dripcap.session.create(ifs, filter: filter, promisc: promisc).then (sess) =>
+      if dripcap.session.list?
+        for s in dripcap.session.list
+          s.close()
+      dripcap.session.list = [sess]
+      dripcap.session.emit('created', sess)
+      sess.start()
 
   </script>
 

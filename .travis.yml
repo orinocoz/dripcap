@@ -1,4 +1,4 @@
-sudo: false
+sudo: true
 language: cpp
 os:
 - linux
@@ -8,18 +8,20 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - gcc-4.8
-    - g++-4.8
+    - gcc-4.9
+    - g++-4.9
     - xvfb
     - lintian
     - alien
+    - libcap-dev
+    - jq
 before_install:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-install.sh
   ; fi
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source travis/osx-before-install.sh ;
   fi
 install:
-- npm install --depth 0 -g gulp electron-prebuilt
+- npm install --depth 0 -g gulp electron-prebuilt babel-cli
 - npm install --depth 0
 before_script:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-script.sh
@@ -41,7 +43,6 @@ deploy:
   file:
   - dripcap-linux-amd64.deb
   - dripcap-linux-amd64.rpm
-  - paperfilter-linux-amd64.zip
   skip_cleanup: true
   on:
     tags: true
@@ -52,7 +53,6 @@ deploy:
   file:
   - dripcap-darwin-amd64.dmg
   - dripcap-darwin-amd64.zip
-  - paperfilter-darwin-amd64.zip
   skip_cleanup: true
   on:
     tags: true

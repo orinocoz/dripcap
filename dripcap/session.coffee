@@ -1,80 +1,60 @@
-require('dripcap/type')
 {EventEmitter} = require('events')
-Packet = require('dripcap/packet')
-net = require('net')
-temp = require('temp')
-path = require('path')
-msgpack = require('msgcap')
-remote = require('electron').remote
-BrowserWindow = remote.BrowserWindow
+GoldFilter = require('goldfilter').default;
 
 class Session extends EventEmitter
   constructor: (@_filterPath) ->
+    @_timer = 0
+    @_gold = new GoldFilter()
+    @_gold.on 'packet', (pkt) =>
+      @emit 'packet', pkt
 
-    sock =
-      if process.platform == 'win32'
-        path.join('\\\\?\\pipe', process.cwd(), 'myctl')
-      else
-        temp.path(suffix: '.sock')
+    @_builtin = Promise.all([
+      @addClass('dripcap/mac', "#{__dirname}/builtin/mac.es")
+      @addClass('dripcap/enum', "#{__dirname}/builtin/enum.es")
+      @addClass('dripcap/flags', "#{__dirname}/builtin/flags.es")
+      @addClass('dripcap/ipv4/addr', "#{__dirname}/builtin/ipv4/addr.es")
+      @addClass('dripcap/ipv4/host', "#{__dirname}/builtin/ipv4/host.es")
+      @addClass('dripcap/ipv6/addr', "#{__dirname}/builtin/ipv6/addr.es")
+      @addClass('dripcap/ipv6/host', "#{__dirname}/builtin/ipv6/host.es")
+    ])
 
-    @_window = new BrowserWindow(show: false)
-    @_window.loadURL 'file://' + __dirname + '/session.html'
-
-    @_event = new EventEmitter
-
-    @_loaded = new Promise (res) =>
-      @_window.webContents.once 'did-finish-load', -> res()
-    .then =>
-      new Promise (res) =>
-        @_server = net.createServer (c) =>
-          @_msgenc = new msgpack.Encoder(c)
-          @_msgdec = new msgpack.Decoder(c)
-          @_msgdec.on 'data', (packet) =>
-            @_event.emit 'packet', packet
-          res()
-        @_server.listen sock
-        arg = JSON.stringify @_filterPath
-        @_window.webContents.executeJavaScript("session.filterPath = #{arg}")
-        arg = JSON.stringify sock
-        @_window.webContents.executeJavaScript("session.connect(#{arg})")
-
-    @_exec = @_loaded
+  requestPackets: (start, end) ->
+    @_gold.requestPackets(start, end)
 
   addCapture: (iface, options = {}) ->
-    settings = {iface: iface, options: options}
-    arg = JSON.stringify settings
-    @_execute("session.capture(#{arg})").then ->
-      dripcap.pubsub.pub 'core:capturing-settings', settings
+    @_settings = {iface: iface, options: options}
 
-  addDecoder: (decoder) ->
-    arg = JSON.stringify decoder
-    @_execute("session.load(#{arg})")
+  addDissector: (namespaces, path) ->
+    @_gold.addDissector(namespaces, path)
 
-  decode: (packet) ->
-    @_execute('').then =>
-      @_msgenc.encode type: 'packet', body: packet
+  addStreamDissector: (namespaces, path) ->
+    @_gold.addStreamDissector(namespaces, path)
+
+  addClass: (name, path) ->
+    @_gold.addClass(name, path)
+
+  setFilter: (name, exp) ->
+    @_gold.setFilter(name, exp)
+
+  getFiltered: (name, start, end) ->
+    @_gold.getFiltered(name, start, end)
 
   start: ->
-    @stop().then =>
-      @_event.on 'packet', (packet) =>
-        @emit 'packet', new Packet packet
-      @_execute('session.start()')
-    .then =>
-      dripcap.pubsub.pub 'core:capturing-status', true
+    @_gold.stop().then =>
+      @_builtin.then =>
+        @_gold.start(@_settings.iface, @_settings.options).then =>
+          @_timer = setInterval =>
+            @_gold.status().then (stat) =>
+              if stat?
+                dripcap.pubsub.pub 'core:capturing-status', stat.capturing
+                @emit 'status', stat
+          , 100
 
   stop: ->
-    @_event.removeAllListeners()
-    @_execute('session.stop()').then ->
-      dripcap.pubsub.pub 'core:capturing-status', false
-
-  _execute: (js) ->
-    @_exec = @_exec.then =>
-      new Promise (res) =>
-        @_window.webContents.executeJavaScript js, res
+    @_gold.stop()
 
   close: ->
-    @_loaded.then =>
-      @_server.close()
-      @_window.close()
+    clearInterval @_timer
+    @_gold.close()
 
 module.exports = Session
