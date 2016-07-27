@@ -5,19 +5,56 @@ config = require('./config')
 class SessionInterface extends EventEmitter
   constructor: (@parent) ->
     @list = []
-    @_decoders = {}
+    @_dissectors = []
+    @_streamDissectors = []
+    @_classes = []
 
-  registerDecoder: (dec) ->
-    @_decoders[dec] = null
+  registerDissector: (namespaces, path) ->
+    @_dissectors.push({namespaces: namespaces, path: path})
 
-  unregisterDecoder: (dec) ->
-    delete @_decoders[dec]
+  registerStreamDissector: (namespaces, path) ->
+    @_streamDissectors.push({namespaces: namespaces, path: path})
 
-  create: (ifs, options={}) ->
+  registerClass: (name, path) ->
+    @_classes.push({name: name, path: path})
+
+  unregisterDissector: (path) ->
+    index = @_dissectors.find (e) ->
+      e.path == path
+    if index?
+      @_dissectors.splice(index, 1)
+
+  unregisterStreamDissector: (path) ->
+    index = @_streamDissectors.find (e) ->
+      e.path == path
+    if index?
+      @_streamDissectors.splice(index, 1)
+
+  unregisterClass: (path) ->
+    index = @_classes.find (e) ->
+      e.path == path
+    if index?
+      @_classes.splice(index, 1)
+
+  create: (iface, options={}) ->
     sess = new Session(config.filterPath)
-    sess.addCapture(ifs, options) if ifs?
-    for dec of @_decoders
-      sess.addDecoder dec
-    sess
+    sess.addCapture(iface, options) if iface?
+
+    tasks = []
+    for cls in @_classes
+      do (cls=cls) ->
+        tasks.push(sess.addClass(cls.name, cls.path))
+
+    Promise.all(tasks).then =>
+      for dec in @_dissectors
+        do (dec=dec) ->
+          tasks.push(sess.addDissector(dec.namespaces, dec.path))
+      for dec in @_streamDissectors
+        do (dec=dec) ->
+          tasks.push(sess.addStreamDissector(dec.namespaces, dec.path))
+          
+      Promise.all(tasks).then ->
+        dripcap.pubsub.pub 'core:capturing-settings', {iface: iface, options: options}
+        sess
 
 module.exports = SessionInterface

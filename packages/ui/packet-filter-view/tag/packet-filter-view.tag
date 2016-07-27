@@ -13,13 +13,11 @@
 
   <script type="coffee">
     $ = require('jquery')
-    parse = require('dripcap/filter-parse')
 
     @change = (e) =>
       try
         $(@filter).toggleClass('error', false)
         @filterText = $(e.target).val().trim()
-        parse(@filterText)
       catch error
         $(@filter).toggleClass('error', true)
         @filterText = null
@@ -28,6 +26,10 @@
       if e.charCode == 13 && @filterText?
         dripcap.pubsub.pub 'packet-filter-view:filter', @filterText
       true
+
+    dripcap.session.on 'created', (session) =>
+      dripcap.pubsub.sub 'packet-filter-view:filter', (filter) ->
+        session.setFilter 'main', filter
 
   </script>
 </packet-filter-view>

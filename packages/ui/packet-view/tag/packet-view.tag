@@ -12,6 +12,10 @@
   <i class="fa fa-square-o" if={ !opts.value }></i>
 </packet-view-boolean-value>
 
+<packet-view-buffer-value>
+  <i>{ opts.value.length } bytes</i>
+</packet-view-buffer-value>
+
 <packet-view-integer-value>
   <i if={ base == 2 } oncontextmenu={ context }><i class="base">0b</i>{ opts.value.toString(2) }</i>
   <i if={ base == 8 } oncontextmenu={ context }><i class="base">0</i>{ opts.value.toString(8) }</i>
@@ -41,7 +45,7 @@
 
 <packet-view-item>
   <li>
-    <p class="label" onclick={ toggle } range={ opts.field.range.start + '-' + opts.field.range.end } oncontextmenu={ context } onmouseover={ fieldRange } onmouseout={ rangeOut }>
+    <p class="label" onclick={ toggle } range={ opts.field.data.start + '-' + opts.field.data.end } oncontextmenu={ context } onmouseover={ fieldRange } onmouseout={ rangeOut }>
       <i class="fa fa-circle-o" show={ !opts.field.fields }></i>
       <i class="fa fa-arrow-circle-right" show={ opts.field.fields && !show }></i>
       <i class="fa fa-arrow-circle-down" show={ opts.field.fields && show }></i>
@@ -49,6 +53,7 @@
       <packet-view-boolean-value if={ type == 'boolean' } value={ value }></packet-view-boolean-value>
       <packet-view-integer-value if={ type == 'integer' } value={ value }></packet-view-integer-value>
       <packet-view-string-value if={ type == 'string' } value={ value }></packet-view-string-value>
+      <packet-view-buffer-value if={ type == 'buffer' } value={ value }></packet-view-buffer-value>
       <packet-view-custom-value if={ type == 'custom' } tag={ tag } value={ value }></packet-view-custom-value>
     </p>
     <ul show={ opts.field.fields && show }>
@@ -159,10 +164,10 @@
         <i class="fa fa-circle-o"></i><a class="name"> Timestamp: </a><i>{ packet.timestamp }</i>
       </li>
       <li>
-        <i class="fa fa-circle-o"></i><a class="name"> Captured Length: </a><i>{ packet.caplen }</i>
+        <i class="fa fa-circle-o"></i><a class="name"> Captured Length: </a><i>{ packet.payload.length }</i>
       </li>
       <li>
-        <i class="fa fa-circle-o"></i><a class="name"> Actual Length: </a><i>{ packet.length }</i>
+        <i class="fa fa-circle-o"></i><a class="name"> Actual Length: </a><i>{ packet.len }</i>
       </li>
       <li if={ packet.caplen < packet.length }>
         <i class="fa fa-exclamation-circle warn"> This packet has been truncated.</i>
@@ -177,7 +182,7 @@
     @set = (pkt) =>
       @packet = pkt
       if pkt?
-        @rootLayers = @packet.layers[Object.keys(@packet.layers)[0]].layers
+        @rootLayers = @packet.layers
         @rootKeys = Object.keys @rootLayers
 
     @fieldRange = (e) =>

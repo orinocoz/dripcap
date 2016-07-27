@@ -5,9 +5,13 @@ dialog = require('electron').dialog
 BrowserWindow = require('electron').BrowserWindow
 mkpath = require('mkpath')
 config = require('dripcap/config')
+GoldFilter = require('goldfilter').default
 
 mkpath.sync(config.userPackagePath)
 mkpath.sync(config.profilePath)
+
+unless GoldFilter.testPerm()
+  GoldFilter.setPerm()
 
 class Dripcap
   constructor: ->
@@ -48,29 +52,6 @@ class Dripcap
     unless process.env['DRIPCAP_UI_TEST']?
       mainWindow.webContents.on 'did-finish-load', ->
         mainWindow.show()
-
-  pushIndicator: ->
-    @_indicator++
-    if @_indicator == 1
-      if process.platform == 'darwin'
-        @_indicatorInterval = setInterval =>
-          switch @_indicator
-            when 0
-              app.dock.setBadge(" ● ○ ○ ")
-            when 1
-              app.dock.setBadge(" ○ ● ○ ")
-            when 2
-              app.dock.setBadge(" ○ ○ ● ")
-          @_indicator = (@_indicator + 1) % 3
-        , 500
-
-  popIndicator: ->
-    if @_indicator > 0
-      @_indicator--
-    if @_indicator <= 0
-      if process.platform == 'darwin'
-        clearInterval @_indicatorInterval
-        app.dock.setBadge("")
 
 global.dripcap = new Dripcap
 

@@ -39,12 +39,6 @@ dripcap.action.on 'core:show-license', ->
 dripcap.action.on 'core:quit', ->
   remote.app.quit()
 
-dripcap.pubsub.sub 'core:capturing-status', (data) ->
-  if (data)
-    remote.getGlobal('dripcap').pushIndicator()
-  else
-    remote.getGlobal('dripcap').popIndicator()
-
 dripcap.action.on 'core:stop-sessions', ->
   for s in dripcap.session.list
     s.stop()
