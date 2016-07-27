@@ -19,14 +19,17 @@ PCH := stdafx.pch
 
 ifdef NODEBUG
 	CXXFLAGS += -O3 -mtune=native
+	STRIP := strip
 else
 	CXXFLAGS += -g -ggdb
+	STRIP := touch
 endif
 
 all: $(TARGET)
 
 $(TARGET): $(BUILDDIR) $(PCH) $(OBJS)
 	$(CXX) -o $(TARGET) $(OBJS) $(CXXFLAGS) $(LDFLAGS)
+	@$(STRIP) $(TARGET)
 
 $(PCH):
 	$(CXX) stdafx.hpp -o $(PCH) $(CXXFLAGS)
