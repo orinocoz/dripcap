@@ -58,6 +58,6 @@ document.ondragover = document.ondrop = (e) ->
   false
 
 $ ->
-  $(window).unload ->
+  $(window).on 'unload', ->
     for s in dripcap.session.list
       s.close()
