@@ -45,7 +45,7 @@ class Dripcap extends EventEmitter
     @package.updatePackageList()
     @profile.init()
 
-    $(window).unload =>
+    $(window).on 'unload', =>
       for k, pkg of @package.loadedPackages
         pkg.deactivate()
 
