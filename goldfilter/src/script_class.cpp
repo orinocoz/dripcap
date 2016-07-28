@@ -44,7 +44,6 @@ class ScriptClass::Private
     Isolate *isolate;
     UniquePersistent<Context> context;
     UniquePersistent<Function> ctor;
-    UniquePersistent<Object> analyzerObject;
     UniquePersistent<Object> dripcap;
     UniquePersistent<FunctionTemplate> require;
     std::unordered_map<std::string, UniquePersistent<UnboundScript>> modules;
@@ -806,7 +805,6 @@ ScriptClass::Private::~Private()
     dripcap.Reset();
     ctor.Reset();
     context.Reset();
-    analyzerObject.Reset();
     isolate->Dispose();
 }
 
@@ -961,6 +959,7 @@ bool ScriptClass::analyze(Packet *packet, const LayerPtr &parentLayer, std::stri
 }
 
 bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, const msgpack::object &data,
+                                msgpack::object *ctx, msgpack::zone *zone,
                                 NetStreamList *straems, PacketList *packets, std::string *error) const
 {
     Isolate::Scope isolate_scope(d->isolate);
@@ -970,25 +969,28 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
     Local<Function> ctor = Local<Function>::New(d->isolate, d->ctor);
 
     TryCatch try_catch;
-    if (d->analyzerObject.IsEmpty()) {
-        MaybeLocal<Object> maybeObject;
-        {
-            Local<Value> args[1] = {Object::New(d->isolate)};
-            if (args[0].IsEmpty()) {
-                args[0] = Object::New(d->isolate);
-            }
-            maybeObject = ctor->NewInstance(context, 1, args);
-            if (maybeObject.IsEmpty()) {
-                String::Utf8Value err(try_catch.Exception());
-                if (error)
-                    error->assign(*err);
-                return false;
-            }
-        }
-        d->analyzerObject = UniquePersistent<Object>(d->isolate, maybeObject.ToLocalChecked());
+
+    Local<Value> ctxObject = MsgpackToV8(*ctx);
+    if (!ctxObject->IsObject()) {
+        ctxObject = Object::New(d->isolate);
     }
 
-    Local<Object> obj = Local<Object>::New(d->isolate, d->analyzerObject);
+    MaybeLocal<Object> maybeObject;
+    {
+        Local<Value> args[2] = {Object::New(d->isolate), ctxObject};
+        if (args[0].IsEmpty()) {
+            args[0] = Object::New(d->isolate);
+        }
+        maybeObject = ctor->NewInstance(context, 2, args);
+        if (maybeObject.IsEmpty()) {
+            String::Utf8Value err(try_catch.Exception());
+            if (error)
+                error->assign(*err);
+            return false;
+        }
+    }
+
+    Local<Object> obj = maybeObject.ToLocalChecked();
     Local<Value> maybeFunc = obj->Get(v8pp::to_v8(d->isolate, "analyze"));
 
     if (!maybeFunc->IsFunction()) {
@@ -1030,6 +1032,7 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
         }
 
         v8pp::class_<PacketWrapper>::unwrap_object(d->isolate, pkt)->syncFromScript();
+        *ctx = v8ToMsgpack(ctxObject, zone, true);
     }
 
     return true;

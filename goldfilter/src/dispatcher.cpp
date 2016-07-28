@@ -265,6 +265,8 @@ bool Dispatcher::DissectorWorker::loadModule(const std::string &name, const std:
 }
 
 struct Dispatcher::Stream {
+    msgpack::object context;
+    msgpack::zone zone;
     std::vector<ScriptClassPtr> dissectors;
     bool started = false;
 };
@@ -323,7 +325,7 @@ Dispatcher::Dispatcher()
                                     std::string err;
                                     NetStreamList streams;
                                     PacketList packets;
-                                    if (!script->analyzeStream(pkt, pair.first, net->data, &streams, &packets, &err)) {
+                                    if (!script->analyzeStream(pkt, pair.first, net->data, &stream.context, &stream.zone, &streams, &packets, &err)) {
                                         spd->error("errord {}", err);
                                     }
                                     streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());
@@ -361,7 +363,7 @@ Dispatcher::Dispatcher()
                                 std::string err;
                                 NetStreamList streams;
                                 PacketList packets;
-                                if (!script->analyzeStream(pkt, pair.first, net->data, &streams, &packets, &err)) {
+                                if (!script->analyzeStream(pkt, pair.first, net->data, &stream.context, &stream.zone, &streams, &packets, &err)) {
                                     spd->error("errord {}", err);
                                 }
                                 streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());

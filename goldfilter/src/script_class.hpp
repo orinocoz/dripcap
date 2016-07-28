@@ -24,8 +24,8 @@ class ScriptClass final
     bool loadSource(const std::string &source, std::string *error = nullptr);
     bool loadModule(const std::string &name, const std::string &source, std::string *error = nullptr);
     bool analyze(Packet *packet, const LayerPtr &parentLayer, std::string *error = nullptr) const;
-    bool analyzeStream(Packet *packet, const LayerPtr &parentLayer,
-                       const msgpack::object &data, NetStreamList *straems,
+    bool analyzeStream(Packet *packet, const LayerPtr &parentLayer, const msgpack::object &data,
+                       msgpack::object *ctx, msgpack::zone *zone, NetStreamList *straems,
                        PacketList *packets, std::string *error = nullptr) const;
     bool filter(Packet *packet) const;
 
