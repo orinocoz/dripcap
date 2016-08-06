@@ -37,9 +37,6 @@ class Dripcap extends EventEmitter
     @menu = new MenuInterface @
     @pubsub = new PubSub
 
-    @theme.sub 'update', (scheme) =>
-      @package.updateTheme scheme
-
     @theme.id = theme
 
     @package.updatePackageList()

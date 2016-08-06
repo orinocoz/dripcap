@@ -131,9 +131,6 @@ class PacketListView
 
     @session.requestPackets(packets)
 
-  updateTheme: (theme) ->
-    @comp.updateTheme theme
-
   deactivate: ->
     dripcap.package.load('main-view').then (pkg) =>
       pkg.root.panel.left('packet-list-view')

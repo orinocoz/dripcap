@@ -224,12 +224,12 @@
       }
 
       .name {
-        color: @label;
+        color: var(--dripcap-theme-label);
         cursor: default;
       }
 
       .warn {
-        color: @error;
+        color: var(--dripcap-theme-error);
       }
 
       .layer-name {
@@ -240,7 +240,7 @@
 
       .summary {
         padding-left: 10px;
-        color: @summary;
+        color: var(--dripcap-theme-summary);
       }
 
       ul {
@@ -269,13 +269,13 @@
       }
 
       .layer-name:hover, .label:hover {
-        background-color: fade(@highlight, 40%);
+        background-color: var(--dripcap-theme-highlight);
       }
     }
 
     [riot-tag=binary-view] {
       i.selected {
-        background-color: @highlight;
+        background-color: var(--dripcap-theme-highlight);
       }
     }
 

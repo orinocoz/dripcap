@@ -13,9 +13,6 @@ class InstallPreferencesView
           pkg.root.panel.center('install', m, $('<i class="fa fa-cloud-download"> Install</i>'))
       res()
 
-  updateTheme: (theme) ->
-    @comp.updateTheme theme
-
   deactivate: ->
     @_view.unmount()
     @comp.destroy()

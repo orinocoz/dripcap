@@ -2,6 +2,8 @@ require('coffee-script/register')
 config = require('dripcap/config')
 shell = require('electron').shell
 $ = require('jquery')
+less = require('less')
+fs = require('fs')
 
 Profile = require('dripcap/profile')
 prof = new Profile config.profilePath + '/default'
@@ -38,6 +40,17 @@ dripcap.action.on 'core:show-license', ->
 
 dripcap.action.on 'core:quit', ->
   remote.app.quit()
+
+dripcap.theme.sub 'update', (scheme) ->
+  css = ''
+  for file in scheme.less
+    do (file=file) ->
+      less.render fs.readFileSync(file, 'utf8'), (e, output) ->
+        if e?
+          throw e
+        else
+          css += output.css
+  $('style.dripcap-theme').text(css)
 
 dripcap.action.on 'core:stop-sessions', ->
   for s in dripcap.session.list

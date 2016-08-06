@@ -28,19 +28,11 @@ class Component
           @_less += "@import \"#{tag}\";\n"
 
     @_css = $('<style>').appendTo $('head')
-
-  updateTheme: (theme) ->
-    compLess = @_less
-    if compLess?
-      if theme.less?
-        for l in theme.less
-          compLess += "@import \"#{l}\";\n"
-
-      less.render compLess, (e, output) =>
-        if e?
-          throw e
-        else
-          @_css.text output.css
+    less.render @_less, (e, output) =>
+      if e?
+        throw e
+      else
+        @_css.text output.css
 
   destroy: ->
     for name in @_names

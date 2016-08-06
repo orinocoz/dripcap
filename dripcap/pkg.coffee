@@ -46,7 +46,6 @@ class Package
             klass = klass.default if klass.__esModule
             @root = new klass(@)
             res = @root.activate()
-            @updateTheme(dripcap.theme.scheme)
 
           catch e
             reject(e)
@@ -62,11 +61,6 @@ class Package
 
   activate: ->
     @_resolve()
-
-  updateTheme: (theme) ->
-    @load().then =>
-      if @root?.updateTheme?
-        @root.updateTheme theme
 
   renderPreferences: ->
     if @root?.renderPreferences?

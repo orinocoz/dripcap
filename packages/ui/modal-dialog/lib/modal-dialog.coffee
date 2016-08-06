@@ -6,9 +6,6 @@ class ModalDialog
   activate: ->
     @comp = new Component "#{__dirname}/../tag/*.tag"
 
-  updateTheme: (theme) ->
-    @comp.updateTheme theme
-
   deactivate: ->
     @comp.destroy()
 

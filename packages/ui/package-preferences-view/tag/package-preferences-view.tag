@@ -63,13 +63,13 @@
     li.packages {
       padding: 15px;
       margin: 15px auto;
-      border: 1px solid @border;
+      border: 1px solid var(--dripcap-theme-border);
       border-radius: 5px;
 
       p.head {
         margin: 0;
         i {
-          color: @label;
+          color: var(--dripcap-theme-label);
           float: right;
           width: 50%;
           text-align: right;

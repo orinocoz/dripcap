@@ -15,16 +15,16 @@
       justify-content: center;
       position: absolute;
       top: 0; right: 0; bottom: 0; left: 0;
-      background-color: fade(@background, 70%);
+      background-color: var(--dripcap-theme-background);
 
       & > .content {
         width: 80%;
         max-width: 1200px;
         padding: 10px 20px;
-        border: 1px solid @border;
+        border: 1px solid var(--dripcap-theme-border);
         border-top: 0px;
         border-radius: 0px 0px 5px 5px;
-        background-color: @background;
+        background-color: var(--dripcap-theme-background);
         align-self: flex-start;
       }
     }
@@ -34,7 +34,7 @@
 
   <script type="coffee">
   $ = require('jquery')
-  
+
   @visible = false
 
   @show = =>

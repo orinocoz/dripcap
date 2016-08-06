@@ -12,9 +12,6 @@ class MainView
         @_elem.appendTo $('body')
         res()
 
-  updateTheme: (theme) ->
-    @_comp.updateTheme theme
-
   deactivate: ->
     @_elem.remove()
     @_comp.destroy()

@@ -17,9 +17,6 @@ class PackagePreferencesView
             @_view.update()
       res()
 
-  updateTheme: (theme) ->
-    @comp.updateTheme theme
-
   deactivate: ->
     @_view.unmount()
     @comp.destroy()

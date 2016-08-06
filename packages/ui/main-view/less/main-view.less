@@ -1,10 +1,10 @@
 #main-view, .root-container {
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  background-color: @background;
-  color: @text;
+  background-color: var(--dripcap-theme-background);
+  color: var(--dripcap-theme-text);
 
-  @splitter: fade(@scroll-bar, 100%);
+  @splitter: var(--dripcap-theme-scroll-bar);
 
   .panel {
     position: absolute;
@@ -98,17 +98,17 @@
       border-bottom: 5px solid transparent;
 
       &:hover {
-        border-top-color: fade(@focus, 30%);
+        border-top-color: var(--dripcap-theme-focus);
       }
 
       &.selected {
-        border-top-color: @focus;
+        border-top-color: var(--dripcap-theme-focus);
       }
     }
 
     .tabcontainer {
       position: absolute;
-      border-bottom: 1px dotted @border;
+      border-bottom: 1px dotted var(--dripcap-theme-border);
     }
 
     .top, .fnorth, .tabcontainer {
@@ -171,11 +171,11 @@
       align-items: center;
 
       &:hover {
-        background-color: fade(@highlight, 40%);
+        background-color: var(--dripcap-theme-highlight);
       }
 
       &.selected {
-        background-color: @highlight;
+        background-color: var(--dripcap-theme-highlight);
       }
 
       a {
@@ -211,7 +211,7 @@ html {
 }
 
 body {
-  background-color: @background;
+  background-color: var(--dripcap-theme-background);
   -webkit-user-select: none;
   height: 100%;
   overflow: auto;
@@ -219,23 +219,23 @@ body {
 
 select {
   padding: 0.5em 1em 0.5em 0.75em;
-  background: @background;
+  background: var(--dripcap-theme-background);
 }
 
 input, textarea, select {
-  border: 1px solid @border;
+  border: 1px solid var(--dripcap-theme-border);
   border-radius: 2px;
   padding: 0.5em;
   line-height: 1.2em;
   width: 100%;
-  background: lighten(@background, 5%);
-  color: @text;
+  background: var(--dripcap-theme-background);
+  color: var(--dripcap-theme-text);
   &.compact {
     border-radius: 0px;
     line-height: 1.0em;
   }
   &.error {
-    color: @error;
+    color: var(--dripcap-theme-error);
   }
 }
 
@@ -255,7 +255,7 @@ input[type=checkbox], input[type=radio] {
 }
 
 input[type=checkbox]:checked {
-  background-color: @focus;
+  background-color: var(--dripcap-theme-focus);
 }
 
 input[type=number]::-webkit-inner-spin-button,
@@ -265,15 +265,15 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: @headline;
+  color: var(--dripcap-theme-headline);
 }
 
 th {
-  color: @label;
+  color: var(--dripcap-theme-label);
 }
 
 label {
-  color: @label;
+  color: var(--dripcap-theme-label);
 }
 
 a {
@@ -286,19 +286,19 @@ a {
 }
 
 *:focus {
-  outline-color: @focus;
+  outline-color: var(--dripcap-theme-focus);
 }
 
 ::selection {
-  background: @text;
-  color: @background;
+  background: var(--dripcap-theme-text);
+  color: var(--dripcap-theme-background);
 }
 
-@scroll-bar-back: fade(@scroll-bar, 40%);
+@scroll-bar-back: --dripcap-theme-scroll-bar;
 
 *::-webkit-scrollbar {
   width:7px;
-  background:@scroll-bar-back;
+  background: @scroll-bar-back;
 }
 
 *::-webkit-scrollbar:horizontal {
@@ -306,18 +306,18 @@ a {
 }
 
 *::-webkit-scrollbar-piece {
-  background:@scroll-bar-back;
+  background: @scroll-bar-back;
 }
 
 *::-webkit-scrollbar-piece:start {
-  background:@scroll-bar-back;
+  background: @scroll-bar-back;
 }
 
 *::-webkit-scrollbar-thumb {
-  background:@scroll-bar;
+  background: var(--dripcap-theme-scroll-bar);
   min-height: 50px;
 }
 
 *::-webkit-scrollbar-corner {
-  background:@scroll-bar;
+  background: var(--dripcap-theme-scroll-bar);
 }

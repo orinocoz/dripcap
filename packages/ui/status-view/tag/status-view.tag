@@ -11,7 +11,7 @@
   </div>
 
   <style type="text/less">
-    @splitter: fade(@scroll-bar, 40%);
+    @splitter: var(--dripcap-theme-scroll-bar);
 
     [riot-tag=status-view] {
       border-bottom: 1px solid @splitter;
@@ -20,7 +20,7 @@
       .status {
         width: 100%;
         padding: 10px;
-        color: @label;
+        color: var(--dripcap-theme-label);
         cursor: default;
       }
 
@@ -34,7 +34,7 @@
       }
 
       span.button {
-        color: @headline;
+        color: var(--dripcap-theme-headline);
         cursor: pointer;
       }
     }

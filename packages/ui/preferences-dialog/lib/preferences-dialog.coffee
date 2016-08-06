@@ -21,9 +21,6 @@ class PreferencesDialog
 
             res()
 
-  updateTheme: (theme) ->
-    @comp.updateTheme theme
-
   deactivate: ->
     dripcap.keybind.unbind 'enter', '[riot-tag=preferences-dialog] .content'
     @_view.unmount()

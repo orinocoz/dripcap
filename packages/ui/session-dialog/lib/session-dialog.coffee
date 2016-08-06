@@ -44,9 +44,6 @@ class SessionDialog
 
             res()
 
-  updateTheme: (theme) ->
-    @comp.updateTheme theme
-
   deactivate: ->
     dripcap.menu.unregisterMain 'Capture', @captureMenu
     dripcap.keybind.unbind 'command+n', '!menu', 'core:new-session'

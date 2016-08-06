@@ -13,9 +13,6 @@ class PacketFilterView
           pkg.root.panel.leftSouthFixed(m)
       res()
 
-  updateTheme: (theme) ->
-    @comp.updateTheme theme
-
   deactivate: ->
     dripcap.package.load('main-view').then (pkg) =>
       pkg.root.panel.leftSouthFixed()

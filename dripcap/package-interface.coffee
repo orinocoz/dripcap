@@ -66,11 +66,6 @@ class PackageInterface extends PubSub
 
     @pub 'core:package-list-updated', @list
 
-  updateTheme: (scheme) ->
-    for k, pkg of @list
-      if pkg.config.get('enabled')
-        pkg.updateTheme scheme
-
   rebuild: (path) ->
     ver = config.electronVersion
     rebuild.installNodeHeaders(ver).then ->

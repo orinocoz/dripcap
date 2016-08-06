@@ -86,9 +86,6 @@ class PacketListView
       dripcap.menu.register 'packet-view:numeric-value-menu', @copyMenu
       dripcap.menu.register 'packet-view:context-menu', @copyMenu
 
-  updateTheme: (theme) ->
-    @comp.updateTheme theme
-
   deactivate: ->
     dripcap.menu.unregister 'packet-view:layer-menu', @layerMenu
     dripcap.menu.unregister 'packet-view:layer-menu', @copyMenu

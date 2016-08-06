@@ -23,9 +23,6 @@ class StatusView
 
           res()
 
-  updateTheme: (theme) ->
-    @comp.updateTheme theme
-
   deactivate: ->
     dripcap.package.load('main-view').then (pkg) =>
       pkg.root.panel.northFixed()

@@ -25,9 +25,6 @@ class WelcomeDialog
 
             res()
 
-  updateTheme: (theme) ->
-    @comp.updateTheme theme
-
   deactivate: ->
     @view.unmount()
     @comp.destroy()
