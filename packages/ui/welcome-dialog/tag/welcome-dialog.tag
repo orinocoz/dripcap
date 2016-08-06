@@ -9,9 +9,6 @@
       <input type="button" value="Start a New Capturing" onclick={ parent.start }>
     </p>
     <p>
-      <input type="button" value="Import a PCAP File" onclick={ parent.pcap }>
-    </p>
-    <p>
       <input type="button" value="Open Preferences" onclick={ parent.pref }>
     </p>
     <p>
