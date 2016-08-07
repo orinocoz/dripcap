@@ -2,11 +2,11 @@
   "name": "dripcap",
   "version": "0.0.1",
   "description": "Dripcap core",
-  "main": "dripcap.coffee",
+  "main": "dripcap.js",
   "scripts": {
-    "test": "jasmine-node --coffee spec"
+    "test": "jasmine-node --coffee spec",
+    "postinstall": "babel --presets es2015 --plugins add-module-exports *.es -d ."
   },
   "author": "h2so5",
   "license": "MIT"
 }
-
