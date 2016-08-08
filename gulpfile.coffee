@@ -1,6 +1,6 @@
 gulp = require('gulp')
 coffee = require('gulp-coffee')
-coffeelint = require('gulp-coffeelint')
+babel = require('gulp-babel')
 electron = require('gulp-atom-electron')
 symdest = require('gulp-symdest')
 replace = require('gulp-replace')
@@ -15,16 +15,14 @@ jasmine = require('gulp-jasmine')
 npm = require('npm')
 pkg = require('./package.json')
 
-gulp.task 'lint', ->
-  gulp.src([
-      './**/*.coffee'
-    ])
-    .pipe(coffeelint())
-    .pipe coffeelint.reporter()
-
 gulp.task 'coffee', ->
   gulp.src('./src/**/*.coffee', base: './src/')
     .pipe(coffee())
+    .pipe gulp.dest('./.build/js/')
+
+gulp.task 'babel', ->
+  gulp.src('./src/**/*.es', base: './src/')
+    .pipe(babel({presets: ['es2015'], plugins: ['add-module-exports']}))
     .pipe gulp.dest('./.build/js/')
 
 gulp.task 'copy', ->
@@ -86,7 +84,7 @@ gulp.task 'debian-goldfilter', (cb) ->
   gulp.src('./.build/node_modules/goldfilter/build/goldfilter')
     .pipe gulp.dest('./.debian/usr/bin/')
 
-gulp.task 'debian-bin', ['copy', 'coffee', 'copypkg', 'npm'], (cb) ->
+gulp.task 'debian-bin', ['copy', 'coffee', 'babel', 'copypkg', 'npm'], (cb) ->
   gulp.src('./.build/**')
     .pipe(electron(
       version: pkg.engines.electron,
@@ -143,6 +141,6 @@ gulp.task 'uitest', ->
     }, process.env)))
 
 gulp.task 'build', sequence(
-  ['coffee', 'copy', 'copypkg'],
+  ['coffee', 'babel', 'copy', 'copypkg'],
   'npm'
 )
