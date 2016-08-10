@@ -85,8 +85,8 @@ export default class PackageInterface extends PubSub {
   }
 
   updateTheme(scheme) {
-    for (k in this.list) {
-      let pkg = this.list(k);
+    for (let k in this.list) {
+      let pkg = this.list[k];
       if (pkg.config.get('enabled'))
         pkg.updateTheme(scheme);
     }
