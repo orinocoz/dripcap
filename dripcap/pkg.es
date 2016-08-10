@@ -5,6 +5,7 @@ import config from 'dripcap/config';
 
 require("babel-register")({
     presets : [ "es2015" ],
+    plugins: [ "add-module-exports" ],
     extensions : [ ".es" ]
 });
 
