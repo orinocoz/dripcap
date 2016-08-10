@@ -11,25 +11,30 @@
     }
   </style>
 
-  <script type="coffee">
-    $ = require('jquery')
+  <script type="babel">
+  import $ from 'jquery';
 
-    @change = (e) =>
-      try
-        $(@filter).toggleClass('error', false)
-        @filterText = $(e.target).val().trim()
-      catch error
-        $(@filter).toggleClass('error', true)
-        @filterText = null
+  this.change = e => {
+    try {
+      $(this.filter).toggleClass('error', false);
+      return this.filterText = $(e.target).val().trim();
+    } catch (error) {
+      $(this.filter).toggleClass('error', true);
+      return this.filterText = null;
+    }
+  };
 
-    @apply = (e) =>
-      if e.charCode == 13 && @filterText?
-        dripcap.pubsub.pub 'packet-filter-view:filter', @filterText
-      true
+  this.apply = e => {
+    if (e.charCode === 13 && (this.filterText != null)) {
+      dripcap.pubsub.pub('packet-filter-view:filter', this.filterText);
+    }
+    return true;
+  };
 
-    dripcap.session.on 'created', (session) =>
-      dripcap.pubsub.sub 'packet-filter-view:filter', (filter) ->
-        session.setFilter 'main', filter
-
+  dripcap.session.on('created', session => {
+    return dripcap.pubsub.sub('packet-filter-view:filter', filter => session.setFilter('main', filter)
+    );
+  }
+  );
   </script>
 </packet-filter-view>

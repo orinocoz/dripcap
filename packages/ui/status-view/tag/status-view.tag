@@ -40,22 +40,27 @@
     }
   </style>
 
-  <script type="coffee">
-  $ = require('jquery')
+  <script type="babel">
+  import $ from 'jquery';
 
-  @on 'mount', =>
-    if process.platform == 'darwin'
-      $(@root).css 'padding-left', '90px'
+  this.on('mount', () => {
+    if (process.platform === 'darwin') {
+      return $(this.root).css('padding-left', '90px');
+    }
+  }
+  );
 
-  @startCapture = ->
-    dripcap.action.emit 'core:start-sessions'
+  this.startCapture = () => {
+    return dripcap.action.emit('core:start-sessions');
+  };
 
-  @stopCapture = ->
-    dripcap.action.emit 'core:stop-sessions'
+  this.stopCapture = () => {
+    return dripcap.action.emit('core:stop-sessions');
+  };
 
-  @newCapture = ->
-    dripcap.action.emit 'core:new-session'
-
+  this.newCapture = () => {
+    return dripcap.action.emit('core:new-session');
+  };
   </script>
 
 </status-view>

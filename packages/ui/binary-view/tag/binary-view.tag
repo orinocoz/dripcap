@@ -5,10 +5,6 @@
     <div class="ascii"></div>
   </div>
 
-  <script type="coffee">
-
-  </script>
-
   <style type="text/less">
     [riot-tag=binary-view] {
       .container {

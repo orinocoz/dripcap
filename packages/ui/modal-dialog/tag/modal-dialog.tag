@@ -32,29 +32,33 @@
 
   </style>
 
-  <script type="coffee">
-  $ = require('jquery')
-  
-  @visible = false
+  <script type="babel">
+  import $ from 'jquery';
 
-  @show = =>
-    prev = @constructor.currentDialog
-    if prev
-      prev.hide()
-      prev.update()
-    @constructor.currentDialog = @
-    @visible = true
-    process.nextTick -> $('.content').focus()
+  this.visible = false;
 
-  @hide = =>
-    @visible = false
-    @constructor.currentDialog = null
+  this.show = () => {
+    let prev = this.constructor.currentDialog;
+    if (prev) {
+      prev.hide();
+      prev.update();
+    }
+    this.constructor.currentDialog = this;
+    this.visible = true;
+    return process.nextTick(() => $('.content').focus());
+  };
 
-  @cancel = (e) =>
-    if e.currentTarget == e.target
-      @hide()
-    true
+  this.hide = () => {
+    this.visible = false;
+    return this.constructor.currentDialog = null;
+  };
 
+  this.cancel = e => {
+    if (e.currentTarget === e.target) {
+      this.hide();
+    }
+    return true;
+  };
   </script>
 
 </modal-dialog>

@@ -26,30 +26,37 @@
   }
   </style>
 
-  <script type="coffee">
-  $ = require('jquery')
+  <script type="babel">
+  import $ from 'jquery';
 
-  @setInterfaceList = (list) =>
-    @interfaceList = list
+  this.setInterfaceList = list => {
+    return this.interfaceList = list;
+  };
 
-  @show = =>
-    @tags['modal-dialog'].show()
+  this.show = () => {
+    return this.tags['modal-dialog'].show();
+  };
 
-  @start = =>
-    ifs = $(@tags['modal-dialog'].interface).val()
-    filter = $(@tags['modal-dialog'].filter).val()
-    promisc = $(@tags['modal-dialog'].promisc).prop('checked')
-    snaplen = dripcap.profile.getConfig 'snaplen'
+  this.start = () => {
+    let ifs = $(this.tags['modal-dialog'].interface).val();
+    let filter = $(this.tags['modal-dialog'].filter).val();
+    let promisc = $(this.tags['modal-dialog'].promisc).prop('checked');
+    let snaplen = dripcap.profile.getConfig('snaplen');
 
-    @tags['modal-dialog'].hide()
-    dripcap.session.create(ifs, filter: filter, promisc: promisc).then (sess) =>
-      if dripcap.session.list?
-        for s in dripcap.session.list
-          s.close()
-      dripcap.session.list = [sess]
-      dripcap.session.emit('created', sess)
-      sess.start()
-
+    this.tags['modal-dialog'].hide();
+    return dripcap.session.create(ifs, {filter, promisc}).then(sess => {
+      if (dripcap.session.list != null) {
+        for (let i = 0; i < dripcap.session.list.length; i++) {
+          let s = dripcap.session.list[i];
+          s.close();
+        }
+      }
+      dripcap.session.list = [sess];
+      dripcap.session.emit('created', sess);
+      return sess.start();
+    }
+    );
+  };
   </script>
 
 </session-dialog>

@@ -16,14 +16,18 @@
     </ul>
   </li>
 
-  <script type="coffee">
-    $ = require('jquery')
+  <script type="babel">
+  import $ from 'jquery';
 
-    @on 'mount', =>
-      @pref = $(@root).find('.preferences').empty()
-      if elem = opts.pkg.renderPreferences()
-        @pref.append elem
-    </script>
+  this.on('mount', () => {
+    let elem;
+    this.pref = $(this.root).find('.preferences').empty();
+    if (elem = opts.pkg.renderPreferences()) {
+      return this.pref.append(elem);
+    }
+  }
+  );
+  </script>
 </package-preferences-view-item>
 
 <package-preferences-view>
@@ -32,27 +36,33 @@
     </package-preferences-view-item>
   </ul>
 
-  <script type="coffee">
-    _ = require('underscore')
-    $ = require('jquery')
+  <script type="babel">
+  import _ from 'underscore';
+  import $ from 'jquery';
 
-    @setEnabled = (e) =>
-      pkg = e.item.pkg
-      enabled = $(e.currentTarget).is(':checked')
-      pkg.config.set 'enabled', enabled
-      if enabled
-        pkg.activate()
-      else
-        pkg.deactivate()
+  this.setEnabled = e => {
+    let { pkg } = e.item;
+    let enabled = $(e.currentTarget).is(':checked');
+    pkg.config.set('enabled', enabled);
+    if (enabled) {
+      return pkg.activate();
+    } else {
+      return pkg.deactivate();
+    }
+  };
 
-    @uninstallPackage = (e) =>
-      pkg = e.item.pkg
-      pkg.deactivate() if pkg.config.get 'enabled'
-      dripcap.package.uninstall(pkg.name).then =>
-        $(e.target).parents('li.packages').fadeOut 400, =>
-          @packageList = _.without(@packageList, pkg)
-          @update()
-
+  this.uninstallPackage = e => {
+    let { pkg } = e.item;
+    if (pkg.config.get('enabled')) { pkg.deactivate(); }
+    return dripcap.package.uninstall(pkg.name).then(() => {
+      return $(e.target).parents('li.packages').fadeOut(400, () => {
+        this.packageList = _.without(this.packageList, pkg);
+        return this.update();
+      }
+      );
+    }
+    );
+  };
   </script>
 
   <style type="text/less">

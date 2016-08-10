@@ -9,15 +9,16 @@
   }
   </style>
 
-  <script type="coffee">
-  $ = require('jquery')
+  <script type="babel">
+  import $ from 'jquery';
 
-  @setInterfaceList = (list) =>
-    @interfaceList = list
+  this.setInterfaceList = list => {
+    return this.interfaceList = list;
+  };
 
-  @show = =>
-    @tags['modal-dialog'].show()
-
+  this.show = () => {
+    return this.tags['modal-dialog'].show();
+  };
   </script>
 
 </preferences-dialog>

@@ -33,22 +33,26 @@
   }
   </style>
 
-  <script type="coffee">
-  $ = require('jquery')
+  <script type="babel">
+  import $ from 'jquery';
 
-  @on 'mount', =>
-    @currentSnaplen = dripcap.profile.getConfig 'snaplen'
+  this.on('mount', () => {
+    this.currentSnaplen = dripcap.profile.getConfig('snaplen');
+  });
 
-  @setThemeList = (list) =>
-    @currentTheme = dripcap.theme.id
-    @themeList = list
+  this.setThemeList = (list) => {
+    this.currentTheme = dripcap.theme.id;
+    this.themeList = list;
+  };
 
-  @updateTheme = =>
-    dripcap.theme.id = $(@theme).val()
+  this.updateTheme = () => {
+    dripcap.theme.id = $(this.theme).val();
+  };
 
-  @updateSnaplen = =>
-    len = parseInt($(@snaplen).val())
-    dripcap.profile.setConfig 'snaplen', len
+  this.updateSnaplen = () => {
+    let len = parseInt($(this.snaplen).val());
+    dripcap.profile.setConfig('snaplen', len);
+  };
 
   </script>
 
