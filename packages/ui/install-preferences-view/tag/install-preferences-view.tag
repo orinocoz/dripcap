@@ -48,38 +48,47 @@
   }
   </style>
 
-  <script type="coffee">
-  $ = require('jquery')
-  request = require('request')
-  url = require('url')
+  <script type="babel">
+  import $ from 'jquery';
+  import request from 'request';
+  import url from 'url';
 
-  @installing = false
-  @message = ''
-  @packageList = []
+  this.installing = false;
+  this.message = '';
+  this.packageList = [];
 
-  dripcap.action.on 'core:preferences', =>
-    @registry = dripcap.profile.getConfig('package-registry')
-    request url.resolve(@registry, '/api/list'), (err, res, body) =>
-      if err?
-        @message = "Error: failed to fetch the package lists!"
-      else
-        @message = ''
-        @packageList = JSON.parse body
-      @update()
+  dripcap.action.on('core:preferences', () => {
+    this.registry = dripcap.profile.getConfig('package-registry');
+    return request(url.resolve(this.registry, '/api/list'), (err, res, body) => {
+      if (err != null) {
+        this.message = "Error: failed to fetch the package lists!";
+      } else {
+        this.message = '';
+        this.packageList = JSON.parse(body);
+      }
+      return this.update();
+    }
+    );
+  }
+  );
 
-  @installPackage = (e) =>
-    name = e.item.pkg.name
-    @installing = true
-    @message = ''
-    dripcap.package.install(name).then =>
-      @message = "#{name} has been successfully installed!"
-      @installing = false
-      @update()
-    .catch (e) =>
-      @message = e.toString()
-      @installing = false
-      @update()
-
+  this.installPackage = e => {
+    let { name } = e.item.pkg;
+    this.installing = true;
+    this.message = '';
+    return dripcap.package.install(name).then(() => {
+      this.message = `${name} has been successfully installed!`;
+      this.installing = false;
+      return this.update();
+    }
+    )
+    .catch(e => {
+      this.message = e.toString();
+      this.installing = false;
+      return this.update();
+    }
+    );
+  };
   </script>
 
   <style type="text/less">

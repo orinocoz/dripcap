@@ -1,9 +1,11 @@
 <packet-view-custom-value>
-  <script type="coffee">
-    riot = require('riot')
-    @on 'mount', =>
-      if opts.tag?
-        riot.mount(@root, opts.tag, value: opts.value)
+  <script type="babel">
+  import riot from 'riot';
+  this.on('mount', () => {
+    if (opts.tag != null) {
+      return riot.mount(this.root, opts.tag, {value: opts.value});
+    }
+  });
   </script>
 </packet-view-custom-value>
 
@@ -21,25 +23,27 @@
   <i if={ base == 8 } oncontextmenu={ context }><i class="base">0</i>{ opts.value.toString(8) }</i>
   <i if={ base == 10 } oncontextmenu={ context }>{ opts.value.toString(10) }</i>
   <i if={ base == 16 } oncontextmenu={ context }><i class="base">0x</i>{ opts.value.toString(16) }</i>
-  <script type="coffee">
-    remote = require('electron').remote
-    @base = 10
+  <script type="babel">
+  import { remote } from 'electron';
+  this.base = 10;
 
-    @context = (e) =>
-      dripcap.menu.popup('packet-view:numeric-value-menu', @, remote.getCurrentWindow())
-      e.stopPropagation()
-
+  this.context = e => {
+    dripcap.menu.popup('packet-view:numeric-value-menu', this, remote.getCurrentWindow());
+    return e.stopPropagation();
+  };
   </script>
 </packet-view-integer-value>
 
 <packet-view-string-value>
   <i></i>
-  <script type="coffee">
-    $ = require('jquery')
+  <script type="babel">
+  import $ from 'jquery';
 
-    @on 'update', =>
-      if @opts.value?
-        @root.innerHTML = $('<div/>').text(@opts.value.toString()).html()
+  this.on('update', () => {
+    if (this.opts.value != null) {
+      return this.root.innerHTML = $('<div/>').text(this.opts.value.toString()).html();
+    }
+  });
   </script>
 </packet-view-string-value>
 
@@ -61,46 +65,51 @@
     </ul>
   </li>
 
-  <script type="coffee">
-    remote = require('electron').remote
-    @show = false
+  <script type="babel">
+  import { remote } from 'electron';
+  this.show = false;
 
-    @toggle = (e) =>
-      @show = !@show if opts.field.fields?
-      e.stopPropagation()
+  this.toggle = e => {
+    if (opts.field.fields != null) { this.show = !this.show; }
+    return e.stopPropagation();
+  };
 
-    @rangeOut = => @parent.rangeOut()
+  this.rangeOut = () => this.parent.rangeOut();
 
-    @fieldRange = (e) =>
-      @parent.fieldRange(e)
+  this.fieldRange = e => {
+    return this.parent.fieldRange(e);
+  };
 
-    @context = (e) =>
-      if window.getSelection().toString().length > 0
-        dripcap.menu.popup('packet-view:context-menu', @, remote.getCurrentWindow())
-        e.stopPropagation()
+  this.context = e => {
+    if (window.getSelection().toString().length > 0) {
+      dripcap.menu.popup('packet-view:context-menu', this, remote.getCurrentWindow());
+      return e.stopPropagation();
+    }
+  };
 
-    @on 'update', =>
-      @layer = opts.layer
+  this.on('update', () => {
+    this.layer = opts.layer;
 
-      @value =
-        if opts.field.value?
-          opts.field.value
-        else
-          @layer.attrs[opts.field.attr]
+    this.value =
+      (opts.field.value != null) ?
+        opts.field.value
+      :
+        this.layer.attrs[opts.field.attr];
 
-      @type =
-        if opts.field.tag?
-          @tag = opts.field.tag
-          'custom'
-        else if typeof @value == 'boolean'
-          'boolean'
-        else if Number.isInteger(@value)
-          'integer'
-        else if Buffer.isBuffer @value
-          'buffer'
-        else
-          'string'
-
+    return this.type =
+      (opts.field.tag != null) ?
+        (this.tag = opts.field.tag,
+        'custom')
+      : typeof this.value === 'boolean' ?
+        'boolean'
+      : Number.isInteger(this.value) ?
+        'integer'
+      : Buffer.isBuffer(this.value) ?
+        'buffer'
+      :
+        'string';
+  }
+  );
   </script>
 
   <style type="text/less">
@@ -126,32 +135,36 @@
   </ul>
   <packet-view-layer each={ ns in rootKeys } layer={ rootLayers[ns] }></packet-view-layer>
 
-  <script type="coffee">
-    remote = require('electron').remote
-    @visible = true
+  <script type="babel">
+  import { remote } from 'electron';
+  this.visible = true;
 
-    @on 'update', =>
-      @layer = opts.layer
-      @rootKeys = []
-      if @layer.layers?
-        @rootLayers = @layer.layers
-        @rootKeys = Object.keys @rootLayers
+  this.on('update', () => {
+    this.layer = opts.layer;
+    this.rootKeys = [];
+    if (this.layer.layers != null) {
+      this.rootLayers = this.layer.layers;
+      return this.rootKeys = Object.keys(this.rootLayers);
+    }
+  }
+  );
 
-    @layerContext = (e) =>
-      @clickedLayerNamespace = e.item.ns
-      dripcap.menu.popup('packet-view:layer-menu', @, remote.getCurrentWindow())
-      e.stopPropagation()
+  this.layerContext = e => {
+    this.clickedLayerNamespace = e.item.ns;
+    dripcap.menu.popup('packet-view:layer-menu', this, remote.getCurrentWindow());
+    return e.stopPropagation();
+  };
 
-    @rangeOut = => @parent.rangeOut()
+  this.rangeOut = () => this.parent.rangeOut();
 
-    @fieldRange = (e) => @parent.fieldRange(e)
+  this.fieldRange = e => this.parent.fieldRange(e);
 
-    @layerRange = (e) => @parent.layerRange(e)
+  this.layerRange = e => this.parent.layerRange(e);
 
-    @toggleLayer = (e) =>
-      @visible = !@visible
-      e.stopPropagation()
-
+  this.toggleLayer = e => {
+    this.visible = !this.visible;
+    return e.stopPropagation();
+  };
   </script>
 
 </packet-view-layer>
@@ -176,36 +189,46 @@
     <packet-view-layer each={ ns in rootKeys } layer={ rootLayers[ns] }></packet-view-layer>
   </div>
 
-  <script type="coffee">
-    remote = require('electron').remote
+  <script type="babel">
+  import { remote } from 'electron';
 
-    @set = (pkt) =>
-      @packet = pkt
-      if pkt?
-        @rootLayers = @packet.layers
-        @rootKeys = Object.keys @rootLayers
+  this.set = pkt => {
+    this.packet = pkt;
+    if (pkt != null) {
+      this.rootLayers = this.packet.layers;
+      return this.rootKeys = Object.keys(this.rootLayers);
+    }
+  };
 
-    @fieldRange = (e) =>
-      fieldRange = e.currentTarget.getAttribute('range').split '-'
-      range = [parseInt(fieldRange[0]), parseInt(fieldRange[1])]
-      dripcap.pubsub.pub 'packet-view:range', range
+  this.fieldRange = e => {
+    let fieldRange = e.currentTarget.getAttribute('range').split('-');
+    let range = [parseInt(fieldRange[0]), parseInt(fieldRange[1])];
+    return dripcap.pubsub.pub('packet-view:range', range);
+  };
 
-    @layerRange = (e) =>
-      find = (layer, ns) ->
-        if layer.layers?
-          for k, v of layer.layers
-            return layer if k == ns
-          for k, v of layer.layers
-            r = find(v, ns)
-            return r if r?
+  this.layerRange = e => {
+    let find = function(layer, ns) {
+      if (layer.layers != null) {
+        for (var k in layer.layers) {
+          var v = layer.layers[k];
+          if (k === ns) { return layer; }
+        }
+        for (k in layer.layers) {
+          var v = layer.layers[k];
+          let r = find(v, ns);
+          if (r != null) { return r; }
+        }
+      }
+    };
 
-      layer = find @packet, e.item.ns
-      range = [layer.payload.start, layer.payload.end]
-      dripcap.pubsub.pub 'packet-view:range', range
+    let layer = find(this.packet, e.item.ns);
+    let range = [layer.payload.start, layer.payload.end];
+    return dripcap.pubsub.pub('packet-view:range', range);
+  };
 
-    @rangeOut = =>
-      dripcap.pubsub.pub 'packet-view:range', [0, 0]
-
+  this.rangeOut = () => {
+    return dripcap.pubsub.pub('packet-view:range', [0, 0]);
+  };
   </script>
 
   <style type="text/less">

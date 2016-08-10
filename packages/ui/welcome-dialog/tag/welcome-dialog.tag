@@ -37,34 +37,42 @@
   }
   </style>
 
-  <script type="coffee">
-  $ = require('jquery')
+  <script type="babel">
+  import $ from 'jquery';
 
-  @on 'mount', =>
-    @startup = dripcap.profile.getConfig 'startupDialog'
+  this.on('mount', () => {
+    return this.startup = dripcap.profile.getConfig('startupDialog');
+  }
+  );
 
-  @setStartup = (e) =>
-    dripcap.profile.setConfig 'startupDialog', $(e.target).is ':checked'
+  this.setStartup = e => {
+    return dripcap.profile.setConfig('startupDialog', $(e.target).is(':checked'));
+  };
 
-  @show = =>
-    @tags['modal-dialog'].show()
+  this.show = () => {
+    return this.tags['modal-dialog'].show();
+  };
 
-  @hide = =>
-    @tags['modal-dialog'].hide()
+  this.hide = () => {
+    return this.tags['modal-dialog'].hide();
+  };
 
-  @start = =>
-    dripcap.action.emit 'core:new-session'
+  this.start = () => {
+    return dripcap.action.emit('core:new-session');
+  };
 
-  @pcap = =>
-    @tags['modal-dialog'].hide()
-    dripcap.action.emit 'pcap-file:open'
+  this.pcap = () => {
+    this.tags['modal-dialog'].hide();
+    return dripcap.action.emit('pcap-file:open');
+  };
 
-  @pref = =>
-    dripcap.action.emit 'core:preferences'
+  this.pref = () => {
+    return dripcap.action.emit('core:preferences');
+  };
 
-  @wiki = =>
-    dripcap.action.emit 'core:open-wiki'
-
+  this.wiki = () => {
+    return dripcap.action.emit('core:open-wiki');
+  };
   </script>
 
 </welcome-dialog>
