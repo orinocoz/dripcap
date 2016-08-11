@@ -7,10 +7,15 @@
 
 struct Packet;
 
+namespace leveldb
+{
+class DB;
+}
+
 class Dispatcher final
 {
   public:
-    Dispatcher();
+    Dispatcher(leveldb::DB *db);
     virtual ~Dispatcher();
     bool loadDissector(const std::string &source, const msgpack::object &options, std::string *error);
     bool loadStreamDissector(const std::string &source, const msgpack::object &options, std::string *error);

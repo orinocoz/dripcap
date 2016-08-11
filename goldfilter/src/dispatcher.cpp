@@ -10,15 +10,73 @@
 #include <sstream>
 #include <thread>
 #include <vector>
+#include <leveldb/db.h>
+
+class PacketCache
+{
+  public:
+    PacketCache(leveldb::DB *db);
+    ~PacketCache();
+    Packet *get(uint64_t id) const;
+    void set(uint64_t id, Packet *packet);
+    bool has(uint64_t id) const;
+    size_t size() const;
+
+  private:
+    leveldb::DB *db;
+    std::unordered_map<uint64_t, Packet *> packets;
+};
+
+PacketCache::PacketCache(leveldb::DB *db)
+    : db(db)
+{
+}
+
+PacketCache::~PacketCache()
+{
+    for (const auto &pair : packets)
+        delete pair.second;
+}
+
+Packet *PacketCache::get(uint64_t id) const
+{
+    leveldb::Slice key(reinterpret_cast<const char *>(&id), sizeof(id));
+    std::string value;
+    leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
+    if (s.ok()) {
+    }
+
+    const auto &pkt = packets.find(id);
+    if (pkt != packets.end())
+        return pkt->second;
+    return nullptr;
+}
+
+void PacketCache::set(uint64_t id, Packet *packet)
+{
+    packets[id] = packet;
+}
+
+bool PacketCache::has(uint64_t id) const
+{
+    const auto &pkt = packets.find(id);
+    return pkt != packets.end() && pkt->second;
+}
+
+size_t PacketCache::size() const
+{
+    return packets.size();
+}
 
 class Dispatcher::Private
 {
   public:
+    Private(leveldb::DB *db);
     static LayerPtr firstLayer(Packet *pkt);
 
   public:
     std::queue<Packet *> waitingPackets;
-    std::vector<Packet *> packets;
+    std::unique_ptr<PacketCache> packets;
     std::vector<DissectorWorker *> workers;
     std::unordered_map<std::string, std::vector<FilterWorker *>> filterWorkers;
     std::unordered_map<std::string, std::shared_ptr<std::vector<uint64_t>>> filterdPackets;
@@ -34,7 +92,14 @@ class Dispatcher::Private
     std::condition_variable streamCond;
     std::mutex mutex;
     std::thread streamThread;
+
+    leveldb::DB *db;
 };
+
+Dispatcher::Private::Private(leveldb::DB *db)
+    : packets(new PacketCache(db)), db(db)
+{
+}
 
 LayerPtr Dispatcher::Private::firstLayer(Packet *pkt)
 {
@@ -113,7 +178,7 @@ Dispatcher::FilterWorker::FilterWorker(const std::string &source, const msgpack:
 
             ++ctx->fetchedMaxID;
             ctx->filtering.insert(ctx->fetchedMaxID);
-            Packet *pkt = d->packets.at(ctx->fetchedMaxID - 1);
+            Packet *pkt = d->packets->get(ctx->fetchedMaxID);
 
             lock.unlock();
             bool match = script->filter(pkt);
@@ -219,18 +284,16 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                 }
 
                 lock.lock();
-                if (d->packets.size() < pkt->id)
-                    d->packets.resize(pkt->id);
-                d->packets[pkt->id - 1] = pkt;
+                d->packets->set(pkt->id, pkt);
 
                 if (d->maxID == 0) {
-                    if (d->packets.at(0)) {
+                    if (d->packets->has(1)) {
                         d->maxID = 1;
                     } else {
                         continue;
                     }
                 }
-                while (d->maxID < d->packets.size() && d->packets.at(d->maxID))
+                while (d->maxID < d->packets->size() && d->packets->has(d->maxID + 1))
                     d->maxID++;
 
                 d->filterCond.notify_all();
@@ -270,9 +333,9 @@ struct Dispatcher::Stream {
     std::vector<ScriptClassPtr> dissectors;
     bool started = false;
 };
-#include <iostream>
-Dispatcher::Dispatcher()
-    : d(new Private())
+
+Dispatcher::Dispatcher(leveldb::DB *db)
+    : d(new Private(db))
 {
     int numcore = std::max(1u, std::thread::hardware_concurrency());
     for (int i = 0; i < numcore; ++i) {
@@ -293,7 +356,7 @@ Dispatcher::Dispatcher()
                 return false;
 
             ++maxID;
-            Packet *pkt = d->packets.at(maxID - 1);
+            Packet *pkt = d->packets->get(maxID);
 
             lock.unlock();
 
@@ -408,9 +471,6 @@ Dispatcher::~Dispatcher()
         delete d->waitingPackets.front();
         d->waitingPackets.pop();
     }
-
-    for (const Packet *pkt : d->packets)
-        delete pkt;
 
     if (d->streamThread.joinable())
         d->streamThread.join();
@@ -527,9 +587,11 @@ std::vector<Packet *> Dispatcher::get(uint64_t start, uint64_t end) const
     for (uint64_t i = start; i <= end; ++i) {
         if (i > d->streamMaxID)
             break;
-        Packet *pkt = d->packets.at(i - 1);
-        if (pkt)
+
+        Packet *pkt = d->packets->get(i);
+        if (pkt) {
             packets.push_back(pkt);
+        }
     }
     return packets;
 }
@@ -540,11 +602,12 @@ std::vector<Packet *> Dispatcher::get(const std::vector<uint64_t> &list) const
     std::lock_guard<std::mutex> lock(d->mutex);
 
     for (uint64_t i : list) {
-        if (i > d->packets.size())
+        if (i > d->packets->size())
             break;
-        Packet *pkt = d->packets.at(i - 1);
-        if (pkt)
+        Packet *pkt = d->packets->get(i);
+        if (pkt) {
             packets.push_back(pkt);
+        }
     }
 
     std::sort(packets.begin(), packets.end(), [](const Packet *a, const Packet *b) {
