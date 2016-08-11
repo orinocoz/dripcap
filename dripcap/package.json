@@ -4,7 +4,7 @@
   "description": "Dripcap core",
   "main": "dripcap.js",
   "scripts": {
-    "test": "jasmine-node --coffee spec",
+    "test": "jasmine-node spec",
     "postinstall": "babel --presets es2015 --plugins add-module-exports *.es -d ."
   },
   "author": "h2so5",

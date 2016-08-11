@@ -1,4 +1,3 @@
-import 'coffee-script/register';
 import config from 'dripcap/config';
 import { shell } from 'electron';
 import $ from 'jquery';

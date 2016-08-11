@@ -1,4 +1,3 @@
-import 'coffee-script/register';
 import { app } from 'electron';
 import updater from './updater';
 import { dialog } from 'electron';

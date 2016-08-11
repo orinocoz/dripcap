@@ -1,5 +1,4 @@
 import gulp from 'gulp';
-import coffee from 'gulp-coffee';
 import babel from 'gulp-babel';
 import electron from 'gulp-atom-electron';
 import symdest from 'gulp-symdest';
@@ -14,13 +13,6 @@ import { exec } from 'child_process';
 import jasmine from 'gulp-jasmine';
 import npm from 'npm';
 import pkg from './package.json';
-
-gulp.task('coffee', () =>
-  gulp.src('./src/**/*.coffee', {base: './src/'})
-    .pipe(coffee())
-    .pipe(gulp.dest('./.build/js/'))
-
-);
 
 gulp.task('babel', () =>
   gulp.src('./src/**/*.es', {base: './src/'})
@@ -106,7 +98,7 @@ gulp.task('debian-goldfilter', cb =>
 
 );
 
-gulp.task('debian-bin', ['copy', 'coffee', 'babel', 'copypkg', 'npm'], cb =>
+gulp.task('debian-bin', ['copy', 'babel', 'copypkg', 'npm'], cb =>
   gulp.src('./.build/**')
     .pipe(electron({
       version: pkg.engines.electron,
@@ -153,17 +145,7 @@ gulp.task('default', ['build'], function() {
 }
 );
 
-gulp.task('jasmine', () =>
-  gulp.src([
-      './packages/**/spec/*.coffee',
-      './dripcap/spec/*.coffee',
-      './msgcap/spec/*.coffee'
-    ])
-    .pipe(jasmine())
-
-);
-
-gulp.task('test', sequence('build', 'jasmine'));
+gulp.task('test', sequence('build'));
 
 gulp.task('uitest', function() {
   let env = {
@@ -175,7 +157,7 @@ gulp.task('uitest', function() {
 );
 
 gulp.task('build', sequence(
-  ['coffee', 'babel', 'copy', 'copypkg'],
+  ['babel', 'copy', 'copypkg'],
   'npm'
 )
 );
