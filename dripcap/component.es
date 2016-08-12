@@ -11,6 +11,11 @@ export default class Component {
     this._less = '';
     this._names = [];
 
+    let babel = riot.parsers.js.babel;
+    riot.parsers.js.babel = (js, opts, url) => {
+      return babel(js, opts, __dirname);
+    };
+
     riot.parsers.css.less = (tag, css) => {
       this._less += css;
       return '';
