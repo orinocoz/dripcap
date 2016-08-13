@@ -17,10 +17,6 @@ export default class MainView {
     );
   }
 
-  updateTheme(theme) {
-    return this._comp.updateTheme(theme);
-  }
-
   deactivate() {
     this._elem.remove();
     return this._comp.destroy();

@@ -33,30 +33,18 @@ export default class Component {
           }
           new Function(code)();
         } else if (tag.endsWith('.less')) {
-          this._less += `@import "${tag}";\n`;
+          this._less += `\n@import "${tag}";\n`;
         }
       }
     }
 
-    this._css = $('<style>').appendTo($('head'));
-  }
-
-  updateTheme(theme) {
-    let compLess = this._less;
-    if (compLess != null) {
-      if (theme.less != null) {
-        for (let l of theme.less) {
-          compLess += `@import "${l}";\n`;
-        }
+    less.render(this._less, (e, output) => {
+      if (e != null) {
+        throw e;
+      } else {
+        $('<style>').text(output.css).appendTo($('head'));
       }
-      less.render(compLess, (e, output) => {
-        if (e != null) {
-          throw e;
-        } else {
-          this._css.text(output.css);
-        }
-      });
-    }
+    });
   }
 
   destroy() {

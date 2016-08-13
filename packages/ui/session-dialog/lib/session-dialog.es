@@ -63,10 +63,6 @@ export default class SessionDialog {
     );
   }
 
-  updateTheme(theme) {
-    return this.comp.updateTheme(theme);
-  }
-
   deactivate() {
     dripcap.menu.unregisterMain('Capture', this.captureMenu);
     dripcap.keybind.unbind('command+n', '!menu', 'core:new-session');

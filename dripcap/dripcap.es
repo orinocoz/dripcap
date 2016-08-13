@@ -1,5 +1,6 @@
 import config from './config';
 import $ from 'jquery';
+import less from 'less';
 import GoldFilter from 'goldfilter';
 import {EventEmitter} from 'events';
 
@@ -42,8 +43,20 @@ class Dripcap extends EventEmitter {
     this.menu = new MenuInterface(this);
     this.pubsub = new PubSub()
 
+    this._css = $('<style>').appendTo($('head'));
     this.theme.sub('update', (scheme) => {
-      this.package.updateTheme(scheme);
+      let compLess = '';
+      for (let l of scheme.less) {
+        compLess += `@import "${l}";\n`;
+      }
+      this._css.attr('name', scheme.name)
+      less.render(compLess, (e, output) => {
+        if (e != null) {
+          throw e;
+        } else if (this._css.attr('name') === scheme.name) {
+          this._css.text(output.css);
+        }
+      });
     });
 
     this.theme.id = theme;

@@ -20,10 +20,6 @@ export default class PacketFilterView {
     );
   }
 
-  updateTheme(theme) {
-    return this.comp.updateTheme(theme);
-  }
-
   deactivate() {
     return dripcap.package.load('main-view').then(pkg => {
       pkg.root.panel.leftSouthFixed();

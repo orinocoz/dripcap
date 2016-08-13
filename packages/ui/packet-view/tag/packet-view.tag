@@ -49,11 +49,11 @@
 
 <packet-view-item>
   <li>
-    <p class="label" onclick={ toggle } range={ opts.field.data.start + '-' + opts.field.data.end } oncontextmenu={ context } onmouseover={ fieldRange } onmouseout={ rangeOut }>
+    <p class="label list-item" onclick={ toggle } range={ opts.field.data.start + '-' + opts.field.data.end } oncontextmenu={ context } onmouseover={ fieldRange } onmouseout={ rangeOut }>
       <i class="fa fa-circle-o" show={ !opts.field.fields }></i>
       <i class="fa fa-arrow-circle-right" show={ opts.field.fields && !show }></i>
       <i class="fa fa-arrow-circle-down" show={ opts.field.fields && show }></i>
-      <a class="name">{ opts.field.name }:</a>
+      <a class="text-label">{ opts.field.name }:</a>
       <packet-view-boolean-value if={ type == 'boolean' } value={ value }></packet-view-boolean-value>
       <packet-view-integer-value if={ type == 'integer' } value={ value }></packet-view-integer-value>
       <packet-view-string-value if={ type == 'string' } value={ value }></packet-view-string-value>
@@ -121,16 +121,16 @@
 </packet-view-item>
 
 <packet-view-layer>
-  <p class="layer-name" oncontextmenu={ layerContext } onclick={ toggleLayer } onmouseover={ layerRange } onmouseout={ rangeOut }>
+  <p class="layer-name list-item" oncontextmenu={ layerContext } onclick={ toggleLayer } onmouseover={ layerRange } onmouseout={ rangeOut }>
     <i class="fa fa-arrow-circle-right" show={ !visible }></i>
     <i class="fa fa-arrow-circle-down" show={ visible }></i>
     { layer.name }
-    <i class="summary">{ layer.summary }</i>
+    <i class="text-summary">{ layer.summary }</i>
   </p>
   <ul show={ visible }>
     <packet-view-item each={ f in layer.fields } layer={ layer } field={ f }></packet-view-item>
     <li if={ layer.error }>
-      <a class="name">Error:</a> { layer.error }
+      <a class="text-label">Error:</a> { layer.error }
     </li>
   </ul>
   <packet-view-layer each={ ns in rootKeys } layer={ rootLayers[ns] }></packet-view-layer>
@@ -174,16 +174,16 @@
   <div if={ packet }>
     <ul>
       <li>
-        <i class="fa fa-circle-o"></i><a class="name"> Timestamp: </a><i>{ packet.timestamp }</i>
+        <i class="fa fa-circle-o"></i><a class="text-label"> Timestamp: </a><i>{ packet.timestamp }</i>
       </li>
       <li>
-        <i class="fa fa-circle-o"></i><a class="name"> Captured Length: </a><i>{ packet.payload.length }</i>
+        <i class="fa fa-circle-o"></i><a class="text-label"> Captured Length: </a><i>{ packet.payload.length }</i>
       </li>
       <li>
-        <i class="fa fa-circle-o"></i><a class="name"> Actual Length: </a><i>{ packet.len }</i>
+        <i class="fa fa-circle-o"></i><a class="text-label"> Actual Length: </a><i>{ packet.len }</i>
       </li>
       <li if={ packet.caplen < packet.length }>
-        <i class="fa fa-exclamation-circle warn"> This packet has been truncated.</i>
+        <i class="fa fa-exclamation-circle text-warn"> This packet has been truncated.</i>
       </li>
     </ul>
     <packet-view-layer each={ ns in rootKeys } layer={ rootLayers[ns] }></packet-view-layer>
@@ -196,7 +196,7 @@
     this.packet = pkt;
     if (pkt != null) {
       this.rootLayers = this.packet.layers;
-      return this.rootKeys = Object.keys(this.rootLayers);
+      this.rootKeys = Object.keys(this.rootLayers);
     }
   };
 
@@ -246,13 +246,8 @@
         }
       }
 
-      .name {
-        color: @label;
+      .text-label {
         cursor: default;
-      }
-
-      .warn {
-        color: @error;
       }
 
       .layer-name {
@@ -261,9 +256,8 @@
         margin-left: 10px;
       }
 
-      .summary {
+      .text-summary {
         padding-left: 10px;
-        color: @summary;
       }
 
       ul {
@@ -290,18 +284,7 @@
       .fa-circle-o {
         opacity: 0.1;
       }
-
-      .layer-name:hover, .label:hover {
-        background-color: fade(@highlight, 40%);
-      }
     }
-
-    [riot-tag=binary-view] {
-      i.selected {
-        background-color: @highlight;
-      }
-    }
-
   </style>
 
 </packet-view>

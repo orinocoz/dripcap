@@ -1,149 +1,120 @@
 #main-view, .root-container {
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
-  background-color: @background;
-  color: @text;
+}
 
-  @splitter: fade(@scroll-bar, 100%);
+.panel {
+  position: absolute;
 
-  .panel {
+  &.root {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .wrapper {
     position: absolute;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 
-    &.root {
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
+    &.noscroll {
+      overflow-y: hidden;
     }
+  }
 
-    .wrapper {
-      position: absolute;
-      overflow-x: hidden;
-      overflow-y: scroll;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
+  .splitter {
+    position: absolute;
+  }
 
-      &.noscroll {
-        overflow-y: hidden;
-      }
-    }
+  .vcontainer, .hcontainer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
 
-    .splitter {
-      position: absolute;
-    }
+  .hover {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
 
-    .vcontainer, .hcontainer {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-    }
+  .vhover {
+    cursor: row-resize;
+  }
 
-    .hover {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-    }
+  .hhover {
+    cursor: col-resize;
+  }
 
-    .vhover {
-      cursor: row-resize;
-    }
+  .vsplitter {
+    left: 0;
+    right: 0;
+    height: 3px;
+    cursor: row-resize;
+    margin-top: -1px;
+  }
 
-    .hhover {
-      cursor: col-resize;
-    }
+  .hsplitter {
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    cursor: col-resize;
+    margin-left: -1px;
+  }
 
-    .vsplitter {
-      left: 0;
-      right: 0;
-      height: 3px;
-      cursor: row-resize;
-      background: -webkit-gradient(
-        linear, left top, left bottom,
-        from(transparent),
-        color-stop(0.49, transparent),
-        color-stop(0.49, @splitter),
-        color-stop(0.51, @splitter),
-        color-stop(0.51, transparent),
-        to(transparent));
-      margin-top: -1px;
-    }
+  .tab {
+    float: left;
+    padding: 4px 12px;
+    cursor: default;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+  }
 
-    .hsplitter {
-      top: 0;
-      bottom: 0;
-      width: 3px;
-      cursor: col-resize;
-      background: -webkit-gradient(
-        linear, left top, right top,
-        from(transparent),
-        color-stop(0.49, transparent),
-        color-stop(0.49, @splitter),
-        color-stop(0.51, @splitter),
-        color-stop(0.51, transparent),
-        to(transparent));
-      margin-left: -1px;
-    }
+  .tabcontainer {
+    position: absolute;
+  }
 
-    .tab {
-      float: left;
-      padding: 4px 12px;
-      cursor: default;
-      border-top: 5px solid transparent;
-      border-bottom: 5px solid transparent;
+  .top, .fnorth, .tabcontainer {
+    top: 0;
+    left: 0;
+    right: 0;
+  }
 
-      &:hover {
-        border-top-color: fade(@focus, 30%);
-      }
+  .vcenter {
+    left: 0;
+    right: 0;
+  }
 
-      &.selected {
-        border-top-color: @focus;
-      }
-    }
+  .bottom, .fsouth {
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
 
-    .tabcontainer {
-      position: absolute;
-      border-bottom: 1px dotted @border;
-    }
+  .left, .fleft {
+    left: 0;
+    top: 0;
+    bottom: 0;
+  }
 
-    .top, .fnorth, .tabcontainer {
-      top: 0;
-      left: 0;
-      right: 0;
-    }
+  .hcenter {
+    top: 0;
+    bottom: 0;
+  }
 
-    .vcenter {
-      left: 0;
-      right: 0;
-    }
-
-    .bottom, .fsouth {
-      bottom: 0;
-      left: 0;
-      right: 0;
-    }
-
-    .left, .fleft {
-      left: 0;
-      top: 0;
-      bottom: 0;
-    }
-
-    .hcenter {
-      top: 0;
-      bottom: 0;
-    }
-
-    .right, .fright {
-      right: 0;
-      top: 0;
-      bottom: 0;
-    }
+  .right, .fright {
+    right: 0;
+    top: 0;
+    bottom: 0;
   }
 }
 
@@ -156,51 +127,6 @@
   font-family: 'FontAwesome', 'Lucida Grande', 'Segoe UI', Ubuntu, Cantarell, 'Droid Sans Fallback', sans-serif;
 }
 
-[riot-tag=packet-list-view] {
-  div.main {
-    align-self: stretch;
-    border-spacing: 0px;
-    table-layout: fixed;
-    width: 100%;
-
-    div.packet {
-      width: 100%;
-      height: 32px;
-      position: absolute;
-      display: flex;
-      align-items: center;
-
-      &:hover {
-        background-color: fade(@highlight, 40%);
-      }
-
-      &.selected {
-        background-color: @highlight;
-      }
-
-      a {
-        text-decoration: none;
-        flex-grow: 1;
-        padding-left: 15px;
-        cursor: default;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 0;
-      }
-
-      a:nth-child(2), a:nth-child(4) {
-        flex-grow: 4;
-      }
-
-      a:nth-child(3) {
-        flex-grow: 0.5;
-        text-align: center;
-      }
-    }
-  }
-}
-
 * {
   -webkit-appearance: none;
 }
@@ -211,7 +137,6 @@ html {
 }
 
 body {
-  background-color: @background;
   -webkit-user-select: none;
   height: 100%;
   overflow: auto;
@@ -219,23 +144,16 @@ body {
 
 select {
   padding: 0.5em 1em 0.5em 0.75em;
-  background: @background;
 }
 
 input, textarea, select {
-  border: 1px solid @border;
   border-radius: 2px;
   padding: 0.5em;
   line-height: 1.2em;
   width: 100%;
-  background: lighten(@background, 5%);
-  color: @text;
   &.compact {
     border-radius: 0px;
     line-height: 1.0em;
-  }
-  &.error {
-    color: @error;
   }
 }
 
@@ -254,26 +172,10 @@ input[type=checkbox], input[type=radio] {
   vertical-align: text-top;
 }
 
-input[type=checkbox]:checked {
-  background-color: @focus;
-}
-
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  color: @headline;
-}
-
-th {
-  color: @label;
-}
-
-label {
-  color: @label;
 }
 
 a {
@@ -283,41 +185,4 @@ a {
   &:hover {
     text-decoration: underline;
   }
-}
-
-*:focus {
-  outline-color: @focus;
-}
-
-::selection {
-  background: @text;
-  color: @background;
-}
-
-@scroll-bar-back: fade(@scroll-bar, 40%);
-
-*::-webkit-scrollbar {
-  width:7px;
-  background:@scroll-bar-back;
-}
-
-*::-webkit-scrollbar:horizontal {
-  height:5px;
-}
-
-*::-webkit-scrollbar-piece {
-  background:@scroll-bar-back;
-}
-
-*::-webkit-scrollbar-piece:start {
-  background:@scroll-bar-back;
-}
-
-*::-webkit-scrollbar-thumb {
-  background:@scroll-bar;
-  min-height: 50px;
-}
-
-*::-webkit-scrollbar-corner {
-  background:@scroll-bar;
 }

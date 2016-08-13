@@ -1,6 +1,6 @@
 <package-preferences-view-item>
-  <li class="packages">
-    <p class="head">{ opts.pkg.name } <i>{ opts.pkg.description }</i></p>
+  <li class="packages border">
+    <p class="head">{ opts.pkg.name } <i class="text-label">{ opts.pkg.description }</i></p>
     <ul class="items">
       <li>
         <label>
@@ -73,13 +73,11 @@
     li.packages {
       padding: 15px;
       margin: 15px auto;
-      border: 1px solid @border;
       border-radius: 5px;
 
       p.head {
         margin: 0;
         i {
-          color: @label;
           float: right;
           width: 50%;
           text-align: right;

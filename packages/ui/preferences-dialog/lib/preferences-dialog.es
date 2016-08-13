@@ -32,10 +32,6 @@ export default class PreferencesDialog {
     );
   }
 
-  updateTheme(theme) {
-    return this.comp.updateTheme(theme);
-  }
-
   deactivate() {
     dripcap.keybind.unbind('enter', '[riot-tag=preferences-dialog] .content');
     this._view.unmount();

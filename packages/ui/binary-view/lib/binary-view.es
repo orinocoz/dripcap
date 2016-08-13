@@ -45,7 +45,7 @@ export default class BinaryView {
 
             for (let i = 0; i < payload.length; i++) {
               var b = payload[i];
-              hexhtml += `<i>${(`0${b.toString(16)}`).slice(-2)}</i>`;
+              hexhtml += `<i class="list-item">${(`0${b.toString(16)}`).slice(-2)}</i>`;
             }
 
             for (let j = 0; j < payload.length; j++) {
@@ -55,7 +55,7 @@ export default class BinaryView {
                   String.fromCharCode(b)
                 :
                   '.';
-              asciihtml += `<i>${text}</i>`;
+              asciihtml += `<i class="list-item">${text}</i>`;
             }
 
             return process.nextTick(function() {
@@ -72,10 +72,6 @@ export default class BinaryView {
       );
     }
     );
-  }
-
-  updateTheme(theme) {
-    return this.comp.updateTheme(theme);
   }
 
   deactivate() {
