@@ -40,10 +40,6 @@ export default class WelcomeDialog {
     );
   }
 
-  updateTheme(theme) {
-    return this.comp.updateTheme(theme);
-  }
-
   deactivate() {
     this.view.unmount();
     return this.comp.destroy();

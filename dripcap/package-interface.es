@@ -84,14 +84,6 @@ export default class PackageInterface extends PubSub {
     return this.pub('core:package-list-updated', this.list);
   }
 
-  updateTheme(scheme) {
-    for (let k in this.list) {
-      let pkg = this.list[k];
-      if (pkg.config.get('enabled'))
-        pkg.updateTheme(scheme);
-    }
-  }
-
   rebuild(path) {
     let ver = config.electronVersion;
     return rebuild.installNodeHeaders(ver).then(() =>

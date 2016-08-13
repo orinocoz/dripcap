@@ -1,8 +1,8 @@
-<status-view>
-  <div class="status">
-    <span class={ button: 1, disabled: capturing } onclick={ startCapture }><a href="#"><i class="fa fa-play"></i></a></span>
-    <span class={ button: 1, disabled: !capturing } onclick={ stopCapture }><a href="#"><i class="fa fa-pause"></i></a></span>
-    <span class="button" onclick={ newCapture }><a href="#"><i class="fa fa-file-o"></i></a></span>
+<status-view class="border">
+  <div class="status text-label">
+    <span class={ button: 1, text-headline: 1, disabled: capturing } onclick={ startCapture }><a href="#"><i class="fa fa-play"></i></a></span>
+    <span class={ button: 1, text-headline: 1, disabled: !capturing } onclick={ stopCapture }><a href="#"><i class="fa fa-pause"></i></a></span>
+    <span class="button text-headline" onclick={ newCapture }><a href="#"><i class="fa fa-file-o"></i></a></span>
     <span show={ capturing }><i class="fa fa-cog fa-spin"></i> capturing</span>
     <span show={ !capturing }><i class="fa fa-cog"></i> paused</span>
     <span if={ settings }><i class="fa fa-crosshairs"></i> { settings.iface }</span>
@@ -11,16 +11,13 @@
   </div>
 
   <style type="text/less">
-    @splitter: fade(@scroll-bar, 40%);
-
-    [riot-tag=status-view] {
-      border-bottom: 1px solid @splitter;
+    [riot-tag=status-view].border {
+      border-width: 0 0 1px 0;
       -webkit-app-region: drag;
 
       .status {
         width: 100%;
         padding: 10px;
-        color: @label;
         cursor: default;
       }
 
@@ -34,7 +31,6 @@
       }
 
       span.button {
-        color: @headline;
         cursor: pointer;
       }
     }

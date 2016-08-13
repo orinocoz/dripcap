@@ -7,10 +7,6 @@ export default class ModalDialog {
     return this.comp = new Component(`${__dirname}/../tag/*.tag`);
   }
 
-  updateTheme(theme) {
-    return this.comp.updateTheme(theme);
-  }
-
   deactivate() {
     return this.comp.destroy();
   }

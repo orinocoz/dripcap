@@ -10,7 +10,7 @@ mkpath.sync(config.userPackagePath);
 mkpath.sync(config.profilePath);
 
 if (!GoldFilter.testPerm()) {
-  GoldFilter.setPerm();
+  //GoldFilter.setPerm();
 }
 
 class Dripcap {

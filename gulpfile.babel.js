@@ -48,7 +48,7 @@ gulp.task('npm', ['copypkg'], function() {
   p = p.then(() =>
     new Promise(function(res) {
       npm.prefix = './.build/';
-      return npm.commands.uninstall(['dripcap', 'goldfilter'], res);
+      return npm.commands.uninstall(['dripcap'], res);
     })
   );
 

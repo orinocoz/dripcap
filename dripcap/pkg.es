@@ -53,7 +53,6 @@ export default class Package {
             if (klass.__esModule) { klass = klass.default; }
             this.root = new klass(this);
             res = this.root.activate();
-            this.updateTheme(dripcap.theme.scheme);
 
           } catch (e) {
             reject(e);
@@ -77,15 +76,6 @@ export default class Package {
 
   activate() {
     return this._resolve();
-  }
-
-  updateTheme(theme) {
-    return this.load().then(() => {
-      if ((this.root != null) && (this.root.updateTheme != null)) {
-        return this.root.updateTheme(theme);
-      }
-    }
-    );
   }
 
   renderPreferences() {

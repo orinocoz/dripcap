@@ -22,8 +22,8 @@
 
       i {
         display: inline-block;
-          font-style: normal;
-          width: 23px;
+        font-style: normal;
+        width: 23px;
       }
     }
   </style>

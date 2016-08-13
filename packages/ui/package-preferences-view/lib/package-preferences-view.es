@@ -26,10 +26,6 @@ export default class PackagePreferencesView {
     );
   }
 
-  updateTheme(theme) {
-    return this.comp.updateTheme(theme);
-  }
-
   deactivate() {
     this._view.unmount();
     return this.comp.destroy();

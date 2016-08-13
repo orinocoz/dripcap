@@ -34,10 +34,6 @@ export default class StatusView {
     );
   }
 
-  updateTheme(theme) {
-    return this.comp.updateTheme(theme);
-  }
-
   deactivate() {
     return dripcap.package.load('main-view').then(pkg => {
       pkg.root.panel.northFixed();
