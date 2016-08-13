@@ -38,10 +38,6 @@ export default class GeneralPreferencesView {
     );
   }
 
-  updateTheme(theme) {
-    return this.comp.updateTheme(theme);
-  }
-
   deactivate() {
     this._view.unmount();
     return this.comp.destroy();

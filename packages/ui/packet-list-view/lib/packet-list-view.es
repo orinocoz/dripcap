@@ -154,7 +154,7 @@ export default class PacketListView {
       for (let j = 0; j < iterable.length; j++) {
         let i = iterable[j];
         let self = this;
-        $('<div class="packet">').appendTo(this.main).hide().click(function() {
+        $('<div class="packet list-item">').appendTo(this.main).hide().click(function() {
           $(this).siblings('.selected').removeClass('selected');
           $(this).addClass('selected');
           self.selectedId = parseInt($(this).attr('data-packet'));
@@ -173,10 +173,6 @@ export default class PacketListView {
     );
 
     return this.session.requestPackets(packets);
-  }
-
-  updateTheme(theme) {
-    return this.comp.updateTheme(theme);
   }
 
   deactivate() {

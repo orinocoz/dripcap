@@ -111,10 +111,6 @@ export default class PacketListView {
     );
   }
 
-  updateTheme(theme) {
-    return this.comp.updateTheme(theme);
-  }
-
   deactivate() {
     dripcap.menu.unregister('packet-view:layer-menu', this.layerMenu);
     dripcap.menu.unregister('packet-view:layer-menu', this.copyMenu);
