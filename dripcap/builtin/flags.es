@@ -1,15 +1,13 @@
 function underscore(str) {
   return str.replace(/[\s-]+/, '_')
-  .replace(/([a-z])([A-Z])/, (m, s1, s2) => {
-    return s1 + '_' + s2.toLowerCase();
-  })
-  .toLowerCase();
+    .replace(/([a-z])([A-Z])/, (m, s1, s2) => {
+      return s1 + '_' + s2.toLowerCase();
+    })
+    .toLowerCase();
 }
 
-export default class Flags
-{
-  constructor(table, value)
-  {
+export default class Flags {
+  constructor(table, value) {
     if (typeof table !== 'object') {
       throw new TypeError('expected Object');
     }
@@ -25,8 +23,7 @@ export default class Flags
     }
   }
 
-  get(key)
-  {
+  get(key) {
     if (this.table[key] != null) {
       return !!(this.value & this.table[key]);
     } else {
@@ -34,13 +31,11 @@ export default class Flags
     }
   }
 
-  is(key)
-  {
+  is(key) {
     return this.value === this.table[key];
   }
 
-  toString()
-  {
+  toString() {
     let values = [];
     for (let k in this.table) {
       if (this.get(k)) {
@@ -55,22 +50,19 @@ export default class Flags
     }
   }
 
-  toJSON()
-  {
+  toJSON() {
     return this.toString();
   }
 
-  toMsgpack()
-  {
+  toMsgpack() {
     let table = {};
     if (this.known) {
       table[this.value] = this.table[this.value];
     }
-    return [ table, this.value ];
+    return [table, this.value];
   }
 
-  equals(val)
-  {
+  equals(val) {
     return val.toString() === this.toString();
   }
 }

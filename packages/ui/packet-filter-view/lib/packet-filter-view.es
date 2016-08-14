@@ -11,13 +11,10 @@ export default class PacketFilterView {
           let m = $('<div/>');
           this.view = riot.mount(m[0], 'packet-filter-view')[0];
           return pkg.root.panel.leftSouthFixed(m);
-        }
-        );
-      }
-      );
+        });
+      });
       return res();
-    }
-    );
+    });
   }
 
   deactivate() {
@@ -25,7 +22,6 @@ export default class PacketFilterView {
       pkg.root.panel.leftSouthFixed();
       this.view.unmount();
       return this.comp.destroy();
-    }
-    );
+    });
   }
 }

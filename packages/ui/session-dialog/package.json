@@ -4,8 +4,8 @@
   "license": "MIT",
   "description": "Dripcap Session Dialog",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/dripcap/dripcap.git"
+    "type": "git",
+    "url": "https://github.com/dripcap/dripcap.git"
   },
   "readme": "see README.md"
 }

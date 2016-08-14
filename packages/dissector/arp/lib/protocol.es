@@ -9,8 +9,7 @@ export default class ProtocolEnum extends Enum {
     super(table, value);
   }
 
-  toMsgpack()
-  {
-    return [ this.value ];
+  toMsgpack() {
+    return [this.value];
   }
 }

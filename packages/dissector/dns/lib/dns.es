@@ -1,18 +1,16 @@
-import {Layer, Buffer} from 'dripcap';
+import {
+  Layer,
+  Buffer
+} from 'dripcap';
 import MACAddress from 'dripcap/mac';
 import RecordEnum from 'dripcap/dns/record';
 import OperationEnum from 'dripcap/dns/operation';
 
-export default class DNSDissector
-{
-  constructor(options)
-  {
-  }
+export default class DNSDissector {
+  constructor(options) {}
 
-  analyze(packet, parentLayer)
-  {
-    function assertLength(len)
-    {
+  analyze(packet, parentLayer) {
+    function assertLength(len) {
       if (parentLayer.payload.length < len) {
         throw new Error('too short frame');
       }

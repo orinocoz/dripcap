@@ -1,14 +1,14 @@
-import {NetStream, StreamLayer} from 'dripcap';
+import {
+  NetStream,
+  StreamLayer
+} from 'dripcap';
 
-export default class TCPStreamDissector
-{
-  constructor(options)
-  {
+export default class TCPStreamDissector {
+  constructor(options) {
 
   }
 
-  analyze(packet, parentLayer, data, output)
-  {
+  analyze(packet, parentLayer, data, output) {
     let body = data.toString('utf8');
     let re = /(GET|POST) (\S+) (HTTP\/(0\.9|1\.0|1\.1))\r\n/;
     let m = body.match(re);

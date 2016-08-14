@@ -1,16 +1,19 @@
 export default class Base16 {
   activate() {
-    dripcap.theme.register('base16-mocha-dark',{
+    dripcap.theme.register('base16-mocha-dark', {
       name: "Mocha Dark",
-      less: [`${__dirname}/../less/mocha-dark.less`]});
+      less: [`${__dirname}/../less/mocha-dark.less`]
+    });
 
-    dripcap.theme.register('base16-ocean-light',{
+    dripcap.theme.register('base16-ocean-light', {
       name: "Ocean Light",
-      less: [`${__dirname}/../less/ocean-light.less`]});
+      less: [`${__dirname}/../less/ocean-light.less`]
+    });
 
-    return dripcap.theme.register('base16-atelier-estuary-light',{
+    return dripcap.theme.register('base16-atelier-estuary-light', {
       name: "Atelier Estuary Light",
-      less: [`${__dirname}/../less/atelier-estuary-light.less`]});
+      less: [`${__dirname}/../less/atelier-estuary-light.less`]
+    });
   }
 
   deactivate() {

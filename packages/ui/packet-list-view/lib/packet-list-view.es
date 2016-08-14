@@ -3,10 +3,18 @@ import _ from 'underscore';
 import riot from 'riot';
 import fs from 'fs';
 import Component from 'dripcap/component';
-import { remote } from 'electron';
-let { Menu } = remote;
-let { MenuItem } = remote;
-let { dialog } = remote;
+import {
+  remote
+} from 'electron';
+let {
+  Menu
+} = remote;
+let {
+  MenuItem
+} = remote;
+let {
+  dialog
+} = remote;
 
 export default class PacketListView {
   activate() {
@@ -18,7 +26,9 @@ export default class PacketListView {
           pkg.root.panel.left('packet-list-view', m);
 
           let n = $('<div class="wrapper" />').attr('tabIndex', '0').appendTo(m);
-          this.list = riot.mount(n[0], 'packet-list-view', {items: []})[0];
+          this.list = riot.mount(n[0], 'packet-list-view', {
+            items: []
+          })[0];
 
           this.view = $('[riot-tag=packet-list-view]');
           this.view.scroll(_.debounce((() => this.update()), 100));
@@ -27,8 +37,7 @@ export default class PacketListView {
             this.filtered = 0;
             this.reset();
             return this.update();
-          }
-          );
+          });
 
           dripcap.session.on('created', session => {
             this.session = session;
@@ -47,8 +56,7 @@ export default class PacketListView {
               }
 
               return this.update();
-            }
-            );
+            });
 
             return session.on('packet', pkt => {
               if (pkt.id === this.selectedId) {
@@ -62,12 +70,9 @@ export default class PacketListView {
                   .append($('<a>').append($('<i class="fa fa-angle-double-right">')))
                   .append($('<a>').text(pkt.attrs.dst))
                   .append($('<a>').text(pkt.len));
-              }
-              );
-            }
-            );
-          }
-          );
+              });
+            });
+          });
 
           this.main = $('[riot-tag=packet-list-view] div.main');
 
@@ -79,12 +84,9 @@ export default class PacketListView {
 
           this.reset();
           res();
-        }
-        );
-      }
-      );
-    }
-    );
+        });
+      });
+    });
   }
 
   reset() {
@@ -113,8 +115,7 @@ export default class PacketListView {
       if (pos + $(ele).height() + (margin * height) < this.view.scrollTop() || pos - (margin * height) > this.view.scrollTop() + this.view.height()) {
         return $(ele).hide();
       }
-    }
-    );
+    });
 
     if (this.prevStart !== start || this.prevEnd !== end) {
       this.prevStart = start;
@@ -131,8 +132,7 @@ export default class PacketListView {
         } else {
           return this.session.getFiltered('main', start, end).then(list => {
             return this.updateCells(start - 1, list);
-          }
-          );
+          });
         }
       }
     }
@@ -167,11 +167,12 @@ export default class PacketListView {
     }
 
     this.cells.filter(':not(:visible)').each((i, ele) => {
-      if (i >= packets.length) { return; }
+      if (i >= packets.length) {
+        return;
+      }
       let id = packets[i];
       return $(ele).attr('data-packet', id).toggleClass('selected', this.selectedId === id).empty().css('top', (32 * indices[i]) + 'px').show();
-    }
-    );
+    });
 
     return this.session.requestPackets(packets);
   }
@@ -181,8 +182,7 @@ export default class PacketListView {
       pkg.root.panel.left('packet-list-view');
       this.list.unmount();
       return this.comp.destroy();
-    }
-    );
+    });
   }
 }
 

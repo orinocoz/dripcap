@@ -1,6 +1,5 @@
 export default class TCP {
-  activate()
-  {
+  activate() {
     dripcap.session.registerDissector([
       '::Ethernet::IPv4::TCP::<HTTP>',
       '::Ethernet::IPv6::TCP::<HTTP>'
@@ -11,9 +10,8 @@ export default class TCP {
     ], `${__dirname}/http_stream.es`);
   }
 
-  deactivate()
-  {
-      dripcap.session.unregisterStreamDissector(`${__dirname}/http_stream.es`);
-      dripcap.session.unregisterDissector(`${__dirname}/http.es`);
+  deactivate() {
+    dripcap.session.unregisterStreamDissector(`${__dirname}/http_stream.es`);
+    dripcap.session.unregisterDissector(`${__dirname}/http.es`);
   }
 }

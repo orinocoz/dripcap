@@ -8,8 +8,7 @@ export default class HardwareEnum extends Enum {
     super(table, value);
   }
 
-  toMsgpack()
-  {
-    return [ this.value ];
+  toMsgpack() {
+    return [this.value];
   }
 }

@@ -1,11 +1,9 @@
 export default class UDP {
-  activate()
-  {
+  activate() {
     dripcap.session.registerDissector(['::Ethernet::IPv4::<UDP>', '::Ethernet::IPv6::<UDP>'], `${__dirname}/udp.es`);
   }
 
-  deactivate()
-  {
+  deactivate() {
     dripcap.session.unregisterDissector(`${__dirname}/udp.es`);
   }
 }

@@ -11,13 +11,10 @@ export default class InstallPreferencesView {
           let m = $('<div class="wrapper"/>');
           this._view = riot.mount(m[0], 'install-preferences-view')[0];
           return pkg.root.panel.center('install', m, $('<i class="fa fa-cloud-download"> Install</i>'));
-        }
-        );
-      }
-      );
+        });
+      });
       return res();
-    }
-    );
+    });
   }
 
   deactivate() {

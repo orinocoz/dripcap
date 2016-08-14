@@ -24,19 +24,22 @@ export default class PackageInterface extends PubSub {
     this.list = {};
     this.triggerlLoaded = _.debounce(() => {
       return this.pub('core:package-loaded');
-    }
-    , 500);
+    }, 500);
   }
 
   load(name) {
     let pkg = this.list[name];
-    if (pkg == null) { throw new Error(`package not found: ${name}`); }
+    if (pkg == null) {
+      throw new Error(`package not found: ${name}`);
+    }
     return pkg.load();
   }
 
   unload(name) {
     let pkg = this.list[name];
-    if (pkg == null) { throw new Error(`package not found: ${name}`); }
+    if (pkg == null) {
+      throw new Error(`package not found: ${name}`);
+    }
     return pkg.deactivate();
   }
 
@@ -78,8 +81,7 @@ export default class PackageInterface extends PubSub {
         pkg.activate();
         pkg.load().then(() => {
           return process.nextTick(() => this.triggerlLoaded());
-        }
-        );
+        });
       }
     }
 
@@ -124,10 +126,15 @@ export default class PackageInterface extends PubSub {
       }
 
       return new Promise((res, rej) =>
-        npm.load({production: true, host}, () =>
+        npm.load({
+            production: true,
+            host
+          }, () =>
           npm.commands.view([name], function(e, data) {
             try {
-              if (e != null) { throw e; }
+              if (e != null) {
+                throw e;
+              }
               let pkg = data[Object.keys(data)[0]];
               if ((pkg.engines != null) && (pkg.engines.dripcap != null)) {
                 let ver = pkg.engines.dripcap;
@@ -147,31 +154,30 @@ export default class PackageInterface extends PubSub {
             } catch (e) {
               return rej(e);
             }
-          }
-          )
+          })
 
         )
       );
-    }
-    );
+    });
 
     p = p.then(() => {
       return new Promise(res => fs.stat(pkgpath, e => res(e)))
-      .then(e => {
-        if (e != null) {
-          return Promise.resolve();
-        } else {
-          return this.uninstall(name);
-        }
-      }
-      );
-    }
-    );
+        .then(e => {
+          if (e != null) {
+            return Promise.resolve();
+          } else {
+            return this.uninstall(name);
+          }
+        });
+    });
 
     p = p.then(() =>
       new Promise(function(res) {
         let gunzip = zlib.createGunzip();
-        let extractor = tar.Extract({path: pkgpath, strip: 1});
+        let extractor = tar.Extract({
+          path: pkgpath,
+          strip: 1
+        });
         return request(tarurl).pipe(gunzip).pipe(extractor).on('finish', () => res());
       })
     );
@@ -180,16 +186,21 @@ export default class PackageInterface extends PubSub {
       new Promise(function(res) {
         let jsonPath = path.join(pkgpath, 'package.json');
         return fs.readFile(jsonPath, function(err, data) {
-          if (err) { throw err; }
-          let json = JSON.parse(data);
-          json['_dripcap'] = {name, registry};
-          return fs.writeFile(jsonPath, JSON.stringify(json, null, '  '), function(err) {
-            if (err) { throw err; }
-            return res();
+          if (err) {
+            throw err;
           }
-          );
-        }
-        );
+          let json = JSON.parse(data);
+          json['_dripcap'] = {
+            name,
+            registry
+          };
+          return fs.writeFile(jsonPath, JSON.stringify(json, null, '  '), function(err) {
+            if (err) {
+              throw err;
+            }
+            return res();
+          });
+        });
       })
     );
 
@@ -198,12 +209,9 @@ export default class PackageInterface extends PubSub {
         return npm.commands.install(pkgpath, [], () => {
           res();
           return this.updatePackageList();
-        }
-        );
-      }
-      );
-    }
-    );
+        });
+      });
+    });
   }
 
   uninstall(name) {
@@ -211,11 +219,11 @@ export default class PackageInterface extends PubSub {
     return new Promise(res => {
       return rmdir(pkgpath, err => {
         this.updatePackageList();
-        if (err != null) { throw err; }
+        if (err != null) {
+          throw err;
+        }
         return res();
-      }
-      );
-    }
-    );
+      });
+    });
   }
 }

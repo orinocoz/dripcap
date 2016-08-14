@@ -16,8 +16,7 @@ export default class TCPFlags extends Flags {
     super(table, value);
   }
 
-  toMsgpack()
-  {
-    return [ this.value ];
+  toMsgpack() {
+    return [this.value];
   }
 }

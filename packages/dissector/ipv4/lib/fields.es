@@ -10,8 +10,7 @@ export default class FieldFlags extends Flags {
     super(table, value);
   }
 
-  toMsgpack()
-  {
-    return [ this.value ];
+  toMsgpack() {
+    return [this.value];
   }
 }

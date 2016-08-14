@@ -1,17 +1,15 @@
-import {Layer, Buffer} from 'dripcap';
+import {
+  Layer,
+  Buffer
+} from 'dripcap';
 import IPv4Host from 'dripcap/ipv4/host';
 import IPv6Host from 'dripcap/ipv6/host';
 
-export default class UDPDissector
-{
-  constructor(options)
-  {
-  }
+export default class UDPDissector {
+  constructor(options) {}
 
-  analyze(packet, parentLayer)
-  {
-    function assertLength(len)
-    {
+  analyze(packet, parentLayer) {
+    function assertLength(len) {
       if (parentLayer.payload.length < len) {
         throw new Error('too short frame');
       }

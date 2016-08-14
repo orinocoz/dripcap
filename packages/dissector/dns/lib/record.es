@@ -18,8 +18,7 @@ export default class RecordEnum extends Enum {
     super(table, value);
   }
 
-  toMsgpack()
-  {
-    return [ this.value ];
+  toMsgpack() {
+    return [this.value];
   }
 }

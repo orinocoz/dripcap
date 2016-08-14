@@ -13,11 +13,12 @@
         width: 100%;
       }
 
-      .hex, .ascii {
-          list-style: none;
-          font-family: monospace;
-          padding: 10px;
-          -webkit-user-select: text;
+      .ascii,
+      .hex {
+        list-style: none;
+        font-family: monospace;
+        padding: 10px;
+        -webkit-user-select: text;
       }
 
       i {
@@ -26,6 +27,7 @@
         width: 23px;
       }
     }
+
   </style>
 
 </binary-view>

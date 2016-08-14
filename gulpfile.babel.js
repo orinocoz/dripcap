@@ -9,25 +9,32 @@ import runElectron from "gulp-run-electron";
 import fs from 'fs';
 import path from 'path';
 import glob from 'glob';
-import { exec } from 'child_process';
+import {
+  exec
+} from 'child_process';
 import jasmine from 'gulp-jasmine';
 import npm from 'npm';
 import pkg from './package.json';
 
 gulp.task('babel', () =>
-  gulp.src('./src/**/*.es', {base: './src/'})
-    .pipe(babel({presets: ['es2015'], plugins: ['add-module-exports']}))
-    .pipe(gulp.dest('./.build/js/'))
+  gulp.src('./src/**/*.es', {
+    base: './src/'
+  })
+  .pipe(babel({
+    presets: ['es2015'],
+    plugins: ['add-module-exports']
+  }))
+  .pipe(gulp.dest('./.build/js/'))
 
 );
 
 gulp.task('copy', () =>
   gulp.src([
-      './package.json',
-      './src/*.html',
-      './src/*.less'
-    ])
-    .pipe(gulp.dest('./.build'))
+    './package.json',
+    './src/*.html',
+    './src/*.less'
+  ])
+  .pipe(gulp.dest('./.build'))
 
 );
 
@@ -36,13 +43,18 @@ gulp.task('copypkg', () =>
     './packages/**/*',
     './dripcap/**/*',
     './goldfilter/**/*'
-  ], {base: './'})
-    .pipe(gulp.dest('./.build/'))
+  ], {
+    base: './'
+  })
+  .pipe(gulp.dest('./.build/'))
 
 );
 
 gulp.task('npm', ['copypkg'], function() {
-  let p = new Promise(res => npm.load({production: true, depth: 0}, () => res()));
+  let p = new Promise(res => npm.load({
+    production: true,
+    depth: 0
+  }, () => res()));
 
 
   p = p.then(() =>
@@ -71,41 +83,46 @@ gulp.task('npm', ['copypkg'], function() {
   });
 
   return p;
-}
-);
+});
 
 gulp.task('linux', ['build'], cb =>
-    gulp.src('./.build/**')
-      .pipe(electron({
-        version: pkg.engines.electron,
-        platform: 'linux',
-        arch: 'x64',
-        token: process.env['ELECTRON_GITHUB_TOKEN']}))
-      .pipe(zip.dest('dripcap-linux-amd64.zip'))
+  gulp.src('./.build/**')
+  .pipe(electron({
+    version: pkg.engines.electron,
+    platform: 'linux',
+    arch: 'x64',
+    token: process.env['ELECTRON_GITHUB_TOKEN']
+  }))
+  .pipe(zip.dest('dripcap-linux-amd64.zip'))
 
 );
 
 gulp.task('debian-pkg', cb =>
-  gulp.src('./debian/**', {base: './debian/'})
-    .pipe(replace('{{DRIPCAP_VERSION}}', pkg.version, {skipBinary: true}))
-    .pipe(gulp.dest('./.debian/'))
+  gulp.src('./debian/**', {
+    base: './debian/'
+  })
+  .pipe(replace('{{DRIPCAP_VERSION}}', pkg.version, {
+    skipBinary: true
+  }))
+  .pipe(gulp.dest('./.debian/'))
 
 );
 
 gulp.task('debian-goldfilter', cb =>
   gulp.src('./.build/node_modules/goldfilter/build/goldfilter')
-    .pipe(gulp.dest('./.debian/usr/bin/'))
+  .pipe(gulp.dest('./.debian/usr/bin/'))
 
 );
 
 gulp.task('debian-bin', ['copy', 'babel', 'copypkg', 'npm'], cb =>
   gulp.src('./.build/**')
-    .pipe(electron({
-      version: pkg.engines.electron,
-      platform: 'linux',
-      arch: 'x64',
-      token: process.env['ELECTRON_GITHUB_TOKEN']}))
-    .pipe(symdest('./.debian/usr/share/dripcap'))
+  .pipe(electron({
+    version: pkg.engines.electron,
+    platform: 'linux',
+    arch: 'x64',
+    token: process.env['ELECTRON_GITHUB_TOKEN']
+  }))
+  .pipe(symdest('./.debian/usr/share/dripcap'))
 
 );
 
@@ -113,51 +130,52 @@ gulp.task('debian', sequence(
   'debian-bin',
   'debian-pkg',
   'debian-goldfilter'
-)
-);
+));
 
 gulp.task('darwin', ['build'], cb =>
-    gulp.src('./.build/**')
-      .pipe(electron({
-        version:  pkg.engines.electron,
-        platform: 'darwin',
-        arch: 'x64',
-        token: process.env['ELECTRON_GITHUB_TOKEN'],
-        darwinBundleDocumentTypes: [{
-          name: 'Libpcap File Format',
-          role: 'Editor',
-          ostypes: [],
-          extensions: ['pcap'],
-          iconFile: ''
-        }
-        ],
-        darwinIcon: './images/dripcap.icns'}))
-      .pipe(symdest('./.builtapp/dripcap-darwin'))
+  gulp.src('./.build/**')
+  .pipe(electron({
+    version: pkg.engines.electron,
+    platform: 'darwin',
+    arch: 'x64',
+    token: process.env['ELECTRON_GITHUB_TOKEN'],
+    darwinBundleDocumentTypes: [{
+      name: 'Libpcap File Format',
+      role: 'Editor',
+      ostypes: [],
+      extensions: ['pcap'],
+      iconFile: ''
+    }],
+    darwinIcon: './images/dripcap.icns'
+  }))
+  .pipe(symdest('./.builtapp/dripcap-darwin'))
 
 );
 
-gulp.task('darwin-sign', ['darwin'], cb => exec('./macdeploy.sh', () => cb())
-);
+gulp.task('darwin-sign', ['darwin'], cb => exec('./macdeploy.sh', () => cb()));
 
 gulp.task('default', ['build'], function() {
-  let env = {DRIPCAP_ATTACH: '1'};
-  return gulp.src(".build").pipe(runElectron(['--enable-logging'], {env: Object.assign(env, process.env)}));
-}
-);
+  let env = {
+    DRIPCAP_ATTACH: '1'
+  };
+  return gulp.src(".build").pipe(runElectron(['--enable-logging'], {
+    env: Object.assign(env, process.env)
+  }));
+});
 
 gulp.task('test', sequence('build'));
 
 gulp.task('uitest', function() {
   let env = {
-      DRIPCAP_UI_TEST: __dirname,
-      PAPERFILTER_TESTDATA: path.join(__dirname, 'uispec/test')
+    DRIPCAP_UI_TEST: __dirname,
+    PAPERFILTER_TESTDATA: path.join(__dirname, 'uispec/test')
   };
-  return gulp.src(".build").pipe(runElectron([], {env: Object.assign(env, process.env)}));
-}
-);
+  return gulp.src(".build").pipe(runElectron([], {
+    env: Object.assign(env, process.env)
+  }));
+});
 
 gulp.task('build', sequence(
   ['babel', 'copy', 'copypkg'],
   'npm'
-)
-);
+));

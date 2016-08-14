@@ -1,4 +1,6 @@
-import { EventEmitter } from 'events';
+import {
+  EventEmitter
+} from 'events';
 import Session from './session';
 import config from './config';
 
@@ -13,15 +15,24 @@ export default class SessionInterface extends EventEmitter {
   }
 
   registerDissector(namespaces, path) {
-    return this._dissectors.push({namespaces, path});
+    return this._dissectors.push({
+      namespaces,
+      path
+    });
   }
 
   registerStreamDissector(namespaces, path) {
-    return this._streamDissectors.push({namespaces, path});
+    return this._streamDissectors.push({
+      namespaces,
+      path
+    });
   }
 
   registerClass(name, path) {
-    return this._classes.push({name, path});
+    return this._classes.push({
+      name,
+      path
+    });
   }
 
   unregisterDissector(path) {
@@ -45,31 +56,35 @@ export default class SessionInterface extends EventEmitter {
     }
   }
 
-  create(iface, options={}) {
+  create(iface, options = {}) {
     let sess = new Session(config.filterPath);
-    if (iface != null) { sess.addCapture(iface, options); }
+    if (iface != null) {
+      sess.addCapture(iface, options);
+    }
 
     let tasks = [];
     for (let i = 0; i < this._classes.length; i++) {
       let cls = this._classes[i];
-      ((cls=cls) => tasks.push(sess.addClass(cls.name, cls.path)))(cls);
+      ((cls = cls) => tasks.push(sess.addClass(cls.name, cls.path)))(cls);
     }
 
     return Promise.all(tasks).then(() => {
       for (let j = 0; j < this._dissectors.length; j++) {
         var dec = this._dissectors[j];
-        ((dec=dec) => tasks.push(sess.addDissector(dec.namespaces, dec.path)))(dec);
+        ((dec = dec) => tasks.push(sess.addDissector(dec.namespaces, dec.path)))(dec);
       }
       for (let k = 0; k < this._streamDissectors.length; k++) {
         var dec = this._streamDissectors[k];
-        ((dec=dec) => tasks.push(sess.addStreamDissector(dec.namespaces, dec.path)))(dec);
+        ((dec = dec) => tasks.push(sess.addStreamDissector(dec.namespaces, dec.path)))(dec);
       }
 
       return Promise.all(tasks).then(function() {
-        dripcap.pubsub.pub('core:capturing-settings', {iface, options});
+        dripcap.pubsub.pub('core:capturing-settings', {
+          iface,
+          options
+        });
         return sess;
       });
-    }
-    );
+    });
   }
 }

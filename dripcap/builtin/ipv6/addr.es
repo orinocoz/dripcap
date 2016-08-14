@@ -1,9 +1,9 @@
-import {Buffer} from 'dripcap';
+import {
+  Buffer
+} from 'dripcap';
 
-export default class IPv6Address
-{
-  constructor(data)
-  {
+export default class IPv6Address {
+  constructor(data) {
     if (!Buffer.isBuffer(data)) {
       throw new TypeError('expected Buffer');
     }
@@ -13,8 +13,7 @@ export default class IPv6Address
     this.data = data;
   }
 
-  toString()
-  {
+  toString() {
     let hex = this.data.toString('hex');
     let str = '';
     for (let i = 0; i < 8; ++i) {
@@ -24,24 +23,23 @@ export default class IPv6Address
     str = str.substr(0, str.length - 1);
     let seq = str.match(/:0:(?:0:)+/g);
     if (seq != null) {
-      seq.sort((a, b) => {b.length - a.length});
+      seq.sort((a, b) => {
+        b.length - a.length
+      });
       str = str.replace(seq[0], '::');
     }
     return str;
   }
 
-  toJSON()
-  {
+  toJSON() {
     return this.toString();
   }
 
-  toMsgpack()
-  {
-    return [ this.data ];
+  toMsgpack() {
+    return [this.data];
   }
 
-  equals(value)
-  {
+  equals(value) {
     return this.data.equals(value.data);
   }
 }

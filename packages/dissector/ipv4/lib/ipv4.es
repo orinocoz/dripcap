@@ -1,19 +1,17 @@
-import {Layer, Buffer} from 'dripcap';
+import {
+  Layer,
+  Buffer
+} from 'dripcap';
 import MACAddress from 'dripcap/mac';
 import ProtocolEnum from 'dripcap/ipv4/protocol';
 import IPv4Address from 'dripcap/ipv4/addr';
 import FieldFlags from 'dripcap/ipv4/fields';
 
-export default class IPv4Dissector
-{
-  constructor(options)
-  {
-  }
+export default class IPv4Dissector {
+  constructor(options) {}
 
-  analyze(packet, parentLayer)
-  {
-    function assertLength(len)
-    {
+  analyze(packet, parentLayer) {
+    function assertLength(len) {
       if (parentLayer.payload.length < len) {
         throw new Error('too short frame');
       }
@@ -145,9 +143,9 @@ export default class IPv4Dissector
       layer.payload = parentLayer.payload.slice(20, totalLength);
 
       layer.fields.push({
-        name : 'Payload',
-        value : layer.payload,
-        data : layer.payload
+        name: 'Payload',
+        value: layer.payload,
+        data: layer.payload
       });
 
       layer.summary = `${source} -> ${destination}`;

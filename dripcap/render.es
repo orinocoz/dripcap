@@ -1,12 +1,16 @@
 import config from 'dripcap/config';
-import { shell } from 'electron';
+import {
+  shell
+} from 'electron';
 import $ from 'jquery';
 
 import Profile from 'dripcap/profile';
 let prof = new Profile(config.profilePath + '/default');
 require('dripcap')(prof);
 
-import { remote } from 'electron';
+import {
+  remote
+} from 'electron';
 
 dripcap.package.sub('core:package-loaded', () => process.nextTick(() => $('#splash').fadeOut()));
 dripcap.action.on('core:new-window', () => remote.getGlobal('dripcap').newWindow());

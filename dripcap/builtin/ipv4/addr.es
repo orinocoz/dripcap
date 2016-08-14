@@ -1,11 +1,13 @@
-import {Buffer} from 'dripcap';
+import {
+  Buffer
+} from 'dripcap';
 
-export default class IPv4Address
-{
-  constructor(data)
-  {
+export default class IPv4Address {
+  constructor(data) {
     if (typeof data == 'string') {
-      data = new Buffer(data.split('.').map((v) => { parseInt(v) }));
+      data = new Buffer(data.split('.').map((v) => {
+        parseInt(v)
+      }));
     }
     if (!Buffer.isBuffer(data)) {
       throw new TypeError('expected Buffer');
@@ -16,23 +18,19 @@ export default class IPv4Address
     this.data = data;
   }
 
-  toString()
-  {
+  toString() {
     return `${this.data[0]}.${this.data[1]}.${this.data[2]}.${this.data[3]}`;
   }
 
-  toJSON()
-  {
+  toJSON() {
     return this.toString();
   }
 
-  toMsgpack()
-  {
-    return [ this.data ];
+  toMsgpack() {
+    return [this.data];
   }
 
-  equals(value)
-  {
+  equals(value) {
     return this.data.equals(value.data);
   }
 }

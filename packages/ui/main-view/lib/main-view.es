@@ -11,10 +11,8 @@ export default class MainView {
         this._elem = $('<div id="main-view">').append(this.panel.root);
         this._elem.appendTo($('body'));
         return res();
-      }
-      );
-    }
-    );
+      });
+    });
   }
 
   deactivate() {

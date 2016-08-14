@@ -1,9 +1,9 @@
-import {NetStream} from 'dripcap';
+import {
+  NetStream
+} from 'dripcap';
 
-export default class TCPStreamDissector
-{
-  constructor(options, context)
-  {
+export default class TCPStreamDissector {
+  constructor(options, context) {
     if (context.seq == null) {
       context.seq = -1;
       context.length = 0;
@@ -11,8 +11,7 @@ export default class TCPStreamDissector
     this.ctx = context;
   }
 
-  analyze(packet, layer, data, output)
-  {
+  analyze(packet, layer, data, output) {
     console.error(this.ctx.length);
     if (layer.payload.length > 0) {
       let stream = new NetStream('TCP Stream', layer.namespace, layer.attrs.src + '/' + layer.attrs.dst);

@@ -1,20 +1,18 @@
-import {Layer, Buffer} from 'dripcap';
+import {
+  Layer,
+  Buffer
+} from 'dripcap';
 import MACAddress from 'dripcap/mac';
 import IPv4Address from 'dripcap/ipv4/addr';
 import HardwareEnum from 'dripcap/arp/hardware';
 import ProtocolEnum from 'dripcap/arp/protocol';
 import OperationEnum from 'dripcap/arp/operation';
 
-export default class ARPDissector
-{
-  constructor(options)
-  {
-  }
+export default class ARPDissector {
+  constructor(options) {}
 
-  analyze(packet, parentLayer)
-  {
-    function assertLength(len)
-    {
+  analyze(packet, parentLayer) {
+    function assertLength(len) {
       if (parentLayer.payload.length < len) {
         throw new Error('too short frame');
       }

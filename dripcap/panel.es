@@ -3,7 +3,11 @@ import _ from 'underscore';
 
 $.fn.extend({
   actualHeight() {
-    let y = this.clone().css({position: 'absolute', visibility: 'hidden', display: 'block'}).appendTo($('body'));
+    let y = this.clone().css({
+      position: 'absolute',
+      visibility: 'hidden',
+      display: 'block'
+    }).appendTo($('body'));
     let height = y.height();
     y.remove();
     return Math.max(height, this.height());
@@ -68,8 +72,7 @@ export default class Panel {
 
     this.update = _.debounce(() => {
       return this._update();
-    }
-    , 500);
+    }, 500);
 
     $(window).resize(() => this._update());
     dripcap.package.sub('core:package-loaded', () => this.update());
@@ -118,34 +121,38 @@ export default class Panel {
     this._hsp0.hide();
     this._hsp1.hide();
 
-    this._vh0.on('mouseup mouseout', function() { return $(this).hide(); });
-    this._vh1.on('mouseup mouseout', function() { return $(this).hide(); });
-    this._hh0.on('mouseup mouseout', function() { return $(this).hide(); });
-    this._hh1.on('mouseup mouseout', function() { return $(this).hide(); });
+    this._vh0.on('mouseup mouseout', function() {
+      return $(this).hide();
+    });
+    this._vh1.on('mouseup mouseout', function() {
+      return $(this).hide();
+    });
+    this._hh0.on('mouseup mouseout', function() {
+      return $(this).hide();
+    });
+    this._hh1.on('mouseup mouseout', function() {
+      return $(this).hide();
+    });
 
     this._vsp0.on('mousedown', () => {
       this._vh0.show();
       return false;
-    }
-    );
+    });
 
     this._vsp1.on('mousedown', () => {
       this._vh1.show();
       return false;
-    }
-    );
+    });
 
     this._hsp0.on('mousedown', () => {
       this._hh0.show();
       return false;
-    }
-    );
+    });
 
     this._hsp1.on('mousedown', () => {
       this._hh1.show();
       return false;
-    }
-    );
+    });
 
     this._vh0.on('mousemove', e => {
       let v = (e.clientY - this._vcontainer.offset().top) / this._vcontainer.height();
@@ -154,8 +161,7 @@ export default class Panel {
         this.root.data('v0', v);
         return this._update();
       }
-    }
-    );
+    });
 
     this._vh1.on('mousemove', e => {
       let v = (e.clientY - this._vcontainer.offset().top) / this._vcontainer.height();
@@ -164,8 +170,7 @@ export default class Panel {
         this.root.data('v1', v);
         return this._update();
       }
-    }
-    );
+    });
 
     this._hh0.on('mousemove', e => {
       let h = (e.clientX - this._hcontainer.offset().left) / this._hcontainer.width();
@@ -174,8 +179,7 @@ export default class Panel {
         this.root.data('h0', h);
         return this._update();
       }
-    }
-    );
+    });
 
     this._hh1.on('mousemove', e => {
       let h = (e.clientX - this._hcontainer.offset().left) / this._hcontainer.width();
@@ -184,8 +188,7 @@ export default class Panel {
         this.root.data('h1', h);
         return this._update();
       }
-    }
-    );
+    });
 
     this.update();
   }
@@ -207,7 +210,9 @@ export default class Panel {
       this.root.data('v1', 2 / 3);
     }
     elem.attr('tab-id', id);
-    if (tab != null) { elem.data('tab', tab); }
+    if (tab != null) {
+      elem.data('tab', tab);
+    }
     elem.detach().appendTo(container);
     this.update();
     return res;
@@ -263,7 +268,9 @@ export default class Panel {
       this.root.data('v1', 2 / 3);
     }
     elem.attr('tab-id', id);
-    if (tab != null) { elem.data('tab', tab); }
+    if (tab != null) {
+      elem.data('tab', tab);
+    }
     elem.detach().appendTo(container);
     this.update();
     return res;
@@ -319,7 +326,9 @@ export default class Panel {
       this.root.data('h1', 2 / 3);
     }
     elem.attr('tab-id', id);
-    if (tab != null) { elem.data('tab', tab); }
+    if (tab != null) {
+      elem.data('tab', tab);
+    }
     elem.detach().appendTo(container);
     this.update();
     return res;
@@ -364,7 +373,9 @@ export default class Panel {
       this.root.data('h1', 2 / 3);
     }
     elem.attr('tab-id', id);
-    if (tab != null) { elem.data('tab', tab); }
+    if (tab != null) {
+      elem.data('tab', tab);
+    }
     elem.detach().appendTo(container);
     this.update();
     return res;
@@ -401,7 +412,9 @@ export default class Panel {
       return res;
     }
     elem.attr('tab-id', id);
-    if (tab != null) { elem.data('tab', tab); }
+    if (tab != null) {
+      elem.data('tab', tab);
+    }
     elem.detach().appendTo(container);
     this.update();
     return res;
@@ -451,7 +464,9 @@ export default class Panel {
 
     let update = function(panel) {
       let panels = panel.children('.vcontainer').children('[tab-id]');
-      let currentId = panels.filter(function() { return $(this).css('display') !== 'none'; }).attr('tab-id');
+      let currentId = panels.filter(function() {
+        return $(this).css('display') !== 'none';
+      }).attr('tab-id');
       let tabs = panels.get().map(function(elem) {
         let id = $(elem).attr('tab-id');
         let tab = $('<div>')
@@ -463,7 +478,7 @@ export default class Panel {
             id = $(this).attr('tab-id');
             $(this).addClass('selected').siblings().removeClass('selected');
             return $(this).parent().siblings('.vcontainer').children('[tab-id]').each((i, elem) => $(elem).toggle($(elem).attr('tab-id') === id));
-        });
+          });
 
         if ($(elem).data('tab') != null) {
           tab.empty().append($(elem).data('tab').detach());
@@ -476,7 +491,9 @@ export default class Panel {
 
       let tabcontainer = panel.children('.tabcontainer');
       tabcontainer.empty();
-      if (tabs.length > 1) { return tabcontainer.append(tabs); }
+      if (tabs.length > 1) {
+        return tabcontainer.append(tabs);
+      }
     };
 
     this._hcontainer.css('top', this._fnorthPanel.actualHeight() + 'px');

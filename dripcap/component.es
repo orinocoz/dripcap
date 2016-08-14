@@ -15,7 +15,9 @@ export default class Component {
     for (let pattern of tags) {
       for (let tag of glob.sync(pattern)) {
         if (tag.endsWith('.tag')) {
-          let data = fs.readFileSync(tag, {encoding: 'utf8'});
+          let data = fs.readFileSync(tag, {
+            encoding: 'utf8'
+          });
           let code = "riot = require('riot');\n" + riot.compile(data);
           let match;
           while (match = tagPattern.exec(code)) {
