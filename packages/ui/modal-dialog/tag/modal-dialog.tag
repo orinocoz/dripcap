@@ -6,8 +6,8 @@
     </div>
   </div>
 
-  <style type="text/less">
-  modal-dialog {
+  <style type="text/less" scoped>
+  :scope {
     .modal {
       display: flex;
       flex-direction: row;

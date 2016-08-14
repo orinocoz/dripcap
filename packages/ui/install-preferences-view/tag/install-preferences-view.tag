@@ -28,8 +28,8 @@
     </install-preferences-view-item>
   </ul>
 
-  <style type="text/less">
-  [riot-tag=install-preferences-view] {
+  <style type="text/less" scoped>
+  :scope {
     padding: 18px;
 
     label {

@@ -1,8 +1,8 @@
 <packet-filter-view>
   <input class="compact" type="text" placeholder="Filter" name="filter" onkeypress={apply} oninput={change}>
 
-  <style type="text/less">
-    [riot-tag=packet-filter-view] {
+  <style type="text/less" scoped>
+    :scope {
       input {
         border-right-width: 0;
         border-left-width: 0;

@@ -3,8 +3,8 @@
   <div class="main">
   </div>
 
-  <style type="text/less">
-    [riot-tag=packet-list-view] {
+  <style type="text/less" scoped>
+    :scope {
       div.main {
         align-self: stretch;
         border-spacing: 0px;
