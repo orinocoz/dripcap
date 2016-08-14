@@ -33,7 +33,7 @@ export default class Component {
         if (e != null) {
           throw e;
         } else {
-          $('<style>').text(output.css).appendTo($('head'));
+          this._css = $('<style>').text(output.css).appendTo($('head'));
         }
       });
     }
@@ -43,6 +43,7 @@ export default class Component {
     for (let name of this._names) {
       riot.tag(name, '');
     }
-    this._css.remove();
+    if (this._css != null)
+      this._css.remove();
   }
 }
