@@ -23,7 +23,6 @@
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-es2015-riot": "^1.1.0",
     "babel-register": "^6.11.6",
-    "cson": "^3.0.2",
     "dripcap": "file:./dripcap",
     "electron-rebuild": "^1.1.5",
     "esprima": "^2.7.2",
