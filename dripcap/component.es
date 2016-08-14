@@ -11,11 +11,6 @@ export default class Component {
     this._less = '';
     this._names = [];
 
-    let babel = riot.parsers.js.babel;
-    riot.parsers.js.babel = (js, opts, url) => {
-      return babel(js, opts, __dirname);
-    };
-
     const tags = arguments;
     for (let pattern of tags) {
       for (let tag of glob.sync(pattern)) {
@@ -40,7 +35,7 @@ export default class Component {
         } else {
           $('<style>').text(output.css).appendTo($('head'));
         }
-      });  
+      });
     }
   }
 
