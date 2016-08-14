@@ -16,22 +16,17 @@ export default class StatusView {
           dripcap.pubsub.sub('core:capturing-status', data => {
             this.view.capturing = data;
             return this.view.update();
-          }
-          );
+          });
 
           dripcap.pubsub.sub('core:capturing-settings', data => {
             this.view.settings = data;
             return this.view.update();
-          }
-          );
+          });
 
           return res();
-        }
-        );
-      }
-      );
-    }
-    );
+        });
+      });
+    });
   }
 
   deactivate() {
@@ -39,7 +34,6 @@ export default class StatusView {
       pkg.root.panel.northFixed();
       this.view.unmount();
       return this.comp.destroy();
-    }
-    );
+    });
   }
 }

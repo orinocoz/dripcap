@@ -15,15 +15,11 @@ export default class PackagePreferencesView {
           return dripcap.package.sub('core:package-list-updated', list => {
             this._view.packageList = Object.keys(list).map(v => list[v]);
             return this._view.update();
-          }
-          );
-        }
-        );
-      }
-      );
+          });
+        });
+      });
       return res();
-    }
-    );
+    });
   }
 
   deactivate() {

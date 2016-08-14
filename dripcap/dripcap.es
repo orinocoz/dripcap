@@ -2,7 +2,9 @@ import config from './config';
 import $ from 'jquery';
 import less from 'less';
 import GoldFilter from 'goldfilter';
-import {EventEmitter} from 'events';
+import {
+  EventEmitter
+} from 'events';
 
 import PubSub from './pubsub';
 import SessionInterface from './session-interface';

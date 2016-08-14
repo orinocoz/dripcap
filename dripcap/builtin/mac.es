@@ -1,9 +1,9 @@
-import {Buffer} from 'dripcap';
+import {
+  Buffer
+} from 'dripcap';
 
-export default class MACAddress
-{
-  constructor(data)
-  {
+export default class MACAddress {
+  constructor(data) {
     if (typeof data == 'string') {
       data = new Buffer(data.replace(/[:-]/g, ''), 'hex');
     }
@@ -16,23 +16,19 @@ export default class MACAddress
     this.data = data;
   }
 
-  toString()
-  {
+  toString() {
     return this.data.toString('hex').replace(/..(?=.)/g, '$&:');
   }
 
-  toJSON()
-  {
+  toJSON() {
     return this.toString();
   }
 
-  toMsgpack()
-  {
-    return [ this.data ];
+  toMsgpack() {
+    return [this.data];
   }
 
-  equals(value)
-  {
+  equals(value) {
     return this.data.equals(value.data);
   }
 }

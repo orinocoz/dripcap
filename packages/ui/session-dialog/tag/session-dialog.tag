@@ -4,7 +4,7 @@
     <h2>New session</h2>
     <p>
       <select name="interface">
-        <option each={ parent.interfaceList } if={ link === 1 } value={ name }>{ name }</option>
+        <option each={ parent.interfaceList } if={ link===1 } value={ name }>{ name }</option>
       </select>
     </p>
     <p>
@@ -12,7 +12,8 @@
     </p>
     <p>
       <label>
-        <input type="checkbox" name="promisc"> Promiscuous mode
+        <input type="checkbox" name="promisc">
+        Promiscuous mode
       </label>
     </p>
     <p>
@@ -21,42 +22,41 @@
   </modal-dialog>
 
   <style type="text/less" scoped>
-  :scope > modal-dialog > .modal > .content {
-    max-width: 600px;
-  }
+    :scope > modal-dialog > .modal > .content {
+      max-width: 600px;
+    }
   </style>
 
   <script type="babel">
-  import $ from 'jquery';
+    import $ from 'jquery';
 
-  this.setInterfaceList = list => {
-    return this.interfaceList = list;
-  };
+    this.setInterfaceList = list => {
+      return this.interfaceList = list;
+    };
 
-  this.show = () => {
-    return this.tags['modal-dialog'].show();
-  };
+    this.show = () => {
+      return this.tags['modal-dialog'].show();
+    };
 
-  this.start = () => {
-    let ifs = $(this.tags['modal-dialog'].interface).val();
-    let filter = $(this.tags['modal-dialog'].filter).val();
-    let promisc = $(this.tags['modal-dialog'].promisc).prop('checked');
-    let snaplen = dripcap.profile.getConfig('snaplen');
+    this.start = () => {
+      let ifs = $(this.tags['modal-dialog'].interface).val();
+      let filter = $(this.tags['modal-dialog'].filter).val();
+      let promisc = $(this.tags['modal-dialog'].promisc).prop('checked');
+      let snaplen = dripcap.profile.getConfig('snaplen');
 
-    this.tags['modal-dialog'].hide();
-    return dripcap.session.create(ifs, {filter, promisc}).then(sess => {
-      if (dripcap.session.list != null) {
-        for (let i = 0; i < dripcap.session.list.length; i++) {
-          let s = dripcap.session.list[i];
-          s.close();
+      this.tags['modal-dialog'].hide();
+      return dripcap.session.create(ifs, {filter, promisc}).then(sess => {
+        if (dripcap.session.list != null) {
+          for (let i = 0; i < dripcap.session.list.length; i++) {
+            let s = dripcap.session.list[i];
+            s.close();
+          }
         }
-      }
-      dripcap.session.list = [sess];
-      dripcap.session.emit('created', sess);
-      return sess.start();
-    }
-    );
-  };
+        dripcap.session.list = [sess];
+        dripcap.session.emit('created', sess);
+        return sess.start();
+      });
+    };
   </script>
 
 </session-dialog>

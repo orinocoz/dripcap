@@ -1,7 +1,5 @@
-export default class IPv6Host
-{
-  constructor(addr, port)
-  {
+export default class IPv6Host {
+  constructor(addr, port) {
     if (typeof addr !== 'object' || addr.constructor.name !== 'IPv6Address') {
       throw new TypeError('expected IPv6Address');
     }
@@ -12,23 +10,19 @@ export default class IPv6Host
     this.port = port;
   }
 
-  toString()
-  {
+  toString() {
     return `${this.addr}:${this.port}`
   }
 
-  toJSON()
-  {
+  toJSON() {
     return this.toString();
   }
 
-  toMsgpack()
-  {
-    return [ this.addr, this.port ];
+  toMsgpack() {
+    return [this.addr, this.port];
   }
 
-  equals(value)
-  {
+  equals(value) {
     return val.toString() === this.toString();
   }
 }

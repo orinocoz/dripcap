@@ -17,27 +17,20 @@ export default class WelcomeDialog {
             dripcap.session.on('created', () => {
               this.view.hide();
               return this.view.update();
-            }
-            );
+            });
 
             dripcap.package.sub('core:package-loaded', _.once(() => {
               if (dripcap.profile.getConfig('startupDialog')) {
                 this.view.show();
                 return this.view.update();
               }
-            }
-            )
-            );
+            }));
 
             return res();
-          }
-          );
-        }
-        );
-      }
-      );
-    }
-    );
+          });
+        });
+      });
+    });
   }
 
   deactivate() {

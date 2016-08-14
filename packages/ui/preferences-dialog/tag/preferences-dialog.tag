@@ -3,22 +3,22 @@
   <modal-dialog></modal-dialog>
 
   <style type="text/less" scoped>
-  :scope > modal-dialog > .modal > .content {
-    height: 70%;
-    position: relative;
-  }
+    :scope > modal-dialog > .modal > .content {
+      height: 70%;
+      position: relative;
+    }
   </style>
 
   <script type="babel">
-  import $ from 'jquery';
+    import $ from 'jquery';
 
-  this.setInterfaceList = list => {
-    return this.interfaceList = list;
-  };
+    this.setInterfaceList = list => {
+      return this.interfaceList = list;
+    };
 
-  this.show = () => {
-    return this.tags['modal-dialog'].show();
-  };
+    this.show = () => {
+      return this.tags['modal-dialog'].show();
+    };
   </script>
 
 </preferences-dialog>

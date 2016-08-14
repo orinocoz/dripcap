@@ -4,8 +4,8 @@
   "license": "MIT",
   "description": "Dripcap General Preferences View",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/dripcap/dripcap.git"
+    "type": "git",
+    "url": "https://github.com/dripcap/dripcap.git"
   },
   "readme": "see README.md"
 }

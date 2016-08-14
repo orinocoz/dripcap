@@ -1,7 +1,9 @@
 import $ from 'jquery';
 import _ from 'underscore';
 import Mousetrap from 'mousetrap';
-import { EventEmitter } from 'events';
+import {
+  EventEmitter
+} from 'events';
 
 export default class KeybindInterface extends EventEmitter {
   constructor(parent) {
@@ -12,7 +14,9 @@ export default class KeybindInterface extends EventEmitter {
   }
 
   bind(command, selector, act) {
-    if (this._builtinCommands[command] == null) { this._builtinCommands[command] = {}; }
+    if (this._builtinCommands[command] == null) {
+      this._builtinCommands[command] = {};
+    }
     this._builtinCommands[command][selector] = act;
     return this._update();
   }
@@ -69,7 +73,9 @@ export default class KeybindInterface extends EventEmitter {
       let commands = map[selector];
       for (var command in commands) {
         let act = commands[command];
-        if (this._commands[command] == null) { this._commands[command] = {}; }
+        if (this._commands[command] == null) {
+          this._commands[command] = {};
+        }
         this._commands[command][selector] = act;
       }
     }
@@ -93,8 +99,7 @@ export default class KeybindInterface extends EventEmitter {
               }
             }
           }
-        }
-        );
+        });
       })(command, sels);
     }
 

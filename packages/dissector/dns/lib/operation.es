@@ -12,8 +12,7 @@ export default class OperationEnum extends Enum {
     super(table, value);
   }
 
-  toMsgpack()
-  {
-    return [ this.value ];
+  toMsgpack() {
+    return [this.value];
   }
 }

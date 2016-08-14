@@ -15,27 +15,21 @@ export default class GeneralPreferencesView {
           dripcap.theme.sub('registryUpdated', () => {
             this._view.setThemeList(dripcap.theme.registry);
             return this._view.update();
-          }
-          );
+          });
 
           dripcap.profile.watchConfig('theme', id => {
             this._view.currentTheme = id;
             return this._view.update();
-          }
-          );
+          });
 
           return dripcap.profile.watchConfig('snaplen', len => {
             this._view.currentSnaplen = len;
             return this._view.update();
-          }
-          );
-        }
-        );
-      }
-      );
+          });
+        });
+      });
       return res();
-    }
-    );
+    });
   }
 
   deactivate() {

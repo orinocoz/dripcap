@@ -1,72 +1,60 @@
 // body
-
 body {
   background-color: @background;
   color: @text;
 }
-
 // scroll-bar
-
 @scroll-bar-back: fade(@scroll-bar, 40%);
-
 *::-webkit-scrollbar {
-  width:7px;
-  background:@scroll-bar-back;
+  width: 7px;
+  background: @scroll-bar-back;
 }
-
 *::-webkit-scrollbar:horizontal {
-  height:5px;
+  height: 5px;
 }
-
 *::-webkit-scrollbar-piece {
-  background:@scroll-bar-back;
+  background: @scroll-bar-back;
 }
-
 *::-webkit-scrollbar-piece:start {
-  background:@scroll-bar-back;
+  background: @scroll-bar-back;
 }
-
 *::-webkit-scrollbar-thumb {
-  background:@scroll-bar;
+  background: @scroll-bar;
   min-height: 50px;
 }
-
 *::-webkit-scrollbar-corner {
-  background:@scroll-bar;
+  background: @scroll-bar;
 }
-
 // selection
-
 *:focus {
   outline-color: @focus;
 }
-
 ::selection {
   background: @text;
   color: @background;
 }
-
 // headline
-
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: @headline;
 }
-
 th {
   color: @label;
 }
-
 label {
   color: @label;
 }
-
 // form
-
 select {
   background: @background;
 }
-
-input, textarea, select {
+input,
+select,
+textarea {
   border: 1px solid @border;
   background: lighten(@background, 5%);
   color: @text;
@@ -74,95 +62,60 @@ input, textarea, select {
     color: @error;
   }
 }
-
 input[type=checkbox]:checked {
   background-color: @focus;
 }
-
 // panel
-
 @splitter: @scroll-bar;
-
 .panel {
   .vsplitter {
-    background: -webkit-gradient(
-      linear, left top, left bottom,
-      from(transparent),
-      color-stop(0.49, transparent),
-      color-stop(0.49, @splitter),
-      color-stop(0.51, @splitter),
-      color-stop(0.51, transparent),
-      to(transparent));
+    background: -webkit-gradient( linear, left top, left bottom, from(transparent), color-stop(0.49, transparent), color-stop(0.49, @splitter), color-stop(0.51, @splitter), color-stop(0.51, transparent), to(transparent));
   }
-
   .hsplitter {
-    background: -webkit-gradient(
-      linear, left top, right top,
-      from(transparent),
-      color-stop(0.49, transparent),
-      color-stop(0.49, @splitter),
-      color-stop(0.51, @splitter),
-      color-stop(0.51, transparent),
-      to(transparent));
+    background: -webkit-gradient( linear, left top, right top, from(transparent), color-stop(0.49, transparent), color-stop(0.49, @splitter), color-stop(0.51, @splitter), color-stop(0.51, transparent), to(transparent));
   }
-
   .tab {
     &:hover {
       border-top-color: fade(@focus, 30%);
     }
-
     &.selected {
       border-top-color: @focus;
     }
   }
-
   .tabcontainer {
     border-bottom: 1px dotted @border;
   }
 }
-
 // list
-
 .list-item {
   &:hover {
     background-color: fade(@highlight, 40%);
   }
-
   &.selected {
     background-color: @highlight;
   }
 }
-
 // modal
-
 .modal {
   background-color: fade(@background, 70%);
-
   .content {
     background-color: @background;
   }
 }
-
 // text
-
 .text-label {
   color: @label;
 }
-
 .text-warn {
   color: @error;
 }
-
 .text-summary {
   color: @summary;
 }
-
 .text-headline {
   color: @headline;
 }
-
 // border
-
 .border {
   border: 1px solid @border;
 }

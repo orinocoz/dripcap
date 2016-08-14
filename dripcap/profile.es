@@ -20,7 +20,9 @@ class Category {
     this._handlers = {};
   }
 
-  get(key) { return this._data[key]; }
+  get(key) {
+    return this._data[key];
+  }
 
   set(key, value) {
     if (!_.isEqual(value, this._data[key])) {
@@ -36,7 +38,9 @@ class Category {
   }
 
   watch(key, handler) {
-    if (this._handlers[key] == null) { this._handlers[key] = []; }
+    if (this._handlers[key] == null) {
+      this._handlers[key] = [];
+    }
     this._handlers[key].push(handler);
     return _.uniq(this._handlers[key]);
   }
@@ -66,8 +70,7 @@ export default class Profile {
       theme: 'default',
       "package-registry": 'socket.moe',
       startupDialog: true
-    }
-    );
+    });
 
     this._packages = {};
 
@@ -81,17 +84,28 @@ export default class Profile {
     }
   }
 
-  getConfig(key) { return this._config.get(key); }
-  setConfig(key, value) { return this._config.set(key, value); }
-  watchConfig(key, handler) { return this._config.watch(key, handler); }
-  unwatchConfig(key, handler) { return this._config.unwatch(key, handler); }
+  getConfig(key) {
+    return this._config.get(key);
+  }
+  setConfig(key, value) {
+    return this._config.set(key, value);
+  }
+  watchConfig(key, handler) {
+    return this._config.watch(key, handler);
+  }
+  unwatchConfig(key, handler) {
+    return this._config.unwatch(key, handler);
+  }
 
-  getKeymap() { return this._keyMap; }
+  getKeymap() {
+    return this._keyMap;
+  }
 
   getPackageConfig(name) {
     if (this._packages[name] == null) {
-      this._packages[name] = new Category(path.join(this._packagePath, `${name}.json`),
-        {enabled: true});
+      this._packages[name] = new Category(path.join(this._packagePath, `${name}.json`), {
+        enabled: true
+      });
     }
     return this._packages[name];
   }

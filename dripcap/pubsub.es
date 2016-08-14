@@ -5,7 +5,10 @@ export default class PubSub {
 
   _getChannel(name) {
     if (this._channels[name] == null) {
-      this._channels[name] = {queue: [], handlers: []};
+      this._channels[name] = {
+        queue: [],
+        handlers: []
+      };
     }
     return this._channels[name];
   }

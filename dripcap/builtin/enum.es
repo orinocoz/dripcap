@@ -1,7 +1,5 @@
-export default class Enum
-{
-  constructor(table, value)
-  {
+export default class Enum {
+  constructor(table, value) {
     if (typeof table !== 'object') {
       throw new TypeError('expected Object');
     }
@@ -9,38 +7,32 @@ export default class Enum
     this.value = value;
   }
 
-  get name()
-  {
+  get name() {
     let name = this.table[this.value];
     return name ? name : 'unknown';
   }
 
-  get known()
-  {
+  get known() {
     return (this.table[this.value] != null);
   }
 
-  toString()
-  {
+  toString() {
     return `${this.name} (${this.value})`;
   }
 
-  toJSON()
-  {
+  toJSON() {
     return this.toString();
   }
 
-  toMsgpack()
-  {
+  toMsgpack() {
     let table = {};
     if (this.known) {
       table[this.value] = this.table[this.value];
     }
-    return [ table, this.value ];
+    return [table, this.value];
   }
 
-  equals(val)
-  {
+  equals(val) {
     return val.toString() === this.toString();
   }
 }

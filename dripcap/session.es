@@ -1,4 +1,6 @@
-import { EventEmitter } from 'events';
+import {
+  EventEmitter
+} from 'events';
 import GoldFilter from 'goldfilter';
 
 export default class Session extends EventEmitter {
@@ -9,8 +11,7 @@ export default class Session extends EventEmitter {
     this._gold = new GoldFilter();
     this._gold.on('packet', pkt => {
       return this.emit('packet', pkt);
-    }
-    );
+    });
 
     this._builtin = Promise.all([
       this.addClass('dripcap/mac', `${__dirname}/builtin/mac.es`),
@@ -28,7 +29,10 @@ export default class Session extends EventEmitter {
   }
 
   addCapture(iface, options = {}) {
-    return this._settings = {iface, options};
+    return this._settings = {
+      iface,
+      options
+    };
   }
 
   addDissector(namespaces, path) {
@@ -61,16 +65,11 @@ export default class Session extends EventEmitter {
                 dripcap.pubsub.pub('core:capturing-status', stat.capturing);
                 return this.emit('status', stat);
               }
-            }
-            );
-          }
-          , 100);
-        }
-        );
-      }
-      );
-    }
-    );
+            });
+          }, 100);
+        });
+      });
+    });
   }
 
   stop() {

@@ -1,12 +1,10 @@
 export default class IPv6 {
-  activate()
-  {
+  activate() {
     dripcap.session.registerClass('dripcap/ipv6/protocol', `${__dirname}/protocol.es`);
     dripcap.session.registerDissector(['::Ethernet::<IPv6>'], `${__dirname}/ipv6.es`);
   }
 
-  deactivate()
-  {
+  deactivate() {
     dripcap.session.unregisterClass(`${__dirname}/protocol.es`);
     dripcap.session.unregisterDissector(`${__dirname}/ipv6.es`);
   }

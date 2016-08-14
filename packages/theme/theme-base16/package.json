@@ -4,8 +4,8 @@
   "license": "MIT",
   "description": "Dripcap Base16 scheme by Chris Kempson (https://github.com/chriskempson)",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/dripcap/dripcap.git"
+    "type": "git",
+    "url": "https://github.com/dripcap/dripcap.git"
   },
   "readme": "see README.md"
 }

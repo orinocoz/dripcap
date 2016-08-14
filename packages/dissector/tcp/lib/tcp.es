@@ -1,18 +1,17 @@
-import {Layer, Buffer, NetStream} from 'dripcap';
+import {
+  Layer,
+  Buffer,
+  NetStream
+} from 'dripcap';
 import IPv4Host from 'dripcap/ipv4/host';
 import IPv6Host from 'dripcap/ipv6/host';
 import TCPFlags from 'dripcap/tcp/flags';
 
-export default class TCPDissector
-{
-  constructor(options)
-  {
-  }
+export default class TCPDissector {
+  constructor(options) {}
 
-  analyze(packet, parentLayer)
-  {
-    function assertLength(len)
-    {
+  analyze(packet, parentLayer) {
+    function assertLength(len) {
       if (parentLayer.payload.length < len) {
         throw new Error('too short frame');
       }
@@ -192,7 +191,7 @@ export default class TCPDissector
             option.fields.push({
               name: 'Maximum segment size',
               value: parentLayer.payload.readUInt16BE(optionOffset + 2, true),
-              data: parentLayer.payload.slice(optionOffset, optionOffset+4)
+              data: parentLayer.payload.slice(optionOffset, optionOffset + 4)
             });
             optionOffset += 4;
             break;
@@ -203,7 +202,7 @@ export default class TCPDissector
             option.fields.push({
               name: 'Window scale',
               value: parentLayer.payload.readUInt8(optionOffset + 2, true),
-              data: parentLayer.payload.slice(optionOffset, optionOffset+3)
+              data: parentLayer.payload.slice(optionOffset, optionOffset + 3)
             });
             optionOffset += 3;
             break;
@@ -214,12 +213,12 @@ export default class TCPDissector
             option.fields.push({
               name: 'Selective ACK permitted',
               value: '',
-              data: parentLayer.payload.slice(optionOffset, optionOffset+2)
+              data: parentLayer.payload.slice(optionOffset, optionOffset + 2)
             });
             optionOffset += 2;
             break;
 
-          // TODO: https://tools.ietf.org/html/rfc2018
+            // TODO: https://tools.ietf.org/html/rfc2018
           case 5:
             checkLength(optionData, optionOffset, 2)
             let length = parentLayer.payload.readUInt8(optionOffset + 1, true);
@@ -228,7 +227,7 @@ export default class TCPDissector
             option.fields.push({
               name: 'Selective ACK',
               value: parentLayer.payload.slice(optionOffset + 2, optionOffset + length),
-              data: parentLayer.payload.slice(optionOffset, optionOffset+length)
+              data: parentLayer.payload.slice(optionOffset, optionOffset + length)
             });
 
             optionOffset += length;
@@ -242,15 +241,15 @@ export default class TCPDissector
             option.fields.push({
               name: 'Timestamps',
               value: `${mt} - ${et}`,
-              data: parentLayer.payload.slice(optionOffset, optionOffset+10),
+              data: parentLayer.payload.slice(optionOffset, optionOffset + 10),
               fields: [{
                 name: 'My timestamp',
                 value: mt,
-                data: parentLayer.payload.slice(optionOffset+2, optionOffset+6)
+                data: parentLayer.payload.slice(optionOffset + 2, optionOffset + 6)
               }, {
                 name: 'Echo reply timestamp',
                 value: et,
-                data: parentLayer.payload.slice(optionOffset+6, optionOffset+10)
+                data: parentLayer.payload.slice(optionOffset + 6, optionOffset + 10)
               }]
             });
             optionOffset += 10;

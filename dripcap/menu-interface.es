@@ -1,8 +1,16 @@
-import { EventEmitter } from 'events';
+import {
+  EventEmitter
+} from 'events';
 import _ from 'underscore';
-import { remote } from 'electron';
-let { Menu } = remote;
-let { MenuItem } = remote;
+import {
+  remote
+} from 'electron';
+let {
+  Menu
+} = remote;
+let {
+  MenuItem
+} = remote;
 
 export default class MenuInterface extends EventEmitter {
   constructor(parent) {
@@ -23,13 +31,23 @@ export default class MenuInterface extends EventEmitter {
           let h = this._mainHadlers[k][i];
           menu = h.handler.call(this, menu);
           if (i < this._mainHadlers[k].length - 1) {
-            menu.append(new MenuItem({type: 'separator'}));
+            menu.append(new MenuItem({
+              type: 'separator'
+            }));
           }
         }
-        let item = {label: k, submenu: menu, type: 'submenu'};
+        let item = {
+          label: k,
+          submenu: menu,
+          type: 'submenu'
+        };
         switch (k) {
-          case 'Help': item.role = 'help'; break;
-          case 'Window': item.role = 'window'; break;
+          case 'Help':
+            item.role = 'help';
+            break;
+          case 'Window':
+            item.role = 'window';
+            break;
         }
         root.append(new MenuItem(item));
       }
@@ -39,30 +57,43 @@ export default class MenuInterface extends EventEmitter {
       } else {
         return Menu.setApplicationMenu(root);
       }
-    }
-    , 100);
+    }, 100);
   }
 
   register(name, handler, priority = 0) {
-    if (this._handlers[name] == null) { this._handlers[name] = []; }
-    this._handlers[name].push({handler, priority});
+    if (this._handlers[name] == null) {
+      this._handlers[name] = [];
+    }
+    this._handlers[name].push({
+      handler,
+      priority
+    });
     return this._handlers[name].sort((a, b) => b.priority - a.priority);
   }
 
   unregister(name, handler) {
-    if (this._handlers[name] == null) { this._handlers[name] = []; }
+    if (this._handlers[name] == null) {
+      this._handlers[name] = [];
+    }
     return this._handlers[name] = this._handlers[name].filter(h => h.handler !== handler);
   }
 
   registerMain(name, handler, priority = 0) {
-    if (this._mainHadlers[name] == null) { this._mainHadlers[name] = []; }
-    this._mainHadlers[name].push({handler, priority});
+    if (this._mainHadlers[name] == null) {
+      this._mainHadlers[name] = [];
+    }
+    this._mainHadlers[name].push({
+      handler,
+      priority
+    });
     this._mainHadlers[name].sort((a, b) => b.priority - a.priority);
     return this.updateMainMenu();
   }
 
   unregisterMain(name, handler) {
-    if (this._mainHadlers[name] == null) { this._mainHadlers[name] = []; }
+    if (this._mainHadlers[name] == null) {
+      this._mainHadlers[name] = [];
+    }
     this._mainHadlers[name] = this._mainHadlers[name].filter(h => h.handler !== handler);
     return this.updateMainMenu();
   }
@@ -71,7 +102,9 @@ export default class MenuInterface extends EventEmitter {
     return this._mainPriorities[name] = priority;
   }
 
-  updateMainMenu() { return this._updateMainMenu(); }
+  updateMainMenu() {
+    return this._updateMainMenu();
+  }
 
   popup(name, self, browserWindow, x, y) {
     if (this._handlers[name] != null) {
@@ -81,7 +114,9 @@ export default class MenuInterface extends EventEmitter {
         let h = handlers[i];
         menu = h.handler.call(self, menu);
         if (i < handlers.length - 1) {
-          menu.append(new MenuItem({type: 'separator'}));
+          menu.append(new MenuItem({
+            type: 'separator'
+          }));
         }
       }
       return menu.popup(browserWindow, x, y);

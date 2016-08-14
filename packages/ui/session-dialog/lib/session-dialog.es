@@ -1,8 +1,12 @@
 import $ from 'jquery';
 import riot from 'riot';
 import Component from 'dripcap/component';
-import { remote } from 'electron';
-let { MenuItem } = remote;
+import {
+  remote
+} from 'electron';
+let {
+  MenuItem
+} = remote;
 
 export default class SessionDialog {
   activate() {
@@ -13,16 +17,29 @@ export default class SessionDialog {
         let left;
         let action = name => () => dripcap.action.emit(name);
         let capturing = (left = dripcap.pubsub.get('core:capturing-status')) != null ? left : false;
-        menu.append(new MenuItem({label: 'New Session', accelerator: dripcap.keybind.get('!menu', 'core:new-session'), click: action('core:new-session')}));
-        menu.append(new MenuItem({type: 'separator'}));
-        menu.append(new MenuItem({label: 'Start', enabled: !capturing, click: action('core:start-sessions')}));
-        menu.append(new MenuItem({label: 'Stop', enabled: capturing, click: action('core:stop-sessions')}));
+        menu.append(new MenuItem({
+          label: 'New Session',
+          accelerator: dripcap.keybind.get('!menu', 'core:new-session'),
+          click: action('core:new-session')
+        }));
+        menu.append(new MenuItem({
+          type: 'separator'
+        }));
+        menu.append(new MenuItem({
+          label: 'Start',
+          enabled: !capturing,
+          click: action('core:start-sessions')
+        }));
+        menu.append(new MenuItem({
+          label: 'Stop',
+          enabled: capturing,
+          click: action('core:stop-sessions')
+        }));
         return menu;
       };
 
       dripcap.menu.registerMain('Capture', this.captureMenu);
-      dripcap.pubsub.sub('core:capturing-status', () => dripcap.menu.updateMainMenu()
-      );
+      dripcap.pubsub.sub('core:capturing-status', () => dripcap.menu.updateMainMenu());
 
       this.comp = new Component(`${__dirname}/../tag/*.tag`);
       return dripcap.package.load('main-view').then(pkg => {
@@ -33,34 +50,26 @@ export default class SessionDialog {
 
             dripcap.keybind.bind('enter', '[riot-tag=session-dialog] .content', () => {
               return $(this.view.tags['modal-dialog'].start).click();
-            }
-            );
+            });
 
             dripcap.getInterfaceList().then(list => {
               this.view.setInterfaceList(list);
               return this.view.update();
-            }
-            );
+            });
 
             dripcap.action.on('core:new-session', () => {
               return dripcap.getInterfaceList().then(list => {
                 this.view.setInterfaceList(list);
                 this.view.show();
                 return this.view.update();
-              }
-              );
-            }
-            );
+              });
+            });
 
             return res();
-          }
-          );
-        }
-        );
-      }
-      );
-    }
-    );
+          });
+        });
+      });
+    });
   }
 
   deactivate() {

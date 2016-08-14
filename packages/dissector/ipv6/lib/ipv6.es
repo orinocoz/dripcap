@@ -1,18 +1,16 @@
-import {Layer, Buffer} from 'dripcap';
+import {
+  Layer,
+  Buffer
+} from 'dripcap';
 import MACAddress from 'dripcap/mac';
 import ProtocolEnum from 'dripcap/ipv6/protocol';
 import IPv6Address from 'dripcap/ipv6/addr';
 
-export default class IPv6Dissector
-{
-  constructor(options)
-  {
-  }
+export default class IPv6Dissector {
+  constructor(options) {}
 
-  analyze(packet, parentLayer)
-  {
-    function assertLength(len)
-    {
+  analyze(packet, parentLayer) {
+    function assertLength(len) {
       if (parentLayer.payload.length < len) {
         throw new Error('too short frame');
       }
@@ -104,7 +102,7 @@ export default class IPv6Dissector
 
       while (ext) {
         let optlen = 0;
-        switch(nextHeader) {
+        switch (nextHeader) {
           case 0:
           case 60: // Hop-by-Hop Options, Destination Options
             let extLen = (parentLayer.payload.readUInt8(offset + 1, true) + 1) * 8;
@@ -126,12 +124,12 @@ export default class IPv6Dissector
             });
             optlen = extLen;
             break;
-          // TODO:
-          // case 43  # Routing
-          // case 44  # Fragment
-          // case 51  # Authentication Header
-          // case 50  # Encapsulating Security Payload
-          // case 135 # Mobility
+            // TODO:
+            // case 43  # Routing
+            // case 44  # Fragment
+            // case 51  # Authentication Header
+            // case 50  # Encapsulating Security Payload
+            // case 135 # Mobility
           case 59: // No Next Header
           default:
             ext = false

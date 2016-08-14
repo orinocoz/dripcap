@@ -7,12 +7,16 @@ import childProcess from 'child_process';
 import EventEmitter from 'events';
 import msgpack from 'msgpack-lite';
 import uuid from 'node-uuid';
-import {rollup} from 'rollup';
+import {
+  rollup
+} from 'rollup';
 import esprima from 'esprima';
 import LRU from 'lru-cache';
 
 const exeEnv = {
-  env : {'GOLDFILTER_LOG' : 'error'}
+  env: {
+    'GOLDFILTER_LOG': 'error'
+  }
 };
 
 class Payload extends Buffer {
@@ -20,8 +24,7 @@ class Payload extends Buffer {
 };
 
 class Layer {
-  constructor(namespace, params)
-  {
+  constructor(namespace, params) {
     this.namespace = namespace;
     this.name = params.name || this.namespace;
     this.aliases = params.aliases || [];
@@ -64,15 +67,13 @@ function leafLayer(layer) {
 }
 
 class Packet {
-  constructor(data)
-  {
+  constructor(data) {
     for (let k in data) {
       this[k] = data[k];
     }
   }
 
-  get namespace()
-  {
+  get namespace() {
     if (Object.keys(this.layers).length === 0) {
       throw new Error('empty packet');
     }
@@ -80,8 +81,7 @@ class Packet {
     return layer.namespace || '';
   }
 
-  get name()
-  {
+  get name() {
     if (Object.keys(this.layers).length === 0) {
       throw new Error('empty packet');
     }
@@ -89,12 +89,12 @@ class Packet {
     return layer.name || '';
   }
 
-  get attrs()
-  {
+  get attrs() {
     if (Object.keys(this.layers).length === 0) {
       throw new Error('empty packet');
     }
     let attrs = {};
+
     function getAttrs(layers) {
       for (let ns in layers) {
         let layer = layers[ns];
@@ -112,8 +112,7 @@ class Packet {
     return attrs;
   }
 
-  get timestamp()
-  {
+  get timestamp() {
     return new Date(this.ts_sec * 1000);
   }
 }
@@ -126,7 +125,10 @@ export default class GoldFilter extends EventEmitter {
     this.sockPath = path.join(prefix, uuid.v4() + '.sock');
     this.sock = new net.Socket();
 
-    const {bundle, exe} = GoldFilter._getPath();
+    const {
+      bundle,
+      exe
+    } = GoldFilter._getPath();
 
     let exePath = exe;
     try {
@@ -135,7 +137,7 @@ export default class GoldFilter extends EventEmitter {
       exePath = bundle;
     }
 
-    this.child = childProcess.execFile(exePath, [ this.sockPath ], exeEnv, (err) => {
+    this.child = childProcess.execFile(exePath, [this.sockPath], exeEnv, (err) => {
       console.error(err);
     });
     this.child.stdout.pipe(process.stdout);
@@ -163,11 +165,13 @@ export default class GoldFilter extends EventEmitter {
       this.sock.on('connect', (err) => {
         let codec = msgpack.createCodec();
         codec.addExtUnpacker(0x1B, Buffer);
-        this.sock.pipe(msgpack.createDecodeStream({codec: codec})).on("data", (data) => {
+        this.sock.pipe(msgpack.createDecodeStream({
+          codec: codec
+        })).on("data", (data) => {
           const callid = data[0];
           const cb = this.callbacks[callid];
           if (cb)
-          cb(data[1]);
+            cb(data[1]);
 
           delete this.callbacks[callid];
         });
@@ -176,18 +180,16 @@ export default class GoldFilter extends EventEmitter {
     })
   }
 
-  _call(name, arg)
-  {
+  _call(name, arg) {
     return this.connected.then(() => {
       return new Promise((res) => {
         this.callbacks[++this.callid] = res;
-        this.sock.write(msgpack.encode([ name, this.callid, arg || {} ]));
+        this.sock.write(msgpack.encode([name, this.callid, arg || {}]));
       });
     })
   }
 
-  _build(jsPath)
-  {
+  _build(jsPath) {
     return new Promise((res, rej) => {
       let hash = crypto.createHash('sha256');
       fs.createReadStream(jsPath).pipe(hash);
@@ -200,17 +202,27 @@ export default class GoldFilter extends EventEmitter {
             if (err == null) {
               res(data);
             } else {
-              rollup({ entry : jsPath, onwarn: () => {} }).then((bundle) => {
-                const result = bundle.generate({ format : 'es' });
+              rollup({
+                entry: jsPath,
+                onwarn: () => {}
+              }).then((bundle) => {
+                const result = bundle.generate({
+                  format: 'es'
+                });
                 const js = path.join(os.tmpdir(), uuid.v4() + '.dripcap.es');
                 return new Promise((res, rej) => {
                   fs.writeFile(js, result.code, (err) => {
                     if (err) throw err;
-                    rollup({ entry : js, onwarn: () => {} }).then(res, rej);
+                    rollup({
+                      entry: js,
+                      onwarn: () => {}
+                    }).then(res, rej);
                   });
                 });
               }).then((bundle) => {
-                const result = bundle.generate({ format : 'cjs' });
+                const result = bundle.generate({
+                  format: 'cjs'
+                });
                 fs.writeFile(cachePath, result.code, () => {
                   res(result.code);
                 });
@@ -226,9 +238,13 @@ export default class GoldFilter extends EventEmitter {
 
   _getPackets(start, end) {
     if (Array.isArray(start)) {
-      return this._call('get_packets', {list : start});
+      return this._call('get_packets', {
+        list: start
+      });
     } else {
-      return this._call('get_packets', {range : [ start, end ]});
+      return this._call('get_packets', {
+        range: [start, end]
+      });
     }
   }
 
@@ -240,8 +256,8 @@ export default class GoldFilter extends EventEmitter {
     return this._build(path).then((source) => {
       return this._call('load_dissector', {
         source: source,
-        options : {
-          namespaces : namespaces || []
+        options: {
+          namespaces: namespaces || []
         }
       })
     })
@@ -251,8 +267,8 @@ export default class GoldFilter extends EventEmitter {
     return this._build(path).then((source) => {
       return this._call('load_stream_dissector', {
         source: source,
-        options : {
-          namespaces : namespaces || []
+        options: {
+          namespaces: namespaces || []
         }
       })
     })
@@ -282,8 +298,10 @@ export default class GoldFilter extends EventEmitter {
     });
   }
 
-  start(ifs, options={}) {
-    return this._call('set_opt', Object.assign({}, {interface : ifs}, options)).then(() => {
+  start(ifs, options = {}) {
+    return this._call('set_opt', Object.assign({}, {
+      interface: ifs
+    }, options)).then(() => {
       return this._call('start');
     });
   }
@@ -292,26 +310,26 @@ export default class GoldFilter extends EventEmitter {
     return this._call('get_status');
   }
 
-  setFilter(name, filter="") {
+  setFilter(name, filter = "") {
     let body = '';
     const ast = esprima.parse(filter);
     switch (ast.body.length) {
       case 0:
-      break;
+        break;
       case 1:
-      const root = ast.body[0];
-      if (root.type !== "ExpressionStatement")
-      throw new SyntaxError();
-      body = 'var ast = ' + JSON.stringify(root.expression) + ';\n' + this.filterSource;
-      break;
+        const root = ast.body[0];
+        if (root.type !== "ExpressionStatement")
+          throw new SyntaxError();
+        body = 'var ast = ' + JSON.stringify(root.expression) + ';\n' + this.filterSource;
+        break;
       default:
-      throw new SyntaxError();
+        throw new SyntaxError();
     }
 
     return this._call('set_filter', {
-      source : body,
-      name : name,
-      options : {}
+      source: body,
+      name: name,
+      options: {}
     });
   }
 
@@ -345,16 +363,20 @@ export default class GoldFilter extends EventEmitter {
         codec.depends = [];
         codec.addExtUnpacker(0x1B, Buffer);
         codec.addExtUnpacker(0x20, (buffer) => {
-          const args = msgpack.decode(buffer, {codec: codec});
+          const args = msgpack.decode(buffer, {
+            codec: codec
+          });
           const cls = this.msgpackClasses[args[0]];
           if (cls != null) {
-            return new (Function.prototype.bind.apply(cls, [null].concat(args.slice(1))));
+            return new(Function.prototype.bind.apply(cls, [null].concat(args.slice(1))));
           }
           return buffer;
         });
         codec.addExtUnpacker(0x1F, ((pkt) => {
           return (buffer) => {
-            const tuple = msgpack.decode(buffer, {codec: codec});
+            const tuple = msgpack.decode(buffer, {
+              codec: codec
+            });
             let slice = pkt.payload.slice(tuple[0], tuple[1]);
             slice.start = tuple[0];
             slice.end = tuple[1];
@@ -362,7 +384,9 @@ export default class GoldFilter extends EventEmitter {
           };
         })(pkt))
 
-        pkt.layers = msgpack.decode(pkt.layers.buffer, {codec: codec});
+        pkt.layers = msgpack.decode(pkt.layers.buffer, {
+          codec: codec
+        });
         let packet = new Packet(pkt);
         this.packetCache.set(pkt.id, packet);
         this.emit('packet', packet);
@@ -372,7 +396,10 @@ export default class GoldFilter extends EventEmitter {
   }
 
   getFiltered(name, start, end) {
-    return this._call('get_filtered', {name : name, range : [ start, end ]});
+    return this._call('get_filtered', {
+      name: name,
+      range: [start, end]
+    });
   }
 
   stop() {
@@ -391,7 +418,7 @@ export default class GoldFilter extends EventEmitter {
     let bundle = path.join(__dirname, '/build/goldfilter');
 
     if (process.platform == 'win32')
-    bundle += '.exe';
+      bundle += '.exe';
 
     if (process.platform == 'darwin') {
       try {
@@ -411,21 +438,29 @@ export default class GoldFilter extends EventEmitter {
       exe = '/usr/bin/goldfilter';
     }
 
-    return {bundle: bundle, exe: exe, helperAppPath: helperAppPath};
+    return {
+      bundle: bundle,
+      exe: exe,
+      helperAppPath: helperAppPath
+    };
   }
 
   static setPerm() {
-    const {bundle, exe, helperAppPath} = GoldFilter._getPath();
+    const {
+      bundle,
+      exe,
+      helperAppPath
+    } = GoldFilter._getPath();
 
     if (process.platform === 'linux') {
       try {
         const script = `cp ${bundle} ${exe} && ${exe} --set-perm`;
         if (childProcess.spawnSync('kdesudo', ['--help']).status === 0)
-        childProcess.execFileSync('kdesudo', ['--', 'sh', '-c', script]);
+          childProcess.execFileSync('kdesudo', ['--', 'sh', '-c', script]);
         else if (childProcess.spawnSync('gksu', ['-h']).status === 0)
-        childProcess.execFileSync('gksu', ['--sudo-mode', '--description', 'Dripcap', '--user', 'root', '--', 'sh', '-c', script]);
+          childProcess.execFileSync('gksu', ['--sudo-mode', '--description', 'Dripcap', '--user', 'root', '--', 'sh', '-c', script]);
         else if (childProcess.spawnSync('pkexec', ['--help']).status === 0)
-        childProcess.execFileSync('pkexec', ['sh', '-c', script]);
+          childProcess.execFileSync('pkexec', ['sh', '-c', script]);
       } catch (err) {
         if (err.status === 126) {
           return false
@@ -452,7 +487,10 @@ export default class GoldFilter extends EventEmitter {
   }
 
   static testPerm() {
-    const {bundle, exe} = GoldFilter._getPath();
+    const {
+      bundle,
+      exe
+    } = GoldFilter._getPath();
 
     const digest = crypto.createHash('sha1').update(fs.readFileSync(bundle)).digest('hex');
     try {
@@ -476,13 +514,21 @@ export default class GoldFilter extends EventEmitter {
       let writeStream = fs.createWriteStream(path);
       let encodeStream = msgpack.createEncodeStream();
       encodeStream.pipe(writeStream);
-      let obj = {packets: [], devices: []};
+      let obj = {
+        packets: [],
+        devices: []
+      };
       for (let pkt of packets) {
         pkt.layers['::<Ethernet>'].layers = {};
         obj.packets.push(pkt);
       }
 
-      obj.devices = [ { name: 'en0', description: '', link: 1, loopback: false } ];
+      obj.devices = [{
+        name: 'en0',
+        description: '',
+        link: 1,
+        loopback: false
+      }];
 
       encodeStream.write(obj);
       encodeStream.end();

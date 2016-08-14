@@ -18,18 +18,13 @@ export default class PreferencesDialog {
             dripcap.action.on('core:preferences', () => {
               this._view.show();
               return this._view.update();
-            }
-            );
+            });
 
             return res();
-          }
-          );
-        }
-        );
-      }
-      );
-    }
-    );
+          });
+        });
+      });
+    });
   }
 
   deactivate() {

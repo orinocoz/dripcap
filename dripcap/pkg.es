@@ -4,9 +4,9 @@ import _ from 'underscore';
 import config from 'dripcap/config';
 
 require("babel-register")({
-    presets : [ "es2015" ],
-    plugins: [ "add-module-exports" ],
-    extensions : [ ".es" ]
+  presets: ["es2015"],
+  plugins: ["add-module-exports"],
+  extensions: [".es"]
 });
 
 export default class Package {
@@ -42,15 +42,16 @@ export default class Package {
     return this._promise =
       new Promise(resolve => {
         return this._resolve = resolve;
-      }
-      )
+      })
       .then(() => {
         return new Promise((resolve, reject) => {
           let req = path.resolve(this.path, this.main);
           let res = null;
           try {
             let klass = require(req);
-            if (klass.__esModule) { klass = klass.default; }
+            if (klass.__esModule) {
+              klass = klass.default;
+            }
             this.root = new klass(this);
             res = this.root.activate();
 
@@ -64,10 +65,8 @@ export default class Package {
           } else {
             return resolve(this);
           }
-        }
-        );
-      }
-      );
+        });
+      });
   }
 
   load() {
@@ -103,9 +102,7 @@ export default class Package {
           return;
         }
         return resolve(this);
-      }
-      );
-    }
-    );
+      });
+    });
   }
 }
