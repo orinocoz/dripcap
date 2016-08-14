@@ -64,7 +64,7 @@ export default class Profile {
     this._config = new Category(path.join(this.path, 'config.json'), {
       snaplen: 1600,
       theme: 'default',
-      "package-registry": 'https://beans.h2so5.net/registry/',
+      "package-registry": 'socket.moe',
       startupDialog: true
     }
     );

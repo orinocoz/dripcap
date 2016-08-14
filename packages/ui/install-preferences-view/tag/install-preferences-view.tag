@@ -59,18 +59,18 @@
 
   dripcap.action.on('core:preferences', () => {
     this.registry = dripcap.profile.getConfig('package-registry');
-    return request(url.resolve(this.registry, '/api/list'), (err, res, body) => {
-      if (err != null) {
-        this.message = "Error: failed to fetch the package lists!";
-      } else {
-        this.message = '';
-        this.packageList = JSON.parse(body);
-      }
-      return this.update();
-    }
-    );
-  }
-  );
+    dripcap.package.resolveRegistry(this.registry).then((host) => {
+      request(url.resolve(host, '/list'), (err, res, body) => {
+        if (err != null) {
+          this.message = "Error: failed to fetch the package lists!";
+        } else {
+          this.message = '';
+          this.packageList = JSON.parse(body);
+        }
+        return this.update();
+      });
+    });
+  });
 
   this.installPackage = e => {
     let { name } = e.item.pkg;
