@@ -21,8 +21,8 @@
     </p>
   </modal-dialog>
 
-  <style type="text/less">
-  [riot-tag=welcome-dialog] > modal-dialog > .modal > .content {
+  <style type="text/less" scoped>
+  :scope > modal-dialog > .modal > .content {
     max-width: 600px;
     input[type=button] {
       height: 50px;

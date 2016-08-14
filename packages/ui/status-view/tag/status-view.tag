@@ -10,8 +10,8 @@
     <span if={ settings } show={ settings.options.promisc }><i class="fa fa-eye"></i> promiscuous</span>
   </div>
 
-  <style type="text/less">
-    [riot-tag=status-view].border {
+  <style type="text/less" scoped>
+    :scope.border {
       border-width: 0 0 1px 0;
       -webkit-app-region: drag;
 

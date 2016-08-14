@@ -231,8 +231,8 @@
   };
   </script>
 
-  <style type="text/less">
-    [riot-tag=packet-view] {
+  <style type="text/less" scoped>
+    :scope {
       -webkit-user-select: auto;
 
       table {

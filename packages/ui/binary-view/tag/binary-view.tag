@@ -5,8 +5,8 @@
     <div class="ascii"></div>
   </div>
 
-  <style type="text/less">
-    [riot-tag=binary-view] {
+  <style type="text/less" scoped>
+    :scope {
       .container {
         display: flex;
         justify-content: center;

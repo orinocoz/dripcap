@@ -20,8 +20,8 @@
     </p>
   </modal-dialog>
 
-  <style type="text/less">
-  [riot-tag=session-dialog] > modal-dialog > .modal > .content {
+  <style type="text/less" scoped>
+  :scope > modal-dialog > .modal > .content {
     max-width: 600px;
   }
   </style>

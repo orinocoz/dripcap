@@ -2,8 +2,8 @@
 
   <modal-dialog></modal-dialog>
 
-  <style type="text/less">
-  [riot-tag=preferences-dialog] > modal-dialog > .modal > .content {
+  <style type="text/less" scoped>
+  :scope > modal-dialog > .modal > .content {
     height: 70%;
     position: relative;
   }

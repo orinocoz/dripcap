@@ -16,11 +16,6 @@ export default class Component {
       return babel(js, opts, __dirname);
     };
 
-    riot.parsers.css.less = (tag, css) => {
-      this._less += css;
-      return '';
-    };
-
     const tags = arguments;
     for (let pattern of tags) {
       for (let tag of glob.sync(pattern)) {
@@ -38,13 +33,15 @@ export default class Component {
       }
     }
 
-    less.render(this._less, (e, output) => {
-      if (e != null) {
-        throw e;
-      } else {
-        $('<style>').text(output.css).appendTo($('head'));
-      }
-    });
+    if (this._less.length > 0) {
+      less.render(this._less, (e, output) => {
+        if (e != null) {
+          throw e;
+        } else {
+          $('<style>').text(output.css).appendTo($('head'));
+        }
+      });  
+    }
   }
 
   destroy() {

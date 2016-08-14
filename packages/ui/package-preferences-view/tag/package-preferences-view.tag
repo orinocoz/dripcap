@@ -65,8 +65,8 @@
   };
   </script>
 
-  <style type="text/less">
-  [riot-tag=package-preferences-view] {
+  <style type="text/less" scoped>
+  :scope {
     padding: 18px;
     overflow-y: scroll;
 

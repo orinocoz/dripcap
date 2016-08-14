@@ -13,8 +13,8 @@
     </li>
   </ul>
 
-  <style type="text/less">
-  [riot-tag=general-preferences-view] {
+  <style type="text/less" scoped>
+  :scope {
     padding: 18px;
 
     label {
