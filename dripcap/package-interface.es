@@ -6,6 +6,8 @@ import semver from 'semver';
 import fs from 'fs';
 import zlib from 'zlib';
 import tar from 'tar';
+import url from 'url';
+import dns from 'dns';
 import request from 'request';
 import rmdir from 'rmdir';
 import _ from 'underscore';
@@ -91,18 +93,38 @@ export default class PackageInterface extends PubSub {
     );
   }
 
+  resolveRegistry(hostname) {
+    return new Promise((res, rej) => {
+      dns.resolveSrv('_dripcap._https.' + hostname, (err, data) => {
+        if (err) {
+          rej(err);
+        } else {
+          let str = '';
+          if (data.length > 0) {
+            str = url.format({
+              protocol: 'https',
+              hostname: data[0].name,
+              port: data[0].port
+            });
+          }
+          res(str);
+        }
+      })
+    });
+  }
+
   install(name) {
     let registry = dripcap.profile.getConfig('package-registry');
     let pkgpath = path.join(config.userPackagePath, name);
     let tarurl = '';
 
-    let p = Promise.resolve().then(() => {
+    let p = this.resolveRegistry(registry).then((host) => {
       if (this.list[name] != null) {
         throw Error(`Package ${name} is already installed`);
       }
 
       return new Promise((res, rej) =>
-        npm.load({production: true, registry}, () =>
+        npm.load({production: true, host}, () =>
           npm.commands.view([name], function(e, data) {
             try {
               if (e != null) { throw e; }
