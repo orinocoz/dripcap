@@ -77,7 +77,8 @@ export default class PacketListView {
           ctx.fillRect(0, 0, 64, 32);
           this.main.css('background-image', `url(${canvas.toDataURL('image/png')})`);
 
-          return this.reset();
+          this.reset();
+          res();
         }
         );
       }
