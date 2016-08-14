@@ -1,5 +1,6 @@
 brew update
 brew install nvm gpg v8
+export PATH=/usr/local/opt/gnupg/libexec/gpgbin:$PATH
 
 mkdir ~/.nvm
 export NVM_DIR=~/.nvm
