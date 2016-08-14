@@ -6,6 +6,8 @@ import mkpath from 'mkpath';
 import config from 'dripcap/config';
 import GoldFilter from 'goldfilter';
 
+process.chdir(__dirname);
+
 mkpath.sync(config.userPackagePath);
 mkpath.sync(config.profilePath);
 
