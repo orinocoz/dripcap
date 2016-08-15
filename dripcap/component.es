@@ -11,6 +11,9 @@ export default class Component {
     this._less = '';
     this._names = [];
 
+    const cwd = process.cwd();
+    process.chdir(__dirname);
+
     const tags = arguments;
     for (let pattern of tags) {
       for (let tag of glob.sync(pattern)) {
@@ -29,6 +32,8 @@ export default class Component {
         }
       }
     }
+
+    process.chdir(cwd);
 
     if (this._less.length > 0) {
       less.render(this._less, (e, output) => {
