@@ -114,19 +114,14 @@ Server::Server(const std::string &path)
             }
         }
 
-        reply();
-    });
-
-    d->server.handle("set_bpf", [this](const msgpack::object &arg, ReplyInterface &reply) {
-        const auto &map = arg.as<std::unordered_map<std::string, msgpack::object>>();
-
         std::unordered_map<std::string, std::string> result;
-        const auto &it = map.find("filter");
-
-        if (it != map.end()) {
-            std::string error;
-            if (!d->pcap->setBPF(it->second.as<std::string>(), &error)) {
-                result["error"] = error;
+        {
+            const auto &it = map.find("filter");
+            if (it != map.end()) {
+                std::string error;
+                if (!d->pcap->setBPF(it->second.as<std::string>(), &error)) {
+                    result["error"] = error;
+                }
             }
         }
 

@@ -27,7 +27,7 @@
     <span if={ settings } show={ settings.options.filter }>
       <i class="fa fa-filter"></i>
       { settings.options.filter }</span>
-    <span if={ settings } show={ settings.options.promisc }>
+    <span if={ settings } show={ settings.options.promiscuous }>
       <i class="fa fa-eye"></i>
       promiscuous</span>
   </div>

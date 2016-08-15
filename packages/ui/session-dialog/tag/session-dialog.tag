@@ -45,7 +45,11 @@
       let snaplen = dripcap.profile.getConfig('snaplen');
 
       this.tags['modal-dialog'].hide();
-      return dripcap.session.create(ifs, {filter, promisc}).then(sess => {
+      return dripcap.session.create(ifs, {
+        filter: filter,
+        promiscuous: promisc,
+        snaplen: snaplen
+      }).then(sess => {
         if (dripcap.session.list != null) {
           for (let i = 0; i < dripcap.session.list.length; i++) {
             let s = dripcap.session.list[i];
