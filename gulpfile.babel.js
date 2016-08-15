@@ -40,9 +40,7 @@ gulp.task('copy', () =>
 
 gulp.task('copypkg', () =>
   gulp.src([
-    './packages/**/*',
-    './dripcap/**/*',
-    './goldfilter/**/*'
+    './packages/**/*'
   ], {
     base: './'
   })
@@ -56,7 +54,6 @@ gulp.task('npm', ['copypkg'], function() {
     depth: 0
   }, () => res()));
 
-
   p = p.then(() =>
     new Promise(function(res) {
       npm.prefix = './.build/';
@@ -64,10 +61,9 @@ gulp.task('npm', ['copypkg'], function() {
     })
   );
 
-
   p = p.then(() =>
     new Promise(function(res) {
-      npm.prefix = './.build/';
+      npm.prefix = './.build';
       return npm.commands.install([], res);
     })
   );
