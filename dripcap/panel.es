@@ -209,7 +209,7 @@ export default class Panel {
       this.root.data('v0', 1 / 3);
       this.root.data('v1', 2 / 3);
     }
-    elem.attr('tab-id', id);
+    elem.hide().attr('tab-id', id);
     if (tab != null) {
       elem.data('tab', tab);
     }
@@ -267,7 +267,7 @@ export default class Panel {
       this.root.data('v0', 1 / 3);
       this.root.data('v1', 2 / 3);
     }
-    elem.attr('tab-id', id);
+    elem.hide().attr('tab-id', id);
     if (tab != null) {
       elem.data('tab', tab);
     }
@@ -325,7 +325,7 @@ export default class Panel {
       this.root.data('h0', 1 / 3);
       this.root.data('h1', 2 / 3);
     }
-    elem.attr('tab-id', id);
+    elem.hide().attr('tab-id', id);
     if (tab != null) {
       elem.data('tab', tab);
     }
@@ -372,7 +372,7 @@ export default class Panel {
       this.root.data('h0', 1 / 3);
       this.root.data('h1', 2 / 3);
     }
-    elem.attr('tab-id', id);
+    elem.hide().attr('tab-id', id);
     if (tab != null) {
       elem.data('tab', tab);
     }
@@ -411,7 +411,7 @@ export default class Panel {
       this.update();
       return res;
     }
-    elem.attr('tab-id', id);
+    elem.hide().attr('tab-id', id);
     if (tab != null) {
       elem.data('tab', tab);
     }
@@ -467,6 +467,9 @@ export default class Panel {
       let currentId = panels.filter(function() {
         return $(this).css('display') !== 'none';
       }).attr('tab-id');
+      if (currentId == null && panels.length > 0) {
+        currentId = panels.attr('tab-id');
+      }
       let tabs = panels.get().map(function(elem) {
         let id = $(elem).attr('tab-id');
         let tab = $('<div>')
