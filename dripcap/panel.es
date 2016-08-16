@@ -1,5 +1,8 @@
 import $ from 'jquery';
 import _ from 'underscore';
+import {
+  Package
+} from 'dripcap';
 
 $.fn.extend({
   actualHeight() {
@@ -75,7 +78,7 @@ export default class Panel {
     }, 500);
 
     $(window).resize(() => this._update());
-    dripcap.package.sub('core:package-loaded', () => this.update());
+    Package.sub('core:package-loaded', () => this.update());
 
     this._hcontainer = this.root.children('.hcontainer');
     this._fnorthPanel = this.root.children('.fnorth');

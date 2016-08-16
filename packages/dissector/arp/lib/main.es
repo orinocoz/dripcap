@@ -1,15 +1,19 @@
+import {
+  Session
+} from 'dripcap';
+
 export default class ARP {
   activate() {
-    dripcap.session.registerClass('dripcap/arp/protocol', `${__dirname}/protocol.es`);
-    dripcap.session.registerClass('dripcap/arp/hardware', `${__dirname}/hardware.es`);
-    dripcap.session.registerClass('dripcap/arp/operation', `${__dirname}/operation.es`);
-    dripcap.session.registerDissector(['::Ethernet::<ARP>'], `${__dirname}/arp.es`);
+    Session.registerClass('dripcap/arp/protocol', `${__dirname}/protocol.es`);
+    Session.registerClass('dripcap/arp/hardware', `${__dirname}/hardware.es`);
+    Session.registerClass('dripcap/arp/operation', `${__dirname}/operation.es`);
+    Session.registerDissector(['::Ethernet::<ARP>'], `${__dirname}/arp.es`);
   }
 
   deactivate() {
-    dripcap.session.unregisterClass(`${__dirname}/protocol.es`);
-    dripcap.session.unregisterClass(`${__dirname}/hardware.es`);
-    dripcap.session.unregisterClass(`${__dirname}/operation.es`);
-    dripcap.session.unregisterDissector(`${__dirname}/arp.es`);
+    Session.unregisterClass(`${__dirname}/protocol.es`);
+    Session.unregisterClass(`${__dirname}/hardware.es`);
+    Session.unregisterClass(`${__dirname}/operation.es`);
+    Session.unregisterDissector(`${__dirname}/arp.es`);
   }
 }

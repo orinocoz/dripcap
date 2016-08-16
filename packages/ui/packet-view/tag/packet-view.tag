@@ -28,10 +28,11 @@
     <i class="base">0x</i>{ opts.value.toString(16) }</i>
   <script type="babel">
     import {remote} from 'electron';
+    import {Menu} from 'dripcap';
     this.base = 10;
 
     this.context = e => {
-      dripcap.menu.popup('packet-view:numeric-value-menu', this, remote.getCurrentWindow());
+      Menu.popup('packet-view:numeric-value-menu', this, remote.getCurrentWindow());
       return e.stopPropagation();
     };
   </script>
@@ -70,6 +71,7 @@
 
 <script type="babel">
   import {remote} from 'electron';
+  import {Menu} from 'dripcap';
   this.show = false;
 
   this.toggle = e => {
@@ -87,7 +89,7 @@
 
   this.context = e => {
     if (window.getSelection().toString().length > 0) {
-      dripcap.menu.popup('packet-view:context-menu', this, remote.getCurrentWindow());
+      Menu.popup('packet-view:context-menu', this, remote.getCurrentWindow());
       return e.stopPropagation();
     }
   };
@@ -137,6 +139,7 @@
 
 <script type="babel">
   import {remote} from 'electron';
+  import {Menu} from 'dripcap';
   this.visible = true;
 
   this.on('update', () => {
@@ -150,7 +153,7 @@
 
   this.layerContext = e => {
     this.clickedLayerNamespace = e.item.ns;
-    dripcap.menu.popup('packet-view:layer-menu', this, remote.getCurrentWindow());
+    Menu.popup('packet-view:layer-menu', this, remote.getCurrentWindow());
     return e.stopPropagation();
   };
 
@@ -198,6 +201,7 @@
 
 <script type="babel">
   import {remote} from 'electron';
+  import {PubSub} from 'dripcap';
 
   this.set = pkt => {
     this.packet = pkt;
@@ -213,7 +217,7 @@
       parseInt(fieldRange[0]),
       parseInt(fieldRange[1])
     ];
-    return dripcap.pubsub.pub('packet-view:range', range);
+    PubSub.pub('packet-view:range', range);
   };
 
   this.layerRange = e => {
@@ -237,11 +241,11 @@
 
     let layer = find(this.packet, e.item.ns);
     let range = [layer.payload.start, layer.payload.end];
-    return dripcap.pubsub.pub('packet-view:range', range);
+    PubSub.pub('packet-view:range', range);
   };
 
   this.rangeOut = () => {
-    return dripcap.pubsub.pub('packet-view:range', [0, 0]);
+    PubSub.pub('packet-view:range', [0, 0]);
   };
 </script>
 

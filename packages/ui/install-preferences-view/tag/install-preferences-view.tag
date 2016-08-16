@@ -39,14 +39,19 @@
   import $ from 'jquery';
   import request from 'request';
   import url from 'url';
+  import {
+    Package,
+    Action,
+    Profile
+  } from 'dripcap';
 
   this.installing = false;
   this.message = '';
   this.packageList = [];
 
-  dripcap.action.on('core:preferences', () => {
-    this.registry = dripcap.profile.getConfig('package-registry');
-    dripcap.package.resolveRegistry(this.registry).then((host) => {
+  Action.on('core:preferences', () => {
+    this.registry = Profile.getConfig('package-registry');
+    Package.resolveRegistry(this.registry).then((host) => {
       request(url.resolve(host, '/list'), (err, res, body) => {
         if (err != null) {
           this.message = "Error: failed to fetch the package lists!";
@@ -63,7 +68,7 @@
     let {name} = e.item.pkg;
     this.installing = true;
     this.message = '';
-    return dripcap.package.install(name).then(() => {
+    return Package.install(name).then(() => {
       this.message = `${name} has been successfully installed!`;
       this.installing = false;
       return this.update();

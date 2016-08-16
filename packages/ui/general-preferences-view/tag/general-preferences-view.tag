@@ -32,23 +32,24 @@
 
   <script type="babel">
     import $ from 'jquery';
+    import { Theme, Profile } from 'dripcap';
 
     this.on('mount', () => {
-      this.currentSnaplen = dripcap.profile.getConfig('snaplen');
+      this.currentSnaplen = Profile.getConfig('snaplen');
     });
 
     this.setThemeList = (list) => {
-      this.currentTheme = dripcap.theme.id;
+      this.currentTheme = Theme.id;
       this.themeList = list;
     };
 
     this.updateTheme = () => {
-      dripcap.theme.id = $(this.theme).val();
+      Theme.id = $(this.theme).val();
     };
 
     this.updateSnaplen = () => {
       let len = parseInt($(this.snaplen).val());
-      dripcap.profile.setConfig('snaplen', len);
+      Profile.setConfig('snaplen', len);
     };
   </script>
 

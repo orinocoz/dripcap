@@ -59,11 +59,10 @@ export default class Session extends EventEmitter {
     return this._gold.stop().then(() => {
       return this._builtin.then(() => {
         return this._gold.start(this._settings.iface, this._settings.options).then(() => {
-          return this._timer = setInterval(() => {
-            return this._gold.status().then(stat => {
+          this._timer = setInterval(() => {
+            this._gold.status().then(stat => {
               if (stat != null) {
-                dripcap.pubsub.pub('core:capturing-status', stat.capturing);
-                return this.emit('status', stat);
+                this.emit('status', stat);
               }
             });
           }, 100);

@@ -15,12 +15,17 @@ let {
 let {
   dialog
 } = remote;
+import {
+  Session,
+  Package,
+  PubSub
+} from 'dripcap';
 
 export default class PacketListView {
   activate() {
     return new Promise(res => {
       this.comp = new Component(`${__dirname}/../tag/*.tag`);
-      return dripcap.package.load('main-view').then(pkg => {
+      return Package.load('main-view').then(pkg => {
         return $(() => {
           let m = $('<div class="wrapper noscroll" />');
           pkg.root.panel.left('packet-list-view', m);
@@ -33,13 +38,13 @@ export default class PacketListView {
           this.view = $('[riot-tag=packet-list-view]');
           this.view.scroll(_.debounce((() => this.update()), 100));
 
-          dripcap.pubsub.sub('packet-filter-view:filter', filter => {
+          PubSub.sub('packet-filter-view:filter', filter => {
             this.filtered = 0;
             this.reset();
             return this.update();
           });
 
-          dripcap.session.on('created', session => {
+          Session.on('created', session => {
             this.session = session;
             this.packets = 0;
             this.filtered = -1;
@@ -60,7 +65,7 @@ export default class PacketListView {
 
             return session.on('packet', pkt => {
               if (pkt.id === this.selectedId) {
-                dripcap.pubsub.pub('packet-list-view:select', pkt);
+                PubSub.pub('packet-list-view:select', pkt);
               }
               return process.nextTick(() => {
                 return this.cells.filter(`[data-packet=${pkt.id}]:visible`)
@@ -178,7 +183,7 @@ export default class PacketListView {
   }
 
   deactivate() {
-    return dripcap.package.load('main-view').then(pkg => {
+    return Package.load('main-view').then(pkg => {
       pkg.root.panel.left('packet-list-view');
       this.list.unmount();
       return this.comp.destroy();

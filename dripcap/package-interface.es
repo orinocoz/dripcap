@@ -53,7 +53,7 @@ export default class PackageInterface extends PubSub {
       let p = paths[i];
       try {
         let loaded;
-        var pkg = new Package(p);
+        var pkg = new Package(p, this.parent.profile);
         loadedPackages[pkg.name] = true;
 
         if ((loaded = this.list[pkg.name]) != null) {
@@ -116,7 +116,7 @@ export default class PackageInterface extends PubSub {
   }
 
   install(name) {
-    let registry = dripcap.profile.getConfig('package-registry');
+    let registry = this.parent.profile.getConfig('package-registry');
     let pkgpath = path.join(config.userPackagePath, name);
     let tarurl = '';
 
