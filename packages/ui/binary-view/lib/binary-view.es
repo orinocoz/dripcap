@@ -2,13 +2,18 @@ import $ from 'jquery';
 import riot from 'riot';
 import Component from 'dripcap/component';
 import Panel from 'dripcap/panel';
+import {
+  Session,
+  Package,
+  PubSub
+} from 'dripcap';
 
 export default class BinaryView {
 
   activate() {
       return new Promise(res => {
             this.comp = new Component(`${__dirname}/../tag/*.tag`);
-            return dripcap.package.load('main-view').then(pkg => {
+            return Package.load('main-view').then(pkg => {
                   return $(() => {
                         let m = $('<div class="wrapper" />').attr('tabIndex', '0');
                         pkg.root.panel.bottom('binary-view', m, $('<i class="fa fa-file-text"> Binary</i>'));
@@ -17,12 +22,12 @@ export default class BinaryView {
                         let ulhex = $(this.view.root).find('.hex');
                         let ulascii = $(this.view.root).find('.ascii');
 
-                        dripcap.session.on('created', function(session) {
+                        Session.on('created', function(session) {
                           ulhex.empty();
                           return ulascii.empty();
                         });
 
-                        dripcap.pubsub.sub('packet-view:range', function(range) {
+                        PubSub.sub('packet-view:range', function(range) {
                           ulhex.find('i').removeClass('selected');
                           let r = ulhex.find('i').slice(range[0], range[1]);
                           r.addClass('selected');
@@ -32,7 +37,7 @@ export default class BinaryView {
                           return r.addClass('selected');
                         });
 
-                        dripcap.pubsub.sub('packet-list-view:select', function(pkt) {
+                        PubSub.sub('packet-list-view:select', function(pkt) {
                               ulhex.empty();
                               ulascii.empty();
 
@@ -75,7 +80,7 @@ export default class BinaryView {
   }
 
   deactivate() {
-    return dripcap.package.load('main-view').then(pkg => {
+    return Package.load('main-view').then(pkg => {
       pkg.root.panel.bottom('binary-view');
       this.view.unmount();
       return this.comp.destroy();

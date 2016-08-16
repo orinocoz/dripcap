@@ -56,6 +56,7 @@
 
   <script type="babel">
     import $ from 'jquery';
+    import {Action} from 'dripcap';
 
     this.on('mount', () => {
       if (process.platform === 'darwin') {
@@ -64,15 +65,15 @@
     });
 
     this.startCapture = () => {
-      return dripcap.action.emit('core:start-sessions');
+      return Action.emit('core:start-sessions');
     };
 
     this.stopCapture = () => {
-      return dripcap.action.emit('core:stop-sessions');
+      return Action.emit('core:stop-sessions');
     };
 
     this.newCapture = () => {
-      return dripcap.action.emit('core:new-session');
+      return Action.emit('core:new-session');
     };
   </script>
 

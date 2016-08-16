@@ -1,12 +1,15 @@
 import $ from 'jquery';
 import riot from 'riot';
 import Component from 'dripcap/component';
+import {
+  Package
+} from 'dripcap';
 
 export default class InstallPreferencesView {
   activate() {
     return new Promise(res => {
       this.comp = new Component(`${__dirname}/../tag/*.tag`);
-      dripcap.package.load('preferences-dialog').then(pkg => {
+      Package.load('preferences-dialog').then(pkg => {
         return $(() => {
           let m = $('<div class="wrapper"/>');
           this._view = riot.mount(m[0], 'install-preferences-view')[0];

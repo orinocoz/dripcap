@@ -39,13 +39,14 @@
 
   <script type="babel">
     import $ from 'jquery';
+    import { Action, Profile } from 'dripcap';
 
     this.on('mount', () => {
-      return this.startup = dripcap.profile.getConfig('startupDialog');
+      return this.startup = Profile.getConfig('startupDialog');
     });
 
     this.setStartup = e => {
-      return dripcap.profile.setConfig('startupDialog', $(e.target).is(':checked'));
+      return Profile.setConfig('startupDialog', $(e.target).is(':checked'));
     };
 
     this.show = () => {
@@ -57,20 +58,20 @@
     };
 
     this.start = () => {
-      return dripcap.action.emit('core:new-session');
+      return Action.emit('core:new-session');
     };
 
     this.pcap = () => {
       this.tags['modal-dialog'].hide();
-      return dripcap.action.emit('pcap-file:open');
+      return Action.emit('pcap-file:open');
     };
 
     this.pref = () => {
-      return dripcap.action.emit('core:preferences');
+      return Action.emit('core:preferences');
     };
 
     this.wiki = () => {
-      return dripcap.action.emit('core:open-wiki');
+      return Action.emit('core:open-wiki');
     };
   </script>
 

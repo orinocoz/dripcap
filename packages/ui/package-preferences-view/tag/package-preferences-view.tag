@@ -40,6 +40,9 @@
 <script type="babel">
   import _ from 'underscore';
   import $ from 'jquery';
+  import {
+    Package
+  } from 'dripcap';
 
   this.setEnabled = e => {
     let {pkg} = e.item;
@@ -57,7 +60,7 @@
     if (pkg.config.get('enabled')) {
       pkg.deactivate();
     }
-    return dripcap.package.uninstall(pkg.name).then(() => {
+    return Package.uninstall(pkg.name).then(() => {
       return $(e.target).parents('li.packages').fadeOut(400, () => {
         this.packageList = _.without(this.packageList, pkg);
         return this.update();

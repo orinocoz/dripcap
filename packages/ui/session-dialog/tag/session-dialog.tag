@@ -29,6 +29,11 @@
 
   <script type="babel">
     import $ from 'jquery';
+    import {
+      Session,
+      PubSub,
+      Profile
+    } from 'dripcap';
 
     this.setInterfaceList = list => {
       return this.interfaceList = list;
@@ -42,23 +47,26 @@
       let ifs = $(this.tags['modal-dialog'].interface).val();
       let filter = $(this.tags['modal-dialog'].filter).val();
       let promisc = $(this.tags['modal-dialog'].promisc).prop('checked');
-      let snaplen = dripcap.profile.getConfig('snaplen');
+      let snaplen = Profile.getConfig('snaplen');
 
       this.tags['modal-dialog'].hide();
-      return dripcap.session.create(ifs, {
+      Session.create(ifs, {
         filter: filter,
         promiscuous: promisc,
         snaplen: snaplen
       }).then(sess => {
-        if (dripcap.session.list != null) {
-          for (let i = 0; i < dripcap.session.list.length; i++) {
-            let s = dripcap.session.list[i];
+        sess.on('status', (stat) => {
+          PubSub.pub('core:capturing-status', stat.capturing);
+        });
+        if (Session.list != null) {
+          for (let i = 0; i < Session.list.length; i++) {
+            let s = Session.list[i];
             s.close();
           }
         }
-        dripcap.session.list = [sess];
-        dripcap.session.emit('created', sess);
-        return sess.start();
+        Session.list = [sess];
+        Session.emit('created', sess);
+        sess.start();
       });
     };
   </script>
