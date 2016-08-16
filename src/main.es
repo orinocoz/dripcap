@@ -72,7 +72,7 @@ class Dripcap {
   }
 }
 
-global.dripcap = new Dripcap();
+const dripcap = new Dripcap();
 
 if (process.env['DRIPCAP_UI_TEST'] != null) {
   require('./uitest');

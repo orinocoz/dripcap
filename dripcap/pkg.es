@@ -10,7 +10,7 @@ require("babel-register")({
 });
 
 export default class Package {
-  constructor(jsonPath) {
+  constructor(jsonPath, profile) {
     this.path = path.dirname(jsonPath);
     this.userPackage = path.normalize(this.path).startsWith(path.normalize(config.userPackagePath));
 
@@ -34,7 +34,7 @@ export default class Package {
 
     this.description = info.description != null ? info.description : '';
     this.version = info.version != null ? info.version : '0.0.1';
-    this.config = dripcap.profile.getPackageConfig(this.name);
+    this.config = profile.getPackageConfig(this.name);
     this._reset();
   }
 

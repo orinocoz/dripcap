@@ -13,6 +13,10 @@
 
   <script type="babel">
     import $ from 'jquery';
+    import {
+      Session,
+      PubSub
+    } from 'dripcap';
 
     this.change = e => {
       try {
@@ -26,13 +30,13 @@
 
     this.apply = e => {
       if (e.charCode === 13 && (this.filterText != null)) {
-        dripcap.pubsub.pub('packet-filter-view:filter', this.filterText);
+        PubSub.pub('packet-filter-view:filter', this.filterText);
       }
       return true;
     };
 
-    dripcap.session.on('created', session => {
-      return dripcap.pubsub.sub('packet-filter-view:filter', filter => session.setFilter('main', filter));
+    Session.on('created', session => {
+      return PubSub.sub('packet-filter-view:filter', filter => session.setFilter('main', filter));
     });
   </script>
 </packet-filter-view>

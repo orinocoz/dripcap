@@ -7,19 +7,27 @@ import {
 let {
   MenuItem
 } = remote;
+import {
+  KeyBind,
+  Menu,
+  Package,
+  Action,
+  PubSub,
+  Session
+} from 'dripcap';
 
 export default class SessionDialog {
   activate() {
     return new Promise(res => {
-      dripcap.keybind.bind('command+n', '!menu', 'core:new-session');
+      KeyBind.bind('command+n', '!menu', 'core:new-session');
 
       this.captureMenu = function(menu, e) {
         let left;
-        let action = name => () => dripcap.action.emit(name);
-        let capturing = (left = dripcap.pubsub.get('core:capturing-status')) != null ? left : false;
+        let action = name => () => Action.emit(name);
+        let capturing = (left = PubSub.get('core:capturing-status')) != null ? left : false;
         menu.append(new MenuItem({
           label: 'New Session',
-          accelerator: dripcap.keybind.get('!menu', 'core:new-session'),
+          accelerator: KeyBind.get('!menu', 'core:new-session'),
           click: action('core:new-session')
         }));
         menu.append(new MenuItem({
@@ -38,30 +46,30 @@ export default class SessionDialog {
         return menu;
       };
 
-      dripcap.menu.registerMain('Capture', this.captureMenu);
-      dripcap.pubsub.sub('core:capturing-status', () => dripcap.menu.updateMainMenu());
+      Menu.registerMain('Capture', this.captureMenu);
+      PubSub.sub('core:capturing-status', () => Menu.updateMainMenu());
 
       this.comp = new Component(`${__dirname}/../tag/*.tag`);
-      return dripcap.package.load('main-view').then(pkg => {
-        return dripcap.package.load('modal-dialog').then(pkg => {
+      return Package.load('main-view').then(pkg => {
+        return Package.load('modal-dialog').then(pkg => {
           return $(() => {
             let n = $('<div>').addClass('container').appendTo($('body'));
             this.view = riot.mount(n[0], 'session-dialog')[0];
 
-            dripcap.keybind.bind('enter', '[riot-tag=session-dialog] .content', () => {
+            KeyBind.bind('enter', '[riot-tag=session-dialog] .content', () => {
               return $(this.view.tags['modal-dialog'].start).click();
             });
 
-            dripcap.getInterfaceList().then(list => {
+            Session.getInterfaceList().then(list => {
               this.view.setInterfaceList(list);
-              return this.view.update();
+              this.view.update();
             });
 
-            dripcap.action.on('core:new-session', () => {
-              return dripcap.getInterfaceList().then(list => {
+            Action.on('core:new-session', () => {
+              Session.getInterfaceList().then(list => {
                 this.view.setInterfaceList(list);
                 this.view.show();
-                return this.view.update();
+                this.view.update();
               });
             });
 
@@ -73,9 +81,9 @@ export default class SessionDialog {
   }
 
   deactivate() {
-    dripcap.menu.unregisterMain('Capture', this.captureMenu);
-    dripcap.keybind.unbind('command+n', '!menu', 'core:new-session');
-    dripcap.keybind.unbind('enter', '[riot-tag=session-dialog] .content');
+    Menu.unregisterMain('Capture', this.captureMenu);
+    KeyBind.unbind('command+n', '!menu', 'core:new-session');
+    KeyBind.unbind('enter', '[riot-tag=session-dialog] .content');
     this.view.unmount();
     return this.comp.destroy();
   }

@@ -32,7 +32,7 @@ export default class KeybindInterface extends EventEmitter {
   }
 
   get(selector, action) {
-    let map = dripcap.profile.getKeymap();
+    let map = this.parent.profile.getKeymap();
     for (var sel in map) {
       let commands = map[sel];
       for (var command in commands) {
@@ -68,7 +68,7 @@ export default class KeybindInterface extends EventEmitter {
 
     this._commands = _.clone(this._builtinCommands);
 
-    let map = dripcap.profile.getKeymap();
+    let map = this.parent.profile.getKeymap();
     for (let selector in map) {
       let commands = map[selector];
       for (var command in commands) {
@@ -94,7 +94,7 @@ export default class KeybindInterface extends EventEmitter {
                 if (_.isFunction(act)) {
                   act(e);
                 } else {
-                  dripcap.action.emit(act);
+                  this.parent.action.emit(act);
                 }
               }
             }

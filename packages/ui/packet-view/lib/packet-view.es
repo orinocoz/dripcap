@@ -15,24 +15,30 @@ import {
   clipboard
 } from 'electron';
 import notifier from 'node-notifier';
+import {
+  Menu,
+  Package,
+  PubSub,
+  Session
+} from 'dripcap';
 
 export default class PacketListView {
 
   activate() {
     return new Promise(res => {
       this.comp = new Component(`${__dirname}/../tag/*.tag`);
-      dripcap.package.load('main-view').then(pkg => {
+      Package.load('main-view').then(pkg => {
         return $(() => {
           let m = $('<div class="wrapper" />').attr('tabIndex', '0');
           pkg.root.panel.center('packet-view', m, $('<i class="fa fa-cubes"> Packet</i>'));
           this.view = riot.mount(m[0], 'packet-view')[0];
 
-          dripcap.session.on('created', session => {
+          Session.on('created', session => {
             this.view.set(null);
             return this.view.update();
           });
 
-          dripcap.pubsub.sub('packet-list-view:select', pkt => {
+          PubSub.sub('packet-list-view:select', pkt => {
             this.view.set(pkt);
             return this.view.update();
           });
@@ -152,22 +158,22 @@ export default class PacketListView {
         return menu;
       };
 
-      dripcap.menu.register('packet-view:layer-menu', this.layerMenu);
-      dripcap.menu.register('packet-view:layer-menu', this.copyMenu);
-      dripcap.menu.register('packet-view:numeric-value-menu', this.numValueMenu);
-      dripcap.menu.register('packet-view:numeric-value-menu', this.copyMenu);
-      return dripcap.menu.register('packet-view:context-menu', this.copyMenu);
+      Menu.register('packet-view:layer-menu', this.layerMenu);
+      Menu.register('packet-view:layer-menu', this.copyMenu);
+      Menu.register('packet-view:numeric-value-menu', this.numValueMenu);
+      Menu.register('packet-view:numeric-value-menu', this.copyMenu);
+      return Menu.register('packet-view:context-menu', this.copyMenu);
     });
   }
 
   deactivate() {
-    dripcap.menu.unregister('packet-view:layer-menu', this.layerMenu);
-    dripcap.menu.unregister('packet-view:layer-menu', this.copyMenu);
-    dripcap.menu.unregister('packet-view:numeric-value-menu', this.numValueMenu);
-    dripcap.menu.unregister('packet-view:numeric-value-menu', this.copyMenu);
-    dripcap.menu.unregister('packet-view:context-menu', this.copyMenu);
+    Menu.unregister('packet-view:layer-menu', this.layerMenu);
+    Menu.unregister('packet-view:layer-menu', this.copyMenu);
+    Menu.unregister('packet-view:numeric-value-menu', this.numValueMenu);
+    Menu.unregister('packet-view:numeric-value-menu', this.copyMenu);
+    Menu.unregister('packet-view:context-menu', this.copyMenu);
 
-    return dripcap.package.load('main-view').then(pkg => {
+    return Package.load('main-view').then(pkg => {
       pkg.root.panel.center('packet-view');
       this.view.unmount();
       return this.comp.destroy();

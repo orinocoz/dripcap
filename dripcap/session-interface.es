@@ -14,6 +14,10 @@ export default class SessionInterface extends EventEmitter {
     this._classes = [];
   }
 
+  getInterfaceList() {
+    return this.parent.gold.devices();
+  }
+
   registerDissector(namespaces, path) {
     return this._dissectors.push({
       namespaces,
@@ -78,8 +82,8 @@ export default class SessionInterface extends EventEmitter {
         ((dec = dec) => tasks.push(sess.addStreamDissector(dec.namespaces, dec.path)))(dec);
       }
 
-      return Promise.all(tasks).then(function() {
-        dripcap.pubsub.pub('core:capturing-settings', {
+      return Promise.all(tasks).then(() => {
+        this.parent.pubsub.pub('core:capturing-settings', {
           iface,
           options
         });

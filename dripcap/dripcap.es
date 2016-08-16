@@ -17,33 +17,23 @@ class ActionInterface extends EventEmitter {
 
 }
 
-class EventInterface extends EventEmitter {
-
-}
-
 class Dripcap extends EventEmitter {
   constructor(profile) {
     super();
     this.profile = profile;
-    this._gold = new GoldFilter();
-    global.dripcap = this;
-  }
-
-  getInterfaceList() {
-    return this._gold.devices();
+    this.gold = new GoldFilter();
   }
 
   _init() {
     let theme = this.profile.getConfig('theme');
     this.config = config;
+    this.pubsub = new PubSub();
     this.session = new SessionInterface(this);
     this.theme = new ThemeInterface(this);
-    this.keybind = new KeybindInterface(this);
     this.package = new PackageInterface(this);
     this.action = new ActionInterface(this);
-    this.event = new EventInterface(this);
+    this.keybind = new KeybindInterface(this);
     this.menu = new MenuInterface(this);
-    this.pubsub = new PubSub()
 
     this._css = $('<style>').appendTo($('head'));
     this.theme.sub('update', (scheme) => {
@@ -75,11 +65,22 @@ class Dripcap extends EventEmitter {
   }
 }
 
-export default (prof) => {
+var func = (prof) => {
   let instance = null;
   if (prof != null) {
     instance = new Dripcap(prof);
     instance._init();
   }
+  func.Menu = instance.menu;
+  func.KeyBind = instance.keybind;
+  func.Session = instance.session;
+  func.Package = instance.package;
+  func.Theme = instance.theme;
+  func.Action = instance.action;
+  func.PubSub = instance.pubsub;
+  func.Profile = instance.profile;
+  func.Config = instance.config;
   return instance;
 };
+
+export default func;
