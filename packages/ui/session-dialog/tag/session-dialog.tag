@@ -55,8 +55,12 @@
         promiscuous: promisc,
         snaplen: snaplen
       }).then(sess => {
-        sess.on('status', (stat) => {
+        PubSub.pub('core:session-created', sess);
+        sess.on('status', stat => {
           PubSub.pub('core:capturing-status', stat);
+        });
+        sess.on('packet', pkt => {
+          PubSub.pub('core:session-packet', pkt);
         });
         if (Session.list != null) {
           for (let i = 0; i < Session.list.length; i++) {
