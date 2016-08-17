@@ -24,7 +24,7 @@ export default class SessionDialog {
       this.captureMenu = function(menu, e) {
         let left;
         let action = name => () => Action.emit(name);
-        let capturing = (left = PubSub.get('core:capturing-status')) != null ? left : false;
+        let capturing = (left = PubSub.get('core:capturing-status')) != null ? left.capturing : false;
         menu.append(new MenuItem({
           label: 'New Session',
           accelerator: KeyBind.get('!menu', 'core:new-session'),
