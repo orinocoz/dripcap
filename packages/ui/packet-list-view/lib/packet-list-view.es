@@ -26,7 +26,7 @@ export default class PacketListView {
     return new Promise(res => {
       this.comp = new Component(`${__dirname}/../tag/*.tag`);
       return Package.load('main-view').then(pkg => {
-        return $(() => {
+        $(() => {
           let m = $('<div class="wrapper noscroll" />');
           pkg.root.panel.left('packet-list-view', m);
 
@@ -38,44 +38,18 @@ export default class PacketListView {
           this.view = $('[riot-tag=packet-list-view]');
           this.view.scroll(_.debounce((() => this.update()), 100));
 
-          PubSub.sub('packet-filter-view:filter', filter => {
-            this.filtered = 0;
-            this.reset();
-            return this.update();
-          });
-
-          Session.on('created', session => {
-            this.session = session;
-            this.packets = 0;
-            this.filtered = -1;
-            this.reset();
-            this.update();
-
-            session.on('status', n => {
-              this.packets = n.packets;
-
-              if (n.filtered.main != null) {
-                this.filtered = n.filtered.main;
-              } else {
-                this.filtered = -1;
-              }
-
-              return this.update();
-            });
-
-            return session.on('packet', pkt => {
-              if (pkt.id === this.selectedId) {
-                PubSub.pub('packet-list-view:select', pkt);
-              }
-              return process.nextTick(() => {
-                return this.cells.filter(`[data-packet=${pkt.id}]:visible`)
-                  .empty()
-                  .append($('<a>').text(pkt.name))
-                  .append($('<a>').text(pkt.attrs.src))
-                  .append($('<a>').append($('<i class="fa fa-angle-double-right">')))
-                  .append($('<a>').text(pkt.attrs.dst))
-                  .append($('<a>').text(pkt.len));
-              });
+          PubSub.sub('core:session-packet', pkt => {
+            if (pkt.id === this.selectedId) {
+              PubSub.pub('packet-list-view:select', pkt);
+            }
+            process.nextTick(() => {
+              this.cells.filter(`[data-packet=${pkt.id}]:visible`)
+                .empty()
+                .append($('<a>').text(pkt.name))
+                .append($('<a>').text(pkt.attrs.src))
+                .append($('<a>').append($('<i class="fa fa-angle-double-right">')))
+                .append($('<a>').text(pkt.attrs.dst))
+                .append($('<a>').text(pkt.len));
             });
           });
 
@@ -86,6 +60,32 @@ export default class PacketListView {
           ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
           ctx.fillRect(0, 0, 64, 32);
           this.main.css('background-image', `url(${canvas.toDataURL('image/png')})`);
+
+          PubSub.sub('packet-filter-view:filter', filter => {
+            this.filtered = 0;
+            this.reset();
+            this.update();
+          });
+
+          PubSub.sub('core:session-created', session => {
+            this.session = session;
+            this.packets = 0;
+            this.filtered = -1;
+            this.reset();
+            this.update();
+          });
+
+          PubSub.sub('core:capturing-status', n => {
+            this.packets = n.packets;
+
+            if (n.filtered.main != null) {
+              this.filtered = n.filtered.main;
+            } else {
+              this.filtered = -1;
+            }
+
+            this.update();
+          });
 
           this.reset();
           res();
@@ -99,7 +99,7 @@ export default class PacketListView {
     this.prevEnd = -1;
     this.selectedId = -1;
     this.main.empty();
-    return this.cells = $([]);
+    this.cells = $([]);
   }
 
   update() {
@@ -111,6 +111,12 @@ export default class PacketListView {
       num = this.filtered;
     }
 
+    if (num > 0 && this.view.height() === 0) {
+      setTimeout(() => {
+        this.update();
+      }, 500);
+    }
+
     this.main.css('height', (height * num) + 'px');
     let start = Math.max(1, Math.floor((this.view.scrollTop() / height) - margin));
     let end = Math.min(num, Math.floor(((this.view.scrollTop() + this.view.height()) / height) + margin));
@@ -118,7 +124,7 @@ export default class PacketListView {
     this.cells.filter(':visible').each((i, ele) => {
       let pos = parseInt($(ele).css('top'));
       if (pos + $(ele).height() + (margin * height) < this.view.scrollTop() || pos - (margin * height) > this.view.scrollTop() + this.view.height()) {
-        return $(ele).hide();
+        $(ele).hide();
       }
     });
 
@@ -133,10 +139,10 @@ export default class PacketListView {
             let i = iterable[j];
             list.push(i);
           }
-          return this.updateCells(start - 1, list);
+          this.updateCells(start - 1, list);
         } else {
-          return this.session.getFiltered('main', start, end).then(list => {
-            return this.updateCells(start - 1, list);
+          this.session.getFiltered('main', start, end).then(list => {
+            this.updateCells(start - 1, list);
           });
         }
       }
@@ -164,7 +170,9 @@ export default class PacketListView {
           $(this).siblings('.selected').removeClass('selected');
           $(this).addClass('selected');
           self.selectedId = parseInt($(this).attr('data-packet'));
-          return process.nextTick(() => self.session.requestPackets([self.selectedId]));
+          process.nextTick(() => {
+            self.session.requestPackets([self.selectedId]);
+          });
         });
       }
 
@@ -176,17 +184,17 @@ export default class PacketListView {
         return;
       }
       let id = packets[i];
-      return $(ele).attr('data-packet', id).toggleClass('selected', this.selectedId === id).empty().css('top', (32 * indices[i]) + 'px').show();
+      $(ele).attr('data-packet', id).toggleClass('selected', this.selectedId === id).empty().css('top', (32 * indices[i]) + 'px').show();
     });
 
-    return this.session.requestPackets(packets);
+    this.session.requestPackets(packets);
   }
 
   deactivate() {
-    return Package.load('main-view').then(pkg => {
+    Package.load('main-view').then(pkg => {
       pkg.root.panel.left('packet-list-view');
       this.list.unmount();
-      return this.comp.destroy();
+      this.comp.destroy();
     });
   }
 }
