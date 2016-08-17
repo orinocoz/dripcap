@@ -56,7 +56,7 @@
         snaplen: snaplen
       }).then(sess => {
         sess.on('status', (stat) => {
-          PubSub.pub('core:capturing-status', stat.capturing);
+          PubSub.pub('core:capturing-status', stat);
         });
         if (Session.list != null) {
           for (let i = 0; i < Session.list.length; i++) {

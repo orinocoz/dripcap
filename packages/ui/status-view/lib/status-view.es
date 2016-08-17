@@ -17,8 +17,8 @@ export default class StatusView {
           this.view = riot.mount(m[0], 'status-view')[0];
           pkg.root.panel.northFixed(m);
 
-          PubSub.sub('core:capturing-status', data => {
-            this.view.capturing = data;
+          PubSub.sub('core:capturing-status', stat => {
+            this.view.capturing = stat.capturing;
             return this.view.update();
           });
 
