@@ -4,8 +4,16 @@ import _ from 'underscore';
 import config from 'dripcap/config';
 
 require("babel-register")({
-  presets: ["es2015"],
-  plugins: ["add-module-exports"],
+  presets: [
+    "es2015-riot",
+    "stage-3"
+  ],
+  plugins: [
+    "add-module-exports", ["transform-runtime", {
+      "polyfill": false,
+      "regenerator": true
+    }]
+  ],
   extensions: [".es"]
 });
 
@@ -85,24 +93,23 @@ export default class Package {
     }
   }
 
-  deactivate() {
-    return this.load().then(() => {
-      return new Promise((resolve, reject) => {
-        try {
-          this.root.deactivate();
-          this.root = null;
-          this._reset();
-          for (let key in require.cache) {
-            if (key.startsWith(this.path)) {
-              delete require.cache[key];
-            }
+  async deactivate() {
+    await this.load();
+    return new Promise((resolve, reject) => {
+      try {
+        this.root.deactivate();
+        this.root = null;
+        this._reset();
+        for (let key in require.cache) {
+          if (key.startsWith(this.path)) {
+            delete require.cache[key];
           }
-        } catch (e) {
-          reject(e);
-          return;
         }
-        return resolve(this);
-      });
+      } catch (e) {
+        reject(e);
+        return;
+      }
+      return resolve(this);
     });
   }
 }

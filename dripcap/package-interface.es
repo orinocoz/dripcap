@@ -23,7 +23,7 @@ export default class PackageInterface extends PubSub {
     this.uninstall = this.uninstall.bind(this);
     this.list = {};
     this.triggerlLoaded = _.debounce(() => {
-      return this.pub('core:package-loaded');
+      this.pub('core:package-loaded');
     }, 500);
   }
 
@@ -80,12 +80,12 @@ export default class PackageInterface extends PubSub {
       } else if (pkg.config.get('enabled')) {
         pkg.activate();
         pkg.load().then(() => {
-          return process.nextTick(() => this.triggerlLoaded());
+          process.nextTick(() => this.triggerlLoaded());
         });
       }
     }
 
-    return this.pub('core:package-list-updated', this.list);
+    this.pub('core:package-list-updated', this.list);
   }
 
   rebuild(path) {
@@ -115,101 +115,88 @@ export default class PackageInterface extends PubSub {
     });
   }
 
-  install(name) {
+  async install(name) {
     let registry = this.parent.profile.getConfig('package-registry');
     let pkgpath = path.join(config.userPackagePath, name);
     let tarurl = '';
 
-    let p = this.resolveRegistry(registry).then((host) => {
-      if (this.list[name] != null) {
-        throw Error(`Package ${name} is already installed`);
-      }
+    let host = await this.resolveRegistry(registry);
 
-      return new Promise((res, rej) =>
-        npm.load({
-            production: true,
-            host
-          }, () =>
-          npm.commands.view([name], function(e, data) {
-            try {
-              if (e != null) {
-                throw e;
-              }
-              let pkg = data[Object.keys(data)[0]];
-              if ((pkg.engines != null) && (pkg.engines.dripcap != null)) {
-                let ver = pkg.engines.dripcap;
-                if (semver.satisfies(config.version, ver)) {
-                  if ((pkg.dist != null) && (pkg.dist.tarball != null)) {
-                    tarurl = pkg.dist.tarball;
-                    return res();
-                  } else {
-                    throw new Error('Tarball not found');
-                  }
+    if (this.list[name] != null) {
+      throw Error(`Package ${name} is already installed`);
+    }
+
+    await new Promise((res, rej) =>
+      npm.load({
+          production: true,
+          host
+        }, () =>
+        npm.commands.view([name], function(e, data) {
+          try {
+            if (e != null) {
+              throw e;
+            }
+            let pkg = data[Object.keys(data)[0]];
+            if ((pkg.engines != null) && (pkg.engines.dripcap != null)) {
+              let ver = pkg.engines.dripcap;
+              if (semver.satisfies(config.version, ver)) {
+                if ((pkg.dist != null) && (pkg.dist.tarball != null)) {
+                  tarurl = pkg.dist.tarball;
+                  res();
                 } else {
-                  throw new Error('Dripcap version mismatch');
+                  throw new Error('Tarball not found');
                 }
               } else {
-                throw new Error('This package is not for dripcap');
+                throw new Error('Dripcap version mismatch');
               }
-            } catch (e) {
-              return rej(e);
+            } else {
+              throw new Error('This package is not for dripcap');
             }
-          })
-
-        )
-      );
-    });
-
-    p = p.then(() => {
-      return new Promise(res => fs.stat(pkgpath, e => res(e)))
-        .then(e => {
-          if (e != null) {
-            return Promise.resolve();
-          } else {
-            return this.uninstall(name);
+          } catch (e) {
+            return rej(e);
           }
-        });
-    });
-
-    p = p.then(() =>
-      new Promise(function(res) {
-        let gunzip = zlib.createGunzip();
-        let extractor = tar.Extract({
-          path: pkgpath,
-          strip: 1
-        });
-        return request(tarurl).pipe(gunzip).pipe(extractor).on('finish', () => res());
-      })
+        })
+      )
     );
 
-    p = p.then(() =>
-      new Promise(function(res) {
-        let jsonPath = path.join(pkgpath, 'package.json');
-        return fs.readFile(jsonPath, function(err, data) {
+    let e = await new Promise(res => fs.stat(pkgpath, e => res(e)));
+    if (e == null) {
+      await this.uninstall(name);
+    }
+
+    await new Promise(function(res) {
+      let gunzip = zlib.createGunzip();
+      let extractor = tar.Extract({
+        path: pkgpath,
+        strip: 1
+      });
+      request(tarurl).pipe(gunzip).pipe(extractor).on('finish', () => res());
+    });
+
+    await new Promise(function(res) {
+      let jsonPath = path.join(pkgpath, 'package.json');
+      return fs.readFile(jsonPath, function(err, data) {
+        if (err) {
+          throw err;
+        }
+        let json = JSON.parse(data);
+        json['_dripcap'] = {
+          name,
+          registry
+        };
+        fs.writeFile(jsonPath, JSON.stringify(json, null, '  '), function(err) {
           if (err) {
             throw err;
           }
-          let json = JSON.parse(data);
-          json['_dripcap'] = {
-            name,
-            registry
-          };
-          return fs.writeFile(jsonPath, JSON.stringify(json, null, '  '), function(err) {
-            if (err) {
-              throw err;
-            }
-            return res();
-          });
-        });
-      })
-    );
-
-    return p.then(() => {
-      return new Promise(res => {
-        return npm.commands.install(pkgpath, [], () => {
           res();
-          return this.updatePackageList();
         });
+      });
+    });
+
+    await new Promise(res => {
+      return npm.commands.install(pkgpath, [], () => {
+        res();
+        this.updatePackageList();
       });
     });
   }
@@ -217,12 +204,12 @@ export default class PackageInterface extends PubSub {
   uninstall(name) {
     let pkgpath = path.join(config.userPackagePath, name);
     return new Promise(res => {
-      return rmdir(pkgpath, err => {
+      rmdir(pkgpath, err => {
         this.updatePackageList();
         if (err != null) {
           throw err;
         }
-        return res();
+        res();
       });
     });
   }

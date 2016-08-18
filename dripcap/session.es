@@ -55,20 +55,17 @@ export default class Session extends EventEmitter {
     return this._gold.getFiltered(name, start, end);
   }
 
-  start() {
-    return this._gold.stop().then(() => {
-      return this._builtin.then(() => {
-        return this._gold.start(this._settings.iface, this._settings.options).then(() => {
-          this._timer = setInterval(() => {
-            this._gold.status().then(stat => {
-              if (stat != null) {
-                this.emit('status', stat);
-              }
-            });
-          }, 100);
-        });
+  async start() {
+    await this._gold.stop();
+    await this._builtin;
+    await this._gold.start(this._settings.iface, this._settings.options);
+    this._timer = setInterval(() => {
+      this._gold.status().then(stat => {
+        if (stat != null) {
+          this.emit('status', stat);
+        }
       });
-    });
+    }, 100);
   }
 
   stop() {

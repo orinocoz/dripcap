@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "postinstall": "node build.js && babel --presets es2015 -o index.js index.es"
+    "postinstall": "node build.js && babel -o index.js index.es"
   },
   "author": "h2so5",
   "license": "MIT",
@@ -22,5 +22,17 @@
     "chai": "^3.5.0",
     "chai-also": "^0.1.0",
     "chai-as-promised": "^5.3.0"
+  },
+  "babel": {
+    "presets": [
+      "es2015-riot",
+      "stage-3"
+    ],
+    "plugins": [
+      "add-module-exports", ["transform-runtime", {
+        "polyfill": false,
+        "regenerator": true
+      }]
+    ]
   }
 }
