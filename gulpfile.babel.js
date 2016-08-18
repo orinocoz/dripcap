@@ -6,6 +6,7 @@ import replace from 'gulp-replace';
 import zip from 'gulp-vinyl-zip';
 import sequence from 'gulp-sequence';
 import runElectron from "gulp-run-electron";
+import mocha from 'gulp-mocha';
 import fs from 'fs';
 import path from 'path';
 import glob from 'glob';
@@ -16,13 +17,35 @@ import jasmine from 'gulp-jasmine';
 import npm from 'npm';
 import pkg from './package.json';
 
+gulp.task('mocha', () => {
+  return gulp.src(['uispec/*.es', '**/uispec/*.es'], {
+      read: false
+    })
+    .pipe(mocha({
+      reporter: 'list',
+      require: ['babel-register'],
+      timeout: 30000,
+      slow: 10000
+    }));
+});
+
 gulp.task('babel', () =>
   gulp.src('./src/**/*.es', {
     base: './src/'
   })
   .pipe(babel({
-    presets: ['es2015'],
-    plugins: ['add-module-exports']
+    presets: [
+      "es2015-riot",
+      "stage-3"
+    ],
+    plugins: [
+      "add-module-exports", [
+        "transform-runtime", {
+          "polyfill": false,
+          "regenerator": true
+        }
+      ]
+    ]
   }))
   .pipe(gulp.dest('./.build/js/'))
 
@@ -159,18 +182,6 @@ gulp.task('default', ['build'], function() {
     DRIPCAP_ATTACH: '1'
   };
   return gulp.src(".build").pipe(runElectron(['--enable-logging'], {
-    env: Object.assign(env, process.env)
-  }));
-});
-
-gulp.task('test', sequence('build'));
-
-gulp.task('uitest', function() {
-  let env = {
-    DRIPCAP_UI_TEST: __dirname,
-    PAPERFILTER_TESTDATA: path.join(__dirname, 'uispec/test')
-  };
-  return gulp.src(".build").pipe(runElectron([], {
     env: Object.assign(env, process.env)
   }));
 });

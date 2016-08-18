@@ -66,23 +66,17 @@ class Dripcap {
 
     let mainWindow = new BrowserWindow(options);
     mainWindow.loadURL(`file://${__dirname}/../render.html`);
-    if (process.env['DRIPCAP_UI_TEST'] == null) {
-      return mainWindow.webContents.on('did-finish-load', () => mainWindow.show());
-    }
+    mainWindow.webContents.on('did-finish-load', () => mainWindow.show());
   }
 }
 
 const dripcap = new Dripcap();
 
-if (process.env['DRIPCAP_UI_TEST'] != null) {
-  require('./uitest');
-} else {
-  app.on('window-all-closed', () => app.quit());
+app.on('window-all-closed', () => app.quit());
 
-  app.on('ready', function() {
-    if (process.platform === 'darwin') {
-      dripcap.checkForUpdates();
-    }
-    return dripcap.newWindow();
-  });
-}
+app.on('ready', function() {
+  if (process.platform === 'darwin') {
+    dripcap.checkForUpdates();
+  }
+  return dripcap.newWindow();
+});

@@ -487,6 +487,8 @@ export default class GoldFilter extends EventEmitter {
   }
 
   static testPerm() {
+    if (process.env['DRIPCAP_UI_TEST'] != null) return true;
+
     const {
       bundle,
       exe
