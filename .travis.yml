@@ -22,8 +22,10 @@ before_install:
   fi
 install:
 - npm install --depth 0 -g gulp electron-prebuilt babel-cli
-- npm install babel-preset-es2015-riot babel-preset-stage-3
+- npm install babel-preset-es2015-riot babel-preset-stage-3 babel-runtime
+- npm install babel-plugin-add-module-exports babel-plugin-transform-runtime
 - npm install --depth 0
+- gulp build
 before_script:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-script.sh
   ; fi

@@ -10,7 +10,7 @@
   "readme": "see README.md",
   "main": "js/main.js",
   "scripts": {
-    "test": "gulp test",
+    "test": "gulp mocha",
     "dpkg": "chmod -R g-w debian && gulp debian && cd .debian && fakeroot dpkg-deb --build . ../dripcap-linux-amd64.deb"
   },
   "engines": {
@@ -53,11 +53,13 @@
     "gulp-atom-electron": "^1.7.1",
     "gulp-babel": "^6.1.2",
     "gulp-jasmine": "^2.4.0",
+    "gulp-mocha": "^3.0.1",
     "gulp-replace": "^0.5.4",
     "gulp-run-electron": "^2.0.0",
     "gulp-sequence": "^0.4.5",
     "gulp-symdest": "^1.0.0",
-    "gulp-vinyl-zip": "^1.2.2"
+    "gulp-vinyl-zip": "^1.2.2",
+    "spectron": "^3.3.0"
   },
   "babel": {
     "presets": [
@@ -65,10 +67,12 @@
       "stage-3"
     ],
     "plugins": [
-      "add-module-exports", ["transform-runtime", {
-        "polyfill": false,
-        "regenerator": true
-      }]
+      "add-module-exports", [
+        "transform-runtime", {
+          "polyfill": false,
+          "regenerator": true
+        }
+      ]
     ]
   }
 }
