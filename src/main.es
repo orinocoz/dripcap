@@ -12,6 +12,10 @@ import mkpath from 'mkpath';
 import config from 'dripcap/config';
 import GoldFilter from 'goldfilter';
 
+if (process.platform === 'darwin' && process.env['DRIPCAP_UI_TEST'] != null) {
+  app.dock.hide();
+}
+
 mkpath.sync(config.userPackagePath);
 mkpath.sync(config.profilePath);
 
@@ -66,7 +70,11 @@ class Dripcap {
 
     let mainWindow = new BrowserWindow(options);
     mainWindow.loadURL(`file://${__dirname}/../render.html`);
-    mainWindow.webContents.on('did-finish-load', () => mainWindow.show());
+    mainWindow.webContents.on('did-finish-load', () => {
+      if (process.env['DRIPCAP_UI_TEST'] == null) {
+        mainWindow.show();
+      }
+    });
   }
 }
 
