@@ -60,20 +60,20 @@
 
     this.on('mount', () => {
       if (process.platform === 'darwin') {
-        return $(this.root).css('padding-left', '90px');
+        $(this.root).css('padding-left', '90px');
       }
     });
 
     this.startCapture = () => {
-      return Action.emit('core:start-sessions');
+      Action.emit('core:start-sessions');
     };
 
     this.stopCapture = () => {
-      return Action.emit('core:stop-sessions');
+      Action.emit('core:stop-sessions');
     };
 
     this.newCapture = () => {
-      return Action.emit('core:new-session');
+      Action.emit('core:new-session');
     };
   </script>
 
