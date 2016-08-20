@@ -23,10 +23,10 @@
   import $ from 'jquery';
 
   this.on('mount', () => {
-    let elem;
     this.pref = $(this.root).find('.preferences').empty();
-    if (elem = opts.pkg.renderPreferences()) {
-      return this.pref.append(elem);
+    let elem = opts.pkg.renderPreferences();
+    if (elem) {
+      this.pref.append(elem);
     }
   });
 </script>
@@ -49,9 +49,9 @@
     let enabled = $(e.currentTarget).is(':checked');
     pkg.config.set('enabled', enabled);
     if (enabled) {
-      return pkg.activate();
+      pkg.activate();
     } else {
-      return pkg.deactivate();
+      pkg.deactivate();
     }
   };
 
@@ -60,10 +60,10 @@
     if (pkg.config.get('enabled')) {
       pkg.deactivate();
     }
-    return Package.uninstall(pkg.name).then(() => {
-      return $(e.target).parents('li.packages').fadeOut(400, () => {
+    Package.uninstall(pkg.name).then(() => {
+      $(e.target).parents('li.packages').fadeOut(400, () => {
         this.packageList = _.without(this.packageList, pkg);
-        return this.update();
+        this.update();
       });
     });
   };
