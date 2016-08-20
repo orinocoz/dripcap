@@ -9,37 +9,31 @@ import {
 } from 'dripcap';
 
 export default class WelcomeDialog {
-  activate() {
-    return new Promise(res => {
-      this.comp = new Component(`${__dirname}/../tag/*.tag`);
-      return Package.load('main-view').then(pkg => {
-        return Package.load('modal-dialog').then(pkg => {
-          return $(() => {
-            let n = $('<div>').addClass('container').appendTo($('body'));
-            this.view = riot.mount(n[0], 'welcome-dialog')[0];
-            this.view.logo = __dirname + '/../images/dripcap.png';
+  async activate() {
+    await Package.load('main-view');
+    await Package.load('modal-dialog');
 
-            Session.on('created', () => {
-              this.view.hide();
-              return this.view.update();
-            });
+    this.comp = new Component(`${__dirname}/../tag/*.tag`);
 
-            Package.sub('core:package-loaded', _.once(() => {
-              if (Profile.getConfig('startupDialog')) {
-                this.view.show();
-                return this.view.update();
-              }
-            }));
+    let n = $('<div>').addClass('container').appendTo($('body'));
+    this.view = riot.mount(n[0], 'welcome-dialog')[0];
+    this.view.logo = __dirname + '/../images/dripcap.png';
 
-            return res();
-          });
-        });
-      });
+    Session.on('created', () => {
+      this.view.hide();
+      this.view.update();
     });
+
+    Package.sub('core:package-loaded', _.once(() => {
+      if (Profile.getConfig('startupDialog')) {
+        this.view.show();
+        this.view.update();
+      }
+    }));
   }
 
-  deactivate() {
+  async deactivate() {
     this.view.unmount();
-    return this.comp.destroy();
+    this.comp.destroy();
   }
 }
