@@ -6,27 +6,22 @@ import {
 } from 'dripcap';
 
 export default class PackagePreferencesView {
-  activate() {
-    return new Promise(res => {
-      this.comp = new Component(`${__dirname}/../tag/*.tag`);
-      Package.load('preferences-dialog').then(pkg => {
-        return $(() => {
-          let m = $('<div class="wrapper"/>');
-          this._view = riot.mount(m[0], 'package-preferences-view')[0];
-          pkg.root.panel.center('package', m, $('<i class="fa fa-gift"> Packages</i>'));
+  async activate() {
+    this.comp = new Component(`${__dirname}/../tag/*.tag`);
+    let pkg = await Package.load('preferences-dialog');
 
-          return Package.sub('core:package-list-updated', list => {
-            this._view.packageList = Object.keys(list).map(v => list[v]);
-            return this._view.update();
-          });
-        });
-      });
-      return res();
+    let m = $('<div class="wrapper"/>');
+    this._view = riot.mount(m[0], 'package-preferences-view')[0];
+    pkg.root.panel.center('package', m, $('<i class="fa fa-gift"> Packages</i>'));
+
+    Package.sub('core:package-list-updated', list => {
+      this._view.packageList = Object.keys(list).map(v => list[v]);
+      this._view.update();
     });
   }
 
-  deactivate() {
+  async deactivate() {
     this._view.unmount();
-    return this.comp.destroy();
+    this.comp.destroy();
   }
 }
