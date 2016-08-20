@@ -59,7 +59,7 @@
           this.message = '';
           this.packageList = JSON.parse(body);
         }
-        return this.update();
+        this.update();
       });
     });
   });
@@ -71,11 +71,11 @@
     return Package.install(name).then(() => {
       this.message = `${name} has been successfully installed!`;
       this.installing = false;
-      return this.update();
+      this.update();
     }).catch(e => {
       this.message = e.toString();
       this.installing = false;
-      return this.update();
+      this.update();
     });
   };
 </script>
