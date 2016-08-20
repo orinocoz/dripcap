@@ -1,13 +1,11 @@
-import $ from 'jquery';
-import riot from 'riot';
 import Component from 'dripcap/component';
 
 export default class ModalDialog {
-  activate() {
-    return this.comp = new Component(`${__dirname}/../tag/*.tag`);
+  async activate() {
+    this.comp = new Component(`${__dirname}/../tag/*.tag`);
   }
 
-  deactivate() {
-    return this.comp.destroy();
+  async deactivate() {
+    this.comp.destroy();
   }
 }

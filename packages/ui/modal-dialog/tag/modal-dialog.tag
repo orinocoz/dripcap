@@ -43,12 +43,12 @@
       }
       this.constructor.currentDialog = this;
       this.visible = true;
-      return process.nextTick(() => $('.content').focus());
+      process.nextTick(() => $('.content').focus());
     };
 
     this.hide = () => {
       this.visible = false;
-      return this.constructor.currentDialog = null;
+      this.constructor.currentDialog = null;
     };
 
     this.cancel = e => {
