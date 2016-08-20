@@ -9,32 +9,25 @@ import {
 } from 'dripcap';
 
 export default class PreferencesDialog {
-  activate() {
-    return new Promise(res => {
-      this.comp = new Component(`${__dirname}/../tag/*.tag`);
-      return Package.load('main-view').then(pkg => {
-        return Package.load('modal-dialog').then(pkg => {
-          return $(() => {
-            this.panel = new Panel();
-            let n = $('<div>').appendTo($('body'));
-            this._view = riot.mount(n[0], 'preferences-dialog')[0];
-            $(this._view.root).find('.content').append($('<div class="root-container" />').append(this.panel.root));
+  async activate() {
+    await Package.load('main-view');
+    await Package.load('modal-dialog');
 
-            Action.on('core:preferences', () => {
-              this._view.show();
-              return this._view.update();
-            });
+    this.comp = new Component(`${__dirname}/../tag/*.tag`);
+    this.panel = new Panel();
+    let n = $('<div>').appendTo($('body'));
+    this._view = riot.mount(n[0], 'preferences-dialog')[0];
+    $(this._view.root).find('.content').append($('<div class="root-container" />').append(this.panel.root));
 
-            return res();
-          });
-        });
-      });
+    Action.on('core:preferences', () => {
+      this._view.show();
+      this._view.update();
     });
   }
 
-  deactivate() {
+  async deactivate() {
     KeyBind.unbind('enter', '[riot-tag=preferences-dialog] .content');
     this._view.unmount();
-    return this.comp.destroy();
+    this.comp.destroy();
   }
 }

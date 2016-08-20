@@ -10,14 +10,12 @@
   </style>
 
   <script type="babel">
-    import $ from 'jquery';
-
     this.setInterfaceList = list => {
-      return this.interfaceList = list;
+      this.interfaceList = list;
     };
 
     this.show = () => {
-      return this.tags['modal-dialog'].show();
+      this.tags['modal-dialog'].show();
     };
   </script>
 
