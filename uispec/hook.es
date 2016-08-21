@@ -8,7 +8,7 @@ beforeEach(function() {
     path: electron,
     args: ['--enable-logging', __dirname + '/../.build'],
     env: {
-      'DRIPCAP_UI_TEST': '1'
+      'DRIPCAP_UI_TEST': __dirname + '/test'
     }
   });
   return this.app.start();
