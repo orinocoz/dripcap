@@ -22,76 +22,71 @@ import {
 } from 'dripcap';
 
 export default class PacketListView {
-  activate() {
-    return new Promise(res => {
-      this.comp = new Component(`${__dirname}/../tag/*.tag`);
-      return Package.load('main-view').then(pkg => {
-        $(() => {
-          let m = $('<div class="wrapper noscroll" />');
-          pkg.root.panel.left('packet-list-view', m);
+  async activate() {
+    this.comp = new Component(`${__dirname}/../tag/*.tag`);
+    let pkg = await Package.load('main-view');
 
-          let n = $('<div class="wrapper" />').attr('tabIndex', '0').appendTo(m);
-          this.list = riot.mount(n[0], 'packet-list-view', {
-            items: []
-          })[0];
+    let m = $('<div class="wrapper noscroll" />');
+    pkg.root.panel.left('packet-list-view', m);
 
-          this.view = $('[riot-tag=packet-list-view]');
-          this.view.scroll(_.debounce((() => this.update()), 100));
+    let n = $('<div class="wrapper" />').attr('tabIndex', '0').appendTo(m);
+    this.list = riot.mount(n[0], 'packet-list-view', {
+      items: []
+    })[0];
 
-          PubSub.sub('core:session-packet', pkt => {
-            if (pkt.id === this.selectedId) {
-              PubSub.pub('packet-list-view:select', pkt);
-            }
-            process.nextTick(() => {
-              this.cells.filter(`[data-packet=${pkt.id}]:visible`)
-                .empty()
-                .append($('<a>').text(pkt.name))
-                .append($('<a>').text(pkt.attrs.src))
-                .append($('<a>').append($('<i class="fa fa-angle-double-right">')))
-                .append($('<a>').text(pkt.attrs.dst))
-                .append($('<a>').text(pkt.len));
-            });
-          });
+    this.view = $('[riot-tag=packet-list-view]');
+    this.view.scroll(_.debounce((() => this.update()), 100));
 
-          this.main = $('[riot-tag=packet-list-view] div.main');
-
-          let canvas = $("<canvas width='64' height='64'>")[0];
-          let ctx = canvas.getContext("2d");
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-          ctx.fillRect(0, 0, 64, 32);
-          this.main.css('background-image', `url(${canvas.toDataURL('image/png')})`);
-
-          PubSub.sub('packet-filter-view:filter', filter => {
-            this.filtered = 0;
-            this.reset();
-            this.update();
-          });
-
-          PubSub.sub('core:session-created', session => {
-            this.session = session;
-            this.packets = 0;
-            this.filtered = -1;
-            this.reset();
-            this.update();
-          });
-
-          PubSub.sub('core:capturing-status', n => {
-            this.packets = n.packets;
-
-            if (n.filtered.main != null) {
-              this.filtered = n.filtered.main;
-            } else {
-              this.filtered = -1;
-            }
-
-            this.update();
-          });
-
-          this.reset();
-          res();
-        });
+    PubSub.sub('core:session-packet', pkt => {
+      if (pkt.id === this.selectedId) {
+        PubSub.pub('packet-list-view:select', pkt);
+      }
+      process.nextTick(() => {
+        this.cells.filter(`[data-packet=${pkt.id}]:visible`)
+          .empty()
+          .append($('<a>').text(pkt.name))
+          .append($('<a>').text(pkt.attrs.src))
+          .append($('<a>').append($('<i class="fa fa-angle-double-right">')))
+          .append($('<a>').text(pkt.attrs.dst))
+          .append($('<a>').text(pkt.len));
       });
     });
+
+    this.main = $('[riot-tag=packet-list-view] div.main');
+
+    let canvas = $("<canvas width='64' height='64'>")[0];
+    let ctx = canvas.getContext("2d");
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.fillRect(0, 0, 64, 32);
+    this.main.css('background-image', `url(${canvas.toDataURL('image/png')})`);
+
+    PubSub.sub('packet-filter-view:filter', filter => {
+      this.filtered = 0;
+      this.reset();
+      this.update();
+    });
+
+    PubSub.sub('core:session-created', session => {
+      this.session = session;
+      this.packets = 0;
+      this.filtered = -1;
+      this.reset();
+      this.update();
+    });
+
+    PubSub.sub('core:capturing-status', n => {
+      this.packets = n.packets;
+
+      if (n.filtered.main != null) {
+        this.filtered = n.filtered.main;
+      } else {
+        this.filtered = -1;
+      }
+
+      this.update();
+    });
+
+    this.reset();
   }
 
   reset() {
@@ -134,9 +129,7 @@ export default class PacketListView {
       if ((this.session != null) && start <= end) {
         if (this.filtered === -1) {
           let list = [];
-          let iterable = __range__(start, end, true);
-          for (let j = 0; j < iterable.length; j++) {
-            let i = iterable[j];
+          for (let i = start; i <= end; ++i) {
             list.push(i);
           }
           this.updateCells(start - 1, list);
@@ -162,9 +155,7 @@ export default class PacketListView {
 
     let needed = packets.length - this.cells.filter(':not(:visible)').length;
     if (needed > 0) {
-      let iterable = __range__(1, (needed), true);
-      for (let j = 0; j < iterable.length; j++) {
-        let i = iterable[j];
+      for (let i = 1; i <= needed; ++i) {
         let self = this;
         $('<div class="packet list-item">').appendTo(this.main).hide().click(function() {
           $(this).siblings('.selected').removeClass('selected');
@@ -190,21 +181,10 @@ export default class PacketListView {
     this.session.requestPackets(packets);
   }
 
-  deactivate() {
-    Package.load('main-view').then(pkg => {
-      pkg.root.panel.left('packet-list-view');
-      this.list.unmount();
-      this.comp.destroy();
-    });
+  async deactivate() {
+    let pkg = await Package.load('main-view');
+    pkg.root.panel.left('packet-list-view');
+    this.list.unmount();
+    this.comp.destroy();
   }
-}
-
-function __range__(left, right, inclusive) {
-  let range = [];
-  let ascending = left < right;
-  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
-  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
-    range.push(i);
-  }
-  return range;
 }
