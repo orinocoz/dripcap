@@ -12,6 +12,7 @@ import ThemeInterface from './theme-interface';
 import KeybindInterface from './keybind-interface';
 import PackageInterface from './package-interface';
 import MenuInterface from './menu-interface';
+import LoggerInterface from './logger-interface';
 
 class ActionInterface extends EventEmitter {
 
@@ -28,6 +29,7 @@ class Dripcap extends EventEmitter {
     let theme = this.profile.getConfig('theme');
     this.config = config;
     this.pubsub = new PubSub();
+    this.logger = new LoggerInterface(this);
     this.session = new SessionInterface(this);
     this.theme = new ThemeInterface(this);
     this.package = new PackageInterface(this);
@@ -80,6 +82,7 @@ var func = (prof) => {
   func.PubSub = instance.pubsub;
   func.Profile = instance.profile;
   func.Config = instance.config;
+  func.Logger = instance.logger;
   return instance;
 };
 

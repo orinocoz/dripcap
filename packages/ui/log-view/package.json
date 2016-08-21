@@ -1,0 +1,11 @@
+{
+  "name": "log-view",
+  "main": "./lib/log-view",
+  "license": "MIT",
+  "description": "Dripcap Log View",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dripcap/dripcap.git"
+  },
+  "readme": "see README.md"
+}
