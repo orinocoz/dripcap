@@ -3,7 +3,7 @@
     import riot from 'riot';
     this.on('mount', () => {
       if (opts.tag != null) {
-        return riot.mount(this.root, opts.tag, {value: opts.value});
+        riot.mount(this.root, opts.tag, {value: opts.value});
       }
     });
   </script>
@@ -33,7 +33,7 @@
 
     this.context = e => {
       Menu.popup('packet-view:numeric-value-menu', this, remote.getCurrentWindow());
-      return e.stopPropagation();
+      e.stopPropagation();
     };
   </script>
 </packet-view-integer-value>
@@ -45,7 +45,7 @@
 
     this.on('update', () => {
       if (this.opts.value != null) {
-        return this.root.innerHTML = $('<div/>').text(this.opts.value.toString()).html();
+        this.root.innerHTML = $('<div/>').text(this.opts.value.toString()).html();
       }
     });
   </script>
@@ -78,19 +78,19 @@
     if (opts.field.fields != null) {
       this.show = !this.show;
     }
-    return e.stopPropagation();
+    e.stopPropagation();
   };
 
   this.rangeOut = () => this.parent.rangeOut();
 
   this.fieldRange = e => {
-    return this.parent.fieldRange(e);
+    this.parent.fieldRange(e);
   };
 
   this.context = e => {
     if (window.getSelection().toString().length > 0) {
       Menu.popup('packet-view:context-menu', this, remote.getCurrentWindow());
-      return e.stopPropagation();
+      e.stopPropagation();
     }
   };
 
@@ -147,14 +147,14 @@
     this.rootKeys = [];
     if (this.layer.layers != null) {
       this.rootLayers = this.layer.layers;
-      return this.rootKeys = Object.keys(this.rootLayers);
+      this.rootKeys = Object.keys(this.rootLayers);
     }
   });
 
   this.layerContext = e => {
     this.clickedLayerNamespace = e.item.ns;
     Menu.popup('packet-view:layer-menu', this, remote.getCurrentWindow());
-    return e.stopPropagation();
+    e.stopPropagation();
   };
 
   this.rangeOut = () => this.parent.rangeOut();
@@ -165,7 +165,7 @@
 
   this.toggleLayer = e => {
     this.visible = !this.visible;
-    return e.stopPropagation();
+    e.stopPropagation();
   };
 </script>
 
