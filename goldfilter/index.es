@@ -19,10 +19,6 @@ var exeEnv = {
   }
 };
 
-if (process.env['DRIPCAP_UI_TEST'] != null) {
-  exeEnv.env['DRIPCAP_UI_TEST'] = process.env['DRIPCAP_UI_TEST'];
-}
-
 class Payload extends Buffer {
 
 };
@@ -182,6 +178,15 @@ export default class GoldFilter extends EventEmitter {
         res();
       })
     })
+
+    if (process.env['DRIPCAP_UI_TEST'] != null) {
+      let testPath = process.env['DRIPCAP_UI_TEST'];
+      let devices = msgpack.decode(fs.readFileSync(path.join(testPath, 'list.msgpack')));
+      this._call('set_testdata', {
+        packets: [],
+        devices: devices
+      });
+    }
   }
 
   _call(name, arg) {
