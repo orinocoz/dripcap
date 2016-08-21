@@ -207,7 +207,7 @@ export default class MainMenu {
       let name = app.getName();
       Menu.registerMain(name, this.appMenu);
       Menu.registerMain(name, this.devMenu);
-      Menu.registerMain(name, this.quitMenu);
+      Menu.registerMain(name, this.quitMenu, -999);
       Menu.setMainPriority(name, 999);
     }
 
@@ -237,8 +237,8 @@ export default class MainMenu {
     if (process.platform === 'darwin') {
       let name = app.getName();
       Menu.unregisterMain(name, this.appMenu);
-      Menu.registerMain(name, this.devMenu);
-      Menu.registerMain(name, this.quitMenu);
+      Menu.unregisterMain(name, this.devMenu);
+      Menu.unregisterMain(name, this.quitMenu);
     } else {
       Menu.unregisterMain('Developer', this.devMenu);
     }
