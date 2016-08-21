@@ -13,11 +13,15 @@ import {
 import esprima from 'esprima';
 import LRU from 'lru-cache';
 
-const exeEnv = {
+var exeEnv = {
   env: {
     'GOLDFILTER_LOG': 'error'
   }
 };
+
+if (process.env['DRIPCAP_UI_TEST'] != null) {
+  exeEnv.env['DRIPCAP_UI_TEST'] = process.env['DRIPCAP_UI_TEST'];
+}
 
 class Payload extends Buffer {
 
@@ -430,7 +434,7 @@ export default class GoldFilter extends EventEmitter {
     }
 
     let exe = '';
-    if (process.platform == 'win32') {
+    if (process.env['DRIPCAP_UI_TEST'] != null || process.platform == 'win32') {
       exe = bundle;
     } else if (process.platform == 'darwin') {
       exe = '/usr/local/lib/goldfilter';
