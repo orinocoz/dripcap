@@ -9,7 +9,5 @@ describe('install preferences view', function() {
     this.app.webContents.executeJavaScript('require("dripcap").Action.emit("core:preferences");');
     let selector = '[riot-tag=install-preferences-view] install-preferences-view-item';
     await this.app.client.waitForExist(selector, 10000);
-    let elem = await this.app.client.elements(selector);
-    assert.ok(elem.value.length > 0);
   });
 });

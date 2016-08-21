@@ -182,8 +182,19 @@ export default class GoldFilter extends EventEmitter {
     if (process.env['DRIPCAP_UI_TEST'] != null) {
       let testPath = process.env['DRIPCAP_UI_TEST'];
       let devices = msgpack.decode(fs.readFileSync(path.join(testPath, 'list.msgpack')));
+      let packets = [];
+      try {
+        let count = 0;
+        for (;; ++count) {
+          let num = ('00' + count).slice(-3);
+          let packetPath = path.join(testPath, `packet${num}.msgpack`);
+          let packet = msgpack.decode(fs.readFileSync(packetPath));
+          packet.payload = new Buffer(packet.payload.buffer);
+          packets.push(packet);
+        }
+      } catch (e) {}
       this._call('set_testdata', {
-        packets: [],
+        packets: packets,
         devices: devices
       });
     }
