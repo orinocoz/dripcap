@@ -21,10 +21,10 @@
     this.change = e => {
       try {
         $(this.filter).toggleClass('error', false);
-        return this.filterText = $(e.target).val().trim();
+        this.filterText = $(e.target).val().trim();
       } catch (error) {
         $(this.filter).toggleClass('error', true);
-        return this.filterText = null;
+        this.filterText = null;
       }
     };
 
@@ -36,7 +36,7 @@
     };
 
     Session.on('created', session => {
-      return PubSub.sub('packet-filter-view:filter', filter => session.setFilter('main', filter));
+      PubSub.sub('packet-filter-view:filter', filter => session.setFilter('main', filter));
     });
   </script>
 </packet-filter-view>

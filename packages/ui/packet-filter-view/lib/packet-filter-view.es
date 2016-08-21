@@ -6,25 +6,18 @@ import {
 } from 'dripcap';
 
 export default class PacketFilterView {
-  activate() {
-    return new Promise(res => {
-      this.comp = new Component(`${__dirname}/../tag/*.tag`);
-      Package.load('main-view').then(pkg => {
-        return $(() => {
-          let m = $('<div/>');
-          this.view = riot.mount(m[0], 'packet-filter-view')[0];
-          return pkg.root.panel.leftSouthFixed(m);
-        });
-      });
-      return res();
-    });
+  async activate() {
+    this.comp = new Component(`${__dirname}/../tag/*.tag`);
+    let pkg = await Package.load('main-view');
+    let m = $('<div/>');
+    this.view = riot.mount(m[0], 'packet-filter-view')[0];
+    pkg.root.panel.leftSouthFixed(m);
   }
 
-  deactivate() {
-    return Package.load('main-view').then(pkg => {
-      pkg.root.panel.leftSouthFixed();
-      this.view.unmount();
-      return this.comp.destroy();
-    });
+  async deactivate() {
+    let pkg = await Package.load('main-view');
+    pkg.root.panel.leftSouthFixed();
+    this.view.unmount();
+    this.comp.destroy();
   }
 }
