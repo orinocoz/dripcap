@@ -9,13 +9,8 @@
 #include "script_class.hpp"
 #include "status.hpp"
 #include <spdlog/spdlog.h>
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cstdlib>
-
 #include <v8pp/module.hpp>
+#include <iostream>
 
 namespace console
 {
@@ -240,22 +235,6 @@ Server::Server(const std::string &path)
     });
 
     d->server.handle("get_devices", [this](const msgpack::object &arg, ReplyInterface &reply) {
-        const char *uitest = getenv("DRIPCAP_UI_TEST");
-        if (uitest) {
-            std::stringstream sstream;
-            std::ifstream ifs;
-            ifs.open((std::string(uitest) + "/list.msgpack").c_str(), std::ios::in);
-            if (ifs) {
-                sstream << ifs.rdbuf();
-                ifs.close();
-
-                msgpack::object_handle result;
-                msgpack::unpack(result, sstream.str().data(), sstream.str().size());
-                msgpack::object obj(result.get());
-                reply(obj);
-                return;
-            }
-        }
         reply(d->pcap->getAllDevs());
     });
 
