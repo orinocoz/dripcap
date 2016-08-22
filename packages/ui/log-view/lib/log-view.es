@@ -55,18 +55,7 @@ export default class LogView {
     });
 
     PubSub.sub('core:log', (log) => {
-      let textClass = '';
-      switch (log.level) {
-        case 'debug':
-          textClass = 'text-label';
-          break;
-        case 'warn':
-          textClass = 'text-headline';
-          break;
-        case 'error':
-          textClass = 'text-warn';
-          break;
-      }
+      let textClass = `text-${log.level}`;
       let hours = ('0' + log.timestamp.getHours()).slice(-2);
       let minutes = ('0' + log.timestamp.getMinutes()).slice(-2);
       let seconds = ('0' + log.timestamp.getSeconds()).slice(-2);
