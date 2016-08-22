@@ -79,6 +79,7 @@ export default class LogView {
 
   async deactivate() {
     let pkg = await Package.load('main-view');
+    pkg.root.panel.bottom('log-view');
     this.view.unmount();
     this.comp.destroy();
     if (process.platform === 'darwin') {
