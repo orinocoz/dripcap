@@ -201,8 +201,10 @@ export default class Panel {
     let res = container.children(`[tab-id=${id}]`).detach();
     this._vsp0.toggle(elem != null);
     if (elem == null) {
-      this.root.data('v0', 0.0);
       res.removeAttr('tab-id');
+      if (container.children('[tab-id]').length === 0) {
+        this.root.data('v0', 0.0);
+      }
       this.update();
       return res;
     }
@@ -259,8 +261,10 @@ export default class Panel {
     let res = container.children(`[tab-id=${id}]`).detach();
     this._vsp1.toggle(elem != null);
     if (elem == null) {
-      this.root.data('v1', 1.0);
       res.removeAttr('tab-id');
+      if (container.children('[tab-id]').length === 0) {
+        this.root.data('v1', 1.0);
+      }
       this.update();
       return res;
     }
@@ -317,8 +321,10 @@ export default class Panel {
     let res = container.children(`[tab-id=${id}]`).detach();
     this._hsp0.toggle(elem != null);
     if (elem == null) {
-      this.root.data('h0', 0.0);
       res.removeAttr('tab-id');
+      if (container.children('[tab-id]').length === 0) {
+        this.root.data('h0', 0.0);
+      }
       this.update();
       return res;
     }
@@ -364,8 +370,10 @@ export default class Panel {
     let res = container.children(`[tab-id=${id}]`).detach();
     this._hsp1.toggle(elem != null);
     if (elem == null) {
-      this.root.data('h1', 1.0);
       res.removeAttr('tab-id');
+      if (container.children('[tab-id]').length === 0) {
+        this.root.data('h1', 1.0);
+      }
       this.update();
       return res;
     }
@@ -526,7 +534,7 @@ export default class Panel {
       .css('bottom', this._fBottomSouthPanel.actualHeight() + 'px');
 
     update(this._centerPanel);
-    return this._centerPanel.children('.vcontainer')
+    this._centerPanel.children('.vcontainer')
       .css('top', this._fCenterNorthPanel.actualHeight() + this._centerPanel.children('.tabcontainer').actualHeight() + 'px')
       .css('bottom', this._fCenterSouthPanel.actualHeight() + 'px');
   }
