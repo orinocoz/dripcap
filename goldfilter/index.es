@@ -422,6 +422,10 @@ export default class GoldFilter extends EventEmitter {
     });
   }
 
+  logs() {
+    return this._call('fetch_logs');
+  }
+
   stop() {
     return this._call('stop');
   }

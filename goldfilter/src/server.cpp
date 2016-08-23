@@ -9,6 +9,7 @@
 #include "script_class.hpp"
 #include "status.hpp"
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/sink.h>
 #include <v8pp/module.hpp>
 #include <iostream>
 
@@ -37,7 +38,43 @@ v8::Handle<v8::Value> init(v8::Isolate *isolate)
 
 } // namespace console
 
-class Server::Private
+struct Log {
+  spdlog::level::level_enum level;
+  spdlog::log_clock::time_point time;
+  std::string message;
+};
+typedef std::shared_ptr<Log> LogPtr;
+
+MSGPACK_ADD_ENUM(spdlog::level::level_enum);
+
+namespace msgpack
+{
+MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
+{
+    namespace adaptor
+    {
+
+    template <>
+    struct pack<LogPtr> {
+        template <typename Stream>
+        msgpack::packer<Stream> &operator()(msgpack::packer<Stream> &o, LogPtr const &v) const
+        {
+            o.pack_map(3);
+            o.pack("level");
+            o.pack(v->level);
+            o.pack("time");
+            o.pack(std::chrono::system_clock::to_time_t(v->time));
+            o.pack("message");
+            o.pack(v->message);
+            return o;
+        }
+    };
+
+    } // namespace adaptor
+} // MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
+} // namespace msgpack
+
+class Server::Private : public spdlog::sinks::sink
 {
   public:
     Private(const std::string &path);
@@ -48,6 +85,14 @@ class Server::Private
     Dispatcher dispatcher;
     std::unique_ptr<PcapInterface> pcap;
     v8::Platform *platform;
+
+    std::mutex logMutex;
+    std::array<LogPtr, 128> logBuffer;
+    size_t logBufferIndex = 0;
+
+  public:
+    void log(const spdlog::details::log_msg &msg) override;
+    void flush() override;
 };
 
 Server::Private::Private(const std::string &path)
@@ -59,8 +104,23 @@ Server::Private::~Private()
 {
 }
 
+void Server::Private::log(const spdlog::details::log_msg &msg)
+{
+    std::lock_guard<std::mutex> lock(logMutex);
+    auto log = std::make_shared<Log>();
+    log->time = msg.time;
+    log->level = msg.level;
+    log->message = msg.raw.str();
+    logBuffer[logBufferIndex] = log;
+    logBufferIndex = (logBufferIndex + 1) % logBuffer.size();
+}
+
+void Server::Private::flush()
+{
+}
+
 Server::Server(const std::string &path)
-    : d(new Private(path))
+    : d(std::make_shared<Private>(path))
 {
     // Initialize V8.
     v8::V8::InitializeICU();
@@ -68,6 +128,8 @@ Server::Server(const std::string &path)
     d->platform = v8::platform::CreateDefaultPlatform();
     v8::V8::InitializePlatform(d->platform);
     v8::V8::Initialize();
+
+    spdlog::create("server", {d});
 
     d->pcap.reset(new Pcap());
 
@@ -246,6 +308,22 @@ Server::Server(const std::string &path)
         reply();
     });
 
+    d->server.handle("fetch_logs", [this](const msgpack::object &arg, ReplyInterface &reply) {
+        std::vector<LogPtr> logs;
+        {
+          std::lock_guard<std::mutex> lock(d->logMutex);
+          for (size_t i = 0; i < d->logBuffer.size(); ++i) {
+            size_t index = (d->logBufferIndex + i) % d->logBuffer.size();
+            const LogPtr &log = d->logBuffer[index];
+            if (log) {
+              logs.push_back(log);
+              d->logBuffer[index].reset();
+            }
+          }
+        }
+        reply(logs);
+    });
+
     // pcap thread
     d->pcap->handle([this](Packet *p) {
         d->dispatcher.insert(p);
@@ -254,9 +332,12 @@ Server::Server(const std::string &path)
 
 Server::~Server()
 {
+    spdlog::drop("server");
+    v8::Platform *platform = d->platform;
+    d.reset();
     v8::V8::Dispose();
     v8::V8::ShutdownPlatform();
-    delete d->platform;
+    delete platform;
 }
 
 bool Server::start()

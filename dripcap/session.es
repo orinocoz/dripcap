@@ -66,6 +66,14 @@ export default class Session extends EventEmitter {
         }
       });
     }, 100);
+
+    this._logTimer = setInterval(() => {
+      this._gold.logs().then(log => {
+        if (log.length > 0) {
+          this.emit('log', log);
+        }
+      });
+    }, 1000);
   }
 
   stop() {
@@ -74,6 +82,7 @@ export default class Session extends EventEmitter {
 
   close() {
     clearInterval(this._timer);
+    clearInterval(this._logTimer);
     return this._gold.close();
   }
 }

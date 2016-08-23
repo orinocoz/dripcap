@@ -146,7 +146,7 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *pkt = nullptr)
                                         MaybeLocal<Value> maybeResult = script->Run(context);
                                         if (maybeResult.IsEmpty()) {
                                             String::Utf8Value err(try_catch.Exception());
-                                            auto spd = spdlog::get("console");
+                                            auto spd = spdlog::get("server");
                                             spd->error("modules: {}", *err);
                                         } else {
                                             exports = module->Get(v8pp::to_v8(isolate, "exports"));
@@ -171,7 +171,7 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *pkt = nullptr)
                                 Local<Object> obj = exports.As<Function>()->NewInstance(args.size(), args.data());
                                 if (obj.IsEmpty()) {
                                     String::Utf8Value err(try_catch.Exception());
-                                    auto spd = spdlog::get("console");
+                                    auto spd = spdlog::get("server");
                                     spd->error("r {}", *err);
                                 } else {
                                     return obj;
@@ -735,7 +735,7 @@ ScriptClass::Private::Private(const msgpack::object &options)
 
             const auto &it = d->modules.find(name);
             if (it != d->modules.end()) {
-                auto spd = spdlog::get("console");
+                auto spd = spdlog::get("server");
 
                 Local<Context> context = Context::New(isolate);
                 context->SetSecurityToken(isolate->GetCurrentContext()->GetSecurityToken());
@@ -781,14 +781,14 @@ ScriptClass::Private::Private(const msgpack::object &options)
 
     v8pp::module console(isolate);
     console.set("error", [](FunctionCallbackInfo<Value> const &args) {
-        auto spd = spdlog::get("console");
+        auto spd = spdlog::get("server");
         for (size_t i = 0; i < args.Length(); ++i) {
             String::Utf8Value data(args[i]);
             spd->error("{}", *data);
         }
     });
     isolate->GetCurrentContext()->Global()->Set(
-        v8::String::NewFromUtf8(isolate, "console"), console.new_instance());
+        v8::String::NewFromUtf8(isolate, "server"), console.new_instance());
 
     isolate->GetCurrentContext()->SetEmbedderData(1, External::New(isolate, this));
 }
@@ -824,7 +824,7 @@ bool ScriptClass::loadSource(const std::string &src, std::string *error)
     HandleScope handle_scope(d->isolate);
     Local<Context> context = Local<Context>::New(d->isolate, d->context);
     Context::Scope context_scope(context);
-    auto spd = spdlog::get("console");
+    auto spd = spdlog::get("server");
 
     Local<String> source = v8pp::to_v8(d->isolate, src);
 
@@ -861,7 +861,7 @@ bool ScriptClass::loadSource(const std::string &src, std::string *error)
 
 bool ScriptClass::loadFile(const std::string &path, std::string *error)
 {
-    auto spd = spdlog::get("console");
+    auto spd = spdlog::get("server");
     spd->debug("load: {}", path);
 
     std::stringstream sstream;
@@ -1055,7 +1055,7 @@ bool ScriptClass::filter(Packet *packet) const
     MaybeLocal<Value> maybeRes = ctor->Call(context->Global(), 1, args);
     if (maybeRes.IsEmpty()) {
         String::Utf8Value err(try_catch.Exception());
-        auto spd = spdlog::get("console");
+        auto spd = spdlog::get("server");
         spd->error("errorx {}", *err);
         return false;
     }
