@@ -20,7 +20,10 @@ class Category {
     this._handlers = {};
   }
 
-  get(key) {
+  get(key, def = null) {
+    if (this._data[key] === undefined) {
+      return null;
+    }
     return this._data[key];
   }
 
