@@ -2,6 +2,7 @@
 #define SERVER_HPP
 
 #include <string>
+#include <memory>
 
 class Server final
 {
@@ -16,7 +17,7 @@ class Server final
 
   private:
     class Private;
-    Private *d;
+    std::shared_ptr<Private> d;
 };
 
 #endif

@@ -91,14 +91,14 @@ Dispatcher::FilterWorker::FilterWorker(const std::string &source, const msgpack:
             std::unique_lock<std::mutex> lock(d->mutex);
             for (const auto &pair : d->modules) {
                 if (!script->loadModule(pair.first, pair.second, &err)) {
-                    auto spd = spdlog::get("console");
+                    auto spd = spdlog::get("server");
                     spd->error("errord {}", err);
                 }
             }
         }
 
         if (!script->loadSource(source, &err)) {
-            auto spd = spdlog::get("console");
+            auto spd = spdlog::get("server");
             spd->error("errort {}", err);
             return false;
         }
@@ -182,7 +182,7 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                 for (const auto &pair : modules) {
                     std::string err;
                     if (!script->loadModule(pair.first, pair.second, &err)) {
-                        auto spd = spdlog::get("console");
+                        auto spd = spdlog::get("server");
                         spd->error("errord {}", err);
                     }
                 }
@@ -210,7 +210,7 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                         for (const auto &dissector : it->second) {
                             std::string err;
                             if (!dissector->analyze(pkt, parentLayer, &err)) {
-                                auto spd = spdlog::get("console");
+                                auto spd = spdlog::get("server");
                                 spd->error("errord {}", err);
                             }
                         }
@@ -309,7 +309,7 @@ Dispatcher::Dispatcher()
                 return list;
             };
 
-            auto spd = spdlog::get("console");
+            auto spd = spdlog::get("server");
 
             StreamList streamList = findStreams(pkt->layers);
             while (!streamList.empty()) {
@@ -351,7 +351,7 @@ Dispatcher::Dispatcher()
                                     }
                                     for (const auto &pair : d->modules) {
                                         if (!script->loadModule(pair.first, pair.second, &err)) {
-                                            auto spd = spdlog::get("console");
+                                            auto spd = spdlog::get("server");
                                             spd->error("errord {}", err);
                                         }
                                     }

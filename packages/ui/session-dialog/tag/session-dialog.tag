@@ -59,6 +59,16 @@
         sess.on('status', stat => {
           PubSub.pub('core:capturing-status', stat);
         });
+        sess.on('log', log => {
+          for (let msg of log) {
+            let level = ['debug', 'debug', 'debug', 'info', 'warn', 'error', 'error'][msg.level];
+            PubSub.pub('core:log', {
+              level: level,
+              message: msg.message,
+              timestamp: new Date(msg.time * 1000)
+            });
+          }
+        });
         sess.on('packet', pkt => {
           PubSub.pub('core:session-packet', pkt);
         });
