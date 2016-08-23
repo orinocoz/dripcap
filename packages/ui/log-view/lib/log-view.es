@@ -19,6 +19,10 @@ let {
 } = remote;
 
 export default class LogView {
+  constructor(pkg) {
+    this.config = pkg.config;
+  }
+
   async activate() {
     this.comp = new Component(`${__dirname}/../tag/*.tag`);
     let pkg = await Package.load('main-view');
@@ -26,7 +30,11 @@ export default class LogView {
     this.view = riot.mount(this.base[0], 'log-view')[0];
     this.list = $(this.view.root).find('ul');
 
-    this.active = false;
+    this.active = this.config.get('visible', false);
+    if (this.active) {
+      pkg.root.panel.bottom('log-view', this.base, $('<i class="fa fa-file-text"> Log</i>'));
+    }
+
     this.toggleMenu = (menu, e) => {
       menu.append(new MenuItem({
         label: 'Toggle Log Panel',
@@ -52,6 +60,7 @@ export default class LogView {
         pkg.root.panel.bottom('log-view', this.base, $('<i class="fa fa-file-text"> Log</i>'));
       }
       this.active = !this.active;
+      this.config.set('visible', this.active);
     });
 
     PubSub.sub('core:log', (log) => {
