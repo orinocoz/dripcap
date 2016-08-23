@@ -12,7 +12,6 @@ export default class TCPStreamDissector {
   }
 
   analyze(packet, layer, data, output) {
-    console.error(this.ctx.length);
     if (layer.payload.length > 0) {
       let stream = new NetStream('TCP Stream', layer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
 
