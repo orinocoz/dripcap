@@ -21,7 +21,7 @@ export default class PubSub {
     }
   }
 
-  pub(name, data, queue = 0) {
+  pub(name, data, queue = 1) {
     const ch = this._getChannel(name);
     for (let cb of ch.handlers) {
       cb(data);
