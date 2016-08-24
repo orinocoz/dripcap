@@ -8,6 +8,7 @@ struct Status {
     bool capturing = false;
     uint64_t queuedPackets = 0;
     uint64_t packets = 0;
+    uint64_t droppedPackets = 0;
     std::unordered_map<std::string, uint64_t> filtered;
     bool operator!=(const Status &stat) const;
 };
@@ -37,13 +38,15 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
         template <typename Stream>
         msgpack::packer<Stream> &operator()(msgpack::packer<Stream> &o, Status const &v) const
         {
-            o.pack_map(4);
+            o.pack_map(5);
             o.pack("capturing");
             o.pack(v.capturing);
             o.pack("queued");
             o.pack(v.queuedPackets);
             o.pack("packets");
             o.pack(v.packets);
+            o.pack("dropped");
+            o.pack(v.droppedPackets);
             o.pack("filtered");
             o.pack(v.filtered);
             return o;

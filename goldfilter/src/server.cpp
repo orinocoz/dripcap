@@ -39,9 +39,9 @@ v8::Handle<v8::Value> init(v8::Isolate *isolate)
 } // namespace console
 
 struct Log {
-  spdlog::level::level_enum level;
-  spdlog::log_clock::time_point time;
-  std::string message;
+    spdlog::level::level_enum level;
+    spdlog::log_clock::time_point time;
+    std::string message;
 };
 typedef std::shared_ptr<Log> LogPtr;
 
@@ -257,6 +257,7 @@ Server::Server(const std::string &path)
         stat.capturing = d->capturing;
         stat.queuedPackets = d->dispatcher.queuedSize();
         stat.packets = d->dispatcher.size();
+        stat.droppedPackets = d->dispatcher.dropped();
         stat.filtered = d->dispatcher.filtered();
         if (stat != d->status) {
             d->status = stat;
@@ -311,15 +312,15 @@ Server::Server(const std::string &path)
     d->server.handle("fetch_logs", [this](const msgpack::object &arg, ReplyInterface &reply) {
         std::vector<LogPtr> logs;
         {
-          std::lock_guard<std::mutex> lock(d->logMutex);
-          for (size_t i = 0; i < d->logBuffer.size(); ++i) {
-            size_t index = (d->logBufferIndex + i) % d->logBuffer.size();
-            const LogPtr &log = d->logBuffer[index];
-            if (log) {
-              logs.push_back(log);
-              d->logBuffer[index].reset();
+            std::lock_guard<std::mutex> lock(d->logMutex);
+            for (size_t i = 0; i < d->logBuffer.size(); ++i) {
+                size_t index = (d->logBufferIndex + i) % d->logBuffer.size();
+                const LogPtr &log = d->logBuffer[index];
+                if (log) {
+                    logs.push_back(log);
+                    d->logBuffer[index].reset();
+                }
             }
-          }
         }
         reply(logs);
     });

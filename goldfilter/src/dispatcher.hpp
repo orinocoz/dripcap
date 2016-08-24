@@ -23,6 +23,7 @@ class Dispatcher final
     std::vector<uint64_t> getFiltered(const std::string &name, uint64_t start, uint64_t end) const;
     uint64_t queuedSize() const;
     uint64_t size() const;
+    uint64_t dropped() const;
     std::unordered_map<std::string, uint64_t> filtered() const;
 
   public:
