@@ -10,6 +10,7 @@ import mocha from 'gulp-mocha';
 import fs from 'fs';
 import path from 'path';
 import glob from 'glob';
+import rimraf from 'rimraf';
 import {
   exec
 } from 'child_process';
@@ -73,39 +74,40 @@ gulp.task('copypkg', () =>
 
 );
 
-gulp.task('npm', ['copypkg'], function() {
-  let p = new Promise(res => npm.load({
+gulp.task('npm', ['copypkg'], async function() {
+  await new Promise(res => npm.load({
     production: true,
     depth: 0
-  }, () => res()));
+  }, res));
 
-
-  p = p.then(() =>
-    new Promise(function(res) {
-      npm.prefix = './.build/';
-      return npm.commands.uninstall(['dripcap', 'goldfilter'], res);
-    })
-  );
-
-
-  p = p.then(() =>
-    new Promise(function(res) {
-      npm.prefix = './.build/';
-      return npm.commands.install([], res);
-    })
-  );
-
-  glob.sync('./.build/packages/**/package.json').forEach(function(conf) {
-    let cwd = path.dirname(conf);
-    return p = p.then(() =>
-      new Promise(function(res) {
-        npm.prefix = cwd;
-        return npm.commands.install([], res);
-      })
-    );
+  await new Promise(function(res) {
+    npm.prefix = './.build/';
+    return npm.commands.uninstall(['dripcap', 'goldfilter'], res);
   });
 
-  return p;
+  await new Promise(function(res) {
+    npm.prefix = './.build/';
+    return npm.commands.install([], res);
+  });
+
+  let dirs = [];
+  glob.sync('./.build/packages/**/package.json').forEach(function(conf) {
+    let cwd = path.dirname(conf);
+    dirs.push(cwd);
+  });
+
+  for (let cwd of dirs) {
+    await new Promise(function(res) {
+      npm.prefix = cwd;
+      npm.commands.install([], res);
+    });
+  }
+
+  await new Promise(function(res) {
+    rimraf('./.build/dripcap', () => {
+      rimraf('./.build/goldfilter', res);
+    });
+  });
 });
 
 gulp.task('linux', ['build'], cb =>
