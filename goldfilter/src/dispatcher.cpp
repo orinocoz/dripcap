@@ -27,6 +27,7 @@ class Dispatcher::Private
 
     bool exiting = false;
     uint64_t count = 0;
+    uint64_t dropped = 0;
     uint64_t maxID = 0;
     uint64_t streamMaxID = 0;
     std::condition_variable cond;
@@ -493,6 +494,12 @@ void Dispatcher::insert(Packet *pkt)
 
     {
         std::lock_guard<std::mutex> lock(d->mutex);
+
+        if (d->waitingPackets.size() >= 1024) {
+            d->dropped++;
+            return;
+        }
+
         pkt->id = ++d->count;
     }
 
@@ -582,6 +589,12 @@ uint64_t Dispatcher::size() const
 {
     std::lock_guard<std::mutex> lock(d->mutex);
     return d->streamMaxID;
+}
+
+uint64_t Dispatcher::dropped() const
+{
+    std::lock_guard<std::mutex> lock(d->mutex);
+    return d->dropped;
 }
 
 std::unordered_map<std::string, uint64_t> Dispatcher::filtered() const
