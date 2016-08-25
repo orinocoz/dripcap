@@ -47,16 +47,23 @@ export default class PackageInterface extends PubSub {
     let paths = glob.sync(config.packagePath + '/**/package.json');
     paths = paths.concat(glob.sync(config.userPackagePath + '/**/package.json'));
 
-    let loadedPackages = {};
+    let packages = {};
+    for (let p of paths) {
+      let pkg = new Package(p, this.parent.profile);
+      let loaded = packages[pkg.name];
+      if (loaded == null || pkg.path.startsWith(config.userPackagePath)) {
+        packages[pkg.name] = pkg;
+      }
+    }
 
-    for (let i = 0; i < paths.length; i++) {
-      let p = paths[i];
+    let loadedPackages = {};
+    for (let name in packages) {
+      let pkg = packages[name];
       try {
-        let loaded;
-        var pkg = new Package(p, this.parent.profile);
         loadedPackages[pkg.name] = true;
 
-        if ((loaded = this.list[pkg.name]) != null) {
+        let loaded = this.list[pkg.name];
+        if (loaded != null) {
           if (loaded.path !== pkg.path) {
             console.warn(`package name conflict: ${pkg.name}`);
             continue;
