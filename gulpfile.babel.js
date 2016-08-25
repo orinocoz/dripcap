@@ -26,7 +26,8 @@ gulp.task('mocha', () => {
       reporter: 'list',
       require: ['babel-register'],
       timeout: 30000,
-      slow: 10000
+      slow: 10000,
+      retries: 3
     }));
 });
 
