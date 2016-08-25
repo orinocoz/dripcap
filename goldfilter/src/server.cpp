@@ -74,7 +74,7 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
 } // MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
 } // namespace msgpack
 
-class Server::Private : public spdlog::sinks::sink
+class Server::Private
 {
   public:
     Private(const std::string &path);
@@ -89,10 +89,6 @@ class Server::Private : public spdlog::sinks::sink
     std::mutex logMutex;
     std::array<LogPtr, 128> logBuffer;
     size_t logBufferIndex = 0;
-
-  public:
-    void log(const spdlog::details::log_msg &msg) override;
-    void flush() override;
 };
 
 Server::Private::Private(const std::string &path)
@@ -104,23 +100,44 @@ Server::Private::~Private()
 {
 }
 
-void Server::Private::log(const spdlog::details::log_msg &msg)
+class Server::LoggerSink : public spdlog::sinks::sink
 {
-    std::lock_guard<std::mutex> lock(logMutex);
+  public:
+    LoggerSink(Server::Private *parent);
+    ~LoggerSink();
+    void log(const spdlog::details::log_msg &msg) override;
+    void flush() override;
+
+  private:
+    Server::Private *d;
+};
+
+Server::LoggerSink::LoggerSink(Server::Private *parent)
+    : d(parent)
+{
+}
+
+Server::LoggerSink::~LoggerSink()
+{
+}
+
+void Server::LoggerSink::log(const spdlog::details::log_msg &msg)
+{
+    std::lock_guard<std::mutex> lock(d->logMutex);
     auto log = std::make_shared<Log>();
     log->time = msg.time;
     log->level = msg.level;
     log->message = msg.raw.str();
-    logBuffer[logBufferIndex] = log;
-    logBufferIndex = (logBufferIndex + 1) % logBuffer.size();
+    d->logBuffer[d->logBufferIndex] = log;
+    d->logBufferIndex = (d->logBufferIndex + 1) % d->logBuffer.size();
 }
 
-void Server::Private::flush()
+void Server::LoggerSink::flush()
 {
 }
 
 Server::Server(const std::string &path)
-    : d(std::make_shared<Private>(path))
+    : d(new Private(path))
 {
     // Initialize V8.
     v8::V8::InitializeICU();
@@ -129,7 +146,7 @@ Server::Server(const std::string &path)
     v8::V8::InitializePlatform(d->platform);
     v8::V8::Initialize();
 
-    spdlog::create("server", {d});
+    spdlog::create("server", {std::make_shared<LoggerSink>(d)});
 
     d->pcap.reset(new Pcap());
 
@@ -335,7 +352,7 @@ Server::~Server()
 {
     spdlog::drop("server");
     v8::Platform *platform = d->platform;
-    d.reset();
+    delete d;
     v8::V8::Dispose();
     v8::V8::ShutdownPlatform();
     delete platform;

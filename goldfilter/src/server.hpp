@@ -16,8 +16,9 @@ class Server final
     Server &operator=(Server const &) = delete;
 
   private:
+    class LoggerSink;
     class Private;
-    std::shared_ptr<Private> d;
+    Private *d;
 };
 
 #endif
