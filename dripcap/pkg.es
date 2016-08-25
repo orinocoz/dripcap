@@ -55,6 +55,9 @@ export default class Package {
         return new Promise((resolve, reject) => {
           let req = path.resolve(this.path, this.main);
           let res = null;
+
+          const cwd = process.cwd();
+          process.chdir(__dirname);
           try {
             let klass = require(req);
             if (klass.__esModule) {
@@ -62,10 +65,11 @@ export default class Package {
             }
             this.root = new klass(this);
             res = this.root.activate();
-
           } catch (e) {
             reject(e);
             return;
+          } finally {
+            process.chdir(cwd);
           }
 
           if (res instanceof Promise) {
