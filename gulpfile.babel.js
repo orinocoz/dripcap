@@ -35,22 +35,8 @@ gulp.task('babel', () =>
   gulp.src('./src/**/*.es', {
     base: './src/'
   })
-  .pipe(babel({
-    presets: [
-      "es2015-riot",
-      "stage-3"
-    ],
-    plugins: [
-      "add-module-exports", [
-        "transform-runtime", {
-          "polyfill": false,
-          "regenerator": true
-        }
-      ]
-    ]
-  }))
+  .pipe(babel())
   .pipe(gulp.dest('./.build/js/'))
-
 );
 
 gulp.task('copy', () =>

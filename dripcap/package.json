@@ -10,15 +10,11 @@
   "author": "h2so5",
   "license": "MIT",
   "babel": {
-    "presets": [
-      "es2015-riot",
-      "stage-3"
-    ],
     "plugins": [
-      "add-module-exports", ["transform-runtime", {
-        "polyfill": false,
-        "regenerator": true
-      }]
+      "add-module-exports", ["transform-es2015-modules-commonjs", {
+        "allowTopLevelThis": true
+      }],
+      "transform-async-to-generator"
     ]
   }
 }

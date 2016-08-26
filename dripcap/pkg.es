@@ -3,17 +3,9 @@ import path from 'path';
 import _ from 'underscore';
 import config from 'dripcap/config';
 
+require('module').globalPaths.push(__dirname);
+
 require("babel-register")({
-  presets: [
-    require("babel-preset-es2015-riot"),
-    require("babel-preset-stage-3")
-  ],
-  plugins: [
-    require("babel-plugin-add-module-exports"), [require("babel-plugin-transform-runtime"), {
-      "polyfill": false,
-      "regenerator": true
-    }]
-  ],
   extensions: [".es"]
 });
 
