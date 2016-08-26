@@ -5,11 +5,11 @@ import config from 'dripcap/config';
 
 require("babel-register")({
   presets: [
-    "es2015-riot",
-    "stage-3"
+    require("babel-preset-es2015-riot"),
+    require("babel-preset-stage-3")
   ],
   plugins: [
-    "add-module-exports", ["transform-runtime", {
+    require("babel-plugin-add-module-exports"), [require("babel-plugin-transform-runtime"), {
       "polyfill": false,
       "regenerator": true
     }]
