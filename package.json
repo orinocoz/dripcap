@@ -1,7 +1,7 @@
 {
   "name": "dripcap",
   "productName": "Dripcap",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "☕️ Caffeinated packet analyzer",
   "repository": {
     "type": "git",
@@ -39,7 +39,7 @@
     "node-notifier": "^4.6.0",
     "npm": "^3.10.5",
     "request": "^2.74.0",
-    "riot": "2.6.0",
+    "riot": "2.6.1",
     "rmdir": "^1.2.0",
     "semver": "^5.3.0",
     "tar": "^2.2.1",
@@ -63,10 +63,8 @@
   },
   "babel": {
     "plugins": [
-      "add-module-exports",
-      [
-        "transform-es2015-modules-commonjs",
-        {
+      "add-module-exports", [
+        "transform-es2015-modules-commonjs", {
           "allowTopLevelThis": true
         }
       ],
