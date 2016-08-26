@@ -2,11 +2,32 @@ import fs from 'fs';
 import path from 'path';
 import _ from 'underscore';
 import config from 'dripcap/config';
+import babelTemplate from 'babel-template';
 
-require('module').globalPaths.push(__dirname);
+function globalPaths() {
+  return {
+    visitor: {
+      Program: {
+        exit: function(p) {
+          let modulePath = path.resolve(__dirname, '..');
+          let code = `require('module').globalPaths.push('${modulePath}');`;
+          let node = babelTemplate(code)();
+          p.unshiftContainer('body', [node]);
+        },
+      },
+    },
+  };
+}
 
 require("babel-register")({
-  extensions: [".es"]
+  extensions: [".es"],
+  plugins: ["add-module-exports", [
+      "transform-es2015-modules-commonjs", {
+        "allowTopLevelThis": true
+      }
+    ],
+    "transform-async-to-generator", globalPaths
+  ]
 });
 
 export default class Package {

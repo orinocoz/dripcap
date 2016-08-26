@@ -23,6 +23,7 @@
     "babel-plugin-transform-async-to-generator": "^6.8.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.14.0",
     "babel-register": "^6.11.6",
+    "babel-template": "^6.14.0",
     "dripcap": "file:./dripcap",
     "electron-rebuild": "^1.1.5",
     "esprima": "^2.7.2",
