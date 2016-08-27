@@ -54,15 +54,39 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
     };
 
     template <>
-    struct pack<LayerList> {
-        template <typename Stream>
-        msgpack::packer<Stream> &operator()(msgpack::packer<Stream> &o, LayerList const &v) const
+    struct convert<LayerPtr> {
+        msgpack::object const &operator()(msgpack::object const &o, LayerPtr &v) const
         {
-            o.pack_map(v.size());
-            for (const auto &pair : v) {
-                o.pack(pair.first);
-                o.pack(pair.second);
+            v.reset(new Layer);
+            v->ext = o.as<std::unordered_map<std::string, msgpack::object>>();
+
+            const auto &ns = v->ext.find("namespace");
+            const auto &name = v->ext.find("name");
+            const auto &payload = v->ext.find("payload");
+            const auto &layers = v->ext.find("layers");
+            const auto &streams = v->ext.find("streams");
+
+            if (ns != v->ext.end()) {
+                v->ns = ns->second.as<std::string>();
             }
+            if (name != v->ext.end()) {
+                v->name = name->second.as<std::string>();
+            }
+            if (payload != v->ext.end()) {
+                v->payload = payload->second;
+            }
+            if (layers != v->ext.end()) {
+                v->layers = layers->second.as<LayerList>();
+            }
+            if (streams != v->ext.end()) {
+                v->streams = streams->second.as<NetStreamList>();
+            }
+
+            v->ext.erase("namespace");
+            v->ext.erase("name");
+            v->ext.erase("payload");
+            v->ext.erase("layers");
+            v->ext.erase("streams");
             return o;
         }
     };

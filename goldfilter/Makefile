@@ -41,6 +41,6 @@ clean:
 	@rm -rf $(OBJS) $(TARGET) $(BUILDDIR)
 
 fmt:
-	@clang-format -i **/*.cpp **/*.hpp *.js *.es
+	@clang-format -i **/*.cpp **/*.hpp
 
 .PHONY: clean fmt
