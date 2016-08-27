@@ -320,7 +320,7 @@ Server::Server(const std::string &path)
 
     d->server.handle("set_testdata", [this](const msgpack::object &arg, ReplyInterface &reply) {
         d->pcap.reset(new PcapDummy(arg));
-        d->pcap->handle([this](Packet *p) {
+        d->pcap->handle([this](const PacketPtr &p) {
             d->dispatcher.insert(p);
         });
         reply();
@@ -343,7 +343,7 @@ Server::Server(const std::string &path)
     });
 
     // pcap thread
-    d->pcap->handle([this](Packet *p) {
+    d->pcap->handle([this](const PacketPtr &p) {
         d->dispatcher.insert(p);
     });
 }

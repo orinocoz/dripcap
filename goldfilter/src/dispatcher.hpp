@@ -6,6 +6,7 @@
 #include <vector>
 
 struct Packet;
+typedef std::shared_ptr<Packet> PacketPtr;
 
 class Dispatcher final
 {
@@ -17,9 +18,9 @@ class Dispatcher final
     bool setFilter(const std::string &name, const std::string &source, const msgpack::object &options);
     bool loadModule(const std::string &name, const std::string &source, std::string *error);
 
-    void insert(Packet *pkt);
-    std::vector<Packet *> get(uint64_t start, uint64_t end) const;
-    std::vector<Packet *> get(const std::vector<uint64_t> &list) const;
+    void insert(const PacketPtr &pkt);
+    std::vector<PacketPtr> get(uint64_t start, uint64_t end) const;
+    std::vector<PacketPtr> get(const std::vector<uint64_t> &list) const;
     std::vector<uint64_t> getFiltered(const std::string &name, uint64_t start, uint64_t end) const;
     uint64_t queuedSize() const;
     uint64_t size() const;
@@ -32,6 +33,7 @@ class Dispatcher final
 
   private:
     class Private;
+    class PacketCache;
     class DissectorWorker;
     class FilterWorker;
     struct FilterContext;

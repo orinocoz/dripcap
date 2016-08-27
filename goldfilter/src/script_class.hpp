@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 struct Packet;
-typedef std::vector<Packet *> PacketList;
+typedef std::shared_ptr<Packet> PacketPtr;
 
 struct Layer;
 typedef std::shared_ptr<Layer> LayerPtr;
@@ -23,11 +23,11 @@ class ScriptClass final
     bool loadFile(const std::string &path, std::string *error = nullptr);
     bool loadSource(const std::string &source, std::string *error = nullptr);
     bool loadModule(const std::string &name, const std::string &source, std::string *error = nullptr);
-    bool analyze(Packet *packet, const LayerPtr &parentLayer, std::string *error = nullptr) const;
-    bool analyzeStream(Packet *packet, const LayerPtr &parentLayer, const msgpack::object &data,
+    bool analyze(const PacketPtr &packet, const LayerPtr &parentLayer, std::string *error = nullptr) const;
+    bool analyzeStream(const PacketPtr &packet, const LayerPtr &parentLayer, const msgpack::object &data,
                        msgpack::object *ctx, msgpack::zone *zone, NetStreamList *straems,
-                       PacketList *packets, std::string *error = nullptr) const;
-    bool filter(Packet *packet) const;
+                       std::vector<PacketPtr> *packets, std::string *error = nullptr) const;
+    bool filter(const PacketPtr &packet) const;
 
   public:
     ScriptClass(ScriptClass const &) = delete;

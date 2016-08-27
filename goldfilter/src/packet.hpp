@@ -17,11 +17,12 @@ struct Packet {
     std::vector<unsigned char> payload;
     LayerList layers;
 
-    std::unordered_set<std::string> history;
+    msgpack::zone zone;
 };
 
-typedef std::unique_ptr<Packet> PacketPtr;
-typedef std::vector<Packet *> PacketList;
+typedef std::shared_ptr<Packet> PacketPtr;
+typedef std::unique_ptr<Packet> PacketUniquePtr;
+typedef std::vector<PacketPtr> PacketList;
 
 namespace msgpack
 {
@@ -64,15 +65,15 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
         msgpack::packer<Stream> &operator()(msgpack::packer<Stream> &o, PacketList const &v) const
         {
             o.pack_array(v.size());
-            for (const Packet *pkt : v)
+            for (const PacketPtr &pkt : v)
                 o.pack(*pkt);
             return o;
         }
     };
 
     template <>
-    struct convert<PacketPtr> {
-        msgpack::object const &operator()(msgpack::object const &o, PacketPtr &v) const
+    struct convert<PacketUniquePtr> {
+        msgpack::object const &operator()(msgpack::object const &o, PacketUniquePtr &v) const
         {
             const auto &map = o.as<std::unordered_map<std::string, msgpack::object>>();
             const auto &id = map.find("id");
@@ -96,13 +97,18 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
                 v->len = len->second.as<uint32_t>();
             }
             if (payload != map.end()) {
-                v->payload = payload->second.as<std::vector<unsigned char>>();
+                try {
+                    msgpack::type::ext ext = payload->second.as<msgpack::type::ext>();
+                    v->payload.assign(ext.data(), ext.data() + ext.size());
+                } catch (const std::exception &e) {
+                    v->payload = payload->second.as<std::vector<unsigned char>>();
+                }
             }
             if (layers != map.end()) {
                 msgpack::type::ext ext = layers->second.as<msgpack::type::ext>();
                 msgpack::object_handle result;
                 msgpack::unpack(result, ext.data(), ext.size());
-                msgpack::object layers(result.get());
+                msgpack::object layers(result.get(), v->zone);
                 v->layers = layers.as<LayerList>();
             }
             return o;

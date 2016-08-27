@@ -897,7 +897,7 @@ bool ScriptClass::loadModule(const std::string &name, const std::string &source,
     return true;
 }
 
-bool ScriptClass::analyze(Packet *packet, const LayerPtr &parentLayer, std::string *error) const
+bool ScriptClass::analyze(const PacketPtr &packet, const LayerPtr &parentLayer, std::string *error) const
 {
     Isolate::Scope isolate_scope(d->isolate);
     HandleScope handle_scope(d->isolate);
@@ -933,7 +933,7 @@ bool ScriptClass::analyze(Packet *packet, const LayerPtr &parentLayer, std::stri
 
     Local<Function> analyze_func = maybeFunc.As<Function>();
     {
-        Local<Object> pkt = v8pp::class_<PacketWrapper>::create_object(d->isolate, packet);
+        Local<Object> pkt = v8pp::class_<PacketWrapper>::create_object(d->isolate, packet.get());
         PacketWrapper *wrapper = v8pp::class_<PacketWrapper>::unwrap_object(d->isolate, pkt);
         wrapper->syncToScript();
 
@@ -958,9 +958,9 @@ bool ScriptClass::analyze(Packet *packet, const LayerPtr &parentLayer, std::stri
     return true;
 }
 
-bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, const msgpack::object &data,
+bool ScriptClass::analyzeStream(const PacketPtr &packet, const LayerPtr &parentLayer, const msgpack::object &data,
                                 msgpack::object *ctx, msgpack::zone *zone,
-                                NetStreamList *straems, PacketList *packets, std::string *error) const
+                                NetStreamList *straems, std::vector<PacketPtr> *packets, std::string *error) const
 {
     Isolate::Scope isolate_scope(d->isolate);
     HandleScope handle_scope(d->isolate);
@@ -1001,13 +1001,13 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
 
     Local<Function> analyze_func = maybeFunc.As<Function>();
     {
-        Local<Object> pkt = v8pp::class_<PacketWrapper>::create_object(d->isolate, packet);
+        Local<Object> pkt = v8pp::class_<PacketWrapper>::create_object(d->isolate, packet.get());
         PacketWrapper *wrapper = v8pp::class_<PacketWrapper>::unwrap_object(d->isolate, pkt);
         wrapper->syncToScript();
         Local<Object> layer = wrapper->findLayer(parentLayer);
         Local<Array> array = Array::New(d->isolate);
 
-        Local<Value> args[4] = {pkt, layer, MsgpackToV8(data, packet), array};
+        Local<Value> args[4] = {pkt, layer, MsgpackToV8(data, packet.get()), array};
         MaybeLocal<Value> maybeRes = analyze_func->Call(obj, 4, args);
         if (maybeRes.IsEmpty()) {
             String::Utf8Value err(try_catch.Exception());
@@ -1027,7 +1027,7 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
 
             StreamLayer *sl = v8pp::class_<StreamLayer>::unwrap_object(d->isolate, obj);
             if (sl) {
-                packets->push_back(sl->layer->packet);
+                packets->push_back(PacketPtr(sl->layer->packet));
             }
         }
 
@@ -1038,7 +1038,7 @@ bool ScriptClass::analyzeStream(Packet *packet, const LayerPtr &parentLayer, con
     return true;
 }
 
-bool ScriptClass::filter(Packet *packet) const
+bool ScriptClass::filter(const PacketPtr &packet) const
 {
     Isolate::Scope isolate_scope(d->isolate);
     HandleScope handle_scope(d->isolate);
@@ -1046,7 +1046,7 @@ bool ScriptClass::filter(Packet *packet) const
     Context::Scope context_scope(context);
     Local<Function> ctor = Local<Function>::New(d->isolate, d->ctor);
 
-    Local<Object> pkt = v8pp::class_<PacketWrapper>::create_object(d->isolate, packet);
+    Local<Object> pkt = v8pp::class_<PacketWrapper>::create_object(d->isolate, packet.get());
     PacketWrapper *wrapper = v8pp::class_<PacketWrapper>::unwrap_object(d->isolate, pkt);
     wrapper->syncToScript();
 

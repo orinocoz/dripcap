@@ -12,7 +12,7 @@ typedef std::unordered_map<std::string, LayerPtr> LayerList;
 struct Packet;
 
 struct Layer {
-    Packet *packet;
+    Packet *packet = nullptr;
     std::string ns;
     std::string name;
     msgpack::object payload;
