@@ -67,7 +67,15 @@ MsgpackServer::MsgpackServer(const std::string &path)
         void *array[256];
         size_t size = backtrace(array, 256);
         auto spd = spdlog::get("console");
-        spd->error("Error: signal {}", sig);
+        spd->critical("Error: signal {}", sig);
+        backtrace_symbols_fd(array, size, STDERR_FILENO);
+        exit(1);
+    });
+    std::set_terminate([]() {
+        void *array[256];
+        size_t size = backtrace(array, 256);
+        auto spd = spdlog::get("console");
+        spd->critical("Error: std::terminate");
         backtrace_symbols_fd(array, size, STDERR_FILENO);
         exit(1);
     });
@@ -158,15 +166,16 @@ bool MsgpackServer::start()
         while (unp.next(result)) {
             msgpack::object obj(result.get());
             spd->debug("recv: {}", obj);
+            std::tuple<std::string, uint32_t, msgpack::object> tuple;
             try {
-                const auto &tuple = obj.as<std::tuple<std::string, uint32_t, msgpack::object>>();
-                const auto &it = d->handlers.find(std::get<0>(tuple));
-                if (it != d->handlers.end()) {
-                    Reply reply(d->csock, std::get<1>(tuple));
-                    (it->second)(std::get<2>(tuple), reply);
-                }
+                tuple = obj.as<std::tuple<std::string, uint32_t, msgpack::object>>();
             } catch (const std::bad_cast &err) {
                 spd->error("msgpack decoding error: {}", err.what());
+            }
+            const auto &it = d->handlers.find(std::get<0>(tuple));
+            if (it != d->handlers.end()) {
+                Reply reply(d->csock, std::get<1>(tuple));
+                (it->second)(std::get<2>(tuple), reply);
             }
             if (!d->active)
                 break;

@@ -1,5 +1,4 @@
 #include "executable.hpp"
-#include <iostream>
 #include <sys/capability.h>
 #include <unistd.h>
 

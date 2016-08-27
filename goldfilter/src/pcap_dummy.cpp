@@ -20,7 +20,7 @@ class PcapDummy::Private
     bool promisc;
     bool active;
 
-    std::vector<Packet *> packets;
+    std::vector<PacketPtr> packets;
     std::vector<Device> devices;
 
     std::thread thread;
@@ -43,7 +43,7 @@ PcapDummy::PcapDummy(const msgpack::object &obj)
     const auto &packets = map.find("packets");
     const auto &devices = map.find("devices");
     for (const auto &obj : packets->second.as<std::vector<msgpack::object>>()) {
-        d->packets.push_back(obj.as<PacketPtr>().release());
+        d->packets.push_back(PacketPtr(obj.as<PacketUniquePtr>().release()));
     }
     for (const auto &obj : devices->second.as<std::vector<msgpack::object>>()) {
         d->devices.push_back(Device(obj));
@@ -74,7 +74,7 @@ bool PcapDummy::start()
     d->thread = std::thread([this]() {
         size_t count = 0;
         while (true) {
-            Packet *pkt = nullptr;
+            PacketPtr pkt;
             {
                 std::lock_guard<std::mutex> lock(d->mutex);
                 if (!d->active)

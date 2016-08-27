@@ -11,14 +11,56 @@
 #include <thread>
 #include <vector>
 
+class Dispatcher::PacketCache
+{
+  public:
+    PacketPtr get(uint64_t id) const;
+    bool has(uint64_t id) const;
+    void set(const PacketPtr &pkt);
+    uint64_t max() const;
+
+  private:
+    std::unordered_map<uint64_t, std::string> cache;
+    uint64_t maxID = 0;
+};
+
+PacketPtr Dispatcher::PacketCache::get(uint64_t id) const
+{
+    const auto &it = cache.find(id);
+    if (it == cache.end())
+        return nullptr;
+    msgpack::object_handle result;
+    msgpack::unpack(result, it->second.data(), it->second.size());
+    msgpack::object pkt(result.get());
+    return PacketPtr(pkt.as<PacketUniquePtr>().release());
+}
+
+bool Dispatcher::PacketCache::has(uint64_t id) const
+{
+    return cache.count(id);
+}
+
+void Dispatcher::PacketCache::set(const PacketPtr &pkt)
+{
+    std::stringstream buffer;
+    msgpack::pack(buffer, *pkt);
+    cache[pkt->id] = buffer.str();
+    maxID = std::max(maxID, pkt->id);
+}
+
+uint64_t Dispatcher::PacketCache::max() const
+{
+    return maxID;
+}
+
 class Dispatcher::Private
 {
   public:
-    static LayerPtr firstLayer(Packet *pkt);
+    static LayerPtr firstLayer(const PacketPtr &pkt, std::unordered_set<std::string> *history);
 
   public:
-    std::queue<Packet *> waitingPackets;
-    std::vector<Packet *> packets;
+    std::queue<PacketPtr> waitingPackets;
+    PacketCache packets;
     std::vector<DissectorWorker *> workers;
     std::unordered_map<std::string, std::vector<FilterWorker *>> filterWorkers;
     std::unordered_map<std::string, std::shared_ptr<std::vector<uint64_t>>> filterdPackets;
@@ -37,13 +79,13 @@ class Dispatcher::Private
     std::thread streamThread;
 };
 
-LayerPtr Dispatcher::Private::firstLayer(Packet *pkt)
+LayerPtr Dispatcher::Private::firstLayer(const PacketPtr &pkt, std::unordered_set<std::string> *history)
 {
-    std::function<LayerPtr(const LayerList &)> find = [pkt, &find](const LayerList &layers) -> LayerPtr {
+    std::function<LayerPtr(const LayerList &)> find = [pkt, history, &find](const LayerList &layers) -> LayerPtr {
         for (const auto &pair : layers) {
             const std::string &ns = pair.first;
-            if (pkt->history.count(ns) == 0) {
-                pkt->history.insert(ns);
+            if (history->count(ns) == 0) {
+                history->insert(ns);
                 return pair.second;
             }
             LayerPtr child = find(pair.second->layers);
@@ -114,7 +156,7 @@ Dispatcher::FilterWorker::FilterWorker(const std::string &source, const msgpack:
 
             ++ctx->fetchedMaxID;
             ctx->filtering.insert(ctx->fetchedMaxID);
-            Packet *pkt = d->packets.at(ctx->fetchedMaxID - 1);
+            PacketPtr pkt = d->packets.get(ctx->fetchedMaxID);
 
             lock.unlock();
             bool match = script->filter(pkt);
@@ -200,11 +242,12 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
             }
 
             while (!d->waitingPackets.empty()) {
-                Packet *pkt = d->waitingPackets.front();
+                PacketPtr pkt = d->waitingPackets.front();
                 d->waitingPackets.pop();
                 lock.unlock();
 
-                LayerPtr parentLayer = d->firstLayer(pkt);
+                std::unordered_set<std::string> history;
+                LayerPtr parentLayer = d->firstLayer(pkt, &history);
                 while (parentLayer) {
                     const auto &it = dissectors.find(parentLayer->ns);
                     if (it != dissectors.end()) {
@@ -216,22 +259,20 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                             }
                         }
                     }
-                    parentLayer = d->firstLayer(pkt);
+                    parentLayer = d->firstLayer(pkt, &history);
                 }
 
                 lock.lock();
-                if (d->packets.size() < pkt->id)
-                    d->packets.resize(pkt->id);
-                d->packets[pkt->id - 1] = pkt;
+                d->packets.set(pkt);
 
                 if (d->maxID == 0) {
-                    if (d->packets.at(0)) {
+                    if (d->packets.has(1)) {
                         d->maxID = 1;
                     } else {
                         continue;
                     }
                 }
-                while (d->maxID < d->packets.size() && d->packets.at(d->maxID))
+                while (d->packets.has(d->maxID + 1))
                     d->maxID++;
 
                 d->filterCond.notify_all();
@@ -271,7 +312,7 @@ struct Dispatcher::Stream {
     std::vector<ScriptClassPtr> dissectors;
     bool started = false;
 };
-#include <iostream>
+
 Dispatcher::Dispatcher()
     : d(new Private())
 {
@@ -294,7 +335,7 @@ Dispatcher::Dispatcher()
                 return false;
 
             ++maxID;
-            Packet *pkt = d->packets.at(maxID - 1);
+            PacketPtr pkt = d->packets.get(maxID);
 
             lock.unlock();
 
@@ -325,12 +366,12 @@ Dispatcher::Dispatcher()
                                 for (const ScriptClassPtr &script : stream.dissectors) {
                                     std::string err;
                                     NetStreamList streams;
-                                    PacketList packets;
+                                    std::vector<PacketPtr> packets;
                                     if (!script->analyzeStream(pkt, pair.first, net->data, &stream.context, &stream.zone, &streams, &packets, &err)) {
                                         spd->error("errord {}", err);
                                     }
                                     streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());
-                                    for (Packet *pkt : packets) {
+                                    for (const PacketPtr &pkt : packets) {
                                         insert(pkt);
                                     }
                                 }
@@ -363,12 +404,12 @@ Dispatcher::Dispatcher()
                             for (const ScriptClassPtr &script : stream.dissectors) {
                                 std::string err;
                                 NetStreamList streams;
-                                PacketList packets;
+                                std::vector<PacketPtr> packets;
                                 if (!script->analyzeStream(pkt, pair.first, net->data, &stream.context, &stream.zone, &streams, &packets, &err)) {
                                     spd->error("errord {}", err);
                                 }
                                 streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());
-                                for (Packet *pkt : packets) {
+                                for (const PacketPtr &pkt : packets) {
                                     insert(pkt);
                                 }
                             }
@@ -406,12 +447,8 @@ Dispatcher::~Dispatcher()
     d->filterWorkers.clear();
 
     while (!d->waitingPackets.empty()) {
-        delete d->waitingPackets.front();
         d->waitingPackets.pop();
     }
-
-    for (const Packet *pkt : d->packets)
-        delete pkt;
 
     if (d->streamThread.joinable())
         d->streamThread.join();
@@ -487,7 +524,7 @@ bool Dispatcher::loadModule(const std::string &name, const std::string &source, 
     return true;
 }
 
-void Dispatcher::insert(Packet *pkt)
+void Dispatcher::insert(const PacketPtr &pkt)
 {
     if (!pkt)
         return;
@@ -522,9 +559,9 @@ void Dispatcher::insert(Packet *pkt)
     d->cond.notify_all();
 }
 
-std::vector<Packet *> Dispatcher::get(uint64_t start, uint64_t end) const
+std::vector<PacketPtr> Dispatcher::get(uint64_t start, uint64_t end) const
 {
-    std::vector<Packet *> packets;
+    std::vector<PacketPtr> packets;
 
     if (start == 0 || end == 0 || start > end)
         return packets;
@@ -534,27 +571,25 @@ std::vector<Packet *> Dispatcher::get(uint64_t start, uint64_t end) const
     for (uint64_t i = start; i <= end; ++i) {
         if (i > d->streamMaxID)
             break;
-        Packet *pkt = d->packets.at(i - 1);
+        PacketPtr pkt = d->packets.get(i);
         if (pkt)
             packets.push_back(pkt);
     }
     return packets;
 }
 
-std::vector<Packet *> Dispatcher::get(const std::vector<uint64_t> &list) const
+std::vector<PacketPtr> Dispatcher::get(const std::vector<uint64_t> &list) const
 {
-    std::vector<Packet *> packets;
+    std::vector<PacketPtr> packets;
     std::lock_guard<std::mutex> lock(d->mutex);
 
     for (uint64_t i : list) {
-        if (i > d->packets.size())
-            break;
-        Packet *pkt = d->packets.at(i - 1);
+        PacketPtr pkt = d->packets.get(i);
         if (pkt)
             packets.push_back(pkt);
     }
 
-    std::sort(packets.begin(), packets.end(), [](const Packet *a, const Packet *b) {
+    std::sort(packets.begin(), packets.end(), [](const PacketPtr &a, const PacketPtr &b) {
         return a->id < b->id;
     });
     return packets;
