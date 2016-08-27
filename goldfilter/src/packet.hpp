@@ -5,10 +5,10 @@
 #include <msgpack.hpp>
 #include <sstream>
 #include <vector>
+#include <memory>
 
 struct Packet {
     Packet() = default;
-    Packet(const msgpack::object &obj);
 
     uint64_t id = 0;
     uint64_t ts_sec = 0;
@@ -20,6 +20,7 @@ struct Packet {
     std::unordered_set<std::string> history;
 };
 
+typedef std::unique_ptr<Packet> PacketPtr;
 typedef std::vector<Packet *> PacketList;
 
 namespace msgpack
@@ -65,6 +66,37 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
             o.pack_array(v.size());
             for (const Packet *pkt : v)
                 o.pack(*pkt);
+            return o;
+        }
+    };
+
+    template <>
+    struct convert<PacketPtr> {
+        msgpack::object const &operator()(msgpack::object const &o, PacketPtr &v) const
+        {
+            const auto &map = o.as<std::unordered_map<std::string, msgpack::object>>();
+            const auto &id = map.find("id");
+            const auto &ts_sec = map.find("ts_sec");
+            const auto &ts_nsec = map.find("ts_nsec");
+            const auto &len = map.find("len");
+            const auto &payload = map.find("payload");
+
+            v.reset(new Packet());
+            if (id != map.end()) {
+                v->id = id->second.as<uint64_t>();
+            }
+            if (ts_sec != map.end()) {
+                v->ts_sec = ts_sec->second.as<uint64_t>();
+            }
+            if (ts_nsec != map.end()) {
+                v->ts_nsec = ts_nsec->second.as<uint32_t>();
+            }
+            if (len != map.end()) {
+                v->len = len->second.as<uint32_t>();
+            }
+            if (payload != map.end()) {
+                v->payload = payload->second.as<std::vector<unsigned char>>();
+            }
             return o;
         }
     };
