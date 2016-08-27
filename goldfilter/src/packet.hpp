@@ -80,6 +80,7 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
             const auto &ts_nsec = map.find("ts_nsec");
             const auto &len = map.find("len");
             const auto &payload = map.find("payload");
+            const auto &layers = map.find("layers");
 
             v.reset(new Packet());
             if (id != map.end()) {
@@ -96,6 +97,13 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
             }
             if (payload != map.end()) {
                 v->payload = payload->second.as<std::vector<unsigned char>>();
+            }
+            if (layers != map.end()) {
+                msgpack::type::ext ext = layers->second.as<msgpack::type::ext>();
+                msgpack::object_handle result;
+                msgpack::unpack(result, ext.data(), ext.size());
+                msgpack::object layers(result.get());
+                v->layers = layers.as<LayerList>();
             }
             return o;
         }

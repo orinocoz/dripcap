@@ -59,6 +59,38 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
         }
     };
 
+    template <>
+    struct convert<NetStreamPtr> {
+        msgpack::object const &operator()(msgpack::object const &o, NetStreamPtr &v) const
+        {
+            const auto &map = o.as<std::unordered_map<std::string, msgpack::object>>();
+            const auto &name = map.find("name");
+            const auto &ns = map.find("namespace");
+            const auto &id = map.find("id");
+            const auto &data = map.find("data");
+            const auto &flag = map.find("flag");
+
+            v.reset(new NetStream());
+            if (name != map.end()) {
+                v->name = name->second.as<std::string>();
+            }
+            if (ns != map.end()) {
+                v->ns = ns->second.as<std::string>();
+            }
+            if (id != map.end()) {
+                v->id = id->second.as<std::string>();
+            }
+            if (data != map.end()) {
+                v->data = data->second;
+            }
+            if (flag != map.end()) {
+                v->flag = flag->second.as<StreamFlag>();
+            }
+
+            return o;
+        }
+    };
+
     } // namespace adaptor
 } // MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
 } // namespace msgpack
