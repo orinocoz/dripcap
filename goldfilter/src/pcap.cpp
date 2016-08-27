@@ -93,7 +93,7 @@ bool Pcap::start()
             result = pcap_next_ex(d->pcap, &header, &data);
             if (result == 1) {
                 if (d->handler) {
-                    Packet *p = new Packet();
+                    PacketPtr p = std::make_shared<Packet>();
                     p->id = ++id;
                     p->ts_sec = header->ts.tv_sec;
                     p->ts_nsec = header->ts.tv_usec;

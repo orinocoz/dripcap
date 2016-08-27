@@ -7,8 +7,9 @@
 #include <vector>
 
 struct Packet;
+typedef std::shared_ptr<Packet> PacketPtr;
 
-typedef std::function<void(Packet *)> PcapCallback;
+typedef std::function<void(PacketPtr)> PcapCallback;
 
 class PcapInterface
 {
