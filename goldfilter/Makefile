@@ -6,11 +6,11 @@ SOURCE := $(wildcard *.cpp) $(wildcard src/*.cpp)
 ifeq ($(shell uname -s), Linux)
 INCLUDES += -Ilinux -I/usr/local -Ivendor/libv8 -Ivendor/libv8/include
 SOURCE += $(wildcard linux/*.cpp)
-LDFLAGS := -Lvendor/libv8/lib -Wl,-dn,-lpcap,-lcap,-lv8_libplatform,-lv8_base,-lv8_libbase,-lv8_snapshot,-licui18n,-licuuc,-licudata,-lrt,-dy,-lpthread,-ldl
+LDFLAGS := -Lvendor/libv8/lib -Wl,-dn,-lpcap,-lcap,-lleveldb,-lsnappy,-lv8_libplatform,-lv8_base,-lv8_libbase,-lv8_snapshot,-licui18n,-licuuc,-licudata,-lrt,-dy,-lpthread,-ldl
 else
 INCLUDES += -Idarwin -I/usr/local
 SOURCE += $(wildcard darwin/*.cpp)
-LDFLAGS := -lpcap -lv8_base -lv8_libbase -lv8_snapshot -lv8_libplatform
+LDFLAGS := -lpcap -lv8_base -lv8_libbase -lv8_snapshot -lv8_libplatform -lleveldb
 endif
 
 OBJS := $(patsubst %.cpp,%.o, $(SOURCE))
