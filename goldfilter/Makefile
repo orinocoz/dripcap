@@ -10,7 +10,7 @@ LDFLAGS := -Lvendor/libv8/lib -Wl,-dn,-lpcap,-lcap,-lleveldb,-lsnappy,-lv8_libpl
 else
 INCLUDES += -Idarwin -I/usr/local
 SOURCE += $(wildcard darwin/*.cpp)
-LDFLAGS := -lpcap -lv8_base -lv8_libbase -lv8_snapshot -lv8_libplatform -lleveldb
+LDFLAGS := -lpcap -lv8_base -lv8_libbase -lv8_snapshot -lv8_libplatform /usr/local/opt/leveldb/lib/libleveldb.a /usr/local/opt/snappy/lib/libsnappy.a
 endif
 
 OBJS := $(patsubst %.cpp,%.o, $(SOURCE))
