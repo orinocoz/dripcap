@@ -3,6 +3,7 @@
 #include "net_stream.hpp"
 #include "packet.hpp"
 #include "script_class.hpp"
+#include <leveldb/db.h>
 #include <condition_variable>
 #include <mutex>
 #include <queue>
@@ -14,43 +15,48 @@
 class Dispatcher::PacketCache
 {
   public:
+    PacketCache(leveldb::DB *db);
     PacketPtr get(uint64_t id) const;
     bool has(uint64_t id) const;
     void set(const PacketPtr &pkt);
-    uint64_t max() const;
 
   private:
-    std::unordered_map<uint64_t, std::string> cache;
-    uint64_t maxID = 0;
+    std::unique_ptr<leveldb::DB> db;
 };
+
+Dispatcher::PacketCache::PacketCache(leveldb::DB *db)
+    : db(db)
+{
+}
 
 PacketPtr Dispatcher::PacketCache::get(uint64_t id) const
 {
-    const auto &it = cache.find(id);
-    if (it == cache.end())
-        return nullptr;
-    msgpack::object_handle result;
-    msgpack::unpack(result, it->second.data(), it->second.size());
-    msgpack::object pkt(result.get());
-    return PacketPtr(pkt.as<PacketUniquePtr>().release());
+    leveldb::Slice key(reinterpret_cast<const char *>(&id), sizeof(id));
+    std::string value;
+    leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
+    if (s.ok()) {
+        msgpack::object_handle result;
+        msgpack::unpack(result, value.data(), value.size());
+        msgpack::object pkt(result.get());
+        return PacketPtr(pkt.as<PacketUniquePtr>().release());
+    }
+    return PacketPtr();
 }
 
 bool Dispatcher::PacketCache::has(uint64_t id) const
 {
-    return cache.count(id);
+    leveldb::Slice key(reinterpret_cast<const char *>(&id), sizeof(id));
+    std::string value;
+    leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
+    return s.ok();
 }
 
 void Dispatcher::PacketCache::set(const PacketPtr &pkt)
 {
     std::stringstream buffer;
     msgpack::pack(buffer, *pkt);
-    cache[pkt->id] = buffer.str();
-    maxID = std::max(maxID, pkt->id);
-}
-
-uint64_t Dispatcher::PacketCache::max() const
-{
-    return maxID;
+    leveldb::Slice key(reinterpret_cast<const char *>(&pkt->id), sizeof(pkt->id));
+    leveldb::Status s = db->Put(leveldb::WriteOptions(), key, buffer.str());
 }
 
 class Dispatcher::Private
@@ -59,6 +65,7 @@ class Dispatcher::Private
     static LayerPtr firstLayer(const PacketPtr &pkt, std::unordered_set<std::string> *history);
 
   public:
+    Private(leveldb::DB *db);
     std::queue<PacketPtr> waitingPackets;
     PacketCache packets;
     std::vector<DissectorWorker *> workers;
@@ -78,6 +85,11 @@ class Dispatcher::Private
     std::mutex mutex;
     std::thread streamThread;
 };
+
+Dispatcher::Private::Private(leveldb::DB *db)
+    : packets(db)
+{
+}
 
 LayerPtr Dispatcher::Private::firstLayer(const PacketPtr &pkt, std::unordered_set<std::string> *history)
 {
@@ -313,8 +325,8 @@ struct Dispatcher::Stream {
     bool started = false;
 };
 
-Dispatcher::Dispatcher()
-    : d(new Private())
+Dispatcher::Dispatcher(leveldb::DB *db)
+    : d(new Private(db))
 {
     int numcore = std::max(1u, std::thread::hardware_concurrency());
     for (int i = 0; i < numcore; ++i) {
