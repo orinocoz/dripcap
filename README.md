@@ -13,16 +13,3 @@ Caffeinated packet analyzer
 - Linux (rpm)
 
 https://github.com/dripcap/dripcap/releases
-
-## Build
-
-- Node.js >= 4.0
-- go >= 1.5
-- libpcap-dev (Linux)
-
-```bash
-$ cd dripcap
-$ npm install -g gulp node-gyp
-$ npm install
-$ gulp
-```
