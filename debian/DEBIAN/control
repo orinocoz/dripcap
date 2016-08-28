@@ -4,9 +4,9 @@ Architecture: amd64
 Maintainer: h2so5 <mail@h2so5.net>
 Section: net
 Priority: optional
-Installed-Size: 153280
+Installed-Size: 347000
 Vcs-Git: git://github.com/dripcap/dripcap.git
 Vcs-browser: http://github.com/dripcap/dripcap
-Homepage: http://github.com/dripcap/dripcap
+Homepage: https://socket.moe
 Description: Caffeinated packet analyzer
  Dripcap is an electron-based hackable packet analyzer.
