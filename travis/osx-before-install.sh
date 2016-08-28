@@ -1,5 +1,5 @@
 brew update
-brew install nvm gpg v8
+brew install nvm gpg v8 leveldb
 export PATH=/usr/local/opt/gnupg/libexec/gpgbin:$PATH
 
 mkdir ~/.nvm
