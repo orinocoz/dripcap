@@ -8,7 +8,6 @@
 #include "pcap_dummy.hpp"
 #include "script_class.hpp"
 #include "status.hpp"
-#include <leveldb/db.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/sink.h>
 #include <v8pp/module.hpp>
@@ -95,14 +94,7 @@ class Server::Private
 Server::Private::Private(const std::string &path)
     : capturing(false), server(path)
 {
-    leveldb::DB *db = nullptr;
-    leveldb::Options options;
-    options.create_if_missing = true;
-    leveldb::Status status = leveldb::DB::Open(options, path + ".leveldb", &db);
-    if (!status.ok()) {
-        spdlog::get("console")->error("{}", status.ToString());
-    }
-    dispatcher.reset(new Dispatcher(db));
+    dispatcher.reset(new Dispatcher(path));
 }
 
 Server::Private::~Private()

@@ -4,6 +4,7 @@
 #include "packet.hpp"
 #include "script_class.hpp"
 #include <leveldb/db.h>
+#include <leveldb/comparator.h>
 #include <condition_variable>
 #include <mutex>
 #include <queue>
@@ -14,19 +15,66 @@
 
 class Dispatcher::PacketCache
 {
+  private:
+    class Comparator : public leveldb::Comparator
+    {
+      public:
+        Comparator();
+        ~Comparator() override;
+        int Compare(const leveldb::Slice &a, const leveldb::Slice &b) const override;
+        const char *Name() const override;
+        void FindShortestSeparator(std::string *start, const leveldb::Slice &limit) const override;
+        void FindShortSuccessor(std::string *key) const override;
+    };
+
   public:
-    PacketCache(leveldb::DB *db);
+    PacketCache(const std::string &path);
     PacketPtr get(uint64_t id) const;
     bool has(uint64_t id) const;
     void set(const PacketPtr &pkt);
 
   private:
+    std::unique_ptr<Comparator> comp;
     std::unique_ptr<leveldb::DB> db;
 };
 
-Dispatcher::PacketCache::PacketCache(leveldb::DB *db)
-    : db(db)
+Dispatcher::PacketCache::Comparator::Comparator()
 {
+}
+
+Dispatcher::PacketCache::Comparator::~Comparator()
+{
+}
+
+int Dispatcher::PacketCache::Comparator::Compare(const leveldb::Slice &a, const leveldb::Slice &b) const
+{
+    return *reinterpret_cast<const uint64_t *>(a.data()) - *reinterpret_cast<const uint64_t *>(b.data());
+}
+
+const char *Dispatcher::PacketCache::Comparator::Name() const
+{
+    return "dripcap";
+}
+
+void Dispatcher::PacketCache::Comparator::FindShortestSeparator(std::string *start, const leveldb::Slice &limit) const
+{
+}
+void Dispatcher::PacketCache::Comparator::FindShortSuccessor(std::string *key) const
+{
+}
+
+Dispatcher::PacketCache::PacketCache(const std::string &path)
+    : comp(new Comparator())
+{
+    leveldb::DB *leveldb = nullptr;
+    leveldb::Options options;
+    options.create_if_missing = true;
+    options.comparator = comp.get();
+    leveldb::Status status = leveldb::DB::Open(options, path + ".leveldb", &leveldb);
+    if (!status.ok()) {
+        spdlog::get("console")->error("{}", status.ToString());
+    }
+    db.reset(leveldb);
 }
 
 PacketPtr Dispatcher::PacketCache::get(uint64_t id) const
@@ -65,7 +113,7 @@ class Dispatcher::Private
     static LayerPtr firstLayer(const PacketPtr &pkt, std::unordered_set<std::string> *history);
 
   public:
-    Private(leveldb::DB *db);
+    Private(const std::string &path);
     std::queue<PacketPtr> waitingPackets;
     PacketCache packets;
     std::vector<DissectorWorker *> workers;
@@ -86,8 +134,8 @@ class Dispatcher::Private
     std::thread streamThread;
 };
 
-Dispatcher::Private::Private(leveldb::DB *db)
-    : packets(db)
+Dispatcher::Private::Private(const std::string &path)
+    : packets(path)
 {
 }
 
@@ -325,8 +373,8 @@ struct Dispatcher::Stream {
     bool started = false;
 };
 
-Dispatcher::Dispatcher(leveldb::DB *db)
-    : d(new Private(db))
+Dispatcher::Dispatcher(const std::string &path)
+    : d(new Private(path))
 {
     int numcore = std::max(1u, std::thread::hardware_concurrency());
     for (int i = 0; i < numcore; ++i) {
