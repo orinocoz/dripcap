@@ -8,15 +8,10 @@
 struct Packet;
 typedef std::shared_ptr<Packet> PacketPtr;
 
-namespace leveldb
-{
-class DB;
-}
-
 class Dispatcher final
 {
   public:
-    Dispatcher(leveldb::DB *db);
+    Dispatcher(const std::string &path);
     virtual ~Dispatcher();
     bool loadDissector(const std::string &source, const msgpack::object &options, std::string *error);
     bool loadStreamDissector(const std::string &source, const msgpack::object &options, std::string *error);
