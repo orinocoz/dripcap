@@ -33,7 +33,6 @@ class Dispatcher final
 
   private:
     class Private;
-    class PacketCache;
     class DissectorWorker;
     class FilterWorker;
     struct FilterContext;

@@ -3,8 +3,7 @@
 #include "net_stream.hpp"
 #include "packet.hpp"
 #include "script_class.hpp"
-#include <leveldb/db.h>
-#include <leveldb/comparator.h>
+#include "object_cache.hpp"
 #include <condition_variable>
 #include <mutex>
 #include <queue>
@@ -12,144 +11,6 @@
 #include <sstream>
 #include <thread>
 #include <vector>
-
-class Dispatcher::PacketCache
-{
-  private:
-    class Comparator : public leveldb::Comparator
-    {
-      public:
-        Comparator();
-        ~Comparator() override;
-        int Compare(const leveldb::Slice &a, const leveldb::Slice &b) const override;
-        const char *Name() const override;
-        void FindShortestSeparator(std::string *start, const leveldb::Slice &limit) const override;
-        void FindShortSuccessor(std::string *key) const override;
-    };
-
-  public:
-    PacketCache(const std::string &path);
-    PacketPtr get(uint64_t id) const;
-    bool has(uint64_t id) const;
-    void set(const PacketPtr &pkt);
-
-  private:
-    void insert(const PacketPtr &pkt) const;
-
-  private:
-    std::unique_ptr<Comparator> comp;
-    std::unique_ptr<leveldb::DB> db;
-
-    mutable int cacheIndex;
-    mutable std::array<uint64_t, 128> cacheBuffer;
-    mutable std::unordered_map<uint64_t, PacketPtr> cache;
-    mutable std::mutex mutex;
-};
-
-Dispatcher::PacketCache::Comparator::Comparator()
-{
-}
-
-Dispatcher::PacketCache::Comparator::~Comparator()
-{
-}
-
-int Dispatcher::PacketCache::Comparator::Compare(const leveldb::Slice &a, const leveldb::Slice &b) const
-{
-    return *reinterpret_cast<const uint64_t *>(a.data()) - *reinterpret_cast<const uint64_t *>(b.data());
-}
-
-const char *Dispatcher::PacketCache::Comparator::Name() const
-{
-    return "dripcap";
-}
-
-void Dispatcher::PacketCache::Comparator::FindShortestSeparator(std::string *start, const leveldb::Slice &limit) const
-{
-}
-void Dispatcher::PacketCache::Comparator::FindShortSuccessor(std::string *key) const
-{
-}
-
-Dispatcher::PacketCache::PacketCache(const std::string &path)
-    : comp(new Comparator()),
-      cacheIndex(0),
-      cacheBuffer({})
-{
-    leveldb::DB *leveldb = nullptr;
-    leveldb::Options options;
-    options.create_if_missing = true;
-    options.comparator = comp.get();
-    leveldb::Status status = leveldb::DB::Open(options, path + ".leveldb", &leveldb);
-    if (!status.ok()) {
-        spdlog::get("console")->error("{}", status.ToString());
-    }
-    db.reset(leveldb);
-}
-
-PacketPtr Dispatcher::PacketCache::get(uint64_t id) const
-{
-    {
-        std::lock_guard<std::mutex> lock(mutex);
-        const auto &it = cache.find(id);
-        if (it != cache.end()) {
-            return it->second;
-        }
-    }
-    leveldb::Slice key(reinterpret_cast<const char *>(&id), sizeof(id));
-    std::string value;
-    leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
-    if (s.ok()) {
-        msgpack::object_handle result;
-        msgpack::unpack(result, value.data(), value.size());
-        msgpack::object pkt(result.get());
-        PacketPtr ptr(pkt.as<PacketUniquePtr>().release());
-        insert(ptr);
-        return ptr;
-    }
-    return PacketPtr();
-}
-
-bool Dispatcher::PacketCache::has(uint64_t id) const
-{
-    {
-        std::lock_guard<std::mutex> lock(mutex);
-        const auto &it = cache.find(id);
-        if (it != cache.end()) {
-            return true;
-        }
-    }
-    leveldb::Slice key(reinterpret_cast<const char *>(&id), sizeof(id));
-    std::string value;
-    leveldb::ReadOptions option;
-    option.fill_cache = false;
-    leveldb::Status s = db->Get(option, key, &value);
-    return s.ok();
-}
-
-void Dispatcher::PacketCache::set(const PacketPtr &pkt)
-{
-    if (!pkt) {
-        return;
-    }
-    std::stringstream buffer;
-    msgpack::pack(buffer, *pkt);
-    leveldb::Slice key(reinterpret_cast<const char *>(&pkt->id), sizeof(pkt->id));
-    leveldb::Status s = db->Put(leveldb::WriteOptions(), key, buffer.str());
-    insert(pkt);
-}
-
-void Dispatcher::PacketCache::insert(const PacketPtr &pkt) const
-{
-    std::lock_guard<std::mutex> lock(mutex);
-    uint64_t cacheId = cacheBuffer[cacheIndex];
-    if (cacheId > 0) {
-        cache.erase(cacheId);
-    }
-    cacheBuffer[cacheIndex] = pkt->id;
-    cacheIndex = (cacheIndex + 1) % cacheBuffer.size();
-    cache[pkt->id] = pkt;
-}
 
 class Dispatcher::Private
 {
@@ -159,7 +20,7 @@ class Dispatcher::Private
   public:
     Private(const std::string &path);
     std::queue<PacketPtr> waitingPackets;
-    PacketCache packets;
+    ObjectCache<PacketPtr> packets;
     std::vector<DissectorWorker *> workers;
     std::unordered_map<std::string, std::vector<FilterWorker *>> filterWorkers;
     std::unordered_map<std::string, std::shared_ptr<std::vector<uint64_t>>> filterdPackets;
@@ -367,7 +228,7 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                 }
 
                 lock.lock();
-                d->packets.set(pkt);
+                d->packets.set(pkt->id, pkt);
 
                 if (d->maxID == 0) {
                     if (d->packets.has(1)) {
