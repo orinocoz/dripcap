@@ -43,6 +43,7 @@ class Dispatcher::PacketCache
     mutable int cacheIndex;
     mutable std::array<uint64_t, 128> cacheBuffer;
     mutable std::unordered_map<uint64_t, PacketPtr> cache;
+    mutable std::mutex mutex;
 };
 
 Dispatcher::PacketCache::Comparator::Comparator()
@@ -88,9 +89,12 @@ Dispatcher::PacketCache::PacketCache(const std::string &path)
 
 PacketPtr Dispatcher::PacketCache::get(uint64_t id) const
 {
-    const auto &it = cache.find(id);
-    if (it != cache.end()) {
-        return it->second;
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+        const auto &it = cache.find(id);
+        if (it != cache.end()) {
+            return it->second;
+        }
     }
     leveldb::Slice key(reinterpret_cast<const char *>(&id), sizeof(id));
     std::string value;
@@ -108,9 +112,12 @@ PacketPtr Dispatcher::PacketCache::get(uint64_t id) const
 
 bool Dispatcher::PacketCache::has(uint64_t id) const
 {
-    const auto &it = cache.find(id);
-    if (it != cache.end()) {
-        return true;
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+        const auto &it = cache.find(id);
+        if (it != cache.end()) {
+            return true;
+        }
     }
     leveldb::Slice key(reinterpret_cast<const char *>(&id), sizeof(id));
     std::string value;
@@ -134,6 +141,7 @@ void Dispatcher::PacketCache::set(const PacketPtr &pkt)
 
 void Dispatcher::PacketCache::insert(const PacketPtr &pkt) const
 {
+    std::lock_guard<std::mutex> lock(mutex);
     uint64_t cacheId = cacheBuffer[cacheIndex];
     if (cacheId > 0) {
         cache.erase(cacheId);
