@@ -34,8 +34,15 @@ class Dispatcher::PacketCache
     void set(const PacketPtr &pkt);
 
   private:
+    void insert(const PacketPtr &pkt) const;
+
+  private:
     std::unique_ptr<Comparator> comp;
     std::unique_ptr<leveldb::DB> db;
+
+    mutable int cacheIndex;
+    mutable std::array<uint64_t, 128> cacheBuffer;
+    mutable std::unordered_map<uint64_t, PacketPtr> cache;
 };
 
 Dispatcher::PacketCache::Comparator::Comparator()
@@ -64,7 +71,9 @@ void Dispatcher::PacketCache::Comparator::FindShortSuccessor(std::string *key) c
 }
 
 Dispatcher::PacketCache::PacketCache(const std::string &path)
-    : comp(new Comparator())
+    : comp(new Comparator()),
+      cacheIndex(0),
+      cacheBuffer({})
 {
     leveldb::DB *leveldb = nullptr;
     leveldb::Options options;
@@ -79,6 +88,10 @@ Dispatcher::PacketCache::PacketCache(const std::string &path)
 
 PacketPtr Dispatcher::PacketCache::get(uint64_t id) const
 {
+    const auto &it = cache.find(id);
+    if (it != cache.end()) {
+        return it->second;
+    }
     leveldb::Slice key(reinterpret_cast<const char *>(&id), sizeof(id));
     std::string value;
     leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
@@ -86,25 +99,48 @@ PacketPtr Dispatcher::PacketCache::get(uint64_t id) const
         msgpack::object_handle result;
         msgpack::unpack(result, value.data(), value.size());
         msgpack::object pkt(result.get());
-        return PacketPtr(pkt.as<PacketUniquePtr>().release());
+        PacketPtr ptr(pkt.as<PacketUniquePtr>().release());
+        insert(ptr);
+        return ptr;
     }
     return PacketPtr();
 }
 
 bool Dispatcher::PacketCache::has(uint64_t id) const
 {
+    const auto &it = cache.find(id);
+    if (it != cache.end()) {
+        return true;
+    }
     leveldb::Slice key(reinterpret_cast<const char *>(&id), sizeof(id));
     std::string value;
-    leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
+    leveldb::ReadOptions option;
+    option.fill_cache = false;
+    leveldb::Status s = db->Get(option, key, &value);
     return s.ok();
 }
 
 void Dispatcher::PacketCache::set(const PacketPtr &pkt)
 {
+    if (!pkt) {
+        return;
+    }
     std::stringstream buffer;
     msgpack::pack(buffer, *pkt);
     leveldb::Slice key(reinterpret_cast<const char *>(&pkt->id), sizeof(pkt->id));
     leveldb::Status s = db->Put(leveldb::WriteOptions(), key, buffer.str());
+    insert(pkt);
+}
+
+void Dispatcher::PacketCache::insert(const PacketPtr &pkt) const
+{
+    uint64_t cacheId = cacheBuffer[cacheIndex];
+    if (cacheId > 0) {
+        cache.erase(cacheId);
+    }
+    cacheBuffer[cacheIndex] = pkt->id;
+    cacheIndex = (cacheIndex + 1) % cacheBuffer.size();
+    cache[pkt->id] = pkt;
 }
 
 class Dispatcher::Private
