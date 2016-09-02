@@ -43,7 +43,7 @@ PcapDummy::PcapDummy(const msgpack::object &obj)
     const auto &packets = map.find("packets");
     const auto &devices = map.find("devices");
     for (const auto &obj : packets->second.as<std::vector<msgpack::object>>()) {
-        d->packets.push_back(PacketPtr(obj.as<PacketUniquePtr>().release()));
+        d->packets.push_back(obj.as<PacketPtr>());
     }
     for (const auto &obj : devices->second.as<std::vector<msgpack::object>>()) {
         d->devices.push_back(Device(obj));

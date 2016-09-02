@@ -21,7 +21,6 @@ struct Packet {
 };
 
 typedef std::shared_ptr<Packet> PacketPtr;
-typedef std::unique_ptr<Packet> PacketUniquePtr;
 typedef std::vector<PacketPtr> PacketList;
 
 namespace msgpack
@@ -72,8 +71,8 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
     };
 
     template <>
-    struct convert<PacketUniquePtr> {
-        msgpack::object const &operator()(msgpack::object const &o, PacketUniquePtr &v) const
+    struct convert<PacketPtr> {
+        msgpack::object const &operator()(msgpack::object const &o, PacketPtr &v) const
         {
             const auto &map = o.as<std::unordered_map<std::string, msgpack::object>>();
             const auto &id = map.find("id");
