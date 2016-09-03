@@ -91,23 +91,21 @@ Dispatcher::FilterWorker::FilterWorker(const std::string &source, const msgpack:
     msgpack::object opt = msgpack::object(options, zone);
     thread = std::thread([this, source, opt, ctx]() {
 
+        auto spd = spdlog::get("server");
         ScriptClassPtr script = std::make_shared<ScriptClass>(opt);
-
         std::string err;
 
         {
             std::unique_lock<std::mutex> lock(d->mutex);
             for (const auto &pair : d->modules) {
                 if (!script->loadModule(pair.first, pair.second, &err)) {
-                    auto spd = spdlog::get("server");
-                    spd->error("errord {}", err);
+                    spd->error("{}", err);
                 }
             }
         }
 
         if (!script->loadSource(source, &err)) {
-            auto spd = spdlog::get("server");
-            spd->error("errort {}", err);
+            spd->error("{}", err);
             return false;
         }
 
@@ -174,6 +172,7 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
     : d(parent)
 {
     thread = std::thread([this]() {
+        auto spd = spdlog::get("server");
         while (true) {
             std::unique_lock<std::mutex> lock(d->mutex);
             d->cond.wait(lock, [this] {
@@ -190,8 +189,7 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                 for (const auto &pair : modules) {
                     std::string err;
                     if (!script->loadModule(pair.first, pair.second, &err)) {
-                        auto spd = spdlog::get("server");
-                        spd->error("errord {}", err);
+                        spd->error("{}", err);
                     }
                 }
 
@@ -219,8 +217,7 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
                         for (const auto &dissector : it->second) {
                             std::string err;
                             if (!dissector->analyze(pkt, parentLayer, &err)) {
-                                auto spd = spdlog::get("server");
-                                spd->error("errord {}", err);
+                                spd->error("{}", err);
                             }
                         }
                     }
@@ -289,7 +286,7 @@ Dispatcher::Dispatcher(const std::string &path)
     d->streamThread = std::thread([this]() {
         uint64_t maxID = 0;
 
-        std::unordered_map<std::string, std::unordered_map<std::string, Stream>> streams;
+        std::unordered_map<std::string, std::unordered_map<std::string, Stream>> streamCache;
 
         while (true) {
             std::unique_lock<std::mutex> lock(d->mutex);
@@ -325,7 +322,7 @@ Dispatcher::Dispatcher(const std::string &path)
 
                 for (const auto &pair : list) {
                     for (const NetStreamPtr &net : pair.second) {
-                        auto &stream = streams[net->ns][net->id];
+                        auto &stream = streamCache[net->ns][net->id];
                         if (net->flag == STREAM_END) {
                             if (stream.started) {
                                 for (const ScriptClassPtr &script : stream.dissectors) {
@@ -333,7 +330,7 @@ Dispatcher::Dispatcher(const std::string &path)
                                     NetStreamList streams;
                                     std::vector<PacketPtr> packets;
                                     if (!script->analyzeStream(pkt, pair.first, net->data, &stream.context, &stream.zone, &streams, &packets, &err)) {
-                                        spd->error("errord {}", err);
+                                        spd->error("{}", err);
                                     }
                                     streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());
                                     for (const PacketPtr &pkt : packets) {
@@ -341,9 +338,9 @@ Dispatcher::Dispatcher(const std::string &path)
                                     }
                                 }
                             }
-                            streams[net->ns].erase(net->id);
-                            if (streams[net->ns].empty()) {
-                                streams.erase(net->ns);
+                            streamCache[net->ns].erase(net->id);
+                            if (streamCache[net->ns].empty()) {
+                                streamCache.erase(net->ns);
                             }
                         } else {
                             if (!stream.started) {
@@ -353,13 +350,12 @@ Dispatcher::Dispatcher(const std::string &path)
                                     std::string err;
                                     ScriptClassPtr script = std::make_shared<ScriptClass>(pair.second);
                                     if (!script->loadSource(pair.first, &err)) {
-                                        spd->error("errort {}", err);
+                                        spd->error("{}", err);
                                         continue;
                                     }
                                     for (const auto &pair : d->modules) {
                                         if (!script->loadModule(pair.first, pair.second, &err)) {
-                                            auto spd = spdlog::get("server");
-                                            spd->error("errord {}", err);
+                                            spd->error("{}", err);
                                         }
                                     }
                                     stream.dissectors.push_back(script);
@@ -371,7 +367,7 @@ Dispatcher::Dispatcher(const std::string &path)
                                 NetStreamList streams;
                                 std::vector<PacketPtr> packets;
                                 if (!script->analyzeStream(pkt, pair.first, net->data, &stream.context, &stream.zone, &streams, &packets, &err)) {
-                                    spd->error("errord {}", err);
+                                    spd->error("{}", err);
                                 }
                                 streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());
                                 for (const PacketPtr &pkt : packets) {
