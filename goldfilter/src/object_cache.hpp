@@ -129,7 +129,7 @@ V ObjectCache<K, V>::get(const K &id) const
         insert(id, ptr);
         return ptr;
     }
-    return PacketPtr();
+    return V();
 }
 
 template <class K, class V>
@@ -153,9 +153,6 @@ bool ObjectCache<K, V>::has(const K &id) const
 template <class K, class V>
 void ObjectCache<K, V>::set(const K &id, const V &obj)
 {
-    if (!obj) {
-        return;
-    }
     std::stringstream buffer;
     msgpack::pack(buffer, obj);
     const leveldb::Slice &key = comp->slice(id);

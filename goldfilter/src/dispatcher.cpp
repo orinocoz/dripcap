@@ -12,6 +12,16 @@
 #include <thread>
 #include <vector>
 
+struct Dispatcher::Stream {
+    msgpack::object context;
+    bool loaded = false;
+
+    std::vector<ScriptClassPtr> dissectors;
+    bool started = false;
+
+    MSGPACK_DEFINE(context, started);
+};
+
 class Dispatcher::Private
 {
   public:
@@ -268,13 +278,6 @@ bool Dispatcher::DissectorWorker::loadModule(const std::string &name, const std:
     return true;
 }
 
-struct Dispatcher::Stream {
-    msgpack::object context;
-    msgpack::zone zone;
-    std::vector<ScriptClassPtr> dissectors;
-    bool started = false;
-};
-
 Dispatcher::Dispatcher(const std::string &path)
     : d(new Private(path))
 {
@@ -283,10 +286,12 @@ Dispatcher::Dispatcher(const std::string &path)
         d->workers.push_back(new DissectorWorker(d));
     }
 
-    d->streamThread = std::thread([this]() {
-        uint64_t maxID = 0;
+    d->streamThread = std::thread([this, path]() {
+        auto spd = spdlog::get("server");
 
-        std::unordered_map<std::string, std::unordered_map<std::string, Stream>> streamCache;
+        uint64_t maxID = 0;
+        ObjectCache<std::string, Stream> streamCache(path + "_stream");
+        msgpack::zone zone;
 
         while (true) {
             std::unique_lock<std::mutex> lock(d->mutex);
@@ -313,8 +318,6 @@ Dispatcher::Dispatcher(const std::string &path)
                 return list;
             };
 
-            auto spd = spdlog::get("server");
-
             StreamList streamList = findStreams(pkt->layers);
             while (!streamList.empty()) {
                 StreamList list;
@@ -322,14 +325,36 @@ Dispatcher::Dispatcher(const std::string &path)
 
                 for (const auto &pair : list) {
                     for (const NetStreamPtr &net : pair.second) {
-                        auto &stream = streamCache[net->ns][net->id];
+                        std::string id = net->ns;
+                        id.append(1, '\0');
+                        id.append(net->id);
+                        Stream stream = streamCache.get(id);
+                        if (!stream.loaded) {
+                            stream.loaded = true;
+                            lock.lock();
+                            for (const auto &pair : d->streamDissectors[net->ns]) {
+                                std::string err;
+                                ScriptClassPtr script = std::make_shared<ScriptClass>(pair.second);
+                                if (!script->loadSource(pair.first, &err)) {
+                                    spd->error("{}", err);
+                                    continue;
+                                }
+                                for (const auto &pair : d->modules) {
+                                    if (!script->loadModule(pair.first, pair.second, &err)) {
+                                        spd->error("{}", err);
+                                    }
+                                }
+                                stream.dissectors.push_back(script);
+                            }
+                            lock.unlock();
+                        }
                         if (net->flag == STREAM_END) {
                             if (stream.started) {
                                 for (const ScriptClassPtr &script : stream.dissectors) {
                                     std::string err;
                                     NetStreamList streams;
                                     std::vector<PacketPtr> packets;
-                                    if (!script->analyzeStream(pkt, pair.first, net->data, &stream.context, &stream.zone, &streams, &packets, &err)) {
+                                    if (!script->analyzeStream(pkt, pair.first, net->data, &stream.context, &zone, &streams, &packets, &err)) {
                                         spd->error("{}", err);
                                     }
                                     streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());
@@ -338,35 +363,21 @@ Dispatcher::Dispatcher(const std::string &path)
                                     }
                                 }
                             }
+                            /*
                             streamCache[net->ns].erase(net->id);
                             if (streamCache[net->ns].empty()) {
                                 streamCache.erase(net->ns);
                             }
+                            */
                         } else {
                             if (!stream.started) {
                                 stream.started = true;
-                                lock.lock();
-                                for (const auto &pair : d->streamDissectors[net->ns]) {
-                                    std::string err;
-                                    ScriptClassPtr script = std::make_shared<ScriptClass>(pair.second);
-                                    if (!script->loadSource(pair.first, &err)) {
-                                        spd->error("{}", err);
-                                        continue;
-                                    }
-                                    for (const auto &pair : d->modules) {
-                                        if (!script->loadModule(pair.first, pair.second, &err)) {
-                                            spd->error("{}", err);
-                                        }
-                                    }
-                                    stream.dissectors.push_back(script);
-                                }
-                                lock.unlock();
                             }
                             for (const ScriptClassPtr &script : stream.dissectors) {
                                 std::string err;
                                 NetStreamList streams;
                                 std::vector<PacketPtr> packets;
-                                if (!script->analyzeStream(pkt, pair.first, net->data, &stream.context, &stream.zone, &streams, &packets, &err)) {
+                                if (!script->analyzeStream(pkt, pair.first, net->data, &stream.context, &zone, &streams, &packets, &err)) {
                                     spd->error("{}", err);
                                 }
                                 streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());
@@ -375,6 +386,7 @@ Dispatcher::Dispatcher(const std::string &path)
                                 }
                             }
                         }
+                        streamCache.set(id, stream);
                     }
                 }
             }
