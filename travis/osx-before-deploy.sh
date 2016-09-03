@@ -1,6 +1,7 @@
 # security find-identity
 
-echo $MAC_CERT_KEY | gpg -d --batch --passphrase-fd 0 -o certificate.zip travis/certificate.zip.gpg
+wget -q $MAC_CERT_URL
+echo $MAC_CERT_KEY | gpg -d --batch --passphrase-fd 0 -o certificate.zip certificate.zip.gpg
 unzip certificate.zip
 
 security create-keychain -p travis osx-build.keychain
