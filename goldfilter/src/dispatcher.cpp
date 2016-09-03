@@ -20,7 +20,7 @@ class Dispatcher::Private
   public:
     Private(const std::string &path);
     std::queue<PacketPtr> waitingPackets;
-    ObjectCache<PacketPtr> packets;
+    ObjectCache<uint64_t, PacketPtr> packets;
     std::vector<DissectorWorker *> workers;
     std::unordered_map<std::string, std::vector<FilterWorker *>> filterWorkers;
     std::unordered_map<std::string, std::shared_ptr<std::vector<uint64_t>>> filterdPackets;

@@ -4,76 +4,96 @@
 #include <leveldb/db.h>
 #include <leveldb/comparator.h>
 #include <spdlog/spdlog.h>
+#include <string>
 
-template <class T>
-class ObjectCache
+template <class K>
+class CacheComparator : public leveldb::Comparator
 {
-  private:
-    class Comparator : public leveldb::Comparator
-    {
-      public:
-        Comparator();
-        ~Comparator() override;
-        int Compare(const leveldb::Slice &a, const leveldb::Slice &b) const override;
-        const char *Name() const override;
-        void FindShortestSeparator(std::string *start, const leveldb::Slice &limit) const override;
-        void FindShortSuccessor(std::string *key) const override;
-    };
-
   public:
-    ObjectCache(const std::string &path);
-    T get(uint64_t id) const;
-    bool has(uint64_t id) const;
-    void set(uint64_t id, const T &obj);
-
-  private:
-    void insert(uint64_t id, const T &obj) const;
-
-  private:
-    std::unique_ptr<Comparator> comp;
-    std::unique_ptr<leveldb::DB> db;
-
-    mutable int cacheIndex;
-    mutable std::array<uint64_t, 128> cacheBuffer;
-    mutable std::unordered_map<uint64_t, T> cache;
-    mutable std::mutex mutex;
+    CacheComparator();
+    ~CacheComparator() override;
+    leveldb::Slice slice(const K &id) const;
+    int Compare(const leveldb::Slice &a, const leveldb::Slice &b) const override;
+    const char *Name() const override;
+    void FindShortestSeparator(std::string *start, const leveldb::Slice &limit) const override;
+    void FindShortSuccessor(std::string *key) const override;
 };
 
-template <class T>
-ObjectCache<T>::Comparator::Comparator()
+template <class K>
+CacheComparator<K>::CacheComparator()
 {
 }
 
-template <class T>
-ObjectCache<T>::Comparator::~Comparator()
+template <class K>
+CacheComparator<K>::~CacheComparator()
 {
 }
 
-template <class T>
-int ObjectCache<T>::Comparator::Compare(const leveldb::Slice &a, const leveldb::Slice &b) const
+template <class K>
+leveldb::Slice CacheComparator<K>::slice(const K &id) const
+{
+    return leveldb::Slice(reinterpret_cast<const char *>(&id), sizeof(id));
+}
+
+template <class K>
+int CacheComparator<K>::Compare(const leveldb::Slice &a, const leveldb::Slice &b) const
 {
     return *reinterpret_cast<const uint64_t *>(a.data()) - *reinterpret_cast<const uint64_t *>(b.data());
 }
 
-template <class T>
-const char *ObjectCache<T>::Comparator::Name() const
+template <class K>
+const char *CacheComparator<K>::Name() const
 {
     return "dripcap";
 }
 
-template <class T>
-void ObjectCache<T>::Comparator::FindShortestSeparator(std::string *start, const leveldb::Slice &limit) const
+template <class K>
+void CacheComparator<K>::FindShortestSeparator(std::string *start, const leveldb::Slice &limit) const
 {
 }
 
-template <class T>
-void ObjectCache<T>::Comparator::FindShortSuccessor(std::string *key) const
+template <class K>
+void CacheComparator<K>::FindShortSuccessor(std::string *key) const
 {
 }
 
-template <class T>
-ObjectCache<T>::ObjectCache(const std::string &path)
-    : comp(new Comparator()),
+template <>
+leveldb::Slice CacheComparator<std::string>::slice(const std::string &id) const
+{
+    return leveldb::Slice(id.data(), id.size());
+}
+
+template <>
+int CacheComparator<std::string>::Compare(const leveldb::Slice &a, const leveldb::Slice &b) const
+{
+    return a.compare(b);
+}
+
+template <class K, class V>
+class ObjectCache
+{
+  public:
+    ObjectCache(const std::string &path);
+    V get(const K &id) const;
+    bool has(const K &id) const;
+    void set(const K &id, const V &obj);
+
+  private:
+    void insert(const K &id, const V &obj) const;
+
+  private:
+    std::unique_ptr<CacheComparator<K>> comp;
+    std::unique_ptr<leveldb::DB> db;
+
+    mutable int cacheIndex;
+    mutable std::array<K, 128> cacheBuffer;
+    mutable std::unordered_map<K, V> cache;
+    mutable std::mutex mutex;
+};
+
+template <class K, class V>
+ObjectCache<K, V>::ObjectCache(const std::string &path)
+    : comp(new CacheComparator<K>()),
       cacheIndex(0),
       cacheBuffer({})
 {
@@ -88,8 +108,8 @@ ObjectCache<T>::ObjectCache(const std::string &path)
     db.reset(leveldb);
 }
 
-template <class T>
-T ObjectCache<T>::get(uint64_t id) const
+template <class K, class V>
+V ObjectCache<K, V>::get(const K &id) const
 {
     {
         std::lock_guard<std::mutex> lock(mutex);
@@ -98,22 +118,22 @@ T ObjectCache<T>::get(uint64_t id) const
             return it->second;
         }
     }
-    leveldb::Slice key(reinterpret_cast<const char *>(&id), sizeof(id));
+    const leveldb::Slice &key = comp->slice(id);
     std::string value;
     leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
     if (s.ok()) {
         msgpack::object_handle result;
         msgpack::unpack(result, value.data(), value.size());
         msgpack::object obj(result.get());
-        const T &ptr = obj.as<T>();
+        const V &ptr = obj.as<V>();
         insert(id, ptr);
         return ptr;
     }
     return PacketPtr();
 }
 
-template <class T>
-bool ObjectCache<T>::has(uint64_t id) const
+template <class K, class V>
+bool ObjectCache<K, V>::has(const K &id) const
 {
     {
         std::lock_guard<std::mutex> lock(mutex);
@@ -122,7 +142,7 @@ bool ObjectCache<T>::has(uint64_t id) const
             return true;
         }
     }
-    leveldb::Slice key(reinterpret_cast<const char *>(&id), sizeof(id));
+    const leveldb::Slice &key = comp->slice(id);
     std::string value;
     leveldb::ReadOptions option;
     option.fill_cache = false;
@@ -130,27 +150,25 @@ bool ObjectCache<T>::has(uint64_t id) const
     return s.ok();
 }
 
-template <class T>
-void ObjectCache<T>::set(uint64_t id, const T &obj)
+template <class K, class V>
+void ObjectCache<K, V>::set(const K &id, const V &obj)
 {
     if (!obj) {
         return;
     }
     std::stringstream buffer;
     msgpack::pack(buffer, obj);
-    leveldb::Slice key(reinterpret_cast<const char *>(&id), sizeof(id));
+    const leveldb::Slice &key = comp->slice(id);
     leveldb::Status s = db->Put(leveldb::WriteOptions(), key, buffer.str());
     insert(id, obj);
 }
 
-template <class T>
-void ObjectCache<T>::insert(uint64_t id, const T &obj) const
+template <class K, class V>
+void ObjectCache<K, V>::insert(const K &id, const V &obj) const
 {
     std::lock_guard<std::mutex> lock(mutex);
-    uint64_t cacheId = cacheBuffer[cacheIndex];
-    if (cacheId > 0) {
-        cache.erase(cacheId);
-    }
+    const K &cacheId = cacheBuffer[cacheIndex];
+    cache.erase(cacheId);
     cacheBuffer[cacheIndex] = id;
     cacheIndex = (cacheIndex + 1) % cacheBuffer.size();
     cache[id] = obj;
