@@ -113,7 +113,7 @@ export default class IPv6Dissector {
               data: parentLayer.payload.slice(offset, offset + extLen),
               fields: [{
                 name: 'Hdr Ext Len',
-                value: payload.readUInt8(offset + 1, true),
+                value: parentLayer.payload.readUInt8(offset + 1, true),
                 note: `(${extLen} bytes)`,
                 data: parentLayer.payload.slice(offset + 1, offset + 2)
               }, {
