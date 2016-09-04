@@ -137,7 +137,7 @@ export default class IPv6Dissector {
         }
 
         nextHeader = parentLayer.payload.readUInt8(offset, true);
-        nextHeaderRange = parentLayer.payload.slice(offset, offset + 1);
+        nextHeaderData = parentLayer.payload.slice(offset, offset + 1);
         layer.fields[layer.fields.length - 1].fields.unshift({
           name: 'Next Header',
           value: new ProtocolEnum(nextHeader),
