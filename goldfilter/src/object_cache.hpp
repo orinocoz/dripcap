@@ -77,6 +77,7 @@ class ObjectCache
     V get(const K &id) const;
     bool has(const K &id) const;
     void set(const K &id, const V &obj);
+    void remove(const K &id);
 
   private:
     void insert(const K &id, const V &obj) const;
@@ -86,9 +87,10 @@ class ObjectCache
     std::unique_ptr<leveldb::DB> db;
 
     mutable int cacheIndex;
-    mutable std::array<K, 128> cacheBuffer;
+    mutable std::array<K, 1024> cacheBuffer;
     mutable std::unordered_map<K, V> cache;
     mutable std::mutex mutex;
+    mutable msgpack::zone zone;
 };
 
 template <class K, class V>
@@ -124,12 +126,12 @@ V ObjectCache<K, V>::get(const K &id) const
     if (s.ok()) {
         msgpack::object_handle result;
         msgpack::unpack(result, value.data(), value.size());
-        msgpack::object obj(result.get());
+        msgpack::object obj(result.get(), zone);
         const V &ptr = obj.as<V>();
         insert(id, ptr);
         return ptr;
     }
-    return PacketPtr();
+    return V();
 }
 
 template <class K, class V>
@@ -153,14 +155,19 @@ bool ObjectCache<K, V>::has(const K &id) const
 template <class K, class V>
 void ObjectCache<K, V>::set(const K &id, const V &obj)
 {
-    if (!obj) {
-        return;
-    }
     std::stringstream buffer;
     msgpack::pack(buffer, obj);
     const leveldb::Slice &key = comp->slice(id);
     leveldb::Status s = db->Put(leveldb::WriteOptions(), key, buffer.str());
     insert(id, obj);
+}
+
+template <class K, class V>
+void ObjectCache<K, V>::remove(const K &id)
+{
+    const leveldb::Slice &key = comp->slice(id);
+    db->Delete(leveldb::WriteOptions(), key);
+    cache.erase(id);
 }
 
 template <class K, class V>
