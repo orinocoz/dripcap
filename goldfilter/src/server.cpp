@@ -77,7 +77,7 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
 class Server::Private
 {
   public:
-    Private(const std::string &path);
+    Private(const std::string &sock, const std::string &tmp);
     ~Private();
     bool capturing;
     Status status;
@@ -91,10 +91,10 @@ class Server::Private
     size_t logBufferIndex = 0;
 };
 
-Server::Private::Private(const std::string &path)
-    : capturing(false), server(path)
+Server::Private::Private(const std::string &sock, const std::string &tmp)
+    : capturing(false), server(sock)
 {
-    dispatcher.reset(new Dispatcher(path));
+    dispatcher.reset(new Dispatcher(tmp));
 }
 
 Server::Private::~Private()
@@ -137,8 +137,8 @@ void Server::LoggerSink::flush()
 {
 }
 
-Server::Server(const std::string &path)
-    : d(new Private(path))
+Server::Server(const std::string &sock, const std::string &tmp)
+    : d(new Private(sock, tmp))
 {
     // Initialize V8.
     v8::V8::InitializeICU();

@@ -7,7 +7,7 @@
 class Server final
 {
   public:
-    explicit Server(const std::string &path);
+    Server(const std::string &sock, const std::string &tmp);
     virtual ~Server();
     bool start();
 

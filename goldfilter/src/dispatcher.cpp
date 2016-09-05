@@ -290,7 +290,7 @@ Dispatcher::Dispatcher(const std::string &path)
         auto spd = spdlog::get("server");
 
         uint64_t maxID = 0;
-        ObjectCache<std::string, Stream> streamCache(path + "_stream");
+        ObjectCache<std::string, Stream> streamCache(path + "/stream");
         msgpack::zone zone;
 
         while (true) {

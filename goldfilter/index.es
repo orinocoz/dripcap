@@ -7,6 +7,7 @@ import childProcess from 'child_process';
 import EventEmitter from 'events';
 import msgpack from 'msgpack-lite';
 import uuid from 'node-uuid';
+import tmp from 'tmp';
 import {
   rollup
 } from 'rollup';
@@ -125,6 +126,13 @@ export default class GoldFilter extends EventEmitter {
     this.sockPath = path.join(prefix, uuid.v4() + '.sock');
     this.sock = new net.Socket();
 
+    let tmpobj = tmp.dirSync({unsafeCleanup: true, prefix: 'dripcap-'});
+    this.tmpDir = tmpobj.name;
+
+    process.on('exit', () => {
+      fs.unlinkSync(this.sockPath);
+    });
+
     const {
       bundle,
       exe
@@ -137,7 +145,7 @@ export default class GoldFilter extends EventEmitter {
       exePath = bundle;
     }
 
-    this.child = childProcess.execFile(exePath, [this.sockPath], exeEnv, (err) => {
+    this.child = childProcess.execFile(exePath, [this.sockPath, this.tmpDir], exeEnv, (err) => {
       console.error(err);
     });
     this.child.stdout.pipe(process.stdout);
@@ -217,7 +225,7 @@ export default class GoldFilter extends EventEmitter {
       hash.on('readable', () => {
         let data = hash.read();
         if (data != null) {
-          let cachePath = path.join(os.tmpdir(), data.toString('hex') + '.dripcap.es');
+          let cachePath = path.join(this.tmpDir, data.toString('hex') + '.dripcap.es');
           fs.readFile(cachePath, 'utf8', (err, data) => {
             if (err == null) {
               res(data);
@@ -229,7 +237,7 @@ export default class GoldFilter extends EventEmitter {
                 const result = bundle.generate({
                   format: 'es'
                 });
-                const js = path.join(os.tmpdir(), uuid.v4() + '.dripcap.es');
+                const js = path.join(this.tmpDir, uuid.v4() + '.dripcap.es');
                 return new Promise((res, rej) => {
                   fs.writeFile(js, result.code, (err) => {
                     if (err) throw err;

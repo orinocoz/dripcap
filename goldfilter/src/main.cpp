@@ -22,10 +22,13 @@ int main(int argc, char *argv[])
     }
 
     std::string command;
-    if (argc == 2)
+    std::string tmp;
+    if (argc >= 2)
         command.assign(argv[1]);
+    if (argc >= 3)
+        tmp.assign(argv[2]);
 
-    spd->debug("command: {}", command);
+    spd->debug("command: {} {}", command, tmp);
 
     if (command.empty()) {
         return EXIT_FAILURE;
@@ -38,6 +41,6 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    Server server(command);
+    Server server(command, tmp);
     return server.start() ? EXIT_SUCCESS : EXIT_FAILURE;
 }
