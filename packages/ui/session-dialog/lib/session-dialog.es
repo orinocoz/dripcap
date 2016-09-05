@@ -47,7 +47,14 @@ export default class SessionDialog {
       };
 
       Menu.registerMain('Capture', this.captureMenu);
-      PubSub.sub('core:capturing-status', () => Menu.updateMainMenu());
+
+      let capturing = null;
+      PubSub.sub('core:capturing-status', (stat) => {
+        if (capturing !== stat.capturing) {
+          Menu.updateMainMenu();
+          capturing = stat.capturing;
+        }
+      });
 
       this.comp = new Component(`${__dirname}/../tag/*.tag`);
       return Package.load('main-view').then(pkg => {
