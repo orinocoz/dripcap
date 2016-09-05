@@ -16,13 +16,14 @@
   }
   .wrapper {
     position: absolute;
-    overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-x: auto;
+    overflow-y: auto;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
     &.noscroll {
+      overflow-x: hidden;
       overflow-y: hidden;
     }
   }
