@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "postinstall": "node build.js && babel -o index.js index.es"
+    "postinstall": "node build.js && babel *.es -d ."
   },
   "author": "h2so5",
   "license": "MIT",

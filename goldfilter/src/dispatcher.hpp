@@ -26,6 +26,8 @@ class Dispatcher final
     uint64_t size() const;
     uint64_t dropped() const;
     std::unordered_map<std::string, uint64_t> filtered() const;
+    std::vector<unsigned char> readStream(const std::string &id, uint64_t index) const;
+    uint64_t streamLength(const std::string &id) const;
 
   public:
     Dispatcher(Dispatcher const &) = delete;

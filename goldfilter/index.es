@@ -13,6 +13,7 @@ import {
 } from 'rollup';
 import esprima from 'esprima';
 import LRU from 'lru-cache';
+import BufferStream from './stream';
 
 var exeEnv = {
   env: {
@@ -414,6 +415,12 @@ export default class GoldFilter extends EventEmitter {
           }
           return buffer;
         });
+        codec.addExtUnpacker(0x1E, (buffer) => {
+          const args = msgpack.decode(buffer, {
+            codec: codec
+          });
+          return new BufferStream(args[0], args[2], this);
+        });
         codec.addExtUnpacker(0x1F, ((pkt) => {
           return (buffer) => {
             const tuple = msgpack.decode(buffer, {
@@ -425,6 +432,12 @@ export default class GoldFilter extends EventEmitter {
             return slice;
           };
         })(pkt))
+
+        if (pkt.stream.length === 0) {
+          pkt.stream = null;
+        } else {
+          pkt.stream = new BufferStream(pkt.stream, this);
+        }
 
         pkt.layers = msgpack.decode(pkt.layers.buffer, {
           codec: codec
@@ -442,6 +455,14 @@ export default class GoldFilter extends EventEmitter {
       name: name,
       range: [start, end]
     });
+  }
+
+  readStream(id, index) {
+    return this._call('read_stream', {id: id, index: index});
+  }
+
+  streamLength(id) {
+    return this._call('stream_length', id);
   }
 
   logs() {

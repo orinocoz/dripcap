@@ -5,6 +5,8 @@
 #include "packet_stream.hpp"
 #include "script_class.hpp"
 #include <condition_variable>
+#include <leveldb/comparator.h>
+#include <leveldb/db.h>
 #include <mutex>
 #include <queue>
 #include <spdlog/spdlog.h>
@@ -29,6 +31,7 @@ class Dispatcher::Private
 
   public:
     Private(const std::string &path);
+    ~Private();
     std::queue<PacketPtr> waitingPackets;
     ObjectCache<uint64_t, PacketPtr> packets;
     std::vector<DissectorWorker *> workers;
@@ -47,10 +50,25 @@ class Dispatcher::Private
     std::condition_variable streamCond;
     std::mutex mutex;
     std::thread streamThread;
+
+    std::unique_ptr<leveldb::DB> db;
 };
 
 Dispatcher::Private::Private(const std::string &path)
     : packets(path + "/packets")
+{
+    leveldb::DB *leveldb = nullptr;
+    leveldb::Options options;
+    options.create_if_missing = true;
+    //options.comparator = comp.get();
+    leveldb::Status status = leveldb::DB::Open(options, path + "buffer.leveldb", &leveldb);
+    if (!status.ok()) {
+        spdlog::get("console")->error("{}", status.ToString());
+    }
+    db.reset(leveldb);
+}
+
+Dispatcher::Private::~Private()
 {
 }
 
@@ -102,7 +120,7 @@ Dispatcher::FilterWorker::FilterWorker(const std::string &source, const msgpack:
     thread = std::thread([this, source, opt, ctx]() {
 
         auto spd = spdlog::get("server");
-        ScriptClassPtr script = std::make_shared<ScriptClass>(opt);
+        ScriptClassPtr script = std::make_shared<ScriptClass>(d->db.get(), opt);
         std::string err;
 
         {
@@ -194,7 +212,7 @@ Dispatcher::DissectorWorker::DissectorWorker(Dispatcher::Private *parent)
             while (!sources.empty()) {
                 const auto &pair = sources.front();
 
-                ScriptClassPtr script = std::make_shared<ScriptClass>(pair.second);
+                ScriptClassPtr script = std::make_shared<ScriptClass>(d->db.get(), pair.second);
 
                 for (const auto &pair : modules) {
                     std::string err;
@@ -334,7 +352,7 @@ Dispatcher::Dispatcher(const std::string &path)
                             lock.lock();
                             for (const auto &pair : d->streamDissectors[net->ns]) {
                                 std::string err;
-                                ScriptClassPtr script = std::make_shared<ScriptClass>(pair.second);
+                                ScriptClassPtr script = std::make_shared<ScriptClass>(d->db.get(), pair.second);
                                 if (!script->loadSource(pair.first, &err)) {
                                     spd->error("{}", err);
                                     continue;
@@ -422,6 +440,34 @@ Dispatcher::~Dispatcher()
         d->streamThread.join();
 
     delete d;
+}
+
+std::vector<unsigned char> Dispatcher::readStream(const std::string &id, uint64_t index) const
+{
+    std::vector<unsigned char> data;
+    std::string keyBuffer;
+    keyBuffer.resize(sizeof(uint64_t));
+    *reinterpret_cast<uint64_t *>(&keyBuffer[0]) = index;
+    keyBuffer += id;
+    leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
+    std::string value;
+    leveldb::Status s = d->db->Get(leveldb::ReadOptions(), key, &value);
+    if (s.ok()) {
+        data.assign(value.data(), value.data() + value.size());
+    }
+    return data;
+}
+
+uint64_t Dispatcher::streamLength(const std::string &id) const
+{
+  const std::string& keyBuffer = id + ".length";
+  leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
+  std::string value;
+  leveldb::Status s = d->db->Get(leveldb::ReadOptions(), key, &value);
+  if (s.ok() && value.size() == sizeof(uint64_t)) {
+      return *reinterpret_cast<const uint64_t*>(value.data());
+  }
+  return 0;
 }
 
 bool Dispatcher::loadDissector(const std::string &path, const msgpack::object &options, std::string *error)

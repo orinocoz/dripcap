@@ -1,9 +1,10 @@
 #include "script_class.hpp"
 #include "buffer.hpp"
+#include "buffer_stream.hpp"
 #include "include/libplatform/libplatform.h"
 #include "include/v8.h"
-#include "packet_stream.hpp"
 #include "packet.hpp"
+#include "packet_stream.hpp"
 #include "stream_layer.hpp"
 #include <fstream>
 #include <spdlog/spdlog.h>
@@ -36,7 +37,7 @@ class ArrayBufferAllocator : public ArrayBuffer::Allocator
 class ScriptClass::Private
 {
   public:
-    Private(const msgpack::object &options);
+    Private(leveldb::DB *db, const msgpack::object &options);
     ~Private();
 
   public:
@@ -49,6 +50,7 @@ class ScriptClass::Private
     std::unordered_map<std::string, UniquePersistent<UnboundScript>> modules;
     std::unordered_map<std::string, UniquePersistent<Function>> moduleChache;
     msgpack::object options;
+    leveldb::DB *db;
 };
 
 namespace
@@ -96,6 +98,15 @@ Local<Value> MsgpackToV8(const msgpack::object &o, Packet *pkt = nullptr)
                 auto vec = std::make_shared<Buffer::Data>();
                 vec->assign(ext.data(), ext.data() + ext.size());
                 return v8pp::class_<Buffer>::create_object(isolate, vec);
+            } break;
+            case 0x1e: {
+                Local<Object> buf = v8pp::class_<BufferStream>::create_object(isolate, std::string(ext.data(), ext.size()));
+                BufferStream *bs = v8pp::class_<BufferStream>::unwrap_object(isolate, buf);
+                Local<Context> ctx = isolate->GetCurrentContext();
+                Local<External> external = ctx->GetEmbedderData(1).As<External>();
+                ScriptClass::Private *d = static_cast<ScriptClass::Private *>(external->Value());
+                bs->setDB(d->db);
+                return buf;
             } break;
             case 0x1f: {
                 if (pkt) {
@@ -223,6 +234,12 @@ msgpack::object v8ToMsgpack(Local<Value> v, msgpack::zone *zone, bool copy = fal
             Buffer::Data buf;
             buf.assign(buffer->data(), buffer->data() + buffer->length());
             return msgpack::object(buf, *zone);
+        }
+
+        BufferStream *bufferStream;
+        if ((bufferStream = v8pp::class_<BufferStream>::unwrap_object(isolate, v))) {
+            const std::string &str = bufferStream->id();
+            return msgpack::object(msgpack::type::ext(0x1e, str.data(), str.size()), *zone);
         }
 
         if (v->IsString()) {
@@ -587,9 +604,10 @@ class ScriptClass::CreateParams : public Isolate::CreateParams
     }
 };
 
-ScriptClass::Private::Private(const msgpack::object &options)
+ScriptClass::Private::Private(leveldb::DB *db, const msgpack::object &options)
     : isolate(Isolate::New(CreateParams(this))),
-      options(options)
+      options(options),
+      db(db)
 {
     Isolate::Scope isolate_scope(isolate);
     HandleScope handle_scope(isolate);
@@ -650,10 +668,6 @@ ScriptClass::Private::Private(const msgpack::object &options)
         .set("ts", v8pp::property(&PacketWrapper::ts))
         .set("payload", v8pp::property(&PacketWrapper::payload));
 
-    v8pp::class_<StreamLayer> slayer(isolate);
-    slayer
-        .ctor<>();
-
     v8pp::class_<LayerWrapper> layer(isolate);
     layer
         .ctor<>()
@@ -662,8 +676,8 @@ ScriptClass::Private::Private(const msgpack::object &options)
 
     layer.class_function_template()->SetClassName(v8pp::to_v8(isolate, "Layer"));
 
-    v8pp::class_<PacketStream> stream(isolate);
-    stream
+    v8pp::class_<PacketStream> packetStream(isolate);
+    packetStream
         .ctor<const std::string &, const std::string &, const std::string &>()
         .set("end", &PacketStream::end)
         .set("name", &PacketStream::name)
@@ -672,9 +686,13 @@ ScriptClass::Private::Private(const msgpack::object &options)
 
     v8pp::module dripcapModule(isolate);
     dripcapModule.set("Buffer", buffer);
-    dripcapModule.set("PacketStream", stream);
+    dripcapModule.set("PacketStream", packetStream);
 
-    Local<FunctionTemplate> slayerFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
+    v8pp::class_<StreamLayer> streamLayer(isolate);
+    streamLayer
+        .ctor<>();
+
+    Local<FunctionTemplate> streamLayerFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
         Isolate *isolate = Isolate::GetCurrent();
         Local<Object> obj = args.Data().As<Function>()->NewInstance();
         StreamLayer *sl = v8pp::class_<StreamLayer>::unwrap_object(isolate, obj);
@@ -695,13 +713,39 @@ ScriptClass::Private::Private(const msgpack::object &options)
             pkt->payload.assign(buffer->data(), buffer->data() + buffer->length());
         }
         pkt->len = pkt->payload.size();
+
+        BufferStream *stream;
+        if ((stream = v8pp::class_<BufferStream>::unwrap_object(isolate, args[4]))) {
+            pkt->stream = stream->id();
+            pkt->len += stream->length();
+        }
         pkt->ts_sec = std::chrono::seconds(std::time(NULL)).count();
         pkt->ts_nsec = 0;
         pkt->layers[layer->ns] = layer;
 
         args.GetReturnValue().Set(obj);
-    }, slayer.js_function_template()->GetFunction());
-    dripcapModule.set("StreamLayer", slayerFunc);
+    },
+                                                                    streamLayer.js_function_template()->GetFunction());
+    dripcapModule.set("StreamLayer", streamLayerFunc);
+
+    v8pp::class_<BufferStream> bufferStream(isolate);
+    bufferStream
+        .ctor<>()
+        .set("write", &BufferStream::write)
+        .set("read", &BufferStream::read);
+
+    Local<FunctionTemplate> bufferStreamFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
+        Isolate *isolate = Isolate::GetCurrent();
+        Local<Object> obj = args.Data().As<Function>()->NewInstance();
+        BufferStream *bs = v8pp::class_<BufferStream>::unwrap_object(isolate, obj);
+        Local<Context> ctx = isolate->GetCurrentContext();
+        Local<External> external = ctx->GetEmbedderData(1).As<External>();
+        ScriptClass::Private *d = static_cast<ScriptClass::Private *>(external->Value());
+        bs->setDB(d->db);
+        args.GetReturnValue().Set(obj);
+    },
+                                                                     bufferStream.js_function_template()->GetFunction());
+    dripcapModule.set("BufferStream", bufferStreamFunc);
 
     Local<FunctionTemplate> layerFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
         Isolate *isolate = Isolate::GetCurrent();
@@ -712,7 +756,8 @@ ScriptClass::Private::Private(const msgpack::object &options)
         obj->ForceSet(v8pp::to_v8(isolate, "streams"), Array::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
 
         args.GetReturnValue().Set(obj);
-    }, layer.js_function_template()->GetFunction());
+    },
+                                                              layer.js_function_template()->GetFunction());
     dripcapModule.set("Layer", layerFunc);
 
     dripcap = UniquePersistent<Object>(isolate, dripcapModule.new_instance());
@@ -773,7 +818,8 @@ ScriptClass::Private::Private(const msgpack::object &options)
             std::string err("Cannot find module '");
             args.GetReturnValue().Set(v8pp::throw_ex(isolate, (err + name + "'").c_str()));
         }
-    }, External::New(isolate, this));
+    },
+                                                      External::New(isolate, this));
     require = UniquePersistent<FunctionTemplate>(isolate, f);
 
     isolate->GetCurrentContext()->Global()->Set(
@@ -808,8 +854,8 @@ ScriptClass::Private::~Private()
     isolate->Dispose();
 }
 
-ScriptClass::ScriptClass(const msgpack::object &options)
-    : d(new Private(options))
+ScriptClass::ScriptClass(leveldb::DB *db, const msgpack::object &options)
+    : d(new Private(db, options))
 {
 }
 

@@ -1,6 +1,8 @@
 import {
   PacketStream,
-  StreamLayer
+  StreamLayer,
+  BufferStream,
+  Buffer
 } from 'dripcap';
 
 export default class TCPStreamDissector {
@@ -23,9 +25,10 @@ export default class TCPStreamDissector {
         src: parentLayer.attrs.src,
         dst: parentLayer.attrs.dst
       };
-      let payload = data;
+      let stream = new BufferStream();
+      stream.write(new Buffer([0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 6, 7]));
 
-      let layer = new StreamLayer(name, namespace, attrs, payload);
+      let layer = new StreamLayer(name, namespace, attrs, data, stream);
       output.push(layer);
     }
   }

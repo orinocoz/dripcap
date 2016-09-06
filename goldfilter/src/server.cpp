@@ -328,6 +328,25 @@ Server::Server(const std::string &sock, const std::string &tmp)
         }
     });
 
+    d->server.handle("read_stream", [this](const msgpack::object &arg, ReplyInterface &reply) {
+        const auto &map = arg.as<std::unordered_map<std::string, msgpack::object>>();
+        const auto &id = map.find("id");
+        const auto &index = map.find("index");
+        if (id != map.end() && index != map.end()) {
+            const auto &data = d->dispatcher->readStream(id->second.as<std::string>(),
+                                                         index->second.as<uint64_t>());
+            if (!data.empty()) {
+                reply(data);
+                return;
+            }
+        }
+        reply();
+    });
+
+    d->server.handle("stream_length", [this](const msgpack::object &arg, ReplyInterface &reply) {
+        reply(d->dispatcher->streamLength(arg.as<std::string>()));
+    });
+
     d->server.handle("get_packets", [this](const msgpack::object &arg, ReplyInterface &reply) {
         const auto &map = arg.as<std::unordered_map<std::string, msgpack::object>>();
         const auto &l = map.find("list");

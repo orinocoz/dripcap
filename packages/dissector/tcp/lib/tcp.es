@@ -1,7 +1,8 @@
 import {
   Layer,
   Buffer,
-  PacketStream
+  PacketStream,
+  BufferStream
 } from 'dripcap';
 import IPv4Host from 'dripcap/ipv4/host';
 import IPv6Host from 'dripcap/ipv6/host';
@@ -268,6 +269,14 @@ export default class TCPDissector {
       layer.fields.push({
         name: 'Payload',
         value: layer.payload,
+        data: layer.payload
+      });
+
+      let bufs = new BufferStream();
+      bufs.write(layer.payload);
+      layer.fields.push({
+        name: 'Payload2',
+        value: bufs,
         data: layer.payload
       });
 
