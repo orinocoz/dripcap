@@ -157,6 +157,8 @@ export default class GoldFilter extends EventEmitter {
     this.filterClasses = {};
     this.filterSource = fs.readFileSync(path.join(__dirname, './filter.es'));
 
+    this.classPromise = Promise.resolve();
+
     this.packetCache = LRU(5000);
 
     this.connected = new Promise((res) => {
@@ -302,8 +304,13 @@ export default class GoldFilter extends EventEmitter {
     })
   }
 
-  addClass(name, path) {
-    return this._build(path).then((source) => {
+  addClass(name, filePath) {
+    let classPromise = this.classPromise;
+    let prom = this._build(filePath).then((source) => {
+      return classPromise.then(() => {
+        return source;
+      });
+    }).then((source) => {
       let func = new Function('require', 'module', source);
       let mod = {};
       func((name) => {
@@ -324,6 +331,9 @@ export default class GoldFilter extends EventEmitter {
         source: source
       });
     });
+
+    this.classPromise = prom;
+    return prom;
   }
 
   start(ifs, options = {}) {
