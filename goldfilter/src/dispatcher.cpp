@@ -50,7 +50,7 @@ class Dispatcher::Private
 };
 
 Dispatcher::Private::Private(const std::string &path)
-    : packets(path)
+    : packets(path + "/packets")
 {
 }
 
