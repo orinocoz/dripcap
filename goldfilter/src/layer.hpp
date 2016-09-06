@@ -1,7 +1,7 @@
 #ifndef LAYER_HPP
 #define LAYER_HPP
 
-#include "net_stream.hpp"
+#include "packet_stream.hpp"
 #include <memory>
 #include <msgpack.hpp>
 
@@ -18,7 +18,7 @@ struct Layer {
     msgpack::object payload;
     std::unordered_map<std::string, msgpack::object> ext;
     LayerList layers;
-    NetStreamList streams;
+    PacketStreamList streams;
     msgpack::zone zone;
 };
 
@@ -79,7 +79,7 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
                 v->layers = layers->second.as<LayerList>();
             }
             if (streams != v->ext.end()) {
-                v->streams = streams->second.as<NetStreamList>();
+                v->streams = streams->second.as<PacketStreamList>();
             }
 
             v->ext.erase("namespace");

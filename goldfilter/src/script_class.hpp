@@ -11,9 +11,9 @@ typedef std::shared_ptr<Packet> PacketPtr;
 struct Layer;
 typedef std::shared_ptr<Layer> LayerPtr;
 
-class NetStream;
-typedef std::shared_ptr<NetStream> NetStreamPtr;
-typedef std::vector<NetStreamPtr> NetStreamList;
+class PacketStream;
+typedef std::shared_ptr<PacketStream> PacketStreamPtr;
+typedef std::vector<PacketStreamPtr> PacketStreamList;
 
 class ScriptClass final
 {
@@ -25,7 +25,7 @@ class ScriptClass final
     bool loadModule(const std::string &name, const std::string &source, std::string *error = nullptr);
     bool analyze(const PacketPtr &packet, const LayerPtr &parentLayer, std::string *error = nullptr) const;
     bool analyzeStream(const PacketPtr &packet, const LayerPtr &parentLayer, const msgpack::object &data,
-                       msgpack::object *ctx, msgpack::zone *zone, NetStreamList *straems,
+                       msgpack::object *ctx, msgpack::zone *zone, PacketStreamList *straems,
                        std::vector<PacketPtr> *packets, std::string *error = nullptr) const;
     bool filter(const PacketPtr &packet) const;
 

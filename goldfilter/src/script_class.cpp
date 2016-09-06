@@ -2,7 +2,7 @@
 #include "buffer.hpp"
 #include "include/libplatform/libplatform.h"
 #include "include/v8.h"
-#include "net_stream.hpp"
+#include "packet_stream.hpp"
 #include "packet.hpp"
 #include "stream_layer.hpp"
 #include <fstream>
@@ -371,7 +371,7 @@ void LayerWrapper::syncToScript()
 
     Local<Array> streams = Array::New(isolate);
     for (size_t i = 0; i < layer->streams.size(); ++i) {
-        const NetStream &st = *layer->streams.at(i);
+        const PacketStream &st = *layer->streams.at(i);
         Local<Value> data = msgpackToV8(st.data);
         obj->Set(v8pp::to_v8(isolate, "data"), data);
         streams->Set(i, obj);
@@ -415,11 +415,11 @@ void LayerWrapper::syncFromScript()
     Local<Array> streams = obj->Get(v8pp::to_v8(isolate, std::string("streams"))).As<Array>();
     for (size_t i = 0; i < streams->Length(); ++i) {
         Local<Object> stream = streams->Get(i).As<Object>();
-        NetStream *ns = v8pp::class_<NetStream>::unwrap_object(isolate, stream);
+        PacketStream *ns = v8pp::class_<PacketStream>::unwrap_object(isolate, stream);
         if (ns) {
             Local<Value> data = stream->Get(v8pp::to_v8(isolate, std::string("data")));
             ns->data = v8ToMsgpack(data);
-            layer->streams.push_back(std::make_shared<NetStream>(*ns));
+            layer->streams.push_back(std::make_shared<PacketStream>(*ns));
         }
     }
 }
@@ -662,17 +662,17 @@ ScriptClass::Private::Private(const msgpack::object &options)
 
     layer.class_function_template()->SetClassName(v8pp::to_v8(isolate, "Layer"));
 
-    v8pp::class_<NetStream> stream(isolate);
+    v8pp::class_<PacketStream> stream(isolate);
     stream
         .ctor<const std::string &, const std::string &, const std::string &>()
-        .set("end", &NetStream::end)
-        .set("name", &NetStream::name)
-        .set("namespace", &NetStream::ns)
-        .set("id", &NetStream::id);
+        .set("end", &PacketStream::end)
+        .set("name", &PacketStream::name)
+        .set("namespace", &PacketStream::ns)
+        .set("id", &PacketStream::id);
 
     v8pp::module dripcapModule(isolate);
     dripcapModule.set("Buffer", buffer);
-    dripcapModule.set("NetStream", stream);
+    dripcapModule.set("PacketStream", stream);
 
     Local<FunctionTemplate> slayerFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
         Isolate *isolate = Isolate::GetCurrent();
@@ -960,7 +960,7 @@ bool ScriptClass::analyze(const PacketPtr &packet, const LayerPtr &parentLayer, 
 
 bool ScriptClass::analyzeStream(const PacketPtr &packet, const LayerPtr &parentLayer, const msgpack::object &data,
                                 msgpack::object *ctx, msgpack::zone *zone,
-                                NetStreamList *straems, std::vector<PacketPtr> *packets, std::string *error) const
+                                PacketStreamList *straems, std::vector<PacketPtr> *packets, std::string *error) const
 {
     Isolate::Scope isolate_scope(d->isolate);
     HandleScope handle_scope(d->isolate);
@@ -1018,11 +1018,11 @@ bool ScriptClass::analyzeStream(const PacketPtr &packet, const LayerPtr &parentL
 
         for (size_t i = 0; i < array->Length(); ++i) {
             Local<Object> obj = array->Get(i).As<Object>();
-            NetStream *ns = v8pp::class_<NetStream>::unwrap_object(d->isolate, obj);
+            PacketStream *ns = v8pp::class_<PacketStream>::unwrap_object(d->isolate, obj);
             if (ns) {
                 Local<Value> data = obj->Get(v8pp::to_v8(d->isolate, std::string("data")));
                 ns->data = v8ToMsgpack(data, &parentLayer->zone);
-                straems->push_back(std::make_shared<NetStream>(*ns));
+                straems->push_back(std::make_shared<PacketStream>(*ns));
             }
 
             StreamLayer *sl = v8pp::class_<StreamLayer>::unwrap_object(d->isolate, obj);

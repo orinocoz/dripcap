@@ -1,5 +1,5 @@
 import {
-  NetStream
+  PacketStream
 } from 'dripcap';
 
 export default class TCPStreamDissector {
@@ -13,7 +13,7 @@ export default class TCPStreamDissector {
 
   analyze(packet, layer, data, output) {
     if (layer.payload.length > 0) {
-      let stream = new NetStream('TCP Stream', layer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
+      let stream = new PacketStream('TCP Stream', layer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
 
       if (this.ctx.seq < 0) {
         this.ctx.length += layer.payload.length;

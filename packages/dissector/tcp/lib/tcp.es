@@ -1,7 +1,7 @@
 import {
   Layer,
   Buffer,
-  NetStream
+  PacketStream
 } from 'dripcap';
 import IPv4Host from 'dripcap/ipv4/host';
 import IPv6Host from 'dripcap/ipv6/host';
@@ -271,7 +271,7 @@ export default class TCPDissector {
         data: layer.payload
       });
 
-      let stream = new NetStream('TCP Stream', parentLayer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
+      let stream = new PacketStream('TCP Stream', parentLayer.namespace, layer.attrs.src + '/' + layer.attrs.dst);
       if (flags.get('FIN') && flags.get('ACK')) {
         stream.end();
       }

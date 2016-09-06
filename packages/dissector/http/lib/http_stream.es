@@ -1,5 +1,5 @@
 import {
-  NetStream,
+  PacketStream,
   StreamLayer
 } from 'dripcap';
 

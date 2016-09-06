@@ -12,13 +12,13 @@ enum StreamFlag {
 
 MSGPACK_ADD_ENUM(StreamFlag);
 
-class NetStream
+class PacketStream
 {
   public:
-    NetStream() = default;
-    NetStream(const NetStream &) = default;
-    NetStream(const std::string &name, const std::string &ns, const std::string &id);
-    ~NetStream();
+    PacketStream() = default;
+    PacketStream(const PacketStream &) = default;
+    PacketStream(const std::string &name, const std::string &ns, const std::string &id);
+    ~PacketStream();
     void end();
 
   public:
@@ -29,8 +29,8 @@ class NetStream
     StreamFlag flag = STREAM_NOOP;
 };
 
-typedef std::shared_ptr<NetStream> NetStreamPtr;
-typedef std::vector<NetStreamPtr> NetStreamList;
+typedef std::shared_ptr<PacketStream> PacketStreamPtr;
+typedef std::vector<PacketStreamPtr> PacketStreamList;
 
 namespace msgpack
 {
@@ -40,9 +40,9 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
     {
 
     template <>
-    struct pack<NetStreamPtr> {
+    struct pack<PacketStreamPtr> {
         template <typename Stream>
-        msgpack::packer<Stream> &operator()(msgpack::packer<Stream> &o, NetStreamPtr const &v) const
+        msgpack::packer<Stream> &operator()(msgpack::packer<Stream> &o, PacketStreamPtr const &v) const
         {
             o.pack_map(5);
             o.pack("name");
@@ -60,8 +60,8 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
     };
 
     template <>
-    struct convert<NetStreamPtr> {
-        msgpack::object const &operator()(msgpack::object const &o, NetStreamPtr &v) const
+    struct convert<PacketStreamPtr> {
+        msgpack::object const &operator()(msgpack::object const &o, PacketStreamPtr &v) const
         {
             const auto &map = o.as<std::unordered_map<std::string, msgpack::object>>();
             const auto &name = map.find("name");
@@ -70,7 +70,7 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
             const auto &data = map.find("data");
             const auto &flag = map.find("flag");
 
-            v.reset(new NetStream());
+            v.reset(new PacketStream());
             if (name != map.end()) {
                 v->name = name->second.as<std::string>();
             }

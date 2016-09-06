@@ -1,6 +1,6 @@
 #include "dispatcher.hpp"
 #include "layer.hpp"
-#include "net_stream.hpp"
+#include "packet_stream.hpp"
 #include "packet.hpp"
 #include "script_class.hpp"
 #include "object_cache.hpp"
@@ -306,7 +306,7 @@ Dispatcher::Dispatcher(const std::string &path)
 
             lock.unlock();
 
-            typedef std::unordered_map<LayerPtr, NetStreamList> StreamList;
+            typedef std::unordered_map<LayerPtr, PacketStreamList> StreamList;
             std::function<StreamList(const LayerList &)> findStreams = [&findStreams](const LayerList &layers) {
                 StreamList list;
                 for (const auto &pair : layers) {
@@ -324,7 +324,7 @@ Dispatcher::Dispatcher(const std::string &path)
                 list.swap(streamList);
 
                 for (const auto &pair : list) {
-                    for (const NetStreamPtr &net : pair.second) {
+                    for (const PacketStreamPtr &net : pair.second) {
                         std::string id = net->ns;
                         id.append(1, '\0');
                         id.append(net->id);
@@ -352,7 +352,7 @@ Dispatcher::Dispatcher(const std::string &path)
                             if (stream.started) {
                                 for (const ScriptClassPtr &script : stream.dissectors) {
                                     std::string err;
-                                    NetStreamList streams;
+                                    PacketStreamList streams;
                                     std::vector<PacketPtr> packets;
                                     if (!script->analyzeStream(pkt, pair.first, net->data, &stream.context, &zone, &streams, &packets, &err)) {
                                         spd->error("{}", err);
@@ -370,7 +370,7 @@ Dispatcher::Dispatcher(const std::string &path)
                             }
                             for (const ScriptClassPtr &script : stream.dissectors) {
                                 std::string err;
-                                NetStreamList streams;
+                                PacketStreamList streams;
                                 std::vector<PacketPtr> packets;
                                 if (!script->analyzeStream(pkt, pair.first, net->data, &stream.context, &zone, &streams, &packets, &err)) {
                                     spd->error("{}", err);
