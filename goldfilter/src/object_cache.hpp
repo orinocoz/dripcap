@@ -74,6 +74,7 @@ class ObjectCache
 {
   public:
     ObjectCache(const std::string &path);
+    ~ObjectCache();
     V get(const K &id) const;
     bool has(const K &id) const;
     void set(const K &id, const V &obj);
@@ -85,6 +86,7 @@ class ObjectCache
   private:
     std::unique_ptr<CacheComparator<K>> comp;
     std::unique_ptr<leveldb::DB> db;
+    std::string path;
 
     mutable int cacheIndex;
     mutable std::array<K, 1024> cacheBuffer;
@@ -96,6 +98,7 @@ class ObjectCache
 template <class K, class V>
 ObjectCache<K, V>::ObjectCache(const std::string &path)
     : comp(new CacheComparator<K>()),
+      path(path),
       cacheIndex(0),
       cacheBuffer({})
 {
@@ -108,6 +111,13 @@ ObjectCache<K, V>::ObjectCache(const std::string &path)
         spdlog::get("console")->error("{}", status.ToString());
     }
     db.reset(leveldb);
+}
+
+template <class K, class V>
+ObjectCache<K, V>::~ObjectCache()
+{
+    db.reset();
+    leveldb::DestroyDB(path, leveldb::Options());
 }
 
 template <class K, class V>
