@@ -782,7 +782,7 @@ ScriptClass::Private::Private(const msgpack::object &options)
     v8pp::module console(isolate);
     console.set("error", [](FunctionCallbackInfo<Value> const &args) {
         auto spd = spdlog::get("server");
-        for (size_t i = 0; i < args.Length(); ++i) {
+        for (int i = 0; i < args.Length(); ++i) {
             String::Utf8Value data(args[i]);
             spd->error("{}", *data);
         }
