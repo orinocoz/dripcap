@@ -573,7 +573,7 @@ std::vector<uint64_t> Dispatcher::getFiltered(const std::string &name, uint64_t 
     std::lock_guard<std::mutex> lock(d->mutex);
     const auto &it = d->filterdPackets.find(name);
     if (it != d->filterdPackets.end()) {
-        for (uint64_t i = start; i < end; ++i) {
+        for (uint64_t i = start - 1; i < end; ++i) {
             if (i >= it->second->size())
                 break;
             packets.push_back(it->second->at(i));
