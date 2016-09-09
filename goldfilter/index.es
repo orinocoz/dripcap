@@ -496,7 +496,7 @@ export default class GoldFilter extends EventEmitter {
 
     if (process.platform === 'linux') {
       try {
-        const script = `cp ${bundle} ${exe} && ${exe} --set-perm`;
+        const script = `cp ${bundle} ${exe} && setcap cap_net_raw,cap_net_admin=eip ${exe}`;
         if (childProcess.spawnSync('kdesudo', ['--help']).status === 0)
           childProcess.execFileSync('kdesudo', ['--', 'sh', '-c', script]);
         else if (childProcess.spawnSync('gksu', ['-h']).status === 0)
