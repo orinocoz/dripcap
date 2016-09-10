@@ -8,10 +8,13 @@
 #include "pcap_dummy.hpp"
 #include "script_class.hpp"
 #include "status.hpp"
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/sink.h>
-#include <v8pp/module.hpp>
+#include <chrono>
+#include <condition_variable>
 #include <iostream>
+#include <spdlog/sinks/sink.h>
+#include <spdlog/spdlog.h>
+#include <thread>
+#include <v8pp/module.hpp>
 
 namespace console
 {
@@ -89,16 +92,48 @@ class Server::Private
     std::mutex logMutex;
     std::array<LogPtr, 128> logBuffer;
     size_t logBufferIndex = 0;
+
+    std::mutex pingMutex;
+    std::condition_variable pingCond;
+    std::thread pingThread;
+    bool pingReceived;
+    bool pingQuit;
 };
 
 Server::Private::Private(const std::string &sock, const std::string &tmp)
-    : capturing(false), server(sock)
+    : capturing(false), server(sock), pingReceived(false), pingQuit(false)
 {
     dispatcher.reset(new Dispatcher(tmp));
+
+    pingThread = std::thread([this]() {
+        while (true) {
+            using namespace std::chrono;
+            steady_clock::time_point tp = steady_clock::now() + seconds(30);
+            std::unique_lock<std::mutex> lock(pingMutex);
+            if (pingCond.wait_until(lock, tp) == std::cv_status::timeout) {
+                if (pingReceived) {
+                    pingReceived = false;
+                } else {
+                    server.stop();
+                    return;
+                }
+            } else if (pingQuit) {
+                return;
+            }
+        }
+    });
 }
 
 Server::Private::~Private()
 {
+    {
+        std::lock_guard<std::mutex> lock(pingMutex);
+        pingQuit = true;
+    }
+    pingCond.notify_all();
+    if (pingThread.joinable()) {
+        pingThread.join();
+    }
 }
 
 class Server::LoggerSink : public spdlog::sinks::sink
@@ -164,6 +199,14 @@ Server::Server(const std::string &sock, const std::string &tmp)
     d->server.handle("stop", [this](const msgpack::object &arg, ReplyInterface &reply) {
         d->pcap->stop();
         d->capturing = false;
+        reply();
+    });
+
+    d->server.handle("ping", [this](const msgpack::object &arg, ReplyInterface &reply) {
+        {
+            std::lock_guard<std::mutex> lock(d->pingMutex);
+            d->pingReceived = true;
+        }
         reply();
     });
 

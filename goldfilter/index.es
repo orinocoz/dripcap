@@ -185,6 +185,11 @@ export default class GoldFilter extends EventEmitter {
 
           delete this.callbacks[callid];
         });
+
+        this.pingTimer = setInterval(() => {
+          this._call('ping');
+        }, 10000);
+
         res();
       })
     })
@@ -449,6 +454,7 @@ export default class GoldFilter extends EventEmitter {
   }
 
   close() {
+    clearInterval(this.pingTimer);
     return this._call('exit');
   }
 

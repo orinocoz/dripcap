@@ -47,12 +47,10 @@ class MsgpackServer::Private
     std::string path;
     std::unordered_map<std::string, MsgpackCallback> handlers;
     int ssock, csock;
-    bool active;
 };
 
 MsgpackServer::Private::Private()
-    : ssock(0),
-      active(false)
+    : ssock(0)
 {
 }
 
@@ -99,7 +97,6 @@ void MsgpackServer::handle(const std::string &command,
 
 bool MsgpackServer::start()
 {
-    d->active = false;
     struct sigaction sigIntHandler;
 
     sigIntHandler.sa_handler = [](int sig) {
@@ -148,8 +145,7 @@ bool MsgpackServer::start()
     size_t const try_read_size = 256;
     msgpack::unpacker unp;
 
-    d->active = true;
-    while (d->active) {
+    while (true) {
         unp.reserve_buffer(try_read_size);
         ssize_t actual_read_size = read(d->csock, unp.buffer(), try_read_size);
         if (actual_read_size <= 0) {
@@ -177,8 +173,6 @@ bool MsgpackServer::start()
                 Reply reply(d->csock, std::get<1>(tuple));
                 (it->second)(std::get<2>(tuple), reply);
             }
-            if (!d->active)
-                break;
         }
     }
 
@@ -189,9 +183,7 @@ bool MsgpackServer::start()
 
 bool MsgpackServer::stop()
 {
-    if (d->active) {
-        d->active = false;
-        return true;
-    }
-    return false;
+    shutdown(d->csock, SHUT_RDWR);
+    close(d->csock);
+    return true;
 }

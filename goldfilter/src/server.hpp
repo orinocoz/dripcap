@@ -1,8 +1,8 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
-#include <string>
 #include <memory>
+#include <string>
 
 class Server final
 {
