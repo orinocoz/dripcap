@@ -2,10 +2,10 @@
 #define PACKET_HPP
 
 #include "layer.hpp"
+#include <memory>
 #include <msgpack.hpp>
 #include <sstream>
 #include <vector>
-#include <memory>
 
 struct Packet {
     Packet() = default;

@@ -1,9 +1,9 @@
 #include "dispatcher.hpp"
 #include "layer.hpp"
-#include "packet_stream.hpp"
-#include "packet.hpp"
-#include "script_class.hpp"
 #include "object_cache.hpp"
+#include "packet.hpp"
+#include "packet_stream.hpp"
+#include "script_class.hpp"
 #include <condition_variable>
 #include <mutex>
 #include <queue>

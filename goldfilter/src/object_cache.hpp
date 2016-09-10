@@ -1,9 +1,10 @@
 #ifndef OBJECT_CACHE_HPP
 #define OBJECT_CACHE_HPP
 
-#include <leveldb/db.h>
 #include <leveldb/comparator.h>
+#include <leveldb/db.h>
 #include <spdlog/spdlog.h>
+#include <sstream>
 #include <string>
 
 template <class K>
