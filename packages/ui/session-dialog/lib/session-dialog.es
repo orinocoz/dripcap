@@ -73,9 +73,10 @@ export default class SessionDialog {
             });
 
             Action.on('core:new-session', () => {
+              this.view.show();
+              this.view.update();
               Session.getInterfaceList().then(list => {
                 this.view.setInterfaceList(list);
-                this.view.show();
                 this.view.update();
               });
             });
