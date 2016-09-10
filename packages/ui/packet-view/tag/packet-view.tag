@@ -270,7 +270,7 @@
       margin-left: 10px;
     }
     .text-summary {
-      padding-left: 10px;
+      padding: 0 10px;
     }
     ul {
       padding-left: 20px;
