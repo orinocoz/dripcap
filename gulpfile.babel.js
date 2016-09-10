@@ -7,6 +7,7 @@ import zip from 'gulp-vinyl-zip';
 import sequence from 'gulp-sequence';
 import runElectron from "gulp-run-electron";
 import mocha from 'gulp-mocha';
+import preservetime from 'gulp-preservetime';
 import fs from 'fs';
 import path from 'path';
 import glob from 'glob';
@@ -37,6 +38,7 @@ gulp.task('babel', () =>
   })
   .pipe(babel())
   .pipe(gulp.dest('./.build/js/'))
+  .pipe(preservetime())
 );
 
 gulp.task('copy', () =>
@@ -46,7 +48,7 @@ gulp.task('copy', () =>
     './src/*.less'
   ])
   .pipe(gulp.dest('./.build'))
-
+  .pipe(preservetime())
 );
 
 gulp.task('copypkg', () =>
@@ -58,7 +60,7 @@ gulp.task('copypkg', () =>
     base: './'
   })
   .pipe(gulp.dest('./.build/'))
-
+  .pipe(preservetime())
 );
 
 gulp.task('npm', ['copypkg'], async function() {
@@ -123,7 +125,7 @@ gulp.task('debian-pkg', cb =>
 gulp.task('debian-goldfilter', cb =>
   gulp.src('./.build/node_modules/goldfilter/build/goldfilter')
   .pipe(gulp.dest('./.debian/usr/bin/'))
-
+  .pipe(preservetime())
 );
 
 gulp.task('debian-bin', ['copy', 'babel', 'copypkg', 'npm'], cb =>
