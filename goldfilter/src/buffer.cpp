@@ -202,13 +202,11 @@ void Buffer::toString(const v8::FunctionCallbackInfo<v8::Value> &args) const
         const char *s = reinterpret_cast<const char *>(vec->data()) + start;
         args.GetReturnValue().Set(v8pp::to_v8(isolate, std::string(s, end - start)));
     } else if (type == "hex") {
-        std::string hex;
+        std::stringstream stream;
         for (size_t i = start; i < end; ++i) {
-            std::stringstream stream;
             stream << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(vec->at(i));
-            hex += stream.str();
         }
-        args.GetReturnValue().Set(v8pp::to_v8(isolate, hex));
+        args.GetReturnValue().Set(v8pp::to_v8(isolate, stream.str()));
     } else {
         std::string err("Unknown encoding: ");
         args.GetReturnValue().Set(v8pp::throw_ex(isolate, (err + type).c_str()));
@@ -219,11 +217,11 @@ std::string Buffer::valueOf() const
 {
     size_t tail = std::min(start + 16, end);
     std::string str("<Buffer ");
+    std::stringstream stream;
     for (size_t i = start; i < tail; ++i) {
-        std::stringstream stream;
         stream << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(vec->at(i)) << " ";
-        str += stream.str();
     }
+    str += stream.str();
     if (end - start > 16)
         str += "...";
     return str + ">";
@@ -267,11 +265,11 @@ std::string Payload::valueOf() const
 {
     size_t tail = std::min(start + 16, end);
     std::string str("<Payload ");
+    std::stringstream stream;
     for (size_t i = start; i < tail; ++i) {
-        std::stringstream stream;
         stream << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(vec->at(i)) << " ";
-        str += stream.str();
     }
+    str += stream.str();
     if (end - start > 16)
         str += "...";
     return str + ">";
