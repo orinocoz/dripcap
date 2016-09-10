@@ -3,29 +3,29 @@
     import riot from 'riot';
     this.on('mount', () => {
       if (opts.tag != null) {
-        riot.mount(this.root, opts.tag, {value: opts.value});
+        riot.mount(this.root, opts.tag, {value: opts.val});
       }
     });
   </script>
 </packet-view-custom-value>
 
 <packet-view-boolean-value>
-  <i class="fa fa-check-square-o" if={ opts.value }></i>
-  <i class="fa fa-square-o" if={ !opts.value }></i>
+  <i class="fa fa-check-square-o" if={ opts.val }></i>
+  <i class="fa fa-square-o" if={ !opts.val }></i>
 </packet-view-boolean-value>
 
 <packet-view-buffer-value>
-  <i>{ opts.value.length } bytes</i>
+  <i>{ opts.val.length } bytes</i>
 </packet-view-buffer-value>
 
 <packet-view-integer-value>
   <i if={ base==2 } oncontextmenu={ context }>
-    <i class="base">0b</i>{ opts.value.toString(2) }</i>
+    <i class="base">0b</i>{ opts.val.toString(2) }</i>
   <i if={ base==8 } oncontextmenu={ context }>
-    <i class="base">0</i>{ opts.value.toString(8) }</i>
-  <i if={ base==10 } oncontextmenu={ context }>{ opts.value.toString(10) }</i>
+    <i class="base">0</i>{ opts.val.toString(8) }</i>
+  <i if={ base==10 } oncontextmenu={ context }>{ opts.val.toString(10) }</i>
   <i if={ base==16 } oncontextmenu={ context }>
-    <i class="base">0x</i>{ opts.value.toString(16) }</i>
+    <i class="base">0x</i>{ opts.val.toString(16) }</i>
   <script type="babel">
     import {remote} from 'electron';
     import {Menu} from 'dripcap';
@@ -44,8 +44,8 @@
     import $ from 'jquery';
 
     this.on('update', () => {
-      if (this.opts.value != null) {
-        this.root.innerHTML = $('<div/>').text(this.opts.value.toString()).html();
+      if (this.opts.val != null) {
+        this.root.innerHTML = $('<div/>').text(this.opts.val.toString()).html();
       }
     });
   </script>
@@ -58,11 +58,11 @@
     <i class="fa fa-arrow-circle-right" show={ opts.field.fields && !show }></i>
     <i class="fa fa-arrow-circle-down" show={ opts.field.fields && show }></i>
     <a class="text-label">{ opts.field.name }:</a>
-    <packet-view-boolean-value if={ type=='boolean' } value={ value }></packet-view-boolean-value>
-    <packet-view-integer-value if={ type=='integer' } value={ value }></packet-view-integer-value>
-    <packet-view-string-value if={ type=='string' } value={ value }></packet-view-string-value>
-    <packet-view-buffer-value if={ type=='buffer' } value={ value }></packet-view-buffer-value>
-    <packet-view-custom-value if={ type=='custom' } tag={ tag } value={ value }></packet-view-custom-value>
+    <packet-view-boolean-value if={ type=='boolean' } val={ val }></packet-view-boolean-value>
+    <packet-view-integer-value if={ type=='integer' } val={ val }></packet-view-integer-value>
+    <packet-view-string-value if={ type=='string' } val={ val }></packet-view-string-value>
+    <packet-view-buffer-value if={ type=='buffer' } val={ val }></packet-view-buffer-value>
+    <packet-view-custom-value if={ type=='custom' } tag={ tag } val={ val }></packet-view-custom-value>
   </p>
   <ul show={ opts.field.fields && show }>
     <packet-view-item each={ f in opts.field.fields } layer={ opts.layer } field={ f }></packet-view-item>
@@ -97,17 +97,17 @@
   this.on('update', () => {
     this.layer = opts.layer;
 
-    this.value = (opts.field.value != null)
+    this.val = (opts.field.value != null)
       ? opts.field.value
       : this.layer.attrs[opts.field.attr];
 
     return this.type = (opts.field.tag != null)
       ? (this.tag = opts.field.tag, 'custom')
-      : typeof this.value === 'boolean'
+      : typeof this.val === 'boolean'
         ? 'boolean'
-        : Number.isInteger(this.value)
+        : Number.isInteger(this.val)
           ? 'integer'
-          : Buffer.isBuffer(this.value)
+          : Buffer.isBuffer(this.val)
             ? 'buffer'
             : 'string';
   });
