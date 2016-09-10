@@ -2,6 +2,8 @@ import assert from 'assert';
 
 describe('packet view', function() {
   it('shows layers', async function() {
+    let option = '[riot-tag=session-dialog] select[name=interface] option';
+    await this.app.client.waitForExist(option, 10000);
     this.app.webContents.executeJavaScript('require("jquery")("[riot-tag=session-dialog] input[type=button]").click();');
     let item = '[riot-tag=packet-list-view] div.packet.list-item';
     await this.app.client.waitForExist(item, 10000);
