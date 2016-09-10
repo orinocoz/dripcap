@@ -204,7 +204,6 @@ export default class GoldFilter extends EventEmitter {
           let num = ('00' + count).slice(-3);
           let packetPath = path.join(testPath, `packet${num}.msgpack`);
           let packet = msgpack.decode(fs.readFileSync(packetPath));
-          packet.payload = new Buffer(packet.payload.buffer);
           packets.push(packet);
         }
       } catch (e) {}

@@ -96,12 +96,8 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
                 v->len = len->second.as<uint32_t>();
             }
             if (payload != map.end()) {
-                try {
-                    msgpack::type::ext ext = payload->second.as<msgpack::type::ext>();
-                    v->payload.assign(ext.data(), ext.data() + ext.size());
-                } catch (const std::exception &e) {
-                    v->payload = payload->second.as<std::vector<unsigned char>>();
-                }
+                msgpack::type::ext ext = payload->second.as<msgpack::type::ext>();
+                v->payload.assign(ext.data(), ext.data() + ext.size());
             }
             if (layers != map.end()) {
                 msgpack::type::ext ext = layers->second.as<msgpack::type::ext>();
