@@ -38,9 +38,19 @@ $(BUILDDIR):
 	mkdir -p $(BUILDDIR)
 
 clean:
-	@rm -rf $(OBJS) $(TARGET) $(BUILDDIR)
+	@rm -rf $(OBJS) $(TARGET) $(BUILDDIR) $(DEPS)
 
 fmt:
 	@clang-format -i **/*.cpp **/*.hpp
 
 .PHONY: clean fmt
+
+ifneq ($(MAKECMDGOALS),clean)
+
+DEPS := $(patsubst %.cpp,%.d, $(SOURCE))
+
+%.d:%.cpp
+	@$(CXX) $(CXXFLAGS) -MF"$@" -MG -MM -MP -MT"$@" -MT"$(<:.cpp=.o)" "$<"
+
+-include $(DEPS)
+endif

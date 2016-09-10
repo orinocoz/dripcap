@@ -41,3 +41,6 @@ build
 
 # npm
 node_modules
+
+# dependencies
+*.d
