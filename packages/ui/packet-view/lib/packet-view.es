@@ -37,7 +37,6 @@ export default class PacketListView {
     });
 
     PubSub.sub('packet-list-view:select', pkt => {
-      console.log(pkt)
       this.view.set(pkt);
       this.view.update();
     });
