@@ -18,6 +18,10 @@
   <i>{ opts.val.length } bytes</i>
 </packet-view-buffer-value>
 
+<packet-view-stream-value>
+  <i>{ opts.val.length } bytes</i>
+</packet-view-stream-value>
+
 <packet-view-integer-value>
   <i if={ base==2 } oncontextmenu={ context }>
     <i class="base">0b</i>{ opts.val.toString(2) }</i>
@@ -62,6 +66,7 @@
     <packet-view-integer-value if={ type=='integer' } val={ val }></packet-view-integer-value>
     <packet-view-string-value if={ type=='string' } val={ val }></packet-view-string-value>
     <packet-view-buffer-value if={ type=='buffer' } val={ val }></packet-view-buffer-value>
+    <packet-view-stream-value if={ type=='stream' } val={ val }></packet-view-stream-value>
     <packet-view-custom-value if={ type=='custom' } tag={ tag } val={ val }></packet-view-custom-value>
   </p>
   <ul show={ opts.field.fields && show }>
@@ -72,6 +77,7 @@
 <script type="babel">
   import {remote} from 'electron';
   import {Menu} from 'dripcap';
+  import BufferStream from 'goldfilter/stream';
   this.show = false;
 
   this.toggle = e => {
@@ -109,7 +115,9 @@
           ? 'integer'
           : Buffer.isBuffer(this.val)
             ? 'buffer'
-            : 'string';
+            : BufferStream.isStream(this.val)
+              ? 'stream'
+                : 'string';
   });
 </script>
 

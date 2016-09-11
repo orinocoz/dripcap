@@ -35,36 +35,9 @@ export default class BinaryView {
       r.addClass('selected');
     });
 
-    PubSub.sub('packet-list-view:select', function(pkt) {
-      ulhex.empty();
-      ulascii.empty();
-
-      let {
-        payload
-      } = pkt;
-
-      let hexhtml = '';
-      let asciihtml = '';
-
-      for (let i = 0; i < payload.length; i++) {
-        var b = payload[i];
-        let hex = ('0' + b.toString(16)).slice(-2);
-        hexhtml += `<i class="list-item">${hex}</i>`;
-      }
-
-      for (let j = 0; j < payload.length; j++) {
-        var b = payload[j];
-        let text =
-          0x21 <= b && b <= 0x7e ?
-          String.fromCharCode(b) :
-          '.';
-        asciihtml += `<i class="list-item">${text}</i>`;
-      }
-
-      process.nextTick(function() {
-        ulhex[0].innerHTML = hexhtml;
-        ulascii[0].innerHTML = asciihtml;
-      });
+    PubSub.sub('packet-list-view:select', (pkt) => {
+      this.view.set(pkt);
+      this.view.update();
     });
   }
 
