@@ -1,7 +1,7 @@
 import {
   Application
 } from 'spectron'
-import electron from 'electron-prebuilt';
+import electron from 'electron';
 
 beforeEach(function() {
   this.app = new Application({

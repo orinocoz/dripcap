@@ -23,7 +23,7 @@ before_install:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then source travis/osx-before-install.sh ;
   fi
 install:
-- npm install --depth 0 -g gulp electron-prebuilt babel-cli
+- npm install --depth 0 -g gulp electron babel-cli
 - npm install babel-plugin-add-module-exports babel-plugin-transform-async-to-generator
   babel-plugin-transform-es2015-modules-commonjs
 - npm install --depth 0
