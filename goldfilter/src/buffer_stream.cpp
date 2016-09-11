@@ -46,50 +46,50 @@ BufferStream::Private::~Private()
 
 uint64_t BufferStream::Private::chunks() const
 {
-  if (db) {
-    const std::string &keyBuffer = id + ".chunks";
-    std::string value;
-    leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
-    leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
-    if (s.ok() && value.size() == sizeof(uint64_t)) {
-      return *reinterpret_cast<const uint64_t*>(value.data());
+    if (db) {
+        const std::string &keyBuffer = id + ".chunks";
+        std::string value;
+        leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
+        leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
+        if (s.ok() && value.size() == sizeof(uint64_t)) {
+            return *reinterpret_cast<const uint64_t *>(value.data());
+        }
     }
-  }
-  return 0;
+    return 0;
 }
 
 void BufferStream::Private::setChunks(uint64_t chunks)
 {
-  if (db) {
-    const std::string &keyBuffer = id + ".chunks";
-    leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
-    leveldb::Slice value(reinterpret_cast<const char *>(&chunks), sizeof(chunks));
-    db->Put(leveldb::WriteOptions(), key, value);
-  }
+    if (db) {
+        const std::string &keyBuffer = id + ".chunks";
+        leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
+        leveldb::Slice value(reinterpret_cast<const char *>(&chunks), sizeof(chunks));
+        db->Put(leveldb::WriteOptions(), key, value);
+    }
 }
 
 uint64_t BufferStream::Private::length() const
 {
-  if (db) {
-    const std::string &keyBuffer = id + ".length";
-    std::string value;
-    leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
-    leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
-    if (s.ok() && value.size() == sizeof(uint64_t)) {
-      return *reinterpret_cast<const uint64_t*>(value.data());
+    if (db) {
+        const std::string &keyBuffer = id + ".length";
+        std::string value;
+        leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
+        leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
+        if (s.ok() && value.size() == sizeof(uint64_t)) {
+            return *reinterpret_cast<const uint64_t *>(value.data());
+        }
     }
-  }
-  return 0;
+    return 0;
 }
 
 void BufferStream::Private::setLength(uint64_t length)
 {
-  if (db) {
-    const std::string &keyBuffer = id + ".length";
-    leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
-    leveldb::Slice value(reinterpret_cast<const char *>(&length), sizeof(length));
-    leveldb::Status s = db->Put(leveldb::WriteOptions(), key, value);
-  }
+    if (db) {
+        const std::string &keyBuffer = id + ".length";
+        leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
+        leveldb::Slice value(reinterpret_cast<const char *>(&length), sizeof(length));
+        leveldb::Status s = db->Put(leveldb::WriteOptions(), key, value);
+    }
 }
 
 std::string BufferStream::Private::indexID(uint64_t index) const
@@ -148,8 +148,8 @@ void BufferStream::write(const v8::FunctionCallbackInfo<v8::Value> &args)
         ok = true;
     }
     if (ok) {
-      d->setChunks(chunks);
-      d->setLength(length);
+        d->setChunks(chunks);
+        d->setLength(length);
     }
     args.GetReturnValue().Set(v8pp::to_v8(isolate, Boolean::New(isolate, ok)));
 }

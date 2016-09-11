@@ -18,19 +18,9 @@ Buffer::Buffer(const v8::FunctionCallbackInfo<v8::Value> &args)
     : holder(std::make_shared<Data>()), vec(holder.get()), start(0), end(holder->size())
 {
     Isolate *isolate = Isolate::GetCurrent();
+    Buffer *buffer;
 
-    if (args.Length() == 1) {
-        Buffer *buffer;
-        if ((buffer = v8pp::class_<Buffer>::unwrap_object(isolate, args[0]))) {
-            Buffer::Data buf;
-            holder->assign(buffer->data() + buffer->start, buffer->data() + (buffer->end - buffer->start));
-        } else {
-            const auto &array = v8pp::from_v8<std::vector<unsigned char>>(isolate, args[0], std::vector<unsigned char>());
-            for (unsigned char c : array) {
-                holder->push_back(c);
-            }
-        }
-    } else if (args.Length() == 2) {
+    if (args[0]->IsString()) {
         const std::string &str = v8pp::from_v8<std::string>(isolate, args[0], "");
         const std::string &type = v8pp::from_v8<std::string>(isolate, args[1], "utf8");
 
@@ -51,6 +41,16 @@ Buffer::Buffer(const v8::FunctionCallbackInfo<v8::Value> &args)
             std::string err("Unknown encoding: ");
             throw std::invalid_argument(err + type);
         }
+    } else if (args[0]->IsArray()) {
+        const auto &array = v8pp::from_v8<std::vector<unsigned char>>(isolate, args[0], std::vector<unsigned char>());
+        for (unsigned char c : array) {
+            holder->push_back(c);
+        }
+    } else if ((buffer = v8pp::class_<Buffer>::unwrap_object(isolate, args[0]))) {
+        Buffer::Data buf;
+        holder->assign(buffer->data() + buffer->start, buffer->data() + (buffer->end - buffer->start));
+    } else {
+        args.GetReturnValue().Set(v8pp::throw_ex(isolate, "First argument must be a string, Buffer, or Array"));
     }
 
     end = holder->size();

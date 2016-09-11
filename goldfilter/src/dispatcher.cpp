@@ -460,14 +460,14 @@ std::vector<unsigned char> Dispatcher::readStream(const std::string &id, uint64_
 
 uint64_t Dispatcher::streamLength(const std::string &id) const
 {
-  const std::string& keyBuffer = id + ".length";
-  leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
-  std::string value;
-  leveldb::Status s = d->db->Get(leveldb::ReadOptions(), key, &value);
-  if (s.ok() && value.size() == sizeof(uint64_t)) {
-      return *reinterpret_cast<const uint64_t*>(value.data());
-  }
-  return 0;
+    const std::string &keyBuffer = id + ".length";
+    leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
+    std::string value;
+    leveldb::Status s = d->db->Get(leveldb::ReadOptions(), key, &value);
+    if (s.ok() && value.size() == sizeof(uint64_t)) {
+        return *reinterpret_cast<const uint64_t *>(value.data());
+    }
+    return 0;
 }
 
 bool Dispatcher::loadDissector(const std::string &path, const msgpack::object &options, std::string *error)
