@@ -127,43 +127,43 @@ export default class PackageInterface extends PubSub {
   async install(name) {
     let registry = this.parent.profile.getConfig('package-registry');
     let pkgpath = path.join(config.userPackagePath, name);
-
     let host = await this.resolveRegistry(registry);
-
-    if (this.list[name] != null) {
-      throw Error(`Package ${name} is already installed`);
-    }
 
     await new Promise((res) => {
       npm.load({production: true}, res);
     });
 
-    let tarurl = await new Promise((res) => {
-      request(host + '/registry/' + name, function (error, response, body) {
+    let data = await new Promise((res) => {
+      request(host + '/registry/' + name, (error, response, body) => {
         if (!error && response.statusCode == 200) {
-          let data = JSON.parse(body);
-          let vars = Object.keys(data.versions);
-          vars.sort(semver.rcompare);
-          let pkg = data.versions[vars[0]];
-          if ((pkg.engines != null) && (pkg.engines.dripcap != null)) {
-            let ver = pkg.engines.dripcap;
-            if (semver.satisfies(config.version, ver)) {
-              if ((pkg.dist != null) && (pkg.dist.tarball != null)) {
-                res(pkg.dist.tarball);
-              } else {
-                throw new Error('Tarball not found');
-              }
-            } else {
-              throw new Error('Dripcap version mismatch');
-            }
-          } else {
-            throw new Error('This package is not for dripcap');
-          }
+          res(JSON.parse(body));
         } else {
           throw e;
         }
       });
     });
+
+    let vars = Object.keys(data.versions);
+    vars.sort(semver.rcompare);
+    if (this.list[name] != null && semver.gte(this.list[name].version, vars[0])) {
+      throw new Error(`Package ${name} is already installed`);
+    }
+    let pkg = data.versions[vars[0]];
+    if ((pkg.engines != null) && (pkg.engines.dripcap != null)) {
+      let ver = pkg.engines.dripcap;
+      if (semver.satisfies(config.version, ver)) {
+        if ((pkg.dist != null) && (pkg.dist.tarball != null)) {
+        } else {
+          throw new Error('Tarball not found');
+        }
+      } else {
+        throw new Error('Dripcap version mismatch');
+      }
+    } else {
+      throw new Error('This package is not for dripcap');
+    }
+
+    let tarurl = pkg.dist.tarball;
 
     let e = await new Promise(res => fs.stat(pkgpath, e => res(e)));
     if (e == null) {
