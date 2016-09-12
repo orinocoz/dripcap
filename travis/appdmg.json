@@ -12,6 +12,6 @@
     "x": 180,
     "y": 180,
     "type": "file",
-    "path": "../.builtapp/dripcap-darwin/Dripcap.app"
+    "path": "../.builtapp/Dripcap-darwin-x64/Dripcap.app"
   }]
 }

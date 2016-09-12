@@ -8,6 +8,7 @@ import sequence from 'gulp-sequence';
 import runElectron from "gulp-run-electron";
 import mocha from 'gulp-mocha';
 import preservetime from 'gulp-preservetime';
+import packager from 'electron-packager';
 import fs from 'fs';
 import path from 'path';
 import glob from 'glob';
@@ -146,27 +147,24 @@ gulp.task('debian', sequence(
   'debian-goldfilter'
 ));
 
-gulp.task('darwin', ['build'], cb =>
-  gulp.src('./.build/**')
-  .pipe(electron({
+gulp.task('darwin', ['build'], cb => {
+  let options = {
+    dir: __dirname + '/.build',
     version: pkg.engines.electron,
+    out: __dirname + '/.builtapp',
     platform: 'darwin',
-    arch: 'x64',
-    token: process.env['ELECTRON_GITHUB_TOKEN'],
-    darwinBundleDocumentTypes: [{
-      name: 'Libpcap File Format',
-      role: 'Editor',
-      ostypes: [],
-      extensions: ['pcap'],
-      iconFile: ''
-    }],
-    darwinIcon: './images/dripcap.icns'
-  }))
-  .pipe(symdest('./.builtapp/dripcap-darwin'))
-
-);
-
-gulp.task('darwin-sign', ['darwin'], cb => exec('./macdeploy.sh', () => cb()));
+    'osx-sign': true
+  };
+  return new Promise((res, rej) => {
+    packager(options, (err, appPaths) => {
+      if (err != null) {
+        rej(err);
+      } else {
+        res(appPaths);
+      }
+    });
+  });
+});
 
 gulp.task('default', ['build'], function() {
   let env = {

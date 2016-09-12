@@ -14,20 +14,20 @@ security import dev.p12 -k ~/Library/Keychains/osx-build.keychain -P "" -T /usr/
 
 export DRIPCAP_DARWIN_SIGN=C0AC25D3DB05BDAF758A4E0A002F25F63F2FC93A
 
-gulp darwin-sign
+gulp darwin
 cd .builtapp
 
 git clone https://github.com/dripcap/dripcap-helper-gold.git dripcap-helper
-cp ./dripcap-darwin/dripcap.app/Contents/Resources/app/node_modules/goldfilter/build/goldfilter dripcap-helper/
+cp ./Dripcap-darwin-x64/dripcap.app/Contents/Resources/app/node_modules/goldfilter/build/goldfilter dripcap-helper/
 plutil -replace 'CFBundleVersion' -string `node -p "require('../package.json').version"` dripcap-helper/DripcapHelper/Info.plist
 cd dripcap-helper
 xcodebuild -configuration Release
 cd ..
 
-cp -r ./dripcap-helper/build/Release/Dripcap\ Helper\ Installer.app ./dripcap-darwin/dripcap.app/Contents/Frameworks
-codesign --deep --force --verify --verbose --sign "$DRIPCAP_DARWIN_SIGN" ./dripcap-darwin/dripcap.app/Contents/Frameworks/*
-codesign --deep --force --verify --verbose --sign "$DRIPCAP_DARWIN_SIGN" "./dripcap-darwin/dripcap.app"
-ditto -c -k --sequesterRsrc --keepParent ./dripcap-darwin/dripcap.app ../dripcap-darwin-amd64.zip
+cp -r ./dripcap-helper/build/Release/Dripcap\ Helper\ Installer.app ./Dripcap-darwin-x64/dripcap.app/Contents/Frameworks
+codesign --deep --force --verify --verbose --sign "$DRIPCAP_DARWIN_SIGN" ./Dripcap-darwin-x64/dripcap.app/Contents/Frameworks/*
+codesign --deep --force --verify --verbose --sign "$DRIPCAP_DARWIN_SIGN" "./Dripcap-darwin-x64/dripcap.app"
+ditto -c -k --sequesterRsrc --keepParent ./Dripcap-darwin-x64/dripcap.app ../dripcap-darwin-amd64.zip
 
 cd ..
 npm install --depth 0 -g appdmg
