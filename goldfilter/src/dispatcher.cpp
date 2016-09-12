@@ -546,7 +546,7 @@ void Dispatcher::insert(const PacketPtr &pkt)
     {
         std::lock_guard<std::mutex> lock(d->mutex);
 
-        if (d->waitingPackets.size() >= 1024) {
+        if (d->waitingPackets.size() >= 32) {
             d->dropped++;
             return;
         }
