@@ -4,7 +4,11 @@
   </p>
   <ul class="items">
     <li>
-      <input type="button" value="Install" onclick={ installPackage }>
+      <input type="button" show={ opts.pkg.status === 'none' }      value="Install v{opts.pkg.version}" onclick={ installPackage }>
+      <input type="button" show={ opts.pkg.status === 'old' }       value="Update to v{opts.pkg.version}" onclick={ installPackage }>
+      <input type="button" show={ opts.pkg.status === 'installed' } value="Up to date" disabled>
+      <input type="button" show={ opts.pkg.userPackage && opts.pkg.status !== 'none' } value="Uninstall" onclick={ uninstallPackage }>
+      </li>
     </li>
   </ul>
 </li>
@@ -28,7 +32,7 @@
 </ul>
 
 <ul>
-  <install-preferences-view-item each={ pkg in packageList } pkg={ pkg }></install-preferences-view-item>
+  <install-preferences-view-item each={ pkg in packages } pkg={ pkg }></install-preferences-view-item>
 </ul>
 
 <style type="text/less" scoped>
@@ -38,6 +42,7 @@
 <script type="babel">
   import $ from 'jquery';
   import request from 'request';
+  import semver from 'semver';
   import url from 'url';
   import {
     Package,
@@ -47,9 +52,11 @@
 
   this.installing = false;
   this.message = '';
-  this.packageList = [];
+  this.remotePackages = [];
+  this.packages = [];
 
   Action.on('core:preferences', () => {
+    this.reload();
     this.registry = Profile.getConfig('package-registry');
     Package.resolveRegistry(this.registry).then((host) => {
       request(url.resolve(host, '/list'), (err, res, body) => {
@@ -57,12 +64,32 @@
           this.message = "Error: failed to fetch the package lists!";
         } else {
           this.message = '';
-          this.packageList = JSON.parse(body);
+          this.remotePackages = JSON.parse(body);
         }
-        this.update();
+        this.reload();
       });
     });
   });
+
+  this.reload = () => {
+    this.packages = [];
+    for (let pkg of this.remotePackages) {
+      pkg.status = 'none';
+      let loaded = Package.list[pkg.name];
+      if (loaded != null) {
+        pkg.userPackage = loaded.userPackage;
+        if (semver.gt(pkg.version, loaded.version)) {
+          pkg.status = 'old';
+        } else {
+          pkg.status = 'installed';
+        }
+      }
+      this.packages.push(pkg);
+    }
+    this.update();
+  };
+
+  Package.sub('core:package-list-updated', this.reload);
 
   this.installPackage = e => {
     let {name} = e.item.pkg;
@@ -77,6 +104,15 @@
       this.installing = false;
       this.update();
     });
+  };
+
+  this.uninstallPackage = e => {
+    let {name} = e.item.pkg;
+    let pkg = Package.list[name];
+    if (pkg.config.get('enabled')) {
+      pkg.deactivate();
+    }
+    Package.uninstall(pkg.name);
   };
 </script>
 
@@ -99,6 +135,9 @@
           text-overflow: ellipsis;
         }
       }
+    }
+    input[type=button][disabled] {
+      opacity: 0.5;
     }
     ul.items {
       padding: 10px 0 0;
