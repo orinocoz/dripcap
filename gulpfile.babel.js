@@ -153,7 +153,8 @@ gulp.task('darwin', ['build'], cb => {
     version: pkg.engines.electron,
     out: __dirname + '/.builtapp',
     platform: 'darwin',
-    'osx-sign': true
+    'osx-sign': true,
+    icon: __dirname + '/images/dripcap.icns'
   };
   return new Promise((res, rej) => {
     packager(options, (err, appPaths) => {
