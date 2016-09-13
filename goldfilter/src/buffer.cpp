@@ -4,6 +4,39 @@
 
 using namespace v8;
 
+namespace
+{
+int search(const unsigned char *str, size_t strlen, const unsigned char *sub, size_t sublen)
+{
+    if (sublen > strlen)
+        return -1;
+    if (sublen == 0)
+        return 0;
+    size_t index = sublen;
+    while (index <= strlen) {
+        int shift = sublen;
+        for (int i = 0; i < sublen; ++i) {
+            unsigned char c = str[index - i - 1];
+            if (sub[sublen - i - 1] == c) {
+                shift--;
+                continue;
+            }
+            for (int j = 1; j < sublen - i; ++j) {
+                if (sub[sublen - i - j - 1] == c) {
+                    shift = j;
+                    i = sublen;
+                    break;
+                }
+            }
+        }
+        if (shift == 0)
+            return index - sublen;
+        index += shift;
+    }
+    return -1;
+}
+}
+
 Buffer::Buffer(const DataPtr &holder)
     : holder(holder), vec(holder.get()), start(0), end(holder->size())
 {
@@ -225,6 +258,16 @@ std::string Buffer::valueOf() const
     if (end - start > 16)
         str += "...";
     return str + ">";
+}
+
+int Buffer::indexOf(const v8::FunctionCallbackInfo<v8::Value> &args) const
+{
+    Isolate *isolate = Isolate::GetCurrent();
+    Buffer *buffer;
+    if ((buffer = v8pp::class_<Buffer>::unwrap_object(isolate, args[0]))) {
+        return search(data(), length(), buffer->data(), buffer->length());
+    }
+    return -1;
 }
 
 void Buffer::from(const v8::FunctionCallbackInfo<v8::Value> &args)

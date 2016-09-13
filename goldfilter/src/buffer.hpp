@@ -33,6 +33,7 @@ class Buffer
     void slice(const v8::FunctionCallbackInfo<v8::Value> &args) const;
     bool equals(const Buffer &buf) const;
     void toString(const v8::FunctionCallbackInfo<v8::Value> &args) const;
+    int indexOf(const v8::FunctionCallbackInfo<v8::Value> &args) const;
     std::string valueOf() const;
     const unsigned char *data() const;
     std::pair<size_t, size_t> range() const;

@@ -637,6 +637,7 @@ ScriptClass::Private::Private(leveldb::DB *db, const msgpack::object &options)
         .set("slice", &Buffer::slice)
         .set("equals", &Buffer::equals)
         .set("toString", &Buffer::toString)
+        .set("indexOf", &Buffer::indexOf)
         .set("valueOf", &Buffer::valueOf);
 
     buffer.class_function_template()->PrototypeTemplate()->SetIndexedPropertyHandler(indexOperator);
@@ -656,6 +657,7 @@ ScriptClass::Private::Private(leveldb::DB *db, const msgpack::object &options)
         .set("slice", &Payload::slice)
         .set("equals", &Buffer::equals)
         .set("toString", &Buffer::toString)
+        .set("indexOf", &Buffer::indexOf)
         .set("valueOf", &Payload::valueOf);
 
     payload.class_function_template()->PrototypeTemplate()->SetIndexedPropertyHandler(indexOperator);
@@ -724,8 +726,7 @@ ScriptClass::Private::Private(leveldb::DB *db, const msgpack::object &options)
         pkt->layers[layer->ns] = layer;
 
         args.GetReturnValue().Set(obj);
-    },
-                                                                    streamLayer.js_function_template()->GetFunction());
+    }, streamLayer.js_function_template()->GetFunction());
     dripcapModule.set("StreamLayer", streamLayerFunc);
 
     v8pp::class_<BufferStream> bufferStream(isolate);
@@ -743,8 +744,7 @@ ScriptClass::Private::Private(leveldb::DB *db, const msgpack::object &options)
         ScriptClass::Private *d = static_cast<ScriptClass::Private *>(external->Value());
         bs->setDB(d->db);
         args.GetReturnValue().Set(obj);
-    },
-                                                                     bufferStream.js_function_template()->GetFunction());
+    }, bufferStream.js_function_template()->GetFunction());
     dripcapModule.set("BufferStream", bufferStreamFunc);
 
     Local<FunctionTemplate> layerFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
@@ -756,8 +756,7 @@ ScriptClass::Private::Private(leveldb::DB *db, const msgpack::object &options)
         obj->ForceSet(v8pp::to_v8(isolate, "streams"), Array::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
 
         args.GetReturnValue().Set(obj);
-    },
-                                                              layer.js_function_template()->GetFunction());
+    }, layer.js_function_template()->GetFunction());
     dripcapModule.set("Layer", layerFunc);
 
     dripcap = UniquePersistent<Object>(isolate, dripcapModule.new_instance());
@@ -818,8 +817,7 @@ ScriptClass::Private::Private(leveldb::DB *db, const msgpack::object &options)
             std::string err("Cannot find module '");
             args.GetReturnValue().Set(v8pp::throw_ex(isolate, (err + name + "'").c_str()));
         }
-    },
-                                                      External::New(isolate, this));
+    }, External::New(isolate, this));
     require = UniquePersistent<FunctionTemplate>(isolate, f);
 
     isolate->GetCurrentContext()->Global()->Set(
