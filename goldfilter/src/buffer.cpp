@@ -287,6 +287,6 @@ void Payload::slice(v8::FunctionCallbackInfo<v8::Value> const &args) const
 
 size_t Payload::copy(Data *buf) const
 {
-    buf->assign(data() + start, data() + end);
+    buf->assign(data(), data() + length());
     return length();
 }
