@@ -121,22 +121,9 @@ void BufferStream::write(const v8::FunctionCallbackInfo<v8::Value> &args)
     Isolate *isolate = Isolate::GetCurrent();
     bool ok = false;
     Buffer *buffer;
-    Payload *payload;
     uint64_t chunks = d->chunks();
     uint64_t length = d->length();
-    if ((payload = v8pp::class_<Payload>::unwrap_object(isolate, args[0]))) {
-        const std::pair<size_t, size_t> &range = payload->range();
-        size_t len = range.second - range.first;
-        if (len > 0) {
-            const std::string &keyBuffer = d->indexID(chunks);
-            leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
-            leveldb::Slice value(reinterpret_cast<const char *>(payload->data() + range.first), len);
-            d->db->Put(leveldb::WriteOptions(), key, value);
-            chunks++;
-            length += len;
-        }
-        ok = true;
-    } else if ((buffer = v8pp::class_<Buffer>::unwrap_object(isolate, args[0]))) {
+    if ((buffer = v8pp::class_<Buffer>::unwrap_object(isolate, args[0]))) {
         if (buffer->length() > 0) {
             const std::string &keyBuffer = d->indexID(chunks);
             leveldb::Slice key(keyBuffer.data(), keyBuffer.size());

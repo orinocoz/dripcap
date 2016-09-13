@@ -35,6 +35,7 @@ class Buffer
     void toString(const v8::FunctionCallbackInfo<v8::Value> &args) const;
     std::string valueOf() const;
     const unsigned char *data() const;
+    std::pair<size_t, size_t> range() const;
 
   public:
     static void from(const v8::FunctionCallbackInfo<v8::Value> &args);
@@ -67,7 +68,6 @@ class Payload : public Buffer
     Payload(Data *data, size_t start, size_t end);
     ~Payload();
     void slice(v8::FunctionCallbackInfo<v8::Value> const &args) const;
-    std::pair<size_t, size_t> range() const;
     std::string valueOf() const;
     size_t copy(Data *buf) const;
 };

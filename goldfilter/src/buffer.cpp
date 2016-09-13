@@ -48,7 +48,7 @@ Buffer::Buffer(const v8::FunctionCallbackInfo<v8::Value> &args)
         }
     } else if ((buffer = v8pp::class_<Buffer>::unwrap_object(isolate, args[0]))) {
         Buffer::Data buf;
-        holder->assign(buffer->data() + buffer->start, buffer->data() + (buffer->end - buffer->start));
+        holder->assign(buffer->data(), buffer->data() + buffer->length());
     } else {
         args.GetReturnValue().Set(v8pp::throw_ex(isolate, "First argument must be a string, Buffer, or Array"));
     }
@@ -185,12 +185,12 @@ std::pair<size_t, size_t> Buffer::sliceRange(size_t s, size_t e) const
 
 bool Buffer::equals(const Buffer &buf) const
 {
-    return (length() == buf.length() && memcmp(vec->data(), buf.vec->data(), length()) == 0);
+    return (length() == buf.length() && memcmp(buf.data(), data(), length()) == 0);
 }
 
 const unsigned char *Buffer::data() const
 {
-    return vec->data();
+    return vec->data() + start;
 }
 
 void Buffer::toString(const v8::FunctionCallbackInfo<v8::Value> &args) const
@@ -199,8 +199,8 @@ void Buffer::toString(const v8::FunctionCallbackInfo<v8::Value> &args) const
     const std::string &type = v8pp::from_v8<std::string>(isolate, args[0], "utf8");
 
     if (type == "utf8") {
-        const char *s = reinterpret_cast<const char *>(vec->data()) + start;
-        args.GetReturnValue().Set(v8pp::to_v8(isolate, std::string(s, end - start)));
+        const char *s = reinterpret_cast<const char *>(vec->data());
+        args.GetReturnValue().Set(v8pp::to_v8(isolate, std::string(s, length())));
     } else if (type == "hex") {
         std::stringstream stream;
         for (size_t i = start; i < end; ++i) {
@@ -238,6 +238,11 @@ bool Buffer::isBuffer(const v8::Local<v8::Value> &value)
     return v8pp::class_<Buffer>::unwrap_object(Isolate::GetCurrent(), value);
 }
 
+std::pair<size_t, size_t> Buffer::range() const
+{
+    return std::make_pair(start, end);
+}
+
 CustomValue::CustomValue(const DataPtr &holder)
     : Buffer(holder)
 {
@@ -254,11 +259,6 @@ Payload::Payload(Data *data, size_t start, size_t end)
 
 Payload::~Payload()
 {
-}
-
-std::pair<size_t, size_t> Payload::range() const
-{
-    return std::make_pair(start, end);
 }
 
 std::string Payload::valueOf() const
