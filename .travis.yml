@@ -26,6 +26,7 @@ install:
 - npm install --depth 0 -g gulp electron babel-cli
 - npm install babel-plugin-add-module-exports babel-plugin-transform-async-to-generator
   babel-plugin-transform-es2015-modules-commonjs
+- npm install --depth 0 electron
 - npm install --depth 0
 - gulp build
 before_script:
