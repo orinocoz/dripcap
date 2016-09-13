@@ -57,56 +57,33 @@ class Pcap {
 
     let offset = 24;
     while (offset < data.length) {
+      let tsSec = 0, tsUsec = 0, inclLen = 0, origLen = 0;
+
       if (data.length - offset < 16) { throw new Error('too short packet header'); }
       if (littleEndian) {
-        var tsSec = data.readUInt32LE(offset, true);
-        var tsUsec = data.readUInt32LE(offset + 4, true);
-        var inclLen = data.readUInt32LE(offset + 8, true);
-        var origLen = data.readUInt32LE(offset + 12, true);
+        tsSec = data.readUInt32LE(offset, true);
+        tsUsec = data.readUInt32LE(offset + 4, true);
+        inclLen = data.readUInt32LE(offset + 8, true);
+        origLen = data.readUInt32LE(offset + 12, true);
       } else {
-        var tsSec = data.readUInt32BE(offset, true);
-        var tsUsec = data.readUInt32BE(offset + 4, true);
-        var inclLen = data.readUInt32BE(offset + 8, true);
-        var origLen = data.readUInt32BE(offset + 12, true);
+        tsSec = data.readUInt32BE(offset, true);
+        tsUsec = data.readUInt32BE(offset + 4, true);
+        inclLen = data.readUInt32BE(offset + 8, true);
+        origLen = data.readUInt32BE(offset + 12, true);
       }
 
       offset += 16;
       if (data.length - offset < inclLen) { throw new Error('too short packet body'); }
 
-      let timestamp = new Date((tsSec * 1000) + (tsUsec / 1000));
-      if (nanosec) {
-        timestamp = new Date((tsSec * 1000) + (tsUsec / 1000000));
-      }
-
       let payload = data.slice(offset, offset + inclLen);
-      //let linkName = linkid2name(this.network);
-      let namespace = `::<${linkName}>`;
-      let summary = `[${linkName}]`;
 
-      /*
-      let layer = new Layer(namespace, {name: 'Raw Frame', payload, summary});
-
-      let packet = {
-        timestamp,
-        interface: '',
-        options: {},
-        payload,
-        caplen: inclLen,
-        length: origLen,
-        truncated: inclLen < origLen,
-        layers: {}
+      let pakcet = {
+        ts_sec: tsSec,
+        ts_nsec: nanosec ? tsUsec : tsUsec * 1000,
+        len: origLen,
+        payload: payload
       };
 
-      packet.layers[namespace] = {
-        namespace,
-        name: 'Raw Frame',
-        payload: new PayloadSlice(0, payload.length),
-        summary,
-        namespace
-      };
-
-      this.packets.push(packet);
-      */
       offset += inclLen;
     }
   }
