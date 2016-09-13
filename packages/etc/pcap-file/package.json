@@ -1,0 +1,11 @@
+{
+  "name": "pcap-file",
+  "main": "./lib/main",
+  "license": "MIT",
+  "description": "Load pcap files",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/dripcap/dripcap.git"
+  },
+  "readme": "see README.md"
+}
