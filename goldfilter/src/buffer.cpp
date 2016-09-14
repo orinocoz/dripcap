@@ -6,13 +6,13 @@ using namespace v8;
 
 namespace
 {
-int search(const unsigned char *str, size_t strlen, const unsigned char *sub, size_t sublen)
+int search(const unsigned char *str, int strlen, const unsigned char *sub, int sublen)
 {
     if (sublen > strlen)
         return -1;
     if (sublen == 0)
         return 0;
-    size_t index = sublen;
+    int index = sublen;
     while (index <= strlen) {
         int shift = sublen;
         for (int i = 0; i < sublen; ++i) {

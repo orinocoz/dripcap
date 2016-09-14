@@ -84,6 +84,7 @@ class Pcap {
         payload: payload
       };
 
+      this.packets.push(pakcet);
       offset += inclLen;
     }
   }
@@ -110,30 +111,28 @@ export default class PcapFile {
         this._open(path[0])
       }
     });
-
-    this._drop = e => {
-      e.preventDefault();
-      let { files } = e.originalEvent.dataTransfer;
-      if (files.length > 0 && files[0].path.endsWith('.pcap')) {
-        return this._open(files[0].path);
-      }
-    };
   }
 
-  _open(path) {
+  async _open(path) {
     let pcap = new Pcap(path);
-    let sess = Session.create();
+
+    let sess = await Session.create();
+    PubSub.pub('core:session-created', sess);
+    sess.on('status', stat => {
+      PubSub.pub('core:capturing-status', stat);
+    });
+    sess.on('packet', pkt => {
+      PubSub.pub('core:session-packet', pkt);
+    });
+    if (Session.list != null) {
+      for (let i = 0; i < Session.list.length; i++) {
+        let s = Session.list[i];
+        s.close();
+      }
+    }
+    Session.list = [sess];
     Session.emit('created', sess);
     sess.start();
-
-    let count = 0;
-
-    //do (sess=sess, len=pcap.packets.length) ->
-    //  sess.on 'packet', ->
-    //    count++
-    //    sess.close() if count >= len
-
-    pcap.packets.map((pkt) => sess.decode(pkt));
   }
 
   async deactivate() {
