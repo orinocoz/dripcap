@@ -103,7 +103,7 @@ gulp.task('npm', ['copypkg'], async function() {
 gulp.task('linux', ['build'], cb =>
   gulp.src('./.build/**')
   .pipe(electron({
-    version: pkg.engines.electron,
+    version: pkg.devDependencies.electron,
     platform: 'linux',
     arch: 'x64',
     token: process.env['ELECTRON_GITHUB_TOKEN']
@@ -132,7 +132,7 @@ gulp.task('debian-goldfilter', cb =>
 gulp.task('debian-bin', ['copy', 'babel', 'copypkg', 'npm'], cb =>
   gulp.src('./.build/**')
   .pipe(electron({
-    version: pkg.engines.electron,
+    version: pkg.devDependencies.electron,
     platform: 'linux',
     arch: 'x64',
     token: process.env['ELECTRON_GITHUB_TOKEN']
@@ -150,7 +150,7 @@ gulp.task('debian', sequence(
 gulp.task('darwin', ['build'], cb => {
   let options = {
     dir: __dirname + '/.build',
-    version: pkg.engines.electron,
+    version: pkg.devDependencies.electron,
     out: __dirname + '/.builtapp',
     platform: 'darwin',
     'osx-sign': true,

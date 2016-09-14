@@ -9,7 +9,7 @@ export default {
   userPackagePath: path.join(homePath, '/packages'),
   profilePath: path.join(homePath, '/profiles'),
   packagePath: path.join(path.dirname(__dirname), '/../packages'),
-  electronVersion: pkg.engines.electron,
+  electronVersion: pkg.devDependencies.electron,
   version: pkg.version,
   crashReporter: {
     productName: 'dripcap',
