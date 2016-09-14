@@ -100,8 +100,12 @@ MSGPACK_API_VERSION_NAMESPACE(MSGPACK_DEFAULT_API_NS)
                 v->len = len->second.as<uint32_t>();
             }
             if (payload != map.end()) {
-                msgpack::type::ext ext = payload->second.as<msgpack::type::ext>();
-                v->payload.assign(ext.data(), ext.data() + ext.size());
+                if (payload->second.type == msgpack::type::BIN) {
+                    v->payload = payload->second.as<std::vector<unsigned char>>();
+                } else {
+                    msgpack::type::ext ext = payload->second.as<msgpack::type::ext>();
+                    v->payload.assign(ext.data(), ext.data() + ext.size());
+                }
             }
             if (stream != map.end()) {
                 v->stream = stream->second.as<std::string>();

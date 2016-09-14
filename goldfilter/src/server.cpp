@@ -389,6 +389,14 @@ Server::Server(const std::string &sock, const std::string &tmp)
         reply();
     });
 
+    d->server.handle("analyze", [this](const msgpack::object &arg, ReplyInterface &reply) {
+        const std::vector<PacketPtr> &packets = arg.as<std::vector<PacketPtr>>();
+        for (const PacketPtr &pkt : packets) {
+            d->dispatcher->insert(pkt);
+        }
+        reply();
+    });
+
     d->server.handle("fetch_logs", [this](const msgpack::object &arg, ReplyInterface &reply) {
         std::vector<LogPtr> logs;
         {

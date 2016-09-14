@@ -29,7 +29,7 @@ export default class Session extends EventEmitter {
   }
 
   addCapture(iface, options = {}) {
-    return this._settings = {
+    this._settings = {
       iface,
       options
     };
@@ -55,10 +55,16 @@ export default class Session extends EventEmitter {
     return this._gold.getFiltered(name, start, end);
   }
 
+  analyze(packets) {
+    return this._gold.analyze(packets);
+  }
+
   async start() {
     await this._gold.stop();
     await this._builtin;
-    await this._gold.start(this._settings.iface, this._settings.options);
+    if (this._settings != null) {
+      await this._gold.start(this._settings.iface, this._settings.options);
+    }
     this._timer = setInterval(() => {
       this._gold.status().then(stat => {
         if (stat != null) {

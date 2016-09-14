@@ -575,6 +575,10 @@ export default class GoldFilter extends EventEmitter {
     return true;
   }
 
+  analyze(packets) {
+    return this._call('analyze', packets);
+  }
+
   setTestData(path) {
     return this._call('set_testdata', msgpack.decode(fs.readFileSync(path)));
   }

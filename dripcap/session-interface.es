@@ -60,9 +60,9 @@ export default class SessionInterface extends EventEmitter {
     }
   }
 
-  create(iface, options = {}) {
+  async create(iface = '', options = {}) {
     let sess = new Session(config.filterPath);
-    if (iface != null) {
+    if (iface.length > 0) {
       sess.addCapture(iface, options);
     }
 
@@ -72,23 +72,21 @@ export default class SessionInterface extends EventEmitter {
       ((cls = cls) => tasks.push(sess.addClass(cls.name, cls.path)))(cls);
     }
 
-    return Promise.all(tasks).then(() => {
-      for (let j = 0; j < this._dissectors.length; j++) {
-        var dec = this._dissectors[j];
-        ((dec = dec) => tasks.push(sess.addDissector(dec.namespaces, dec.path)))(dec);
-      }
-      for (let k = 0; k < this._streamDissectors.length; k++) {
-        var dec = this._streamDissectors[k];
-        ((dec = dec) => tasks.push(sess.addStreamDissector(dec.namespaces, dec.path)))(dec);
-      }
+    await Promise.all(tasks);
+    for (let j = 0; j < this._dissectors.length; j++) {
+      var dec = this._dissectors[j];
+      ((dec = dec) => tasks.push(sess.addDissector(dec.namespaces, dec.path)))(dec);
+    }
+    for (let k = 0; k < this._streamDissectors.length; k++) {
+      var dec = this._streamDissectors[k];
+      ((dec = dec) => tasks.push(sess.addStreamDissector(dec.namespaces, dec.path)))(dec);
+    }
 
-      return Promise.all(tasks).then(() => {
-        this.parent.pubsub.pub('core:capturing-settings', {
-          iface,
-          options
-        });
-        return sess;
-      });
+    await Promise.all(tasks);
+    this.parent.pubsub.pub('core:capturing-settings', {
+      iface,
+      options
     });
+    return sess;
   }
 }

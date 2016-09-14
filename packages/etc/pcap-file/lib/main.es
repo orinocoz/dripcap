@@ -7,7 +7,8 @@ import {
   Session,
   Menu,
   KeyBind,
-  Action
+  Action,
+  PubSub
 } from 'dripcap';
 
 class Pcap {
@@ -57,56 +58,34 @@ class Pcap {
 
     let offset = 24;
     while (offset < data.length) {
+      let tsSec = 0, tsUsec = 0, inclLen = 0, origLen = 0;
+
       if (data.length - offset < 16) { throw new Error('too short packet header'); }
       if (littleEndian) {
-        var tsSec = data.readUInt32LE(offset, true);
-        var tsUsec = data.readUInt32LE(offset + 4, true);
-        var inclLen = data.readUInt32LE(offset + 8, true);
-        var origLen = data.readUInt32LE(offset + 12, true);
+        tsSec = data.readUInt32LE(offset, true);
+        tsUsec = data.readUInt32LE(offset + 4, true);
+        inclLen = data.readUInt32LE(offset + 8, true);
+        origLen = data.readUInt32LE(offset + 12, true);
       } else {
-        var tsSec = data.readUInt32BE(offset, true);
-        var tsUsec = data.readUInt32BE(offset + 4, true);
-        var inclLen = data.readUInt32BE(offset + 8, true);
-        var origLen = data.readUInt32BE(offset + 12, true);
+        tsSec = data.readUInt32BE(offset, true);
+        tsUsec = data.readUInt32BE(offset + 4, true);
+        inclLen = data.readUInt32BE(offset + 8, true);
+        origLen = data.readUInt32BE(offset + 12, true);
       }
 
       offset += 16;
       if (data.length - offset < inclLen) { throw new Error('too short packet body'); }
 
-      let timestamp = new Date((tsSec * 1000) + (tsUsec / 1000));
-      if (nanosec) {
-        timestamp = new Date((tsSec * 1000) + (tsUsec / 1000000));
-      }
-
       let payload = data.slice(offset, offset + inclLen);
-      //let linkName = linkid2name(this.network);
-      let namespace = `::<${linkName}>`;
-      let summary = `[${linkName}]`;
 
-      /*
-      let layer = new Layer(namespace, {name: 'Raw Frame', payload, summary});
-
-      let packet = {
-        timestamp,
-        interface: '',
-        options: {},
-        payload,
-        caplen: inclLen,
-        length: origLen,
-        truncated: inclLen < origLen,
-        layers: {}
+      let pakcet = {
+        ts_sec: tsSec,
+        ts_nsec: nanosec ? tsUsec : tsUsec * 1000,
+        len: origLen,
+        payload: payload
       };
 
-      packet.layers[namespace] = {
-        namespace,
-        name: 'Raw Frame',
-        payload: new PayloadSlice(0, payload.length),
-        summary,
-        namespace
-      };
-
-      this.packets.push(packet);
-      */
+      this.packets.push(pakcet);
       offset += inclLen;
     }
   }
@@ -133,30 +112,30 @@ export default class PcapFile {
         this._open(path[0])
       }
     });
-
-    this._drop = e => {
-      e.preventDefault();
-      let { files } = e.originalEvent.dataTransfer;
-      if (files.length > 0 && files[0].path.endsWith('.pcap')) {
-        return this._open(files[0].path);
-      }
-    };
   }
 
-  _open(path) {
+  async _open(path) {
     let pcap = new Pcap(path);
-    let sess = Session.create();
+    console.log(pcap.packets);
+
+    let sess = await Session.create();
+    PubSub.pub('core:session-created', sess);
+    sess.on('status', stat => {
+      PubSub.pub('core:capturing-status', stat);
+    });
+    sess.on('packet', pkt => {
+      PubSub.pub('core:session-packet', pkt);
+    });
+    if (Session.list != null) {
+      for (let i = 0; i < Session.list.length; i++) {
+        let s = Session.list[i];
+        s.close();
+      }
+    }
+    Session.list = [sess];
     Session.emit('created', sess);
-    sess.start();
-
-    let count = 0;
-
-    //do (sess=sess, len=pcap.packets.length) ->
-    //  sess.on 'packet', ->
-    //    count++
-    //    sess.close() if count >= len
-
-    pcap.packets.map((pkt) => sess.decode(pkt));
+    await sess.start();
+    sess.analyze(pcap.packets);
   }
 
   async deactivate() {
