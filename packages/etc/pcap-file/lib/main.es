@@ -7,7 +7,8 @@ import {
   Session,
   Menu,
   KeyBind,
-  Action
+  Action,
+  PubSub
 } from 'dripcap';
 
 class Pcap {
@@ -115,6 +116,7 @@ export default class PcapFile {
 
   async _open(path) {
     let pcap = new Pcap(path);
+    console.log(pcap.packets);
 
     let sess = await Session.create();
     PubSub.pub('core:session-created', sess);
