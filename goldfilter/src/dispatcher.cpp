@@ -5,8 +5,8 @@
 #include "packet_stream.hpp"
 #include "script_class.hpp"
 #include <condition_variable>
-#include <leveldb/comparator.h>
-#include <leveldb/db.h>
+#include <rocksdb/comparator.h>
+#include <rocksdb/db.h>
 #include <mutex>
 #include <queue>
 #include <spdlog/spdlog.h>
@@ -51,21 +51,21 @@ class Dispatcher::Private
     std::mutex mutex;
     std::thread streamThread;
 
-    std::unique_ptr<leveldb::DB> db;
+    std::unique_ptr<rocksdb::DB> db;
 };
 
 Dispatcher::Private::Private(const std::string &path)
     : packets(path + "/packets")
 {
-    leveldb::DB *leveldb = nullptr;
-    leveldb::Options options;
+    rocksdb::DB *rocksdb = nullptr;
+    rocksdb::Options options;
     options.create_if_missing = true;
     //options.comparator = comp.get();
-    leveldb::Status status = leveldb::DB::Open(options, path + "buffer.leveldb", &leveldb);
+    rocksdb::Status status = rocksdb::DB::Open(options, path + "buffer.rocksdb", &rocksdb);
     if (!status.ok()) {
         spdlog::get("console")->error("{}", status.ToString());
     }
-    db.reset(leveldb);
+    db.reset(rocksdb);
 }
 
 Dispatcher::Private::~Private()
@@ -449,9 +449,9 @@ std::vector<unsigned char> Dispatcher::readStream(const std::string &id, uint64_
     keyBuffer.resize(sizeof(uint64_t));
     *reinterpret_cast<uint64_t *>(&keyBuffer[0]) = index;
     keyBuffer += id;
-    leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
+    rocksdb::Slice key(keyBuffer.data(), keyBuffer.size());
     std::string value;
-    leveldb::Status s = d->db->Get(leveldb::ReadOptions(), key, &value);
+    rocksdb::Status s = d->db->Get(rocksdb::ReadOptions(), key, &value);
     if (s.ok()) {
         data.assign(value.data(), value.data() + value.size());
     }
@@ -461,9 +461,9 @@ std::vector<unsigned char> Dispatcher::readStream(const std::string &id, uint64_
 uint64_t Dispatcher::streamLength(const std::string &id) const
 {
     const std::string &keyBuffer = id + ".length";
-    leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
+    rocksdb::Slice key(keyBuffer.data(), keyBuffer.size());
     std::string value;
-    leveldb::Status s = d->db->Get(leveldb::ReadOptions(), key, &value);
+    rocksdb::Status s = d->db->Get(rocksdb::ReadOptions(), key, &value);
     if (s.ok() && value.size() == sizeof(uint64_t)) {
         return *reinterpret_cast<const uint64_t *>(value.data());
     }

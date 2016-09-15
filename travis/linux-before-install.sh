@@ -9,6 +9,9 @@ wget https://socket.moe/storage/libpcap-1.7.4.tar.gz
 tar xzf libpcap-1.7.4.tar.gz
 (cd libpcap-1.7.4 && ./configure -q --enable-shared=no && make -j2 && sudo make install)
 
+git clone --depth=1 https://github.com/facebook/rocksdb.git
+(cd rocksdb && PORTABLE=1 make static_lib -j2 && sudo make install)
+
 export DISPLAY=':99.0'
 
 sudo apt-get remove libicu-dev

@@ -37,7 +37,7 @@ class ArrayBufferAllocator : public ArrayBuffer::Allocator
 class ScriptClass::Private
 {
   public:
-    Private(leveldb::DB *db, const msgpack::object &options);
+    Private(rocksdb::DB *db, const msgpack::object &options);
     ~Private();
 
   public:
@@ -50,7 +50,7 @@ class ScriptClass::Private
     std::unordered_map<std::string, UniquePersistent<UnboundScript>> modules;
     std::unordered_map<std::string, UniquePersistent<Function>> moduleChache;
     msgpack::object options;
-    leveldb::DB *db;
+    rocksdb::DB *db;
 };
 
 namespace
@@ -604,7 +604,7 @@ class ScriptClass::CreateParams : public Isolate::CreateParams
     }
 };
 
-ScriptClass::Private::Private(leveldb::DB *db, const msgpack::object &options)
+ScriptClass::Private::Private(rocksdb::DB *db, const msgpack::object &options)
     : isolate(Isolate::New(CreateParams(this))),
       options(options),
       db(db)
@@ -852,7 +852,7 @@ ScriptClass::Private::~Private()
     isolate->Dispose();
 }
 
-ScriptClass::ScriptClass(leveldb::DB *db, const msgpack::object &options)
+ScriptClass::ScriptClass(rocksdb::DB *db, const msgpack::object &options)
     : d(new Private(db, options))
 {
 }
