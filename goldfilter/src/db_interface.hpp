@@ -14,4 +14,18 @@ class DBInterface
     virtual void del(const std::string &key) = 0;
 };
 
+class DBFactoryInterface
+{
+public:
+  enum Type {
+    Default,
+    ObjectCache
+  };
+  public:
+    virtual ~DBFactoryInterface()
+    {
+    }
+    virtual DBInterface* create(const std::string &path, Type type) const = 0;
+};
+
 #endif

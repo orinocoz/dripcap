@@ -24,4 +24,10 @@ class LevelDB : public DBInterface
     std::string path;
 };
 
+class DBFactory : public DBFactoryInterface
+{
+  public:
+    DBInterface* create(const std::string &path, Type type) const override;
+};
+
 #endif
