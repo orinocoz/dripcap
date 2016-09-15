@@ -15,7 +15,7 @@ class PacketStream;
 typedef std::shared_ptr<PacketStream> PacketStreamPtr;
 typedef std::vector<PacketStreamPtr> PacketStreamList;
 
-namespace leveldb
+namespace rocksdb
 {
 class DB;
 }
@@ -23,7 +23,7 @@ class DB;
 class ScriptClass final
 {
   public:
-    ScriptClass(leveldb::DB *db, const msgpack::object &options);
+    ScriptClass(rocksdb::DB *db, const msgpack::object &options);
     ~ScriptClass();
     bool loadFile(const std::string &path, std::string *error = nullptr);
     bool loadSource(const std::string &source, std::string *error = nullptr);

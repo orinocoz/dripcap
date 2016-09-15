@@ -4,7 +4,7 @@
 #include "include/v8.h"
 #include <msgpack.hpp>
 
-namespace leveldb
+namespace rocksdb
 {
 class DB;
 }
@@ -20,7 +20,7 @@ class BufferStream
 
     std::string id() const;
     uint64_t length() const;
-    void setDB(leveldb::DB *db);
+    void setDB(rocksdb::DB *db);
 
   private:
     class Private;

@@ -1,6 +1,6 @@
 #include "buffer_stream.hpp"
 #include "buffer.hpp"
-#include <leveldb/db.h>
+#include <rocksdb/db.h>
 #include <random>
 #include <sstream>
 #include <v8pp/class.hpp>
@@ -21,7 +21,7 @@ class BufferStream::Private
   public:
     std::string id;
     uint64_t index;
-    leveldb::DB *db;
+    rocksdb::DB *db;
 };
 
 BufferStream::Private::Private(const std::string &id)
@@ -49,8 +49,8 @@ uint64_t BufferStream::Private::chunks() const
     if (db) {
         const std::string &keyBuffer = id + ".chunks";
         std::string value;
-        leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
-        leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
+        rocksdb::Slice key(keyBuffer.data(), keyBuffer.size());
+        rocksdb::Status s = db->Get(rocksdb::ReadOptions(), key, &value);
         if (s.ok() && value.size() == sizeof(uint64_t)) {
             return *reinterpret_cast<const uint64_t *>(value.data());
         }
@@ -62,9 +62,9 @@ void BufferStream::Private::setChunks(uint64_t chunks)
 {
     if (db) {
         const std::string &keyBuffer = id + ".chunks";
-        leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
-        leveldb::Slice value(reinterpret_cast<const char *>(&chunks), sizeof(chunks));
-        db->Put(leveldb::WriteOptions(), key, value);
+        rocksdb::Slice key(keyBuffer.data(), keyBuffer.size());
+        rocksdb::Slice value(reinterpret_cast<const char *>(&chunks), sizeof(chunks));
+        db->Put(rocksdb::WriteOptions(), key, value);
     }
 }
 
@@ -73,8 +73,8 @@ uint64_t BufferStream::Private::length() const
     if (db) {
         const std::string &keyBuffer = id + ".length";
         std::string value;
-        leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
-        leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
+        rocksdb::Slice key(keyBuffer.data(), keyBuffer.size());
+        rocksdb::Status s = db->Get(rocksdb::ReadOptions(), key, &value);
         if (s.ok() && value.size() == sizeof(uint64_t)) {
             return *reinterpret_cast<const uint64_t *>(value.data());
         }
@@ -86,9 +86,9 @@ void BufferStream::Private::setLength(uint64_t length)
 {
     if (db) {
         const std::string &keyBuffer = id + ".length";
-        leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
-        leveldb::Slice value(reinterpret_cast<const char *>(&length), sizeof(length));
-        leveldb::Status s = db->Put(leveldb::WriteOptions(), key, value);
+        rocksdb::Slice key(keyBuffer.data(), keyBuffer.size());
+        rocksdb::Slice value(reinterpret_cast<const char *>(&length), sizeof(length));
+        rocksdb::Status s = db->Put(rocksdb::WriteOptions(), key, value);
     }
 }
 
@@ -126,9 +126,9 @@ void BufferStream::write(const v8::FunctionCallbackInfo<v8::Value> &args)
     if ((buffer = v8pp::class_<Buffer>::unwrap_object(isolate, args[0]))) {
         if (buffer->length() > 0) {
             const std::string &keyBuffer = d->indexID(chunks);
-            leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
-            leveldb::Slice value(reinterpret_cast<const char *>(buffer->data()), buffer->length());
-            d->db->Put(leveldb::WriteOptions(), key, value);
+            rocksdb::Slice key(keyBuffer.data(), keyBuffer.size());
+            rocksdb::Slice value(reinterpret_cast<const char *>(buffer->data()), buffer->length());
+            d->db->Put(rocksdb::WriteOptions(), key, value);
             chunks++;
             length += buffer->length();
         }
@@ -145,9 +145,9 @@ void BufferStream::read(const v8::FunctionCallbackInfo<v8::Value> &args)
 {
     Isolate *isolate = Isolate::GetCurrent();
     const std::string &keyBuffer = d->indexID(d->index);
-    leveldb::Slice key(keyBuffer.data(), keyBuffer.size());
+    rocksdb::Slice key(keyBuffer.data(), keyBuffer.size());
     std::string value;
-    leveldb::Status s = d->db->Get(leveldb::ReadOptions(), key, &value);
+    rocksdb::Status s = d->db->Get(rocksdb::ReadOptions(), key, &value);
     if (s.ok()) {
         d->index++;
         auto vec = std::make_shared<Buffer::Data>();
@@ -168,7 +168,7 @@ uint64_t BufferStream::length() const
     return d->length();
 }
 
-void BufferStream::setDB(leveldb::DB *db)
+void BufferStream::setDB(rocksdb::DB *db)
 {
     d->db = db;
 }

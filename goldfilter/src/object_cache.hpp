@@ -1,22 +1,22 @@
 #ifndef OBJECT_CACHE_HPP
 #define OBJECT_CACHE_HPP
 
-#include <leveldb/comparator.h>
-#include <leveldb/db.h>
+#include <rocksdb/comparator.h>
+#include <rocksdb/db.h>
 #include <spdlog/spdlog.h>
 #include <sstream>
 #include <string>
 
 template <class K>
-class CacheComparator : public leveldb::Comparator
+class CacheComparator : public rocksdb::Comparator
 {
   public:
     CacheComparator();
     ~CacheComparator() override;
-    leveldb::Slice slice(const K &id) const;
-    int Compare(const leveldb::Slice &a, const leveldb::Slice &b) const override;
+    rocksdb::Slice slice(const K &id) const;
+    int Compare(const rocksdb::Slice &a, const rocksdb::Slice &b) const override;
     const char *Name() const override;
-    void FindShortestSeparator(std::string *start, const leveldb::Slice &limit) const override;
+    void FindShortestSeparator(std::string *start, const rocksdb::Slice &limit) const override;
     void FindShortSuccessor(std::string *key) const override;
 };
 
@@ -31,13 +31,13 @@ CacheComparator<K>::~CacheComparator()
 }
 
 template <class K>
-leveldb::Slice CacheComparator<K>::slice(const K &id) const
+rocksdb::Slice CacheComparator<K>::slice(const K &id) const
 {
-    return leveldb::Slice(reinterpret_cast<const char *>(&id), sizeof(id));
+    return rocksdb::Slice(reinterpret_cast<const char *>(&id), sizeof(id));
 }
 
 template <class K>
-int CacheComparator<K>::Compare(const leveldb::Slice &a, const leveldb::Slice &b) const
+int CacheComparator<K>::Compare(const rocksdb::Slice &a, const rocksdb::Slice &b) const
 {
     return *reinterpret_cast<const uint64_t *>(a.data()) - *reinterpret_cast<const uint64_t *>(b.data());
 }
@@ -49,7 +49,7 @@ const char *CacheComparator<K>::Name() const
 }
 
 template <class K>
-void CacheComparator<K>::FindShortestSeparator(std::string *start, const leveldb::Slice &limit) const
+void CacheComparator<K>::FindShortestSeparator(std::string *start, const rocksdb::Slice &limit) const
 {
 }
 
@@ -59,13 +59,13 @@ void CacheComparator<K>::FindShortSuccessor(std::string *key) const
 }
 
 template <>
-leveldb::Slice CacheComparator<std::string>::slice(const std::string &id) const
+rocksdb::Slice CacheComparator<std::string>::slice(const std::string &id) const
 {
-    return leveldb::Slice(id.data(), id.size());
+    return rocksdb::Slice(id.data(), id.size());
 }
 
 template <>
-int CacheComparator<std::string>::Compare(const leveldb::Slice &a, const leveldb::Slice &b) const
+int CacheComparator<std::string>::Compare(const rocksdb::Slice &a, const rocksdb::Slice &b) const
 {
     return a.compare(b);
 }
@@ -86,7 +86,7 @@ class ObjectCache
 
   private:
     std::unique_ptr<CacheComparator<K>> comp;
-    std::unique_ptr<leveldb::DB> db;
+    std::unique_ptr<rocksdb::DB> db;
     std::string path;
 
     mutable int cacheIndex;
@@ -103,22 +103,22 @@ ObjectCache<K, V>::ObjectCache(const std::string &path)
       cacheIndex(0),
       cacheBuffer({})
 {
-    leveldb::DB *leveldb = nullptr;
-    leveldb::Options options;
+    rocksdb::DB *rocksdb = nullptr;
+    rocksdb::Options options;
     options.create_if_missing = true;
     options.comparator = comp.get();
-    leveldb::Status status = leveldb::DB::Open(options, path + ".leveldb", &leveldb);
+    rocksdb::Status status = rocksdb::DB::Open(options, path + ".rocksdb", &rocksdb);
     if (!status.ok()) {
         spdlog::get("console")->error("{}", status.ToString());
     }
-    db.reset(leveldb);
+    db.reset(rocksdb);
 }
 
 template <class K, class V>
 ObjectCache<K, V>::~ObjectCache()
 {
     db.reset();
-    leveldb::DestroyDB(path, leveldb::Options());
+    rocksdb::DestroyDB(path, rocksdb::Options());
 }
 
 template <class K, class V>
@@ -131,9 +131,9 @@ V ObjectCache<K, V>::get(const K &id) const
             return it->second;
         }
     }
-    const leveldb::Slice &key = comp->slice(id);
+    const rocksdb::Slice &key = comp->slice(id);
     std::string value;
-    leveldb::Status s = db->Get(leveldb::ReadOptions(), key, &value);
+    rocksdb::Status s = db->Get(rocksdb::ReadOptions(), key, &value);
     if (s.ok()) {
         msgpack::object_handle result;
         msgpack::unpack(result, value.data(), value.size());
@@ -155,11 +155,11 @@ bool ObjectCache<K, V>::has(const K &id) const
             return true;
         }
     }
-    const leveldb::Slice &key = comp->slice(id);
+    const rocksdb::Slice &key = comp->slice(id);
     std::string value;
-    leveldb::ReadOptions option;
+    rocksdb::ReadOptions option;
     option.fill_cache = false;
-    leveldb::Status s = db->Get(option, key, &value);
+    rocksdb::Status s = db->Get(option, key, &value);
     return s.ok();
 }
 
@@ -168,16 +168,16 @@ void ObjectCache<K, V>::set(const K &id, const V &obj)
 {
     std::stringstream buffer;
     msgpack::pack(buffer, obj);
-    const leveldb::Slice &key = comp->slice(id);
-    leveldb::Status s = db->Put(leveldb::WriteOptions(), key, buffer.str());
+    const rocksdb::Slice &key = comp->slice(id);
+    rocksdb::Status s = db->Put(rocksdb::WriteOptions(), key, buffer.str());
     insert(id, obj);
 }
 
 template <class K, class V>
 void ObjectCache<K, V>::remove(const K &id)
 {
-    const leveldb::Slice &key = comp->slice(id);
-    db->Delete(leveldb::WriteOptions(), key);
+    const rocksdb::Slice &key = comp->slice(id);
+    db->Delete(rocksdb::WriteOptions(), key);
     cache.erase(id);
 }
 
