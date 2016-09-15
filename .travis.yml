@@ -15,7 +15,6 @@ addons:
     - alien
     - libcap-dev
     - jq
-    - libleveldb-dev
     - libsnappy-dev
 before_install:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-install.sh
