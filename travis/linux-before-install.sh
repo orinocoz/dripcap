@@ -21,3 +21,6 @@ sudo dpkg -i --force-overwrite v8-linux-amd64.deb
 export GOPATH=/home/travis/gopath
 export GOBIN=/home/travis/gopath/bin
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+
+npm install --depth 0 electron
+sleep 15
