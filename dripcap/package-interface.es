@@ -1,6 +1,5 @@
 import path from 'path';
 import glob from 'glob';
-import rebuild from 'electron-rebuild';
 import npm from 'npm';
 import semver from 'semver';
 import fs from 'fs';
@@ -95,13 +94,6 @@ export default class PackageInterface extends PubSub {
     }
 
     this.pub('core:package-list-updated', this.list);
-  }
-
-  rebuild(path) {
-    let ver = config.electronVersion;
-    return rebuild.installNodeHeaders(ver).then(() =>
-      rebuild.rebuildNativeModules(ver, config.packagePath).then(() => rebuild.rebuildNativeModules(ver, config.userPackagePath))
-    );
   }
 
   resolveRegistry(hostname) {
