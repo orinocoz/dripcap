@@ -15,7 +15,7 @@ git clone --depth=1 https://github.com/facebook/rocksdb.git
 export DISPLAY=':99.0'
 
 sudo apt-get remove libicu-dev
-wget `curl https://api.github.com/repos/dripcap/libv8/releases | jq -r '.[0].assets[0].browser_download_url'`
+wget `curl https://api.github.com/repos/dripcap/libv8/releases | jq -r '(.[0].assets[] | select(.name == "v8-linux-amd64.deb")).browser_download_url'`
 sudo dpkg -i --force-overwrite v8-linux-amd64.deb
 
 export GOPATH=/home/travis/gopath
