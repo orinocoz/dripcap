@@ -16,6 +16,3 @@ export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 
 export CC=clang
 export CXX=clang++
-
-npm install --depth 0 electron
-sleep 15

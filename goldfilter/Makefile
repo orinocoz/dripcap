@@ -6,7 +6,7 @@ SOURCE := $(wildcard *.cpp) $(wildcard src/*.cpp)
 ifeq ($(shell uname -s), Linux)
 INCLUDES += -Ilinux -I/usr/local -Ivendor/libv8 -Ivendor/libv8/include
 SOURCE += $(wildcard linux/*.cpp)
-LDFLAGS := -Lvendor/libv8/lib -Wl,-dn,-lpcap,-lcap,-lrocksdb,-lsnappy,-lv8_libplatform,-lv8_base,-lv8_libbase,-lv8_snapshot,-licui18n,-licuuc,-licudata,-lrt,-dy,-lpthread,-ldl
+LDFLAGS := -Lvendor/libv8/lib -Wl,-dn,-lpcap,-lcap,-lrocksdb,-lsnappy,-lbz2,-lz,-lv8_libplatform,-lv8_base,-lv8_libbase,-lv8_snapshot,-licui18n,-licuuc,-licudata,-lrt,-dy,-lpthread,-ldl
 else
 INCLUDES += -Idarwin -I/usr/local
 SOURCE += $(wildcard darwin/*.cpp)

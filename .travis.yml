@@ -14,8 +14,10 @@ addons:
     - lintian
     - alien
     - libcap-dev
-    - jq
+    - libbz2-dev
     - libsnappy-dev
+    - zlib1g-dev
+    - jq
 before_install:
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source travis/linux-before-install.sh
   ; fi
