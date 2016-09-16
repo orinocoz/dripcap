@@ -10,15 +10,15 @@ addons:
     sources:
     - ubuntu-toolchain-r-test
     packages:
-    - gcc-4.9
-    - g++-4.9
+    - gcc-5
+    - g++-5
     - libcap-dev
     - libpcap-dev
     - jq
 before_install:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update && brew install v8 ;
   fi
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./v8-linux.sh && export CXX="g++-4.9" ;
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ./v8-linux.sh && export CXX="g++-5" ;
   fi
 
 install:
