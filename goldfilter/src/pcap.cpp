@@ -1,3 +1,6 @@
+#ifndef NOWINPCAP
+
+#pragma comment(lib,"wpcap.lib")
 #include "pcap.hpp"
 #include "device.hpp"
 #include "packet.hpp"
@@ -232,3 +235,5 @@ bool Pcap::setBPF(const std::string &filter, std::string *error)
     pcap_close(pcap);
     return true;
 }
+
+#endif

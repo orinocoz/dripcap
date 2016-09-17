@@ -184,7 +184,9 @@ Server::Server(const std::string &sock, const std::string &tmp)
 
     spdlog::create("server", {std::make_shared<LoggerSink>(d)});
 
+#ifndef NOWINPCAP
     d->pcap.reset(new Pcap());
+#endif
 
     d->server.handle("exit", [this](const msgpack::object &arg, ReplyInterface &reply) {
         reply(std::string("bye"));
