@@ -77,7 +77,7 @@
     <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(HomePath)\include;$(HomePath);$(SolutionDir)\win32;$(SolutionDir);$(SolutionDir)\src;$(SolutionDir)vendor\WpdPack\Include;$(SolutionDir)vendor\spdlog;$(SolutionDir)vendor\v8pp;$(SolutionDir)vendor\msgpack-c\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(HomePath)\repo\v8\build\Debug\lib;$(SolutionDir)vendor\WpdPack\Lib\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(HomePath)\lib;$(SolutionDir)vendor\WpdPack\Lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -87,7 +87,7 @@
     <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(HomePath)\include;$(HomePath);$(SolutionDir)\win32;$(SolutionDir);$(SolutionDir)\src;$(SolutionDir)vendor\WpdPack\Include;$(SolutionDir)vendor\spdlog;$(SolutionDir)vendor\v8pp;$(SolutionDir)vendor\msgpack-c\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(HomePath)\repo\v8\build\Debug\lib;$(SolutionDir)vendor\WpdPack\Lib\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(HomePath)\lib;$(SolutionDir)vendor\WpdPack\Lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
