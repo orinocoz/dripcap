@@ -1,8 +1,5 @@
 version: 1.0.{build}
 install:
-- ps: (new-object net.webclient).DownloadFile('http://www.win10pcap.org/download/Win10Pcap-v10.2-5002.msi', 'Win10Pcap-v10.2-5002.msi')
-- ps: msiexec /i Win10Pcap-v10.2-5002.msi /qn /norestart /log install.log
-- ps: cat install.log
 - ps: travis\windows-before-install.ps1
 build_script:
 - ps: gulp build
