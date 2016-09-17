@@ -8,6 +8,9 @@ curl.exe -s -S -k -L -O $url
 Expand-Archive -Path .\v8-windows-amd64.zip -DestinationPath $env:HOMEPATH -Force
 Expand-Archive -Path .\rocksdb-windows-amd64.zip -DestinationPath $env:HOMEPATH -Force
 
+curl.exe -s -S -k -L -O http://www.win10pcap.org/download/Win10Pcap-v10.2-5002.msi
+Start-Process .\Win10Pcap-v10.2-5002.msi /qn -Wait
+
 Install-Product node ''
 npm config set loglevel error
 npm install -g gulp electron babel-cli
