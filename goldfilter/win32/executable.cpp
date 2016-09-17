@@ -12,5 +12,5 @@ bool Executable::testPermission() const
 
 bool Executable::asRoot() const
 {
-	return true;
+	return false;
 }
