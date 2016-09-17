@@ -5,7 +5,6 @@ import symdest from 'gulp-symdest';
 import replace from 'gulp-replace';
 import zip from 'gulp-vinyl-zip';
 import sequence from 'gulp-sequence';
-import runElectron from "gulp-run-electron";
 import mocha from 'gulp-mocha';
 import preservetime from 'gulp-preservetime';
 import packager from 'electron-packager';
@@ -167,13 +166,13 @@ gulp.task('darwin', ['build'], cb => {
   });
 });
 
-gulp.task('default', ['build'], function() {
+gulp.task('default', ['build'], cb => {
   let env = {
     DRIPCAP_ATTACH: '1'
   };
-  return gulp.src(".build").pipe(runElectron(['--enable-logging'], {
+  exec('electron --enable-logging .build', {
     env: Object.assign(env, process.env)
-  }));
+  }, cb);
 });
 
 gulp.task('build', sequence(
