@@ -1,0 +1,12 @@
+version: 1.0.{build}
+install:
+- ps: choco install jq
+- ps: npm install -g gulp electron babel-cli; $true
+- ps: npm install babel-plugin-add-module-exports babel-plugin-transform-async-to-generator babel-plugin-transform-es2015-modules-commonjs
+- ps: npm install
+notifications:
+- provider: Slack
+  incoming_webhook: https://hooks.slack.com/services/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
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: false
