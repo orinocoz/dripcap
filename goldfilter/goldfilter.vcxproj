@@ -74,7 +74,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\build</OutDir>
     <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(HomePath)\include;$(HomePath);$(SolutionDir)\win32;$(SolutionDir);$(SolutionDir)\src;$(SolutionDir)vendor\WpdPack\Include;$(SolutionDir)vendor\spdlog;$(SolutionDir)vendor\v8pp;$(SolutionDir)vendor\msgpack-c\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(HomePath)\lib;$(SolutionDir)vendor\WpdPack\Lib\x64;$(LibraryPath)</LibraryPath>
@@ -84,7 +84,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)\build\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\build</OutDir>
     <IntDir>build\$(Platform)\$(Configuration)\</IntDir>
     <IncludePath>$(HomePath)\include;$(HomePath);$(SolutionDir)\win32;$(SolutionDir);$(SolutionDir)\src;$(SolutionDir)vendor\WpdPack\Include;$(SolutionDir)vendor\spdlog;$(SolutionDir)vendor\v8pp;$(SolutionDir)vendor\msgpack-c\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(HomePath)\lib;$(SolutionDir)vendor\WpdPack\Lib\x64;$(LibraryPath)</LibraryPath>
