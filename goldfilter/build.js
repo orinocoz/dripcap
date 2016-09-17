@@ -1,7 +1,10 @@
 const childProcess = require('child_process');
 
+var proc;
 if (process.platform === 'win32') {
-  childProcess.execSync('MSBuild goldfilter.sln /t:Rebuild /p:Configuration=Release /m');
+  proc = childProcess.exec('MSBuild goldfilter.sln /t:Rebuild /p:Configuration=Release /m');
 } else {
-  childProcess.execSync('make -j2 NODEBUG=true');
+  proc = childProcess.exec('make -j2 NODEBUG=true');
 }
+proc.stderr.pipe(process.stderr);
+proc.stdout.pipe(process.stdout);
