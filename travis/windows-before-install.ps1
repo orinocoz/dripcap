@@ -1,8 +1,10 @@
 choco install jq curl
 
-$url = curl.exe -s -S -k https://api.github.com/repos/dripcap/libv8/releases | jq -r '(.[0].assets[] | select(.name == \"v8-windows-amd64.zip\")).browser_download_url'
+# $url = curl.exe -s -S -k https://api.github.com/repos/dripcap/libv8/releases | jq -r '(.[0].assets[] | select(.name == \"v8-windows-amd64.zip\")).browser_download_url'
+$url = "https://github.com/dripcap/libv8/releases/download/4.8.196/v8-windows-amd64.zip"
 curl.exe -s -S -k -L -O $url
-$url = curl.exe -s -S -k https://api.github.com/repos/dripcap/librocksdb/releases | jq -r '(.[0].assets[] | select(.name == \"rocksdb-windows-amd64.zip\")).browser_download_url'
+# $url = curl.exe -s -S -k https://api.github.com/repos/dripcap/librocksdb/releases | jq -r '(.[0].assets[] | select(.name == \"rocksdb-windows-amd64.zip\")).browser_download_url'
+$url = "https://github.com/dripcap/librocksdb/releases/download/4.9/rocksdb-windows-amd64.zip"
 curl.exe -s -S -k -L -O $url
 
 Expand-Archive -Path .\v8-windows-amd64.zip -DestinationPath $env:HOMEPATH -Force
