@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
-const homePath = path.join(process.env['HOME'], '/.dripcap');
 
+const homePath = path.join(process.env[process.platform === 'win32' ? 'HOMEPATH' : 'HOME'], '/.dripcap');
 const pkg = JSON.parse(fs.readFileSync(__dirname + '/../../package.json'));
 
 export default {
