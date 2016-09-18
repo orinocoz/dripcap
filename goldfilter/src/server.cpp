@@ -186,6 +186,8 @@ Server::Server(const std::string &sock, const std::string &tmp)
 
 #ifndef NOWINPCAP
     d->pcap.reset(new Pcap());
+#else
+	d->pcap.reset(new PcapDummy());
 #endif
 
     d->server.handle("exit", [this](const msgpack::object &arg, ReplyInterface &reply) {

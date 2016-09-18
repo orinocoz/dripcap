@@ -36,6 +36,12 @@ PcapDummy::Private::~Private()
 {
 }
 
+PcapDummy::PcapDummy()
+	: d(new Private())
+{
+
+}
+
 PcapDummy::PcapDummy(const msgpack::object &obj)
     : d(new Private())
 {
