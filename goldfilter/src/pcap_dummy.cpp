@@ -43,7 +43,7 @@ PcapDummy::PcapDummy()
 }
 
 PcapDummy::PcapDummy(const msgpack::object &obj)
-    : d(new Private())
+    : PcapDummy()
 {
     const auto &map = obj.as<std::unordered_map<std::string, msgpack::object>>();
     const auto &packets = map.find("packets");
