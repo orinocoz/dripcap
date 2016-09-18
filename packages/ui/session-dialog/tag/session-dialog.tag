@@ -4,7 +4,7 @@
     <h2>New session</h2>
     <p>
       <select name="interface">
-        <option each={ parent.interfaceList } if={ link===1 } value={ name }>{ name }</option>
+        <option each={ parent.interfaceList } if={ link===1 } value={ encodeURI(name) }>{ name }</option>
       </select>
     </p>
     <p>
@@ -44,7 +44,7 @@
     };
 
     this.start = () => {
-      let ifs = $(this.tags['modal-dialog'].interface).val();
+      let ifs = decodeURI($(this.tags['modal-dialog'].interface).val());
       let filter = $(this.tags['modal-dialog'].filter).val();
       let promisc = $(this.tags['modal-dialog'].promisc).prop('checked');
       let snaplen = Profile.getConfig('snaplen');
