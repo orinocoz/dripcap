@@ -48,10 +48,10 @@ export default class PackageInterface extends PubSub {
 
     let packages = {};
     for (let p of paths) {
-      if (!p.includes('/node_modules/')) {
+      if (!p.split(path.sep).includes('node_modules')) {
         let pkg = new Package(p, this.parent.profile);
         let loaded = packages[pkg.name];
-        if (loaded == null || pkg.path.startsWith(config.userPackagePath)) {
+        if (loaded == null || path.normalize(pkg.path).startsWith(path.normalize(config.userPackagePath))) {
           packages[pkg.name] = pkg;
         }
       }
