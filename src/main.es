@@ -89,7 +89,7 @@ app.on('ready', function() {
   if (process.platform === 'darwin') {
     dripcap.checkForUpdates();
   }
-  if (process.platform === 'win32') {
+  if (process.platform === 'win32' && process.env['DRIPCAP_UI_TEST'] == null) {
     let wpcap = false;
     for (let dir of process.env.Path.split(';')) {
       try {
