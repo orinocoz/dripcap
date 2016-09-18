@@ -11,6 +11,6 @@ Expand-Archive -Path .\rocksdb-windows-amd64.zip -DestinationPath $env:HOMEPATH 
 $env:NOWINPCAP = "1"
 Install-Product node ''
 npm config set loglevel error
-npm install -g gulp electron babel-cli
-npm install babel-plugin-add-module-exports babel-plugin-transform-async-to-generator babel-plugin-transform-es2015-modules-commonjs
-npm install
+npm install --depth 0 -g gulp electron babel-cli
+npm install --depth 0 babel-plugin-add-module-exports babel-plugin-transform-async-to-generator babel-plugin-transform-es2015-modules-commonjs
+npm install --depth 0
