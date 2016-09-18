@@ -3,11 +3,14 @@ import {
 } from 'electron';
 import updater from './updater';
 import {
-  dialog
+  dialog,
+  shell
 } from 'electron';
 import {
   BrowserWindow
 } from 'electron';
+import path from 'path';
+import fs from 'fs';
 import mkpath from 'mkpath';
 import config from 'dripcap/config';
 import GoldFilter from 'goldfilter';
@@ -85,6 +88,27 @@ app.on('window-all-closed', () => app.quit());
 app.on('ready', function() {
   if (process.platform === 'darwin') {
     dripcap.checkForUpdates();
+  }
+  if (process.platform === 'win32') {
+    let wpcap = false;
+    for (let dir of process.env.Path.split(';')) {
+      try {
+        fs.accessSync(path.join(dir, 'wpcap.dll'));
+        wpcap = true;
+        break;
+      } catch (e) {}
+    }
+    if (!wpcap) {
+      let button = dialog.showMessageBox({
+        title: "WinPcap required",
+        message: "Dripcap depends on WinPcap.\nPlease install WinPcap on your system.",
+        buttons: ["Download WinPcap", "Quit"]
+      });
+      if (button === 0) {
+        shell.openExternal('https://www.winpcap.org/install/');
+      }
+      app.quit();
+    }
   }
   return dripcap.newWindow();
 });
