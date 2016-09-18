@@ -9,7 +9,7 @@ function globalPaths() {
     visitor: {
       Program: {
         exit: function(p) {
-          let modulePath = path.resolve(__dirname, '..');
+          let modulePath = path.resolve(__dirname, '..').split(path.sep).join('/');
           let code = `require('module').globalPaths.push('${modulePath}');`;
           let node = babelTemplate(code)();
           p.unshiftContainer('body', [node]);
