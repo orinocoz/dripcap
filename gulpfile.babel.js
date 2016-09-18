@@ -169,6 +169,30 @@ gulp.task('darwin', ['build'], cb => {
   });
 });
 
+gulp.task('win32', ['build'], cb => {
+  let options = {
+    dir: __dirname + '/.build',
+    version: pkg.devDependencies.electron,
+    out: __dirname + '/.builtapp',
+    platform: 'win32',
+    icon: __dirname + '/images/dripcap.ico',
+    win32metadata: {
+      CompanyName: 'socket.moe',
+      FileDescription: '☕️ Caffeinated Packet Analyzer',
+      ProductName: 'Dripcap'
+    }
+  };
+  return new Promise((res, rej) => {
+    packager(options, (err, appPaths) => {
+      if (err != null) {
+        rej(err);
+      } else {
+        res(appPaths);
+      }
+    });
+  });
+});
+
 gulp.task('default', ['build'], cb => {
   let env = {
     DRIPCAP_ATTACH: '1'

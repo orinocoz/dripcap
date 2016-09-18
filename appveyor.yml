@@ -6,6 +6,22 @@ build_script:
 test_script:
 - .build\node_modules\goldfilter\build\goldfilter.exe --test-perm
 - ps: gulp mocha
+before_deploy:
+- ps: gulp win32
+- ps: mv .builtapp\Dripcap-win32-x64 .builtapp\Dripcap
+- ps: Compress-Archive -Path .builtapp\Dripcap -DestinationPath .\dripcap-windows-amd64.zip
+artifacts:
+- path: dripcap-windows-amd64.zip
+deploy:
+  release: $(APPVEYOR_REPO_TAG_NAME)
+  provider: GitHub
+  auth_token:
+    secure: 5xfEThlejgLcJhJS3rNfbbvFPDyuRy+wVgC0/KrbMiWycAYQej7GhAbCVvSneLoT
+  artifact: dripcap-windows-amd64.zip
+  draft: false
+  prerelease: false
+  on:
+    appveyor_repo_tag: true
 notifications:
 - provider: Slack
   incoming_webhook: https://hooks.slack.com/services/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
