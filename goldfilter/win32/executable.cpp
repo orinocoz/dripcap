@@ -2,15 +2,15 @@
 
 std::string Executable::path() const
 {
-    return "";
+	return "";
 }
 
 bool Executable::testPermission() const
 {
-    return true;
+	return true;
 }
 
-bool Executable::grantPermission()
+bool Executable::asRoot() const
 {
-    return true;
+	return false;
 }

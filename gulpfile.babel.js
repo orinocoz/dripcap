@@ -18,6 +18,9 @@ import {
 import jasmine from 'gulp-jasmine';
 import npm from 'npm';
 import pkg from './package.json';
+import EventEmitter from 'events';
+
+EventEmitter.defaultMaxListeners = 2048;
 
 gulp.task('mocha', () => {
   return gulp.src(['uispec/*.es', '**/uispec/*.es'], {

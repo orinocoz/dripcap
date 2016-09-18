@@ -30,11 +30,11 @@ BufferStream::Private::Private(const std::string &id)
     if (id.empty()) {
         std::random_device rd;
         std::mt19937_64 gen(rd());
-        std::uniform_int_distribution<unsigned char> dist;
+        std::uniform_int_distribution<unsigned int> dist;
 
         std::stringstream idStream;
         for (size_t i = 0; i < 18; ++i) {
-            idStream << std::hex << std::setfill('0') << std::setw(2) << static_cast<int>(dist(gen));
+            idStream << std::hex << std::setfill('0') << std::setw(2) << (dist(gen) % (UINT8_MAX + 1));
         }
         this->id = idStream.str();
     }

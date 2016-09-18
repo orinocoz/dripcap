@@ -7,6 +7,7 @@
 class PcapDummy : public PcapInterface
 {
   public:
+	PcapDummy();
     PcapDummy(const msgpack::object &obj);
     virtual ~PcapDummy();
     void handle(const PcapCallback &func) override;
