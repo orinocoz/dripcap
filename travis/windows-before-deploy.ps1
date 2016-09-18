@@ -1,4 +1,4 @@
-if($env:APPVEYOR_REPO_TAG_NAME -ne ""){
+if($env:APPVEYOR_REPO_TAG_NAME -ne $null){
   $env:NOWINPCAP = ""
   Remove-Item node_modules -Recurse
   Remove-Item .build -Recurse
