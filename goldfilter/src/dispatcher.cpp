@@ -365,7 +365,7 @@ Dispatcher::Dispatcher(const std::string &path)
                                     std::string err;
                                     PacketStreamList streams;
                                     std::vector<PacketPtr> packets;
-                                    if (!script->analyzeStream(pkt, pair.first, net->data, &zone, &streams, &packets, &err)) {
+                                    if (!script->analyzeStream(pkt, pair.first, net->data, &streams, &packets, &err)) {
                                         spd->error("{}", err);
                                     }
                                     streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());
@@ -386,7 +386,7 @@ Dispatcher::Dispatcher(const std::string &path)
                                 std::string err;
                                 PacketStreamList streams;
                                 std::vector<PacketPtr> packets;
-                                if (!script->analyzeStream(pkt, pair.first, net->data, &zone, &streams, &packets, &err)) {
+                                if (!script->analyzeStream(pkt, pair.first, net->data, &streams, &packets, &err)) {
                                     spd->error("{}", err);
                                 }
                                 streamList[pair.first].insert(streamList[pair.first].end(), streams.begin(), streams.end());

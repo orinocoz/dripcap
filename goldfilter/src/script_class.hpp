@@ -30,8 +30,7 @@ class ScriptClass final
     bool loadModule(const std::string &name, const std::string &source, std::string *error = nullptr);
     bool analyze(const PacketPtr &packet, const LayerPtr &parentLayer, std::string *error = nullptr) const;
     bool analyzeStream(const PacketPtr &packet, const LayerPtr &parentLayer, const msgpack::object &data,
-                       msgpack::zone *zone, PacketStreamList *straems,
-                       std::vector<PacketPtr> *packets, std::string *error = nullptr) const;
+                       PacketStreamList *straems, std::vector<PacketPtr> *packets, std::string *error = nullptr) const;
     bool filter(const PacketPtr &packet) const;
 
   public:

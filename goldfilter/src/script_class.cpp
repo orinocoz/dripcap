@@ -1029,7 +1029,7 @@ bool ScriptClass::analyze(const PacketPtr &packet, const LayerPtr &parentLayer, 
     return true;
 }
 
-bool ScriptClass::analyzeStream(const PacketPtr &packet, const LayerPtr &parentLayer, const msgpack::object &data, msgpack::zone *zone,
+bool ScriptClass::analyzeStream(const PacketPtr &packet, const LayerPtr &parentLayer, const msgpack::object &data,
                                 PacketStreamList *straems, std::vector<PacketPtr> *packets, std::string *error) const
 {
     Isolate::Scope isolate_scope(d->isolate);
