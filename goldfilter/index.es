@@ -11,6 +11,8 @@ import tmp from 'tmp';
 import {
   rollup
 } from 'rollup';
+import nodeResolve from 'rollup-plugin-node-resolve';
+import commonjs from 'rollup-plugin-commonjs';
 import esprima from 'esprima';
 import LRU from 'lru-cache';
 import BufferStream from './stream';
@@ -233,13 +235,23 @@ export default class GoldFilter extends EventEmitter {
         let data = hash.read();
         if (data != null) {
           let cachePath = path.join(this.tmpDir, data.toString('hex') + '.dripcap.es');
+          let external = (id) => {
+            return id.startsWith('dripcap/') || id === 'dripcap';
+          }
           fs.readFile(cachePath, 'utf8', (err, data) => {
             if (err == null) {
               res(data);
             } else {
               rollup({
                 entry: jsPath,
-                onwarn: () => {}
+                external: external,
+                plugins: [
+                  nodeResolve({ jsnext: true, main: true }),
+                  commonjs()
+                ],
+                onwarn: (e) => {
+                  console.log(e)
+                }
               }).then((bundle) => {
                 const result = bundle.generate({
                   format: 'es'
@@ -250,7 +262,14 @@ export default class GoldFilter extends EventEmitter {
                     if (err) throw err;
                     rollup({
                       entry: js,
-                      onwarn: () => {}
+                      external: external,
+                      plugins: [
+                        nodeResolve({ jsnext: true, main: true }),
+                        commonjs()
+                      ],
+                      onwarn: (e) => {
+                        console.log(e)
+                      }
                     }).then(res, rej);
                   });
                 });
