@@ -246,7 +246,7 @@ export default class GoldFilter extends EventEmitter {
                 entry: jsPath,
                 external: external,
                 plugins: [
-                  nodeResolve({ jsnext: true, main: true }),
+                  nodeResolve({ jsnext: true, main: true, preferBuiltins: false }),
                   commonjs()
                 ],
                 onwarn: (e) => {
@@ -264,7 +264,7 @@ export default class GoldFilter extends EventEmitter {
                       entry: js,
                       external: external,
                       plugins: [
-                        nodeResolve({ jsnext: true, main: true }),
+                        nodeResolve({ jsnext: true, main: true, preferBuiltins: false }),
                         commonjs()
                       ],
                       onwarn: (e) => {
