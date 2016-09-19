@@ -726,7 +726,8 @@ ScriptClass::Private::Private(rocksdb::DB *db, const msgpack::object &options)
         pkt->layers[layer->ns] = layer;
 
         args.GetReturnValue().Set(obj);
-    }, streamLayer.js_function_template()->GetFunction());
+    },
+                                                                    streamLayer.js_function_template()->GetFunction());
     dripcapModule.set("StreamLayer", streamLayerFunc);
 
     v8pp::class_<BufferStream> bufferStream(isolate);
@@ -744,7 +745,8 @@ ScriptClass::Private::Private(rocksdb::DB *db, const msgpack::object &options)
         ScriptClass::Private *d = static_cast<ScriptClass::Private *>(external->Value());
         bs->setDB(d->db);
         args.GetReturnValue().Set(obj);
-    }, bufferStream.js_function_template()->GetFunction());
+    },
+                                                                     bufferStream.js_function_template()->GetFunction());
     dripcapModule.set("BufferStream", bufferStreamFunc);
 
     Local<FunctionTemplate> layerFunc = FunctionTemplate::New(isolate, [](FunctionCallbackInfo<Value> const &args) {
@@ -756,7 +758,8 @@ ScriptClass::Private::Private(rocksdb::DB *db, const msgpack::object &options)
         obj->ForceSet(v8pp::to_v8(isolate, "streams"), Array::New(isolate), PropertyAttribute(ReadOnly | DontDelete));
 
         args.GetReturnValue().Set(obj);
-    }, layer.js_function_template()->GetFunction());
+    },
+                                                              layer.js_function_template()->GetFunction());
     dripcapModule.set("Layer", layerFunc);
 
     dripcap = UniquePersistent<Object>(isolate, dripcapModule.new_instance());
@@ -817,13 +820,35 @@ ScriptClass::Private::Private(rocksdb::DB *db, const msgpack::object &options)
             std::string err("Cannot find module '");
             args.GetReturnValue().Set(v8pp::throw_ex(isolate, (err + name + "'").c_str()));
         }
-    }, External::New(isolate, this));
+    },
+                                                      External::New(isolate, this));
     require = UniquePersistent<FunctionTemplate>(isolate, f);
 
     isolate->GetCurrentContext()->Global()->Set(
         v8pp::to_v8(isolate, "require"), f->GetFunction());
 
     v8pp::module console(isolate);
+    console.set("log", [](FunctionCallbackInfo<Value> const &args) {
+        auto spd = spdlog::get("server");
+        for (int i = 0; i < args.Length(); ++i) {
+            String::Utf8Value data(args[i]);
+            spd->debug("{}", *data);
+        }
+    });
+    console.set("info", [](FunctionCallbackInfo<Value> const &args) {
+        auto spd = spdlog::get("server");
+        for (int i = 0; i < args.Length(); ++i) {
+            String::Utf8Value data(args[i]);
+            spd->info("{}", *data);
+        }
+    });
+    console.set("warn", [](FunctionCallbackInfo<Value> const &args) {
+        auto spd = spdlog::get("server");
+        for (int i = 0; i < args.Length(); ++i) {
+            String::Utf8Value data(args[i]);
+            spd->warn("{}", *data);
+        }
+    });
     console.set("error", [](FunctionCallbackInfo<Value> const &args) {
         auto spd = spdlog::get("server");
         for (int i = 0; i < args.Length(); ++i) {
@@ -832,7 +857,7 @@ ScriptClass::Private::Private(rocksdb::DB *db, const msgpack::object &options)
         }
     });
     isolate->GetCurrentContext()->Global()->Set(
-        v8::String::NewFromUtf8(isolate, "server"), console.new_instance());
+        v8::String::NewFromUtf8(isolate, "console"), console.new_instance());
 
     isolate->GetCurrentContext()->SetEmbedderData(1, External::New(isolate, this));
 }

@@ -5,10 +5,10 @@
 #include "packet_stream.hpp"
 #include "script_class.hpp"
 #include <condition_variable>
-#include <rocksdb/comparator.h>
-#include <rocksdb/db.h>
 #include <mutex>
 #include <queue>
+#include <rocksdb/comparator.h>
+#include <rocksdb/db.h>
 #include <spdlog/spdlog.h>
 #include <sstream>
 #include <thread>

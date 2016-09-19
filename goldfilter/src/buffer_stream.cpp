@@ -1,7 +1,7 @@
 #include "buffer_stream.hpp"
 #include "buffer.hpp"
-#include <rocksdb/db.h>
 #include <random>
+#include <rocksdb/db.h>
 #include <sstream>
 #include <v8pp/class.hpp>
 

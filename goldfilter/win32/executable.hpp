@@ -5,10 +5,10 @@
 
 class Executable final : public ExecutableInterface
 {
-public:
-	std::string path() const override;
-	bool testPermission() const override;
-	bool asRoot() const override;
+  public:
+    std::string path() const override;
+    bool testPermission() const override;
+    bool asRoot() const override;
 };
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef NOWINPCAP
 
 #ifdef _WIN32
-#pragma comment(lib,"wpcap.lib")
+#pragma comment(lib, "wpcap.lib")
 #endif
 
 #include "pcap.hpp"
