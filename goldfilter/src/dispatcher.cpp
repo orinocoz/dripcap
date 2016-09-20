@@ -4,6 +4,7 @@
 #include "packet.hpp"
 #include "packet_stream.hpp"
 #include "script_class.hpp"
+#include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <queue>
@@ -18,6 +19,7 @@ struct Dispatcher::Stream {
     bool loaded = false;
     bool started = false;
     std::vector<ScriptClassPtr> dissectors;
+    std::chrono::time_point<std::chrono::system_clock> lastUsed = std::chrono::system_clock::now();
 };
 
 class Dispatcher::Private
@@ -48,10 +50,12 @@ class Dispatcher::Private
     std::thread streamThread;
 
     std::unique_ptr<rocksdb::DB> db;
+
+    std::chrono::time_point<std::chrono::system_clock> streamDeadline;
 };
 
 Dispatcher::Private::Private(const std::string &path)
-    : packets(path + "/packets")
+    : packets(path + "/packets"), streamDeadline(std::chrono::system_clock::now())
 {
     rocksdb::DB *rocksdb = nullptr;
     rocksdb::Options options;
@@ -340,6 +344,7 @@ Dispatcher::Dispatcher(const std::string &path)
                 for (const auto &pair : list) {
                     for (const PacketStreamPtr &net : pair.second) {
                         Stream &stream = streamCache[net->ns][net->id];
+                        stream.lastUsed = std::chrono::system_clock::now();
                         if (!stream.loaded) {
                             stream.loaded = true;
                             lock.lock();
@@ -397,6 +402,26 @@ Dispatcher::Dispatcher(const std::string &path)
                         }
                     }
                 }
+            }
+
+            int min = std::chrono::duration_cast<std::chrono::minutes>(std::chrono::system_clock::now() - d->streamDeadline).count();
+            if (min > 0) {
+                for (auto it = streamCache.begin(); it != streamCache.end();) {
+                    auto &cache = streamCache[it->first];
+                    for (auto cacheIt = cache.begin(); cacheIt != cache.end();) {
+                        if (cacheIt->second.lastUsed < d->streamDeadline) {
+                            cacheIt = cache.erase(cacheIt);
+                        } else {
+                            ++cacheIt;
+                        }
+                    }
+                    if (it->second.empty()) {
+                        it = streamCache.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+                d->streamDeadline = std::chrono::system_clock::now();
             }
 
             lock.lock();
