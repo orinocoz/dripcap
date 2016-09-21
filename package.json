@@ -1,7 +1,7 @@
 {
   "name": "dripcap",
   "productName": "Dripcap",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "☕️ Caffeinated packet analyzer",
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
     "esprima": "^3.0.0",
     "font-awesome": "^4.6.3",
     "geit": "0.0.7",
-    "glob": "^7.0.6",
+    "glob": "^7.1.0",
     "goldfilter": "file:./goldfilter",
     "jquery": "^3.1.0",
     "less": "^2.7.1",
@@ -35,7 +35,7 @@
     "node-notifier": "^4.6.1",
     "npm": "^3.10.7",
     "request": "^2.75.0",
-    "riot": "2.6.1",
+    "riot": "2.6.2",
     "rmdir": "^1.2.0",
     "rollup-plugin-commonjs": "^5.0.4",
     "rollup-plugin-node-resolve": "^2.0.0",
@@ -58,7 +58,7 @@
     "gulp-symdest": "^1.1.0",
     "gulp-vinyl-zip": "^1.4.0",
     "rimraf": "^2.5.4",
-    "spectron": "^3.3.0"
+    "spectron": "^3.4.0"
   },
   "babel": {
     "plugins": [
