@@ -43,6 +43,9 @@
     <div class="container"><i class="fa fa-cog fa-spin"></i></div>
   </div>
   <script>
+    Object.defineProperty(document, 'createElementNS', {
+      value: document.createElementNS
+    });
     process.nextTick(function() {
       require('dripcap/render');
     });
