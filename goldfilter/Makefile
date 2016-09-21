@@ -8,9 +8,9 @@ INCLUDES += -Ilinux -I/usr/local -Ivendor/libv8 -Ivendor/libv8/include
 SOURCE += $(wildcard linux/*.cpp)
 LDFLAGS := -Lvendor/libv8/lib -Wl,-dn,-lpcap,-lcap,-lrocksdb,-lsnappy,-lbz2,-lz,-lv8_libplatform,-lv8_base,-lv8_libbase,-lv8_snapshot,-licui18n,-licuuc,-licudata,-lrt,-dy,-lpthread,-ldl
 else
-INCLUDES += -Idarwin -I/usr/local
+INCLUDES += -Idarwin -I/usr/local -I/usr/local/include
 SOURCE += $(wildcard darwin/*.cpp)
-LDFLAGS := -lpcap -lv8_base -lv8_libbase -lv8_snapshot -lv8_libplatform /usr/local/opt/rocksdb/lib/librocksdb.a /usr/local/opt/snappy/lib/libsnappy.a  /usr/local/opt/lz4/lib/liblz4.a -lbz2 -lz
+LDFLAGS := -L/usr/local/lib -lpcap -lv8_base -lv8_libbase -lv8_snapshot -lv8_libplatform /usr/local/opt/rocksdb/lib/librocksdb.a /usr/local/opt/snappy/lib/libsnappy.a  /usr/local/opt/lz4/lib/liblz4.a -lbz2 -lz
 endif
 
 OBJS := $(patsubst %.cpp,%.o, $(SOURCE))
