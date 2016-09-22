@@ -23,7 +23,7 @@ import EventEmitter from 'events';
 EventEmitter.defaultMaxListeners = 2048;
 
 gulp.task('mocha', () => {
-  return gulp.src(['uispec/*.es', '**/uispec/*.es'], {
+  gulp.src(['uispec/*.es', '**/uispec/*.es'], {
       read: false
     })
     .pipe(mocha({
@@ -32,7 +32,13 @@ gulp.task('mocha', () => {
       timeout: 30000,
       slow: 10000,
       retries: 3
-    }));
+    }))
+    .once('error', () => {
+      process.exit(1);
+    })
+    .once('end', () => {
+      process.exit();
+    });
 });
 
 gulp.task('babel', () =>
