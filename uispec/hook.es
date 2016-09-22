@@ -9,7 +9,8 @@ beforeEach(function() {
     args: ['--enable-logging', __dirname + '/../.build'],
     env: {
       'DRIPCAP_UI_TEST': __dirname + '/test'
-    }
+    },
+    connectionRetryTimeout: 5000
   });
   return this.app.start();
 });
