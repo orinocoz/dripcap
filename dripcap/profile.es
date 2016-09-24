@@ -71,7 +71,7 @@ export default class Profile {
     this._config = new Category(path.join(this.path, 'config.json'), {
       snaplen: 1600,
       theme: 'default',
-      "package-registry": 'socket.moe',
+      "package-registry": 'dripcap.org',
       startupDialog: true
     });
 

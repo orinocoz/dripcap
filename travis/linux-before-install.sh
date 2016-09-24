@@ -6,7 +6,7 @@ nvm use --delete-prefix $NODE_VERSION
 
 export CC="gcc-5"
 export CXX="g++-5"
-wget https://socket.moe/storage/libpcap-1.7.4.tar.gz
+wget https://dripcap.org/storage/libpcap-1.7.4.tar.gz
 tar xzf libpcap-1.7.4.tar.gz
 (cd libpcap-1.7.4 && ./configure -q --enable-shared=no && make -j2 && sudo make install)
 

@@ -184,7 +184,7 @@ gulp.task('win32', ['build'], cb => {
     arch: 'x64',
     icon: __dirname + '/images/dripcap.ico',
     win32metadata: {
-      CompanyName: 'socket.moe',
+      CompanyName: 'dripcap.org',
       FileDescription: '☕️ Caffeinated Packet Analyzer',
       ProductName: 'Dripcap'
     }
